@@ -1,26 +1,176 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: #1B2D4F;
+  --color-primary-hover: #2A4270;
+  --color-secondary: #3B5998;
+  --color-section-alt: #F8F9FA;
+  --color-body-text: #1A1A1A;
+  --color-secondary-text: #6B7280;
+  --color-border: #E5E7EB;
+  --color-error: #DC2626;
+  --color-success: #16A34A;
+
+  --font-sans: var(--font-inter), system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #ffffff;
+  color: #1A1A1A;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Focus styles – always visible */
+:focus-visible {
+  outline: 2px solid #1B2D4F;
+  outline-offset: 2px;
+}
+
+/* Primary CTA button */
+.btn-primary {
+  display: inline-block;
+  background-color: #1B2D4F;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 14px 28px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background-color: #2A4270;
+}
+
+/* Secondary CTA button */
+.btn-secondary {
+  display: inline-block;
+  background-color: transparent;
+  color: #1B2D4F;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 14px 28px;
+  border-radius: 6px;
+  border: 1.5px solid #1B2D4F;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus-visible {
+  background-color: #1B2D4F;
+  color: #ffffff;
+}
+
+/* Navbar compact CTA */
+.btn-nav {
+  display: inline-block;
+  background-color: #1B2D4F;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-nav:hover,
+.btn-nav:focus-visible {
+  background-color: #2A4270;
+}
+
+/* Feature cards */
+.feature-card {
+  background-color: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+/* Form inputs */
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #1A1A1A;
+  background-color: #ffffff;
+  transition: border-color 0.15s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #1B2D4F;
+  box-shadow: 0 0 0 2px rgba(27, 45, 79, 0.15);
+}
+
+.form-input.error {
+  border-color: #DC2626;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 6px;
+}
+
+.form-error {
+  color: #DC2626;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* Mobile responsive overrides */
+@media (max-width: 767px) {
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    display: block;
+    text-align: center;
+  }
+
+  section {
+    padding-top: 48px !important;
+    padding-bottom: 48px !important;
+  }
+}
+
+/* Honeypot – visually hidden but accessible */
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
