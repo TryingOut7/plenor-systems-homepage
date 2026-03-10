@@ -10,13 +10,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Incorrect password' }, { status: 401 });
   }
 
-  const response = NextResponse.json({ ok: true });
+  const response = NextResponse.json({ ok: true, next: next || '/' });
   response.cookies.set('staging_auth', password, {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
-    // expires when browser closes (session cookie) — fine for staging
   });
 
-  return NextResponse.json({ ok: true, next: next || '/' });
+  return response;
 }
