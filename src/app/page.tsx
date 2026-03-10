@@ -27,26 +27,29 @@ export default function HomePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify([
-            {
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              name: 'Plenor Systems',
-              url: 'https://plenorsystems.com',
-              sameAs: ['https://www.linkedin.com/company/plenorsystems'],
-              contactPoint: {
-                '@type': 'ContactPoint',
-                email: 'hello@plenorsystems.com',
-                contactType: 'customer service',
-              },
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'Plenor Systems',
+            url: 'https://plenorsystems.com',
+            sameAs: ['https://www.linkedin.com/company/plenorsystems'],
+            contactPoint: {
+              '@type': 'ContactPoint',
+              email: 'hello@plenorsystems.com',
+              contactType: 'customer service',
             },
-            {
-              '@context': 'https://schema.org',
-              '@type': 'WebSite',
-              name: 'Plenor Systems',
-              url: 'https://plenorsystems.com',
-            },
-          ]),
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'Plenor Systems',
+            url: 'https://plenorsystems.com',
+          }),
         }}
       />
 
