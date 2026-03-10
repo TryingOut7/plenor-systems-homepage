@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   title: 'Services — Testing & QA and Launch & Go-to-Market',
   description:
     'Plenor Systems covers two framework stages: Testing & QA and Launch & Go-to-Market. Learn what each stage covers, who it helps, and why a structured framework matters.',
-  alternates: { canonical: 'https://plenorsystems.com/services' },
+  alternates: { canonical: 'https://plenor.ai/services' },
   openGraph: {
     title: 'Services — Testing & QA and Launch & Go-to-Market | Plenor Systems',
     description:
       'Plenor Systems covers two framework stages: Testing & QA and Launch & Go-to-Market. Learn what each stage covers, who it helps, and why a structured framework matters.',
-    url: 'https://plenorsystems.com/services',
+    url: 'https://plenor.ai/services',
   },
 };
 
@@ -32,7 +32,7 @@ export default function ServicesPage() {
             provider: {
               '@type': 'Organization',
               name: 'Plenor Systems',
-              url: 'https://plenorsystems.com',
+              url: 'https://plenor.ai',
             },
             description:
               'A structured framework covering Testing & QA and Launch & Go-to-Market stages of product development.',

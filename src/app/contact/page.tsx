@@ -7,12 +7,12 @@ export const metadata: Metadata = {
   title: 'Contact — Get the Guide or Send an Inquiry',
   description:
     'Download the free guide or send a direct inquiry to Plenor Systems. Two options, no commitment required.',
-  alternates: { canonical: 'https://plenorsystems.com/contact' },
+  alternates: { canonical: 'https://plenor.ai/contact' },
   openGraph: {
     title: 'Contact Plenor Systems',
     description:
       'Download the free guide or send a direct inquiry to Plenor Systems. Two options, no commitment required.',
-    url: 'https://plenorsystems.com/contact',
+    url: 'https://plenor.ai/contact',
   },
 };
 
@@ -119,14 +119,14 @@ export default function ContactPage() {
           </h2>
           <p style={{ ...bodyText, marginBottom: '8px' }}>
             <a
-              href="mailto:hello@plenorsystems.com"
+              href="mailto:hello@plenor.ai"
               style={{ color: '#1B2D4F', fontWeight: 600, textDecoration: 'underline' }}
             >
-              hello@plenorsystems.com
+              hello@plenor.ai
             </a>
           </p>
           <a
-            href="https://www.linkedin.com/company/plenorsystems"
+            href="https://www.linkedin.com/company/plenor-ai"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: '#6B7280', fontSize: '14px', textDecoration: 'underline' }}

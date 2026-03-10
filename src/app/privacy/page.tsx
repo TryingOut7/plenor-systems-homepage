@@ -5,10 +5,10 @@ export const metadata: Metadata = {
   title: 'Privacy Policy',
   description:
     'Privacy Policy for Plenor Systems — how we collect, use, and protect your data.',
-  alternates: { canonical: 'https://plenorsystems.com/privacy' },
+  alternates: { canonical: 'https://plenor.ai/privacy' },
   openGraph: {
     title: 'Privacy Policy | Plenor Systems',
-    url: 'https://plenorsystems.com/privacy',
+    url: 'https://plenor.ai/privacy',
   },
   robots: { index: false, follow: false },
 };
@@ -104,10 +104,10 @@ export default function PrivacyPage() {
         <p style={bodyText}>
           For data-related queries, contact us at{' '}
           <a
-            href="mailto:hello@plenorsystems.com"
+            href="mailto:hello@plenor.ai"
             style={{ color: '#1B2D4F', textDecoration: 'underline' }}
           >
-            hello@plenorsystems.com
+            hello@plenor.ai
           </a>
           .
         </p>

@@ -15,7 +15,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://plenorsystems.com'),
+  metadataBase: new URL('https://plenor.ai'),
   title: {
     default: 'Plenor Systems — Testing & QA and Launch & Go-to-Market Framework',
     template: '%s | Plenor Systems',
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@plenorsystems',
+    site: '@plenor_ai',
   },
   robots: {
     index: true,

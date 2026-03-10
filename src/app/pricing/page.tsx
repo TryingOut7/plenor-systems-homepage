@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   title: 'Pricing — Let\'s find the right fit for your team',
   description:
     'Plenor Systems pricing is tailored to your team size and scope. Get in touch to discuss your product and receive a proposal.',
-  alternates: { canonical: 'https://plenorsystems.com/pricing' },
+  alternates: { canonical: 'https://plenor.ai/pricing' },
   openGraph: {
     title: 'Pricing | Plenor Systems',
     description:
       'Plenor Systems pricing is tailored to your team size and scope. Get in touch to discuss your product and receive a proposal.',
-    url: 'https://plenorsystems.com/pricing',
+    url: 'https://plenor.ai/pricing',
   },
 };
 

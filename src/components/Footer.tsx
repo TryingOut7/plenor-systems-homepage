@@ -88,7 +88,7 @@ export default function Footer() {
           {/* LinkedIn */}
           <div>
             <a
-              href="https://www.linkedin.com/company/plenorsystems"
+              href="https://www.linkedin.com/company/plenor-ai"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Plenor Systems on LinkedIn (opens in new tab)"

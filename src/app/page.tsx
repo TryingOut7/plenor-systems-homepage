@@ -6,12 +6,12 @@ export const metadata: Metadata = {
   title: 'Plenor Systems — Testing & QA and Launch & Go-to-Market Framework',
   description:
     'Plenor Systems brings structure to the two most failure-prone stages of product development: Testing & QA and Launch & Go-to-Market.',
-  alternates: { canonical: 'https://plenorsystems.com/' },
+  alternates: { canonical: 'https://plenor.ai/' },
   openGraph: {
     title: 'Plenor Systems — Testing & QA and Launch & Go-to-Market Framework',
     description:
       'Plenor Systems brings structure to the two most failure-prone stages of product development: Testing & QA and Launch & Go-to-Market.',
-    url: 'https://plenorsystems.com/',
+    url: 'https://plenor.ai/',
   },
 };
 
@@ -31,11 +31,11 @@ export default function HomePage() {
             '@context': 'https://schema.org',
             '@type': 'Organization',
             name: 'Plenor Systems',
-            url: 'https://plenorsystems.com',
-            sameAs: ['https://www.linkedin.com/company/plenorsystems'],
+            url: 'https://plenor.ai',
+            sameAs: ['https://www.linkedin.com/company/plenor-ai'],
             contactPoint: {
               '@type': 'ContactPoint',
-              email: 'hello@plenorsystems.com',
+              email: 'hello@plenor.ai',
               contactType: 'customer service',
             },
           }),
@@ -48,7 +48,7 @@ export default function HomePage() {
             '@context': 'https://schema.org',
             '@type': 'WebSite',
             name: 'Plenor Systems',
-            url: 'https://plenorsystems.com',
+            url: 'https://plenor.ai',
           }),
         }}
       />

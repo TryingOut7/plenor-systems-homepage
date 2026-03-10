@@ -7,9 +7,9 @@ function getResend(): Resend {
   return new Resend(key);
 }
 
-const FROM = `${process.env.RESEND_FROM_NAME ?? 'Plenor Systems'} <${process.env.RESEND_FROM_EMAIL ?? 'noreply@plenorsystems.com'}>`;
-const REPLY_TO = process.env.CONTACT_EMAIL ?? 'hello@plenorsystems.com';
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? 'hello@plenorsystems.com';
+const FROM = `${process.env.RESEND_FROM_NAME ?? 'Plenor Systems'} <${process.env.RESEND_FROM_EMAIL ?? 'noreply@plenor.ai'}>`;
+const REPLY_TO = process.env.CONTACT_EMAIL ?? 'hello@plenor.ai';
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? 'hello@plenor.ai';
 const GUIDE_PDF_URL = process.env.GUIDE_PDF_URL ?? '';
 
 // ── Guide delivery email ──────────────────────────────────────────────────────
@@ -37,7 +37,7 @@ export async function sendGuideEmail({
        </p>`
     : `<p style="margin:0 0 16px;color:#DC2626;font-size:14px;">
          <strong>Note:</strong> The guide PDF link has not been configured yet.
-         Please contact hello@plenorsystems.com to receive the guide.
+         Please contact hello@plenor.ai to receive the guide.
        </p>`;
 
   await resend.emails.send({
@@ -86,11 +86,11 @@ function guideEmailHtml({ name, pdfLine }: { name: string; pdfLine: string }) {
           <tr>
             <td style="padding:24px 40px 32px;border-top:1px solid #E5E7EB;margin-top:32px;">
               <p style="margin:0;font-size:13px;color:#6B7280;line-height:1.5;">
-                You received this email because you requested the free guide at plenorsystems.com.
+                You received this email because you requested the free guide at plenor.ai.
                 This is a one-time delivery — you have not been subscribed to any mailing list.
                 <br/>
                 © 2026 Plenor Systems.
-                <a href="https://plenorsystems.com/privacy" style="color:#6B7280;">Privacy Policy</a>
+                <a href="https://plenor.ai/privacy" style="color:#6B7280;">Privacy Policy</a>
               </p>
             </td>
           </tr>
@@ -202,7 +202,7 @@ function inquiryAckHtml({ name }: { name: string }) {
                 mistakes the framework is designed to prevent:
               </p>
               <p style="margin:0 0 24px;">
-                <a href="https://plenorsystems.com/contact#guide"
+                <a href="https://plenor.ai/contact#guide"
                    style="display:inline-block;background:#1B2D4F;color:#ffffff;font-weight:700;
                           font-size:15px;padding:12px 24px;border-radius:6px;text-decoration:none;">
                   Get the free guide
@@ -214,7 +214,7 @@ function inquiryAckHtml({ name }: { name: string }) {
             <td style="padding:24px 40px 32px;border-top:1px solid #E5E7EB;">
               <p style="margin:0;font-size:13px;color:#6B7280;line-height:1.5;">
                 © 2026 Plenor Systems.
-                <a href="https://plenorsystems.com/privacy" style="color:#6B7280;">Privacy Policy</a>
+                <a href="https://plenor.ai/privacy" style="color:#6B7280;">Privacy Policy</a>
               </p>
             </td>
           </tr>

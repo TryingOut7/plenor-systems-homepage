@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   title: 'About — Who We Are and Why We Built This',
   description:
     'Plenor Systems was built to address the two stages of product development most likely to cause failure: Testing & QA and Launch & Go-to-Market.',
-  alternates: { canonical: 'https://plenorsystems.com/about' },
+  alternates: { canonical: 'https://plenor.ai/about' },
   openGraph: {
     title: 'About Plenor Systems',
     description:
       'Plenor Systems was built to address the two stages of product development most likely to cause failure: Testing & QA and Launch & Go-to-Market.',
-    url: 'https://plenorsystems.com/about',
+    url: 'https://plenor.ai/about',
   },
 };
 
