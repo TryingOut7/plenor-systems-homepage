@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Plenor Systems — Homepage
+
+Next.js 16 marketing site for [plenor.ai](https://plenor.ai).
+
+## Stack
+
+- Next.js 16, React 19, TypeScript
+- Tailwind CSS v4 (App Router, `src/` directory)
+- Resend (transactional email)
+- GA4 (analytics, cookie-gated)
+- Supabase (form submission logging)
 
 ## Getting Started
 
-First, run the development server:
+Copy the environment template and fill in your values:
+
+```bash
+cp .env.local .env.local
+```
+
+Then run the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See `.env.local` for all required variables:
 
-## Learn More
+| Variable | Purpose |
+|---|---|
+| `RESEND_API_KEY` | Transactional email sending |
+| `RESEND_FROM_EMAIL` | Sender address (must be verified in Resend) |
+| `CONTACT_EMAIL` | Internal inbox for inquiry notifications |
+| `GUIDE_PDF_URL` | Secure URL for the downloadable guide PDF |
+| `NEXT_PUBLIC_GA4_ID` | GA4 Measurement ID (e.g. `G-XXXXXXXXXX`) |
+| `SUPABASE_URL` | Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-only) |
+| `STAGING_PASSWORD` | Optional — enables password gate on all routes |
 
-To learn more about Next.js, take a look at the following resources:
+## Pages
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Route | Description |
+|---|---|
+| `/` | Home — hero, problem, services overview, guide CTA |
+| `/services` | Services — Testing & QA and Launch & GTM detail |
+| `/pricing` | Pricing — engagement model |
+| `/about` | About — team, mission, focus |
+| `/contact` | Contact — guide form + inquiry form |
+| `/privacy` | Privacy policy |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Build
 
-## Deploy on Vercel
+```bash
+npm run build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Pre-launch Checklist
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [ ] Update founder name, role, and bio (About page)
+- [ ] Verify `plenor.ai` sending domain in Resend dashboard (SPF, DKIM, DMARC)
+- [ ] Set `GUIDE_PDF_URL` to the real PDF storage URL
+- [ ] Set `NEXT_PUBLIC_GA4_ID` to the real GA4 Measurement ID
+- [ ] Set all production env vars in Vercel dashboard
+- [ ] Remove `STAGING_PASSWORD` from production env

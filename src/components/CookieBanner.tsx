@@ -16,7 +16,6 @@ export default function CookieBanner() {
   function accept() {
     localStorage.setItem('plenor_cookie_consent', 'accepted');
     setVisible(false);
-    // Analytics activation hook – will be wired in Step 3
     window.dispatchEvent(new CustomEvent('cookie_consent_accepted'));
   }
 
