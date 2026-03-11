@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Script from 'next/script';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -57,6 +58,7 @@ export default function RootLayout({
           data-cf-beacon='{"token": "d31767bc50f0482fbad1a4719599b494"}'
           strategy="afterInteractive"
         />
+        <SpeedInsights />
       </body>
     </html>
   );
