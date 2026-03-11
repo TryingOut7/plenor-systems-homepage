@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
-import { trackEvent } from './GoogleAnalytics';
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -62,7 +61,6 @@ export default function GuideForm() {
       }
 
       setState('success');
-      trackEvent('guide_form_submit');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       setErrorMessage(msg);

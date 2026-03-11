@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { Suspense } from 'react';
+import Script from 'next/script';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CookieBanner from '@/components/CookieBanner';
 import SkipLink from '@/components/SkipLink';
-import GoogleAnalytics from '@/components/GoogleAnalytics';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -52,9 +51,12 @@ export default function RootLayout({
         </main>
         <Footer />
         <CookieBanner />
-        <Suspense fallback={null}>
-          <GoogleAnalytics />
-        </Suspense>
+        <Script
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "d31767bc50f0482fbad1a4719599b494"}'
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
