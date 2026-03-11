@@ -63,6 +63,4 @@ npm run build
 - [ ] Update founder name, role, and bio (About page)
 - [ ] Verify `plenor.ai` sending domain in Resend dashboard (SPF, DKIM, DMARC)
 - [ ] Set `GUIDE_PDF_URL` to the real PDF storage URL
-- [ ] Set `NEXT_PUBLIC_GA4_ID` to the real GA4 Measurement ID
 - [ ] Set all production env vars in Vercel dashboard
-- [ ] Remove `STAGING_PASSWORD` from production env
