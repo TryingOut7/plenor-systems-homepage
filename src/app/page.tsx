@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import GuideForm from '@/components/GuideForm';
+import { sanityFetch } from '@/sanity/client';
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Plenor Systems — Testing & QA and Launch & Go-to-Market Framework',
@@ -15,9 +18,48 @@ export const metadata: Metadata = {
   },
 };
 
+interface HomePageData {
+  heroHeading?: string;
+  heroSubtext?: string;
+  problemHeading?: string;
+  problemBody1?: string;
+  problemBody2?: string;
+  testingCardTitle?: string;
+  testingCardBody?: string;
+  launchCardTitle?: string;
+  launchCardBody?: string;
+  audiences?: { label: string; copy: string }[];
+  guideCTAHeading?: string;
+  guideCTABody?: string;
+}
+
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
-export default function HomePage() {
+const defaults: Required<HomePageData> = {
+  heroHeading: 'Plenor Systems brings structure to the two most failure-prone stages of product development.',
+  heroSubtext: 'Testing & QA and Launch & Go-to-Market, done right.',
+  problemHeading: 'Most product failures happen at the end, not the beginning.',
+  problemBody1: "Teams spend months building a product, then rush testing, skip structured QA, and launch without a clear go-to-market plan. The result: bugs found by customers, positioning that misses the market, and launches that don't generate expected traction.",
+  problemBody2: "These aren't execution failures — they're structural ones. The final stages of product development are consistently underprepared. Plenor Systems is built specifically to fix that.",
+  testingCardTitle: 'Testing & QA that catches what matters before release.',
+  testingCardBody: 'A structured approach to verification, quality criteria, and release readiness. Designed to reduce rework and give your team confidence before shipping.',
+  launchCardTitle: 'Launch & Go-to-Market with a plan that holds up on launch day.',
+  launchCardBody: 'From positioning and channel selection to operational readiness, the framework keeps go-to-market work structured rather than reactive.',
+  audiences: [
+    { label: 'Startups', copy: 'Moving fast but need a reliable process for the final stretch — before a launch defines your reputation.' },
+    { label: 'SMEs', copy: 'Growing teams that have outpaced informal processes and need structure without slowing down delivery.' },
+    { label: 'Enterprises', copy: 'Larger organisations that need a rigorous, repeatable framework that scales across products and teams.' },
+  ],
+  guideCTAHeading: 'Get the free guide',
+  guideCTABody: 'The guide covers the specific errors teams make in Testing & QA and Launch & Go-to-Market, and what to do instead. Enter your name and email and the PDF is sent to your inbox automatically.',
+};
+
+export default async function HomePage() {
+  const cms = await sanityFetch<HomePageData>(`*[_type == "homePage"][0]`);
+  const d: Required<HomePageData> = {
+    ...defaults,
+    ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)),
+  };
   return (
     <>
       {/* Schema markup */}
@@ -97,8 +139,7 @@ export default function HomePage() {
               maxWidth: '780px',
             }}
           >
-            Plenor Systems brings structure to the two most failure-prone stages of product
-            development.
+            {d.heroHeading}
           </h1>
 
           <p
@@ -111,7 +152,7 @@ export default function HomePage() {
               maxWidth: '520px',
             }}
           >
-            Testing & QA and Launch & Go-to-Market, done right.
+            {d.heroSubtext}
           </p>
 
           <div className="animate-fade-up-delay-2">
@@ -143,7 +184,7 @@ export default function HomePage() {
               marginBottom: '28px',
             }}
           >
-            Most product failures happen at the end, not the beginning.
+            {d.problemHeading}
           </h2>
 
           <div
@@ -158,14 +199,10 @@ export default function HomePage() {
           />
 
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '20px' }}>
-            Teams spend months building a product, then rush testing, skip structured QA, and launch
-            without a clear go-to-market plan. The result: bugs found by customers, positioning that
-            misses the market, and launches that don&apos;t generate expected traction.
+            {d.problemBody1}
           </p>
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7 }}>
-            These aren&apos;t execution failures — they&apos;re structural ones. The final stages of
-            product development are consistently underprepared. Plenor Systems is built specifically
-            to fix that.
+            {d.problemBody2}
           </p>
         </div>
       </section>
@@ -243,11 +280,10 @@ export default function HomePage() {
                   letterSpacing: '-0.02em',
                 }}
               >
-                Testing & QA that catches what matters before release.
+                {d.testingCardTitle}
               </h3>
               <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '24px' }}>
-                A structured approach to verification, quality criteria, and release readiness.
-                Designed to reduce rework and give your team confidence before shipping.
+                {d.testingCardBody}
               </p>
               <Link
                 href="/services"
@@ -309,11 +345,10 @@ export default function HomePage() {
                   letterSpacing: '-0.02em',
                 }}
               >
-                Launch & Go-to-Market with a plan that holds up on launch day.
+                {d.launchCardTitle}
               </h3>
               <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '24px' }}>
-                From positioning and channel selection to operational readiness, the framework keeps
-                go-to-market work structured rather than reactive.
+                {d.launchCardBody}
               </p>
               <Link
                 href="/services"
@@ -374,20 +409,7 @@ export default function HomePage() {
               gap: '0',
             }}
           >
-            {[
-              {
-                label: 'Startups',
-                copy: 'Moving fast but need a reliable process for the final stretch — before a launch defines your reputation.',
-              },
-              {
-                label: 'SMEs',
-                copy: 'Growing teams that have outpaced informal processes and need structure without slowing down delivery.',
-              },
-              {
-                label: 'Enterprises',
-                copy: 'Larger organisations that need a rigorous, repeatable framework that scales across products and teams.',
-              },
-            ].map(({ label, copy }, i) => (
+            {d.audiences.map(({ label, copy }, i) => (
               <div
                 key={label}
                 style={{
@@ -464,7 +486,7 @@ export default function HomePage() {
               marginBottom: '16px',
             }}
           >
-            Get the free guide
+            {d.guideCTAHeading}
           </h2>
           <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.65, marginBottom: '48px' }}>
             <strong style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>

@@ -1,5 +1,60 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { sanityFetch } from '@/sanity/client';
+
+export const revalidate = 60;
+
+interface ServicesPageData {
+  heroHeading?: string;
+  heroSubtext?: string;
+  testingBody?: string;
+  testingItems?: string[];
+  testingWhoFor?: string;
+  launchBody?: string;
+  launchItems?: string[];
+  launchWhoFor?: string;
+  whyFrameworkHeading?: string;
+  whyFrameworkBody1?: string;
+  whyFrameworkBody2?: string;
+  whyFrameworkBody3?: string;
+  ctaHeading?: string;
+  ctaBody?: string;
+}
+
+const defaults: Required<ServicesPageData> = {
+  heroHeading: 'Two framework stages. The two that decide whether a product succeeds.',
+  heroSubtext:
+    'Testing & QA and Launch & Go-to-Market are where most product failures originate — not in design or development. Plenor Systems is built specifically for these stages.',
+  testingBody:
+    'Shipping without a structured quality process means issues surface after release — when they\u2019re most expensive to fix. The Testing & QA module establishes clear quality criteria, verification steps, and release gates before code reaches users.',
+  testingItems: [
+    'Defining quality criteria and acceptance standards before development completes',
+    'Structured test planning: functional, regression, performance, and edge-case coverage',
+    'Release readiness checklists and sign-off processes',
+    'Defect triage and prioritisation so teams know what must be fixed before launch',
+  ],
+  testingWhoFor:
+    'Teams that are shipping frequently and catching issues too late, or organisations preparing for a significant launch that cannot afford post-release rework.',
+  launchBody:
+    'A product can pass QA and still underperform at launch. Go-to-market failures are often structural \u2014 unclear positioning, undefined channels, or a launch day without operational readiness. The Launch & GTM module addresses each of these.',
+  launchItems: [
+    'Market positioning and messaging that reflects what the product actually does',
+    'Channel selection grounded in where your target audience can be reached',
+    'Launch sequencing and operational readiness \u2014 support, onboarding, and infrastructure',
+    'Post-launch review process to capture what worked and what to adjust',
+  ],
+  launchWhoFor:
+    'Startups preparing for a first launch, product teams at SMEs rolling out a new offering, and enterprise groups managing a significant market entry.',
+  whyFrameworkHeading: 'Why a framework, not a one-off engagement',
+  whyFrameworkBody1:
+    'Ad-hoc approaches to testing and go-to-market work in isolation but don\u2019t build repeatable capability. Each launch starts from scratch, and teams re-learn the same lessons.',
+  whyFrameworkBody2:
+    'A structured framework means your team builds consistent habits \u2014 clear criteria before testing begins, defined channels before launch planning starts. It works for startups moving fast and for enterprises that need process rigour across multiple products.',
+  whyFrameworkBody3:
+    'The framework is not prescriptive. It sets the structure; your team fills in the specifics.',
+  ctaHeading: 'Not sure yet?',
+  ctaBody: 'Start with the guide \u2014 see the kinds of mistakes the framework is designed to prevent.',
+};
 
 export const metadata: Metadata = {
   title: 'Services — Testing & QA and Launch & Go-to-Market',
@@ -45,7 +100,13 @@ const listItem = (text: string) => (
   </li>
 );
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const cms = await sanityFetch<ServicesPageData>(`*[_type == "servicesPage"][0]`);
+  const d: Required<ServicesPageData> = {
+    ...defaults,
+    ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)),
+  };
+
   return (
     <>
       <script
@@ -105,11 +166,10 @@ export default function ServicesPage() {
               marginBottom: '24px',
             }}
           >
-            Two framework stages. The two that decide whether a product succeeds.
+            {d.heroHeading}
           </h1>
           <p className="animate-fade-up-delay-1" style={{ fontSize: '18px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
-            Testing & QA and Launch & Go-to-Market are where most product failures originate — not
-            in design or development. Plenor Systems is built specifically for these stages.
+            {d.heroSubtext}
           </p>
         </div>
       </section>
@@ -156,9 +216,7 @@ export default function ServicesPage() {
           </h2>
           <div style={{ width: '40px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '28px', borderRadius: '2px' }} aria-hidden="true" />
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '36px' }}>
-            Shipping without a structured quality process means issues surface after release — when
-            they&apos;re most expensive to fix. The Testing & QA module establishes clear quality
-            criteria, verification steps, and release gates before code reaches users.
+            {d.testingBody}
           </p>
 
           <div
@@ -182,12 +240,7 @@ export default function ServicesPage() {
                 What it covers
               </h3>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {[
-                  'Defining quality criteria and acceptance standards before development completes',
-                  'Structured test planning: functional, regression, performance, and edge-case coverage',
-                  'Release readiness checklists and sign-off processes',
-                  'Defect triage and prioritisation so teams know what must be fixed before launch',
-                ].map(listItem)}
+                {d.testingItems.map(listItem)}
               </ul>
             </div>
             <div>
@@ -204,8 +257,7 @@ export default function ServicesPage() {
                 Who it&apos;s for
               </h3>
               <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.7 }}>
-                Teams that are shipping frequently and catching issues too late, or organisations
-                preparing for a significant launch that cannot afford post-release rework.
+                {d.testingWhoFor}
               </p>
             </div>
           </div>
@@ -254,9 +306,7 @@ export default function ServicesPage() {
           </h2>
           <div style={{ width: '40px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '28px', borderRadius: '2px' }} aria-hidden="true" />
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '36px' }}>
-            A product can pass QA and still underperform at launch. Go-to-market failures are often
-            structural — unclear positioning, undefined channels, or a launch day without operational
-            readiness. The Launch & GTM module addresses each of these.
+            {d.launchBody}
           </p>
 
           <div
@@ -280,12 +330,7 @@ export default function ServicesPage() {
                 What it covers
               </h3>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {[
-                  'Market positioning and messaging that reflects what the product actually does',
-                  'Channel selection grounded in where your target audience can be reached',
-                  'Launch sequencing and operational readiness — support, onboarding, and infrastructure',
-                  'Post-launch review process to capture what worked and what to adjust',
-                ].map(listItem)}
+                {d.launchItems.map(listItem)}
               </ul>
             </div>
             <div>
@@ -302,8 +347,7 @@ export default function ServicesPage() {
                 Who it&apos;s for
               </h3>
               <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.7 }}>
-                Startups preparing for a first launch, product teams at SMEs rolling out a new
-                offering, and enterprise groups managing a significant market entry.
+                {d.launchWhoFor}
               </p>
             </div>
           </div>
@@ -329,22 +373,17 @@ export default function ServicesPage() {
               marginBottom: '20px',
             }}
           >
-            Why a framework, not a one-off engagement
+            {d.whyFrameworkHeading}
           </h2>
           <div style={{ width: '40px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '32px', borderRadius: '2px' }} aria-hidden="true" />
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '20px' }}>
-            Ad-hoc approaches to testing and go-to-market work in isolation but don&apos;t build
-            repeatable capability. Each launch starts from scratch, and teams re-learn the same
-            lessons.
+            {d.whyFrameworkBody1}
           </p>
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '20px' }}>
-            A structured framework means your team builds consistent habits — clear criteria before
-            testing begins, defined channels before launch planning starts. It works for startups
-            moving fast and for enterprises that need process rigour across multiple products.
+            {d.whyFrameworkBody2}
           </p>
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7 }}>
-            The framework is not prescriptive. It sets the structure; your team fills in the
-            specifics.
+            {d.whyFrameworkBody3}
           </p>
         </div>
       </section>
@@ -405,10 +444,10 @@ export default function ServicesPage() {
               marginBottom: '16px',
             }}
           >
-            Not sure yet?
+            {d.ctaHeading}
           </h2>
           <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6, marginBottom: '36px' }}>
-            Start with the guide — see the kinds of mistakes the framework is designed to prevent.
+            {d.ctaBody}
           </p>
           <Link href="/contact#guide" className="btn-ghost">
             Get the Free Guide

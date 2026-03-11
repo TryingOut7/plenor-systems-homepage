@@ -1,5 +1,42 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { sanityFetch } from '@/sanity/client';
+
+export const revalidate = 60;
+
+interface PricingPageData {
+  heroHeading?: string;
+  heroSubtext?: string;
+  includedItems?: { title: string; desc: string }[];
+  includedBody?: string;
+  audiences?: { label: string; copy: string }[];
+  ctaHeading?: string;
+  ctaBody?: string;
+  notReadyHeading?: string;
+  notReadyBody?: string;
+}
+
+const defaults: Required<PricingPageData> = {
+  heroHeading: 'Let\u2019s find the right fit for your team.',
+  heroSubtext:
+    'Pricing is tailored based on your team size and scope. Get in touch and we\u2019ll come back with a proposal.',
+  includedItems: [
+    { title: 'Testing & QA Module', desc: 'Quality criteria, structured test planning, release readiness checklists, and defect triage.' },
+    { title: 'Launch & Go-to-Market Module', desc: 'Positioning and messaging, channel strategy, launch sequencing, and operational readiness.' },
+    { title: 'Onboarding support', desc: 'Get your team up and running with the framework from day one.' },
+  ],
+  includedBody:
+    'Engagement is straightforward to start. The framework is accessible to teams of any size \u2014 no minimum headcount or project scale required.',
+  audiences: [
+    { label: 'Startups', copy: 'Early-stage teams preparing for a first or major launch who need process without overhead.' },
+    { label: 'SMEs', copy: 'Mid-sized teams with established products moving into new markets or scaling delivery cadence.' },
+    { label: 'Enterprises', copy: 'Larger organisations that need a repeatable framework across multiple product lines or teams.' },
+  ],
+  ctaHeading: 'Ready to talk?',
+  ctaBody: 'Tell us about your product and team \u2014 we\u2019ll come back with a proposal.',
+  notReadyHeading: 'Not ready to talk yet?',
+  notReadyBody: 'Start with the free guide to get a sense of the problems the framework addresses.',
+};
 
 export const metadata: Metadata = {
   title: 'Pricing — Let\'s find the right fit for your team',
@@ -16,7 +53,13 @@ export const metadata: Metadata = {
 
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const cms = await sanityFetch<PricingPageData>(`*[_type == "pricingPage"][0]`);
+  const d: Required<PricingPageData> = {
+    ...defaults,
+    ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)),
+  };
+
   return (
     <>
       {/* 1. Hero */}
@@ -57,11 +100,10 @@ export default function PricingPage() {
               marginBottom: '24px',
             }}
           >
-            Let&apos;s find the right fit for your team.
+            {d.heroHeading}
           </h1>
           <p className="animate-fade-up-delay-1" style={{ fontSize: '18px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
-            Pricing is tailored based on your team size and scope. Get in touch and we&apos;ll come
-            back with a proposal.
+            {d.heroSubtext}
           </p>
         </div>
       </section>
@@ -90,20 +132,7 @@ export default function PricingPage() {
           <div style={{ width: '40px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '40px', borderRadius: '2px' }} aria-hidden="true" />
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-            {[
-              {
-                title: 'Testing & QA Module',
-                desc: 'Quality criteria, structured test planning, release readiness checklists, and defect triage.',
-              },
-              {
-                title: 'Launch & Go-to-Market Module',
-                desc: 'Positioning and messaging, channel strategy, launch sequencing, and operational readiness.',
-              },
-              {
-                title: 'Onboarding support',
-                desc: 'Get your team up and running with the framework from day one.',
-              },
-            ].map(({ title, desc }, i) => (
+            {d.includedItems.map(({ title, desc }, i) => (
               <div
                 key={title}
                 style={{
@@ -143,8 +172,7 @@ export default function PricingPage() {
           </div>
 
           <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginTop: '32px' }}>
-            Engagement is straightforward to start. The framework is accessible to teams of any
-            size — no minimum headcount or project scale required.
+            {d.includedBody}
           </p>
         </div>
       </section>
@@ -181,20 +209,7 @@ export default function PricingPage() {
               overflow: 'hidden',
             }}
           >
-            {[
-              {
-                label: 'Startups',
-                copy: 'Early-stage teams preparing for a first or major launch who need process without overhead.',
-              },
-              {
-                label: 'SMEs',
-                copy: 'Mid-sized teams with established products moving into new markets or scaling delivery cadence.',
-              },
-              {
-                label: 'Enterprises',
-                copy: 'Larger organisations that need a repeatable framework across multiple product lines or teams.',
-              },
-            ].map(({ label, copy }) => (
+            {d.audiences.map(({ label, copy }) => (
               <div
                 key={label}
                 style={{
@@ -243,10 +258,10 @@ export default function PricingPage() {
               marginBottom: '16px',
             }}
           >
-            Ready to talk?
+            {d.ctaHeading}
           </h2>
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.65, marginBottom: '36px' }}>
-            Tell us about your product and team — we&apos;ll come back with a proposal.
+            {d.ctaBody}
           </p>
           <Link href="/contact" className="btn-secondary">
             Get in touch
@@ -280,10 +295,10 @@ export default function PricingPage() {
               marginBottom: '12px',
             }}
           >
-            Not ready to talk yet?
+            {d.notReadyHeading}
           </h2>
           <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '24px' }}>
-            Start with the free guide to get a sense of the problems the framework addresses.
+            {d.notReadyBody}
           </p>
           <Link href="/contact#guide" className="btn-secondary" style={{ fontSize: '14px', padding: '10px 24px' }}>
             Get the free guide

@@ -1,5 +1,45 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { sanityFetch } from '@/sanity/client';
+
+export const revalidate = 60;
+
+interface AboutPageData {
+  heroParagraph1?: string;
+  heroParagraph2?: string;
+  heroParagraph3?: string;
+  focusParagraph1?: string;
+  focusParagraph2?: string;
+  focusParagraph3?: string;
+  missionQuote?: string;
+  founderName?: string;
+  founderRole?: string;
+  founderBio?: string;
+  ctaHeading?: string;
+  ctaBody?: string;
+}
+
+const defaults: Required<AboutPageData> = {
+  heroParagraph1:
+    'Plenor Systems is a product development framework built around a specific observation: the stages most likely to cause a launch to fail are Testing & QA and Go-to-Market \u2014 and they\u2019re consistently the least structured.',
+  heroParagraph2:
+    'Most frameworks cover the full development lifecycle. Plenor Systems covers only the final two stages \u2014 not because the others don\u2019t matter, but because these two are where structure is most absent and most needed.',
+  heroParagraph3:
+    'The framework is used by teams ranging from early-stage startups to enterprise product groups who need a repeatable, structured process for the stretch of work between build completion and a successful launch.',
+  focusParagraph1:
+    'Plenor Systems covers two stages: Testing & QA and Launch & Go-to-Market. That scope is intentional.',
+  focusParagraph2:
+    'Narrowing to two stages means the framework goes deep rather than broad. Each module is specific \u2014 built from observed patterns of what goes wrong and why. It is not a general project management tool dressed as a product framework.',
+  focusParagraph3:
+    'The narrow focus is a strength, not a limitation. Teams get a framework that is actually applicable to the work at hand, not a set of generic principles that need extensive interpretation.',
+  missionQuote:
+    'A well-built product deserves a structured path to market \u2014 and consistent quality standards before it gets there.',
+  founderName: '[Founder Name]',
+  founderRole: '[Role]',
+  founderBio: '[One-line background \u2014 update this via the CMS before going live.]',
+  ctaHeading: 'Want to work together?',
+  ctaBody: 'Get in touch to discuss your product and team, or start with the free guide.',
+};
 
 export const metadata: Metadata = {
   title: 'About — Who We Are and Why We Built This',
@@ -17,7 +57,13 @@ export const metadata: Metadata = {
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 const narrow: React.CSSProperties = { maxWidth: '760px', margin: '0 auto' };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const cms = await sanityFetch<AboutPageData>(`*[_type == "aboutPage"][0]`);
+  const d: Required<AboutPageData> = {
+    ...defaults,
+    ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)),
+  };
+
   return (
     <>
       {/* 1. Who We Are */}
@@ -61,19 +107,13 @@ export default function AboutPage() {
             Who we are
           </h1>
           <p className="animate-fade-up-delay-1" style={{ fontSize: '17px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, marginBottom: '20px' }}>
-            Plenor Systems is a product development framework built around a specific observation:
-            the stages most likely to cause a launch to fail are Testing & QA and Go-to-Market —
-            and they&apos;re consistently the least structured.
+            {d.heroParagraph1}
           </p>
           <p className="animate-fade-up-delay-2" style={{ fontSize: '17px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, marginBottom: '20px' }}>
-            Most frameworks cover the full development lifecycle. Plenor Systems covers only the
-            final two stages — not because the others don&apos;t matter, but because these two are
-            where structure is most absent and most needed.
+            {d.heroParagraph2}
           </p>
           <p className="animate-fade-up-delay-2" style={{ fontSize: '17px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
-            The framework is used by teams ranging from early-stage startups to enterprise product
-            groups who need a repeatable, structured process for the stretch of work between build
-            completion and a successful launch.
+            {d.heroParagraph3}
           </p>
         </div>
       </section>
@@ -101,18 +141,13 @@ export default function AboutPage() {
           </h2>
           <div style={{ width: '40px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '32px', borderRadius: '2px' }} aria-hidden="true" />
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '20px' }}>
-            Plenor Systems covers two stages: Testing & QA and Launch & Go-to-Market. That scope is
-            intentional.
+            {d.focusParagraph1}
           </p>
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '20px' }}>
-            Narrowing to two stages means the framework goes deep rather than broad. Each module is
-            specific — built from observed patterns of what goes wrong and why. It is not a general
-            project management tool dressed as a product framework.
+            {d.focusParagraph2}
           </p>
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '36px' }}>
-            The narrow focus is a strength, not a limitation. Teams get a framework that is actually
-            applicable to the work at hand, not a set of generic principles that need extensive
-            interpretation.
+            {d.focusParagraph3}
           </p>
           <Link
             href="/services"
@@ -176,8 +211,7 @@ export default function AboutPage() {
               margin: '0 auto',
             }}
           >
-            A well-built product deserves a structured path to market — and consistent quality
-            standards before it gets there.
+            {d.missionQuote}
           </h2>
         </div>
       </section>
@@ -244,13 +278,13 @@ export default function AboutPage() {
                   marginBottom: '4px',
                 }}
               >
-                [Founder Name]
+                {d.founderName}
               </p>
               <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '12px', letterSpacing: '0.02em' }}>
-                [Role] · Plenor Systems
+                {d.founderRole} · Plenor Systems
               </p>
               <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65 }}>
-                [One-line background — update this via the CMS before going live.]
+                {d.founderBio}
               </p>
             </div>
           </div>
@@ -286,10 +320,10 @@ export default function AboutPage() {
               marginBottom: '16px',
             }}
           >
-            Want to work together?
+            {d.ctaHeading}
           </h2>
           <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.65, marginBottom: '36px' }}>
-            Get in touch to discuss your product and team, or start with the free guide.
+            {d.ctaBody}
           </p>
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/contact" className="btn-ghost">

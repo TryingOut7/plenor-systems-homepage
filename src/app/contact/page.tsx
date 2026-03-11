@@ -2,6 +2,24 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import GuideForm from '@/components/GuideForm';
 import InquiryForm from '@/components/InquiryForm';
+import { sanityFetch } from '@/sanity/client';
+
+export const revalidate = 60;
+
+interface ContactPageData {
+  heroHeading?: string;
+  heroSubtext?: string;
+  inquiryHeading?: string;
+  inquirySubtext?: string;
+}
+
+const defaults: Required<ContactPageData> = {
+  heroHeading: 'Let\u2019s talk.',
+  heroSubtext: 'Tell us about your product and team and we\u2019ll get back to you within 2 business days.',
+  inquiryHeading: 'Send a direct inquiry',
+  inquirySubtext:
+    'Tell us about your product, your team, and the challenge you\u2019re working through. We\u2019ll respond within 2 business days.',
+};
 
 export const metadata: Metadata = {
   title: 'Contact — Send an Inquiry',
@@ -18,7 +36,13 @@ export const metadata: Metadata = {
 
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const cms = await sanityFetch<ContactPageData>(`*[_type == "contactPage"][0]`);
+  const d: Required<ContactPageData> = {
+    ...defaults,
+    ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)),
+  };
+
   return (
     <>
       {/* 1. Hero */}
@@ -59,10 +83,10 @@ export default function ContactPage() {
               marginBottom: '20px',
             }}
           >
-            Let&apos;s talk.
+            {d.heroHeading}
           </h1>
           <p className="animate-fade-up-delay-1" style={{ fontSize: '18px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
-            Tell us about your product and team and we&apos;ll get back to you within 2 business days.
+            {d.heroSubtext}
           </p>
         </div>
       </section>
@@ -157,12 +181,11 @@ export default function ContactPage() {
                   marginBottom: '20px',
                 }}
               >
-                Send a direct inquiry
+                {d.inquiryHeading}
               </h2>
               <div style={{ width: '32px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '24px', borderRadius: '2px' }} aria-hidden="true" />
               <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '32px' }}>
-                Tell us about your product, your team, and the challenge you&apos;re working through.
-                We&apos;ll respond within 2 business days.
+                {d.inquirySubtext}
               </p>
 
               {/* What happens next */}
