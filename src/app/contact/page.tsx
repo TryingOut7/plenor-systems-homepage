@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import GuideForm from '@/components/GuideForm';
 import InquiryForm from '@/components/InquiryForm';
 
 export const metadata: Metadata = {
@@ -15,103 +16,243 @@ export const metadata: Metadata = {
   },
 };
 
-const bodyText: React.CSSProperties = { fontSize: '16px', color: '#6B7280', lineHeight: 1.6, margin: 0 };
-const sectionPad: React.CSSProperties = { padding: '80px 24px' };
+const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
 export default function ContactPage() {
   return (
     <>
       {/* 1. Hero */}
-      <section aria-labelledby="contact-hero-heading" style={{ ...sectionPad, backgroundColor: '#F8F9FA', paddingBottom: '40px' }}>
-        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
+      <section
+        aria-labelledby="contact-hero-heading"
+        style={{
+          backgroundColor: '#1B2D4F',
+          padding: '100px 32px 108px',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
+            `,
+            backgroundSize: '80px 80px',
+          }}
+        />
+        <div style={{ maxWidth: '680px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <p className="section-label animate-fade-in" style={{ color: 'rgba(255,255,255,0.45)', marginBottom: '24px' }}>
+            Contact
+          </p>
           <h1
             id="contact-hero-heading"
+            className="animate-fade-up"
             style={{
-              fontSize: 'clamp(36px, 5vw, 48px)',
+              fontFamily: 'var(--font-display), Georgia, serif',
+              fontSize: 'clamp(40px, 6vw, 72px)',
               fontWeight: 700,
-              color: '#1B2D4F',
-              lineHeight: 1.15,
-              marginBottom: '16px',
+              color: '#ffffff',
+              lineHeight: 1.08,
+              letterSpacing: '-0.03em',
+              marginBottom: '20px',
             }}
           >
             Let&apos;s talk.
           </h1>
-          <p style={{ fontSize: '18px', color: '#6B7280', lineHeight: 1.6 }}>
+          <p className="animate-fade-up-delay-1" style={{ fontSize: '18px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
             Tell us about your product and team and we&apos;ll get back to you within 2 business days.
           </p>
         </div>
       </section>
 
-      {/* 2. Direct Inquiry Form */}
+      {/* 2. Guide form */}
+      <section
+        id="guide"
+        aria-labelledby="guide-form-heading"
+        style={{ padding: '100px 32px', backgroundColor: '#F8F9FA' }}
+      >
+        <div style={{ ...inner, maxWidth: '860px' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '64px',
+              alignItems: 'start',
+            }}
+          >
+            {/* Left: copy */}
+            <div>
+              <p className="section-label" style={{ marginBottom: '16px' }}>Free resource</p>
+              <h2
+                id="guide-form-heading"
+                style={{
+                  fontFamily: 'var(--font-display), Georgia, serif',
+                  fontSize: 'clamp(24px, 3vw, 34px)',
+                  fontWeight: 700,
+                  color: '#1B2D4F',
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1.2,
+                  marginBottom: '20px',
+                }}
+              >
+                Get the free guide
+              </h2>
+              <div style={{ width: '32px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '24px', borderRadius: '2px' }} aria-hidden="true" />
+              <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.7, marginBottom: '16px' }}>
+                <strong style={{ color: '#1A1A1A', fontWeight: 600 }}>
+                  The 7 Most Common Product Development Mistakes — and How to Avoid Them.
+                </strong>
+              </p>
+              <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65 }}>
+                The guide covers the specific errors teams make in Testing & QA and Launch &
+                Go-to-Market, and what to do instead. Enter your name and email and the PDF is sent
+                to your inbox automatically.
+              </p>
+            </div>
+
+            {/* Right: form */}
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #E5E7EB',
+                borderTop: '3px solid #1B2D4F',
+                borderRadius: '4px',
+                padding: '36px',
+              }}
+            >
+              <GuideForm />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Direct Inquiry Form */}
       <section
         aria-labelledby="inquiry-form-heading"
-        style={{ ...sectionPad, backgroundColor: '#ffffff' }}
+        style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
       >
-        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-          <h2
-            id="inquiry-form-heading"
-            style={{ fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 700, color: '#1B2D4F', marginBottom: '12px' }}
+        <div style={{ ...inner, maxWidth: '860px' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '64px',
+              alignItems: 'start',
+            }}
           >
-            Send a direct inquiry
-          </h2>
-          <p style={{ ...bodyText, marginBottom: '32px' }}>
-            Tell us about your product, your team, and the challenge you&apos;re working through.
-            We&apos;ll respond within 2 business days.
-          </p>
-          <InquiryForm />
-        </div>
-      </section>
+            {/* Left: copy */}
+            <div>
+              <p className="section-label" style={{ marginBottom: '16px' }}>Send an inquiry</p>
+              <h2
+                id="inquiry-form-heading"
+                style={{
+                  fontFamily: 'var(--font-display), Georgia, serif',
+                  fontSize: 'clamp(24px, 3vw, 34px)',
+                  fontWeight: 700,
+                  color: '#1B2D4F',
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1.2,
+                  marginBottom: '20px',
+                }}
+              >
+                Send a direct inquiry
+              </h2>
+              <div style={{ width: '32px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '24px', borderRadius: '2px' }} aria-hidden="true" />
+              <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '32px' }}>
+                Tell us about your product, your team, and the challenge you&apos;re working through.
+                We&apos;ll respond within 2 business days.
+              </p>
 
-      {/* 3. What Happens Next */}
-      <section aria-labelledby="next-steps-heading" style={{ ...sectionPad, backgroundColor: '#F8F9FA' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
-          <h2
-            id="next-steps-heading"
-            style={{ fontSize: '20px', fontWeight: 700, color: '#1B2D4F', marginBottom: '12px' }}
-          >
-            What happens next
-          </h2>
-          <p style={bodyText}>
-            We review every inquiry and respond within 2 business days with initial thoughts or a
-            proposal request.
-          </p>
-        </div>
-      </section>
+              {/* What happens next */}
+              <div
+                style={{
+                  padding: '20px 24px',
+                  backgroundColor: '#F8F9FA',
+                  borderLeft: '3px solid #1B2D4F',
+                  borderRadius: '0 4px 4px 0',
+                  marginBottom: '28px',
+                }}
+              >
+                <p
+                  style={{
+                    fontWeight: 600,
+                    fontSize: '14px',
+                    color: '#1B2D4F',
+                    marginBottom: '6px',
+                  }}
+                >
+                  What happens next
+                </p>
+                <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: 1.6 }}>
+                  We review every inquiry and respond within 2 business days with initial thoughts or a
+                  proposal request.
+                </p>
+              </div>
 
-      {/* 4. Alternative Contact */}
-      <section aria-labelledby="alt-contact-heading" style={{ padding: '0 24px 80px', backgroundColor: '#F8F9FA' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
-          <h2
-            id="alt-contact-heading"
-            style={{ fontSize: '16px', fontWeight: 700, color: '#1A1A1A', marginBottom: '8px' }}
-          >
-            Prefer email directly?
-          </h2>
-          <p style={{ ...bodyText, marginBottom: '8px' }}>
-            <a
-              href="mailto:hello@plenor.ai"
-              style={{ color: '#1B2D4F', fontWeight: 600, textDecoration: 'underline' }}
+              {/* Alt contact */}
+              <div>
+                <p style={{ fontWeight: 600, fontSize: '14px', color: '#1A1A1A', marginBottom: '8px' }}>
+                  Prefer email directly?
+                </p>
+                <a
+                  href="mailto:hello@plenor.ai"
+                  style={{ color: '#1B2D4F', fontWeight: 600, fontSize: '14px', textDecoration: 'none' }}
+                  className="text-link"
+                >
+                  hello@plenor.ai
+                </a>
+                <span style={{ color: '#E5E7EB', margin: '0 10px' }}>·</span>
+                <a
+                  href="https://www.linkedin.com/company/plenor-ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: '#6B7280', fontSize: '14px', textDecoration: 'none' }}
+                  className="text-link"
+                >
+                  LinkedIn →
+                </a>
+              </div>
+            </div>
+
+            {/* Right: form */}
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #E5E7EB',
+                borderTop: '3px solid #1B2D4F',
+                borderRadius: '4px',
+                padding: '36px',
+              }}
             >
-              hello@plenor.ai
-            </a>
-          </p>
-          <a
-            href="https://www.linkedin.com/company/plenor-ai"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#6B7280', fontSize: '14px', textDecoration: 'underline' }}
-          >
-            LinkedIn →
-          </a>
-          <p style={{ ...bodyText, fontSize: '13px', marginTop: '20px' }}>
-            By submitting this form, you agree to our{' '}
-            <Link href="/privacy" style={{ color: '#6B7280', textDecoration: 'underline' }}>
-              Privacy Policy
-            </Link>
-            .
-          </p>
+              <InquiryForm />
+            </div>
+          </div>
         </div>
       </section>
+
+      {/* Privacy note */}
+      <div
+        style={{
+          backgroundColor: '#F8F9FA',
+          borderTop: '1px solid #E5E7EB',
+          padding: '20px 32px',
+          textAlign: 'center',
+        }}
+      >
+        <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
+          By submitting this form, you agree to our{' '}
+          <Link href="/privacy" style={{ color: '#6B7280', textDecoration: 'underline' }}>
+            Privacy Policy
+          </Link>
+          .
+        </p>
+      </div>
+
+      <style>{`
+        .text-link:hover { opacity: 0.75; }
+      `}</style>
     </>
   );
 }

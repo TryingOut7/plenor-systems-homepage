@@ -10,7 +10,8 @@
   --color-error: #DC2626;
   --color-success: #16A34A;
 
-  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-sans: var(--font-sans), system-ui, sans-serif;
+  --font-display: var(--font-display), Georgia, serif;
 }
 
 *,
@@ -26,10 +27,17 @@ html {
 body {
   background-color: #ffffff;
   color: #1A1A1A;
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Display headings use the serif font */
+h1, h2, h3 {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: -0.02em;
 }
 
 /* Focus styles – always visible */
@@ -38,39 +46,98 @@ body {
   outline-offset: 2px;
 }
 
-/* Primary CTA button */
+/* ─── Animations ─────────────────────────────────────── */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-fade-up-delay-1 {
+  animation: fadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+.animate-fade-up-delay-2 {
+  animation: fadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+.animate-fade-up-delay-3 {
+  animation: fadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+}
+.animate-fade-in {
+  animation: fadeIn 0.5s ease both;
+}
+
+/* ─── Primary CTA button ─────────────────────────────── */
+
 .btn-primary {
   display: inline-block;
   background-color: #1B2D4F;
   color: #ffffff;
-  font-weight: 700;
-  font-size: 16px;
-  padding: 14px 28px;
-  border-radius: 6px;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  padding: 14px 32px;
+  border-radius: 4px;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
   text-decoration: none;
   text-align: center;
+  position: relative;
 }
 
 .btn-primary:hover,
 .btn-primary:focus-visible {
   background-color: #2A4270;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(27, 45, 79, 0.25);
 }
 
-/* Secondary CTA button */
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ─── Secondary CTA button ───────────────────────────── */
+
 .btn-secondary {
   display: inline-block;
   background-color: transparent;
   color: #1B2D4F;
-  font-weight: 700;
-  font-size: 16px;
-  padding: 14px 28px;
-  border-radius: 6px;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  padding: 13px 31px;
+  border-radius: 4px;
   border: 1.5px solid #1B2D4F;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
   text-decoration: none;
   text-align: center;
 }
@@ -79,20 +146,30 @@ body {
 .btn-secondary:focus-visible {
   background-color: #1B2D4F;
   color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(27, 45, 79, 0.2);
 }
 
-/* Navbar compact CTA */
+.btn-secondary:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ─── Navbar compact CTA ─────────────────────────────── */
+
 .btn-nav {
   display: inline-block;
   background-color: #1B2D4F;
   color: #ffffff;
-  font-weight: 700;
-  font-size: 14px;
-  padding: 10px 20px;
-  border-radius: 6px;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  padding: 9px 20px;
+  border-radius: 4px;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.15s ease;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -100,69 +177,138 @@ body {
 .btn-nav:hover,
 .btn-nav:focus-visible {
   background-color: #2A4270;
+  transform: translateY(-1px);
 }
 
-/* Feature cards */
+/* ─── Ghost button (white on dark) ──────────────────── */
+
+.btn-ghost {
+  display: inline-block;
+  background-color: #ffffff;
+  color: #1B2D4F;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  padding: 14px 32px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-ghost:hover,
+.btn-ghost:focus-visible {
+  background-color: #f0f4fa;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.btn-ghost:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ─── Feature / Service cards ────────────────────────── */
+
 .feature-card {
   background-color: #ffffff;
   border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  padding: 24px;
+  border-top: 3px solid #1B2D4F;
+  border-radius: 4px;
+  padding: 32px 28px;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-top-color 0.2s ease;
+  position: relative;
 }
 
-/* Form inputs */
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 40px rgba(27, 45, 79, 0.1);
+  border-top-color: #2A4270;
+}
+
+/* ─── Form elements ──────────────────────────────────── */
+
 .form-input {
   width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #E5E7EB;
-  border-radius: 6px;
-  font-size: 16px;
+  padding: 12px 16px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 4px;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 15px;
   line-height: 1.5;
   color: #1A1A1A;
   background-color: #ffffff;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .form-input:focus {
   outline: none;
   border-color: #1B2D4F;
-  box-shadow: 0 0 0 2px rgba(27, 45, 79, 0.15);
+  box-shadow: 0 0 0 3px rgba(27, 45, 79, 0.1);
 }
 
 .form-input.error {
   border-color: #DC2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
 }
 
 .form-label {
   display: block;
-  font-size: 14px;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   color: #1A1A1A;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .form-error {
   color: #DC2626;
   font-size: 13px;
-  margin-top: 4px;
+  margin-top: 5px;
 }
 
-/* Mobile responsive overrides */
+/* ─── Section label (eyebrow text) ──────────────────── */
+
+.section-label {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6B7280;
+}
+
+/* ─── Divider rule ───────────────────────────────────── */
+
+.ruled {
+  border: none;
+  border-top: 1px solid #E5E7EB;
+}
+
+/* ─── Mobile responsive overrides ───────────────────── */
+
 @media (max-width: 767px) {
   .btn-primary,
-  .btn-secondary {
+  .btn-secondary,
+  .btn-ghost {
     width: 100%;
     display: block;
     text-align: center;
   }
 
   section {
-    padding-top: 48px !important;
-    padding-bottom: 48px !important;
+    padding-top: 64px !important;
+    padding-bottom: 64px !important;
   }
 }
 
-/* Honeypot – visually hidden but accessible */
+/* ─── Honeypot – visually hidden but accessible ─────── */
+
 .honeypot {
   position: absolute;
   width: 1px;
