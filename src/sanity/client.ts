@@ -26,6 +26,10 @@ export const previewClient =
         useCdn: false,
         token: readToken,
         perspective: 'previewDrafts',
+        stega: {
+          enabled: true,
+          studioUrl: '/studio',
+        },
       })
     : null;
 

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Playfair_Display, DM_Sans } from 'next/font/google';
 import Script from 'next/script';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { VisualEditing } from 'next-sanity/visual-editing';
 import { draftMode } from 'next/headers';
 import './globals.css';
 import Navbar from '@/components/Navbar';
@@ -69,6 +70,7 @@ export default async function RootLayout({
           strategy="afterInteractive"
         />
         <SpeedInsights />
+        {isDraftMode && <VisualEditing />}
         {isDraftMode && <DraftModeBanner />}
       </body>
     </html>
