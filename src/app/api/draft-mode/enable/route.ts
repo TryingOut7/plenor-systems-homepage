@@ -1,31 +1,33 @@
-import { draftMode } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { NextRequest } from 'next/server';
+import { createClient } from 'next-sanity';
+import { defineEnableDraftMode } from 'next-sanity/draft-mode';
 
-export async function GET(request: NextRequest) {
-  const { searchParams } = request.nextUrl;
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
+const apiVersion = '2024-01-01';
+const token = process.env.SANITY_API_READ_TOKEN;
 
-  // Require a secret to prevent unauthorised preview activation.
-  // Set SANITY_PREVIEW_SECRET in your environment to match the secret
-  // configured in your Sanity project's preview URL.
-  const secret = searchParams.get('secret');
-  const previewSecret = process.env.SANITY_PREVIEW_SECRET;
+const enableDraftModeGet =
+  projectId && token
+    ? defineEnableDraftMode({
+        client: createClient({
+          projectId,
+          dataset,
+          apiVersion,
+          useCdn: false,
+          token,
+        }),
+      }).GET
+    : null;
 
-  if (!previewSecret) {
-    return new Response('SANITY_PREVIEW_SECRET is not set', { status: 500 });
+export async function GET(request: Request) {
+  if (!projectId) {
+    return new Response('NEXT_PUBLIC_SANITY_PROJECT_ID is not set', { status: 500 });
   }
-
-  if (secret !== previewSecret) {
-    return new Response('Invalid preview secret', { status: 401 });
-  }
-
-  // Also require a read token to actually fetch draft content
-  if (!process.env.SANITY_API_READ_TOKEN) {
+  if (!token) {
     return new Response('SANITY_API_READ_TOKEN is not set', { status: 500 });
   }
-
-  (await draftMode()).enable();
-
-  const redirectTo = searchParams.get('redirect') || '/';
-  redirect(redirectTo);
+  if (!enableDraftModeGet) {
+    return new Response('Draft mode route is not configured', { status: 500 });
+  }
+  return enableDraftModeGet(request);
 }

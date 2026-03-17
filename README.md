@@ -37,6 +37,7 @@ See `.env.local` for all required variables:
 | `CONTACT_EMAIL` | Internal inbox for inquiry notifications |
 | `GUIDE_PDF_URL` | Secure URL for the downloadable guide PDF |
 | `NEXT_PUBLIC_GA4_ID` | GA4 Measurement ID (e.g. `G-XXXXXXXXXX`) |
+| `SANITY_API_READ_TOKEN` | Viewer token used for draft mode and visual editing |
 | `SANITY_API_WRITE_TOKEN` | Write token used by Sanity migration scripts |
 | `SUPABASE_URL` | Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-only) |
