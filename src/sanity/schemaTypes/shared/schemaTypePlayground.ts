@@ -4,13 +4,18 @@ const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'yourProjectId';
 const globalResourceId = `${projectId}.${dataset}`;
 
-const referenceTargets = [
-  { type: 'homePage' },
-  { type: 'aboutPage' },
-  { type: 'servicesPage' },
-  { type: 'pricingPage' },
-  { type: 'contactPage' },
-];
+const referenceTypeNames = ['homePage', 'aboutPage', 'servicesPage', 'pricingPage', 'contactPage'];
+
+const referenceTargets = referenceTypeNames.map((typeName) => ({
+  type: typeName,
+  preview: {
+    select: { title: '_id' },
+    prepare: ({ title }: { title?: string }) => ({
+      title: title || typeName,
+      subtitle: typeName,
+    }),
+  },
+}));
 
 const schemaTypePlaygroundMembers = [
   defineArrayMember({
