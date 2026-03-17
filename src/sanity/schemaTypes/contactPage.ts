@@ -1,4 +1,5 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
+import { createSchemaTypePlaygroundField } from './shared/schemaTypePlayground';
 
 const hideLegacyFields = ({ document }: { document?: unknown }) => {
   const sections =
@@ -39,6 +40,11 @@ export const contactPage = defineType({
     {
       name: 'legacy',
       title: 'Legacy Fields (Deprecated)',
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: 'playground',
+      title: 'Schema Playground',
       options: { collapsible: true, collapsed: true },
     },
   ],
@@ -144,6 +150,7 @@ export const contactPage = defineType({
       fieldset: 'legacy',
       hidden: hideLegacyFields,
     }),
+    createSchemaTypePlaygroundField(),
   ],
   preview: { prepare: () => ({ title: 'Contact Page' }) },
 });

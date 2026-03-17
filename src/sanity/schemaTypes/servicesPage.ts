@@ -1,4 +1,5 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
+import { createSchemaTypePlaygroundField } from './shared/schemaTypePlayground';
 
 const hideLegacyFields = ({ document }: { document?: unknown }) => {
   const sections =
@@ -68,6 +69,11 @@ export const servicesPage = defineType({
     {
       name: 'legacy',
       title: 'Legacy Fields (Deprecated)',
+      options: { collapsible: true, collapsed: true },
+    },
+    {
+      name: 'playground',
+      title: 'Schema Playground',
       options: { collapsible: true, collapsed: true },
     },
   ],
@@ -193,6 +199,7 @@ export const servicesPage = defineType({
     defineField({ name: 'whyFrameworkBody3', title: 'Legacy: Why Framework Paragraph 3', type: 'text', rows: 3, fieldset: 'legacy', hidden: hideLegacyFields }),
     defineField({ name: 'ctaHeading', title: 'Legacy: CTA Heading', type: 'string', fieldset: 'legacy', hidden: hideLegacyFields }),
     defineField({ name: 'ctaBody', title: 'Legacy: CTA Body', type: 'text', rows: 2, fieldset: 'legacy', hidden: hideLegacyFields }),
+    createSchemaTypePlaygroundField(),
   ],
   preview: { prepare: () => ({ title: 'Services Page' }) },
 });
