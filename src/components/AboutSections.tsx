@@ -67,6 +67,7 @@ interface AboutSectionsProps {
   documentId: string;
   documentType: string;
   sections: AboutSection[];
+  legacyMode?: boolean;
 }
 
 type DataPathSegment = string | number | { _key: string };
@@ -82,6 +83,7 @@ export default function AboutSections({
   documentId,
   documentType,
   sections,
+  legacyMode = false,
 }: AboutSectionsProps) {
   const dataAttribute = createDataAttribute({ id: documentId, type: documentType });
   const optimisticSections = useOptimistic(sections, (current, action) => {
@@ -91,11 +93,92 @@ export default function AboutSections({
   });
 
   const dataFor = (path: DataPathSegment[]) => dataAttribute(path);
+  const normalizeLegacySectionKey = (sectionKey: string): string => {
+    if (sectionKey === 'aboutHeroSection') return 'hero';
+    if (sectionKey === 'aboutFocusSection') return 'focus';
+    if (sectionKey === 'aboutMissionSection') return 'mission';
+    if (sectionKey === 'aboutFounderSection') return 'founder';
+    if (sectionKey === 'aboutCtaSection') return 'cta';
+    return sectionKey;
+  };
+  const legacyPathForField = (
+    sectionKey: string,
+    field:
+      | 'label'
+      | 'heading'
+      | 'paragraphs'
+      | 'linkLabel'
+      | 'quote'
+      | 'founderName'
+      | 'founderRole'
+      | 'founderBio'
+      | 'body'
+      | 'primaryButtonLabel'
+      | 'secondaryButtonLabel',
+    paragraphIndex?: number
+  ): DataPathSegment[] | null => {
+    const key = normalizeLegacySectionKey(sectionKey);
+
+    if (key === 'hero' && field === 'paragraphs' && typeof paragraphIndex === 'number') {
+      return [`heroParagraph${paragraphIndex + 1}`];
+    }
+    if (key === 'focus' && field === 'paragraphs' && typeof paragraphIndex === 'number') {
+      return [`focusParagraph${paragraphIndex + 1}`];
+    }
+    if (key === 'mission' && field === 'quote') {
+      return ['missionQuote'];
+    }
+    if (key === 'founder' && field === 'founderName') {
+      return ['founderName'];
+    }
+    if (key === 'founder' && field === 'founderRole') {
+      return ['founderRole'];
+    }
+    if (key === 'founder' && field === 'founderBio') {
+      return ['founderBio'];
+    }
+    if (key === 'cta' && field === 'heading') {
+      return ['ctaHeading'];
+    }
+    if (key === 'cta' && field === 'body') {
+      return ['ctaBody'];
+    }
+    return null;
+  };
+  const dataForField = (
+    sectionPath: DataPathSegment[],
+    sectionKey: string,
+    field:
+      | 'label'
+      | 'heading'
+      | 'paragraphs'
+      | 'linkLabel'
+      | 'quote'
+      | 'founderName'
+      | 'founderRole'
+      | 'founderBio'
+      | 'body'
+      | 'primaryButtonLabel'
+      | 'secondaryButtonLabel',
+    paragraphIndex?: number
+  ) => {
+    if (legacyMode) {
+      const path = legacyPathForField(sectionKey, field, paragraphIndex);
+      return path ? dataFor(path) : undefined;
+    }
+    if (field === 'paragraphs' && typeof paragraphIndex === 'number') {
+      return dataFor([...sectionPath, 'paragraphs', paragraphIndex]);
+    }
+    return dataFor([...sectionPath, field]);
+  };
+  const dataForSection = (sectionPath: DataPathSegment[]) =>
+    legacyMode ? undefined : dataFor(sectionPath);
 
   return (
     <>
       {optimisticSections.map((section, index) => {
         const key = section._key ?? `${section._type}-${index}`;
+        const sectionKey = section._key ?? section._type;
         const sectionPath: DataPathSegment[] = section._key
           ? ['sections', { _key: section._key }]
           : ['sections', index];
@@ -107,7 +190,7 @@ export default function AboutSections({
             <section
               key={key}
               aria-labelledby="about-hero-heading"
-              data-sanity={dataFor(sectionPath)}
+              data-sanity={dataForSection(sectionPath)}
               style={{
                 backgroundColor: '#1B2D4F',
                 padding: '100px 32px 108px',
@@ -131,7 +214,7 @@ export default function AboutSections({
               <div style={{ ...narrow, position: 'relative', zIndex: 1 }}>
                 <p
                   className="section-label animate-fade-in"
-                  data-sanity={dataFor([...sectionPath, 'label'])}
+                  data-sanity={dataForField(sectionPath, sectionKey, 'label')}
                   style={{ color: 'rgba(255,255,255,0.45)', marginBottom: '24px' }}
                 >
                   {section.label || 'About'}
@@ -139,7 +222,7 @@ export default function AboutSections({
                 <h1
                   id="about-hero-heading"
                   className="animate-fade-up"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
+                  data-sanity={dataForField(sectionPath, sectionKey, 'heading')}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(36px, 5.5vw, 60px)',
@@ -156,7 +239,7 @@ export default function AboutSections({
                   <p
                     key={paragraphIndex}
                     className={paragraphIndex === 0 ? 'animate-fade-up-delay-1' : 'animate-fade-up-delay-2'}
-                    data-sanity={dataFor([...sectionPath, 'paragraphs', paragraphIndex])}
+                    data-sanity={dataForField(sectionPath, sectionKey, 'paragraphs', paragraphIndex)}
                     style={{
                       fontSize: '17px',
                       color: 'rgba(255,255,255,0.65)',
@@ -179,20 +262,20 @@ export default function AboutSections({
             <section
               key={key}
               aria-labelledby="focus-heading"
-              data-sanity={dataFor(sectionPath)}
+              data-sanity={dataForSection(sectionPath)}
               style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
             >
               <div style={narrow}>
                 <p
                   className="section-label"
-                  data-sanity={dataFor([...sectionPath, 'label'])}
+                  data-sanity={dataForField(sectionPath, sectionKey, 'label')}
                   style={{ marginBottom: '16px' }}
                 >
                   {section.label || 'Our Focus'}
                 </p>
                 <h2
                   id="focus-heading"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
+                  data-sanity={dataForField(sectionPath, sectionKey, 'heading')}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(26px, 3.5vw, 38px)',
@@ -218,7 +301,7 @@ export default function AboutSections({
                 {paragraphs.map((paragraph, paragraphIndex) => (
                   <p
                     key={paragraphIndex}
-                    data-sanity={dataFor([...sectionPath, 'paragraphs', paragraphIndex])}
+                    data-sanity={dataForField(sectionPath, sectionKey, 'paragraphs', paragraphIndex)}
                     style={{
                       fontSize: '17px',
                       color: '#6B7280',
@@ -231,7 +314,7 @@ export default function AboutSections({
                 ))}
                 <Link
                   href={section.linkHref || '/services'}
-                  data-sanity={dataFor([...sectionPath, 'linkLabel'])}
+                  data-sanity={dataForField(sectionPath, sectionKey, 'linkLabel')}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -255,7 +338,7 @@ export default function AboutSections({
             <section
               key={key}
               aria-labelledby="mission-heading"
-              data-sanity={dataFor(sectionPath)}
+              data-sanity={dataForSection(sectionPath)}
               style={{
                 padding: '100px 32px',
                 backgroundColor: '#F8F9FA',
@@ -283,14 +366,14 @@ export default function AboutSections({
               <div style={{ ...narrow, position: 'relative', zIndex: 1, textAlign: 'center' }}>
                 <p
                   className="section-label"
-                  data-sanity={dataFor([...sectionPath, 'label'])}
+                  data-sanity={dataForField(sectionPath, sectionKey, 'label')}
                   style={{ marginBottom: '32px' }}
                 >
                   {section.label || 'What we believe'}
                 </p>
                 <h2
                   id="mission-heading"
-                  data-sanity={dataFor([...sectionPath, 'quote'])}
+                  data-sanity={dataForField(sectionPath, sectionKey, 'quote')}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(24px, 3.5vw, 36px)',
@@ -310,25 +393,25 @@ export default function AboutSections({
           );
         }
 
-        if (section._type === 'aboutFounderSection' && section.founderName) {
+        if (section._type === 'aboutFounderSection') {
           return (
             <section
               key={key}
               aria-labelledby="team-heading"
-              data-sanity={dataFor(sectionPath)}
+              data-sanity={dataForSection(sectionPath)}
               style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
             >
               <div style={narrow}>
                 <p
                   className="section-label"
-                  data-sanity={dataFor([...sectionPath, 'label'])}
+                  data-sanity={dataForField(sectionPath, sectionKey, 'label')}
                   style={{ marginBottom: '16px' }}
                 >
                   {section.label || 'The Team'}
                 </p>
                 <h2
                   id="team-heading"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
+                  data-sanity={dataForField(sectionPath, sectionKey, 'heading')}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(26px, 3.5vw, 38px)',
@@ -384,7 +467,7 @@ export default function AboutSections({
                   </div>
                   <div>
                     <p
-                      data-sanity={dataFor([...sectionPath, 'founderName'])}
+                      data-sanity={dataForField(sectionPath, sectionKey, 'founderName')}
                       style={{
                         fontFamily: 'var(--font-display), Georgia, serif',
                         fontWeight: 700,
@@ -397,7 +480,7 @@ export default function AboutSections({
                       {section.founderName}
                     </p>
                     <p
-                      data-sanity={dataFor([...sectionPath, 'founderRole'])}
+                      data-sanity={dataForField(sectionPath, sectionKey, 'founderRole')}
                       style={{
                         fontSize: '13px',
                         color: '#6B7280',
@@ -408,7 +491,7 @@ export default function AboutSections({
                       {section.founderRole} · Plenor Systems
                     </p>
                     <p
-                      data-sanity={dataFor([...sectionPath, 'founderBio'])}
+                      data-sanity={dataForField(sectionPath, sectionKey, 'founderBio')}
                       style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65 }}
                     >
                       {section.founderBio}
@@ -425,7 +508,7 @@ export default function AboutSections({
             <section
               key={key}
               aria-labelledby="about-cta-heading"
-              data-sanity={dataFor(sectionPath)}
+              data-sanity={dataForSection(sectionPath)}
               style={{
                 padding: '100px 32px',
                 backgroundColor: '#1B2D4F',
@@ -457,7 +540,7 @@ export default function AboutSections({
               >
                 <h2
                   id="about-cta-heading"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
+                  data-sanity={dataForField(sectionPath, sectionKey, 'heading')}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(26px, 4vw, 38px)',
@@ -471,7 +554,7 @@ export default function AboutSections({
                   {section.heading || 'Want to work together?'}
                 </h2>
                 <p
-                  data-sanity={dataFor([...sectionPath, 'body'])}
+                  data-sanity={dataForField(sectionPath, sectionKey, 'body')}
                   style={{
                     fontSize: '17px',
                     color: 'rgba(255,255,255,0.65)',
@@ -484,14 +567,14 @@ export default function AboutSections({
                 <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <Link
                     href={section.primaryButtonHref || '/contact'}
-                    data-sanity={dataFor([...sectionPath, 'primaryButtonLabel'])}
+                    data-sanity={dataForField(sectionPath, sectionKey, 'primaryButtonLabel')}
                     className="btn-ghost"
                   >
                     {section.primaryButtonLabel || 'Get in touch'}
                   </Link>
                   <Link
                     href={section.secondaryButtonHref || '/contact#guide'}
-                    data-sanity={dataFor([...sectionPath, 'secondaryButtonLabel'])}
+                    data-sanity={dataForField(sectionPath, sectionKey, 'secondaryButtonLabel')}
                     style={{
                       display: 'inline-block',
                       color: 'rgba(255,255,255,0.75)',

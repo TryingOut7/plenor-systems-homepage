@@ -1,5 +1,11 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
 
+const hideLegacyFields = ({ document }: { document?: unknown }) => {
+  const sections =
+    document && typeof document === 'object' ? (document as { sections?: unknown[] }).sections : undefined;
+  return Array.isArray(sections) && sections.length > 0;
+};
+
 export const aboutPage = defineType({
   name: 'aboutPage',
   title: 'About Page',
@@ -53,6 +59,13 @@ export const aboutPage = defineType({
       },
     ],
   },
+  fieldsets: [
+    {
+      name: 'legacy',
+      title: 'Legacy Fields (Deprecated)',
+      options: { collapsible: true, collapsed: true },
+    },
+  ],
   fields: [
     defineField({
       name: 'sections',
@@ -247,6 +260,99 @@ export const aboutPage = defineType({
         }),
       ],
       validation: (Rule) => Rule.required().min(1),
+    }),
+    defineField({
+      name: 'heroParagraph1',
+      title: 'Legacy: Who We Are — Paragraph 1',
+      type: 'text',
+      rows: 3,
+      fieldset: 'legacy',
+      hidden: hideLegacyFields,
+    }),
+    defineField({
+      name: 'heroParagraph2',
+      title: 'Legacy: Who We Are — Paragraph 2',
+      type: 'text',
+      rows: 3,
+      fieldset: 'legacy',
+      hidden: hideLegacyFields,
+    }),
+    defineField({
+      name: 'heroParagraph3',
+      title: 'Legacy: Who We Are — Paragraph 3',
+      type: 'text',
+      rows: 3,
+      fieldset: 'legacy',
+      hidden: hideLegacyFields,
+    }),
+    defineField({
+      name: 'focusParagraph1',
+      title: 'Legacy: Our Focus — Paragraph 1',
+      type: 'text',
+      rows: 3,
+      fieldset: 'legacy',
+      hidden: hideLegacyFields,
+    }),
+    defineField({
+      name: 'focusParagraph2',
+      title: 'Legacy: Our Focus — Paragraph 2',
+      type: 'text',
+      rows: 3,
+      fieldset: 'legacy',
+      hidden: hideLegacyFields,
+    }),
+    defineField({
+      name: 'focusParagraph3',
+      title: 'Legacy: Our Focus — Paragraph 3',
+      type: 'text',
+      rows: 3,
+      fieldset: 'legacy',
+      hidden: hideLegacyFields,
+    }),
+    defineField({
+      name: 'missionQuote',
+      title: 'Legacy: Mission Quote',
+      type: 'text',
+      rows: 2,
+      fieldset: 'legacy',
+      hidden: hideLegacyFields,
+    }),
+    defineField({
+      name: 'founderName',
+      title: 'Legacy: Founder Name',
+      type: 'string',
+      fieldset: 'legacy',
+      hidden: hideLegacyFields,
+    }),
+    defineField({
+      name: 'founderRole',
+      title: 'Legacy: Founder Role',
+      type: 'string',
+      fieldset: 'legacy',
+      hidden: hideLegacyFields,
+    }),
+    defineField({
+      name: 'founderBio',
+      title: 'Legacy: Founder Bio',
+      type: 'text',
+      rows: 3,
+      fieldset: 'legacy',
+      hidden: hideLegacyFields,
+    }),
+    defineField({
+      name: 'ctaHeading',
+      title: 'Legacy: CTA Heading',
+      type: 'string',
+      fieldset: 'legacy',
+      hidden: hideLegacyFields,
+    }),
+    defineField({
+      name: 'ctaBody',
+      title: 'Legacy: CTA Body',
+      type: 'text',
+      rows: 2,
+      fieldset: 'legacy',
+      hidden: hideLegacyFields,
     }),
   ],
   preview: { prepare: () => ({ title: 'About Page' }) },
