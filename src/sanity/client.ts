@@ -1,8 +1,8 @@
 import { createClient } from 'next-sanity';
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
-const apiVersion = '2024-01-01';
+export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
+export const apiVersion = '2024-01-01';
 
 export const client = projectId
   ? createClient({
@@ -35,10 +35,13 @@ export const previewClient =
 
 export async function sanityFetch<T>(
   query: string,
-  { preview = false }: { preview?: boolean } = {}
+  {
+    preview = false,
+    params = {},
+  }: { preview?: boolean; params?: Record<string, unknown> } = {}
 ): Promise<T | null> {
   const activeClient = preview && previewClient ? previewClient : client;
   if (!activeClient) return null;
   const fetchOptions = preview ? { cache: 'no-store' as const } : {};
-  return activeClient.fetch<T>(query, {}, fetchOptions).catch(() => null);
+  return activeClient.fetch<T>(query, params, fetchOptions).catch(() => null);
 }

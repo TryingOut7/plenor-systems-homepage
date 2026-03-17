@@ -1,15 +1,66 @@
 import Link from 'next/link';
 
-const PAGE_LINKS = [
+const FALLBACK_PAGE_LINKS = [
   { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
   { label: 'Services', href: '/services' },
   { label: 'Pricing', href: '/pricing' },
+  { label: 'Testimonials', href: '/testimonials' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
   { label: 'Privacy Policy', href: '/privacy' },
 ];
 
-export default function Footer() {
+type FooterLink = {
+  _key?: string;
+  label?: string;
+  href?: string;
+};
+
+type FooterColumn = {
+  _key?: string;
+  title?: string;
+  links?: FooterLink[];
+};
+
+type SocialLink = {
+  _key?: string;
+  label?: string;
+  url?: string;
+};
+
+interface FooterProps {
+  siteName?: string;
+  brandTagline?: string;
+  contactEmail?: string;
+  footerColumns?: FooterColumn[];
+  socialLinks?: SocialLink[];
+}
+
+export default function Footer({
+  siteName = 'Plenor Systems',
+  brandTagline = 'A product development framework for Testing & QA and Launch & Go-to-Market.',
+  contactEmail = 'hello@plenor.ai',
+  footerColumns,
+  socialLinks,
+}: FooterProps) {
+  const fallbackColumns: FooterColumn[] = [
+    { title: 'Pages', links: FALLBACK_PAGE_LINKS },
+  ];
+
+  const normalizedColumns = (footerColumns?.length ? footerColumns : fallbackColumns).map((column) => ({
+    ...column,
+    links:
+      column.links
+        ?.map((link) => ({ _key: link._key, label: link.label?.trim(), href: link.href?.trim() }))
+        .filter((link) => link.label && link.href) || [],
+  }));
+
+  const normalizedSocialLinks =
+    socialLinks
+      ?.map((link) => ({ _key: link._key, label: link.label?.trim(), url: link.url?.trim() }))
+      .filter((link) => link.label && link.url) || [];
+
   return (
     <footer
       role="contentinfo"
@@ -59,7 +110,7 @@ export default function Footer() {
                 }}
                 aria-hidden="true"
               />
-              Plenor Systems
+              {siteName}
             </Link>
             <p
               style={{
@@ -69,54 +120,56 @@ export default function Footer() {
                 lineHeight: 1.6,
               }}
             >
-              A product development framework for Testing & QA and Launch & Go-to-Market.
+              {brandTagline}
             </p>
           </div>
 
-          {/* Page links */}
-          <nav aria-label="Footer navigation">
-            <p
-              style={{
-                fontFamily: 'var(--font-sans), system-ui, sans-serif',
-                fontSize: '10px',
-                fontWeight: 700,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.35)',
-                marginBottom: '16px',
-              }}
-            >
-              Pages
-            </p>
-            <ul
-              role="list"
-              style={{
-                listStyle: 'none',
-                margin: 0,
-                padding: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px',
-              }}
-            >
-              {PAGE_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    style={{
-                      fontSize: '14px',
-                      color: 'rgba(255,255,255,0.6)',
-                      textDecoration: 'none',
-                      transition: 'color 0.2s ease',
-                    }}
-                    className="footer-link"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          {/* Footer columns */}
+          {normalizedColumns.map((column, index) => (
+            <nav aria-label={`${column.title || 'Footer'} navigation`} key={column._key || `${column.title}-${index}`}>
+              <p
+                style={{
+                  fontFamily: 'var(--font-sans), system-ui, sans-serif',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(255,255,255,0.35)',
+                  marginBottom: '16px',
+                }}
+              >
+                {column.title || 'Pages'}
+              </p>
+              <ul
+                role="list"
+                style={{
+                  listStyle: 'none',
+                  margin: 0,
+                  padding: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px',
+                }}
+              >
+                {(column.links || []).map((link, linkIndex) => (
+                  <li key={link._key || `${link.href}-${linkIndex}`}>
+                    <Link
+                      href={link.href || '/'}
+                      style={{
+                        fontSize: '14px',
+                        color: 'rgba(255,255,255,0.6)',
+                        textDecoration: 'none',
+                        transition: 'color 0.2s ease',
+                      }}
+                      className="footer-link"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
 
           {/* Contact + Social */}
           <div>
@@ -134,7 +187,7 @@ export default function Footer() {
               Get in touch
             </p>
             <a
-              href="mailto:hello@plenor.ai"
+              href={`mailto:${contactEmail}`}
               style={{
                 display: 'block',
                 fontSize: '14px',
@@ -145,29 +198,52 @@ export default function Footer() {
               }}
               className="footer-link"
             >
-              hello@plenor.ai
+              {contactEmail}
             </a>
-            <a
-              href="https://www.linkedin.com/company/plenor-ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Plenor Systems on LinkedIn (opens in new tab)"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                color: 'rgba(255,255,255,0.6)',
-                fontSize: '14px',
-                textDecoration: 'none',
-                transition: 'color 0.2s ease',
-              }}
-              className="footer-link"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M20.447 20.452H17.21v-5.569c0-1.328-.024-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.985V9h3.102v1.561h.044c.432-.82 1.487-1.685 3.059-1.685 3.27 0 3.874 2.153 3.874 4.953v6.623zM5.337 7.433a1.8 1.8 0 1 1 0-3.6 1.8 1.8 0 0 1 0 3.6zm1.553 13.019H3.784V9h3.106v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-              </svg>
-              LinkedIn
-            </a>
+            {normalizedSocialLinks.length ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {normalizedSocialLinks.map((link, linkIndex) => (
+                  <a
+                    key={link._key || `${link.url}-${linkIndex}`}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${link.label} (opens in new tab)`}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      color: 'rgba(255,255,255,0.6)',
+                      fontSize: '14px',
+                      textDecoration: 'none',
+                      transition: 'color 0.2s ease',
+                    }}
+                    className="footer-link"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <a
+                href="https://www.linkedin.com/company/plenor-ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Plenor Systems on LinkedIn (opens in new tab)"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  color: 'rgba(255,255,255,0.6)',
+                  fontSize: '14px',
+                  textDecoration: 'none',
+                  transition: 'color 0.2s ease',
+                }}
+                className="footer-link"
+              >
+                LinkedIn
+              </a>
+            )}
           </div>
         </div>
 

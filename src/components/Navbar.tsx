@@ -4,28 +4,63 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
-const NAV_LINKS = [
+type NavLink = {
+  label: string;
+  href: string;
+};
+
+const FALLBACK_NAV_LINKS: NavLink[] = [
   { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
   { label: 'Services', href: '/services' },
   { label: 'Pricing', href: '/pricing' },
+  { label: 'Testimonials', href: '/testimonials' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ];
 
-export default function Navbar() {
+type NavigationLink = {
+  _key?: string;
+  label?: string;
+  href?: string;
+  isVisible?: boolean;
+};
+
+interface NavbarProps {
+  siteName?: string;
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  navigationLinks?: NavigationLink[];
+}
+
+export default function Navbar({
+  siteName = 'Plenor Systems',
+  primaryCtaLabel = 'Get the Free Guide',
+  primaryCtaHref = '/contact#guide',
+  navigationLinks,
+}: NavbarProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const closeMenu = () => setMenuOpen(false);
+
+  const navLinks: NavLink[] = (() => {
+    const normalized: NavLink[] =
+      navigationLinks
+        ?.filter((link) => link?.isVisible !== false)
+        .map((link) => ({
+          label: link.label?.trim() || '',
+          href: link.href?.trim() || '',
+        }))
+        .filter((link): link is NavLink => Boolean(link.label && link.href)) || [];
+    return normalized.length ? normalized : FALLBACK_NAV_LINKS;
+  })();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
 
   return (
     <header
@@ -56,6 +91,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
+          onClick={closeMenu}
           aria-label="Plenor Systems – home"
           style={{
             fontFamily: 'var(--font-display), Georgia, serif',
@@ -81,7 +117,7 @@ export default function Navbar() {
             }}
             aria-hidden="true"
           />
-          Plenor Systems
+          {siteName}
         </Link>
 
         {/* Desktop nav */}
@@ -97,12 +133,13 @@ export default function Navbar() {
           }}
           className="navbar-desktop"
         >
-          {NAV_LINKS.map((link) => {
+          {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <li key={link.href}>
                 <Link
                   href={link.href}
+                  onClick={closeMenu}
                   style={{
                     display: 'inline-block',
                     padding: '6px 12px',
@@ -122,8 +159,8 @@ export default function Navbar() {
             );
           })}
           <li style={{ marginLeft: '12px' }}>
-            <Link href="/contact#guide" className="btn-nav">
-              Get the Free Guide
+            <Link href={primaryCtaHref} onClick={closeMenu} className="btn-nav">
+              {primaryCtaLabel}
             </Link>
           </li>
         </ul>
@@ -180,12 +217,13 @@ export default function Navbar() {
           className="navbar-mobile-menu"
         >
           <ul role="list" style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column' }}>
-            {NAV_LINKS.map((link) => {
+            {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <li key={link.href} style={{ borderBottom: '1px solid #F3F4F6' }}>
                   <Link
                     href={link.href}
+                    onClick={closeMenu}
                     style={{
                       display: 'block',
                       padding: '14px 0',
@@ -202,8 +240,8 @@ export default function Navbar() {
               );
             })}
             <li style={{ marginTop: '20px' }}>
-              <Link href="/contact#guide" className="btn-primary" style={{ display: 'block', textAlign: 'center' }}>
-                Get the Free Guide
+              <Link href={primaryCtaHref} onClick={closeMenu} className="btn-primary" style={{ display: 'block', textAlign: 'center' }}>
+                {primaryCtaLabel}
               </Link>
             </li>
           </ul>

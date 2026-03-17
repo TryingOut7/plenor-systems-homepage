@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { draftMode } from 'next/headers';
 import PricingSections, { type PricingSection } from '@/components/PricingSections';
 import { sanityFetch } from '@/sanity/client';
+import UniversalSections from '@/components/cms/UniversalSections';
+import { getCollectionData, getSitePageBySlug } from '@/sanity/cms';
 
 export const revalidate = 60;
 
@@ -126,9 +128,25 @@ function buildLegacySections(cms?: LegacyPricingFields): PricingSection[] {
 
 export default async function PricingPage() {
   const { isEnabled: preview } = await draftMode();
-  const cms = await sanityFetch<PricingPageData>(`*[_type == "pricingPage"][0]{..., sections[]{...}}`, {
-    preview,
-  });
+  const [sitePage, cms] = await Promise.all([
+    getSitePageBySlug('pricing', preview),
+    sanityFetch<PricingPageData>(`*[_type == "pricingPage"][0]{..., sections[]{...}}`, {
+      preview,
+    }),
+  ]);
+
+  if (sitePage && Array.isArray(sitePage.sections) && sitePage.sections.length > 0) {
+    const collectionData = await getCollectionData(preview);
+    return (
+      <UniversalSections
+        documentId={sitePage._id || 'sitePage.pricing'}
+        documentType={sitePage._type || 'sitePage'}
+        sections={sitePage.sections}
+        collections={collectionData}
+      />
+    );
+  }
+
   const sectionList = Array.isArray(cms?.sections) ? cms.sections.filter(isPricingSection) : [];
   const sections = sectionList.length ? sectionList : buildLegacySections(cms ?? undefined);
 

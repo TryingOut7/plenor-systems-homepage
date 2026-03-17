@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { draftMode } from 'next/headers';
 import AboutSections, { type AboutSection } from '@/components/AboutSections';
 import { sanityFetch } from '@/sanity/client';
+import UniversalSections from '@/components/cms/UniversalSections';
+import { getCollectionData, getSitePageBySlug } from '@/sanity/cms';
 
 export const revalidate = 60;
 
@@ -129,9 +131,24 @@ export const metadata: Metadata = {
 
 export default async function AboutPage() {
   const { isEnabled: preview } = await draftMode();
-  const cms = await sanityFetch<AboutPageData>(`*[_type == "aboutPage"][0]{..., sections[]{...}}`, {
-    preview,
-  });
+  const [sitePage, cms] = await Promise.all([
+    getSitePageBySlug('about', preview),
+    sanityFetch<AboutPageData>(`*[_type == "aboutPage"][0]{..., sections[]{...}}`, {
+      preview,
+    }),
+  ]);
+
+  if (sitePage && Array.isArray(sitePage.sections) && sitePage.sections.length > 0) {
+    const collectionData = await getCollectionData(preview);
+    return (
+      <UniversalSections
+        documentId={sitePage._id || 'sitePage.about'}
+        documentType={sitePage._type || 'sitePage'}
+        sections={sitePage.sections}
+        collections={collectionData}
+      />
+    );
+  }
 
   const sectionList = Array.isArray(cms?.sections) ? cms.sections.filter(isAboutSection) : [];
   const sections = sectionList.length ? sectionList : buildLegacySections(cms ?? undefined);

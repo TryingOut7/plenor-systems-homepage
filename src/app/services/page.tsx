@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { draftMode } from 'next/headers';
 import ServicesSections, { type ServicesSection } from '@/components/ServicesSections';
 import { sanityFetch } from '@/sanity/client';
+import UniversalSections from '@/components/cms/UniversalSections';
+import { getCollectionData, getSitePageBySlug } from '@/sanity/cms';
 
 export const revalidate = 60;
 
@@ -134,9 +136,25 @@ function buildLegacySections(cms?: LegacyServicesFields): ServicesSection[] {
 
 export default async function ServicesPage() {
   const { isEnabled: preview } = await draftMode();
-  const cms = await sanityFetch<ServicesPageData>(`*[_type == "servicesPage"][0]{..., sections[]{...}}`, {
-    preview,
-  });
+  const [sitePage, cms] = await Promise.all([
+    getSitePageBySlug('services', preview),
+    sanityFetch<ServicesPageData>(`*[_type == "servicesPage"][0]{..., sections[]{...}}`, {
+      preview,
+    }),
+  ]);
+
+  if (sitePage && Array.isArray(sitePage.sections) && sitePage.sections.length > 0) {
+    const collectionData = await getCollectionData(preview);
+    return (
+      <UniversalSections
+        documentId={sitePage._id || 'sitePage.services'}
+        documentType={sitePage._type || 'sitePage'}
+        sections={sitePage.sections}
+        collections={collectionData}
+      />
+    );
+  }
+
   const sectionList = Array.isArray(cms?.sections) ? cms.sections.filter(isServicesSection) : [];
   const sections = sectionList.length ? sectionList : buildLegacySections(cms ?? undefined);
 

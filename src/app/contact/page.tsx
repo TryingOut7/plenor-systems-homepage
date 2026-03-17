@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { draftMode } from 'next/headers';
 import ContactSections, { type ContactSection } from '@/components/ContactSections';
 import { sanityFetch } from '@/sanity/client';
+import UniversalSections from '@/components/cms/UniversalSections';
+import { getCollectionData, getSitePageBySlug } from '@/sanity/cms';
 
 export const revalidate = 60;
 
@@ -86,9 +88,25 @@ function buildLegacySections(cms?: LegacyContactFields): ContactSection[] {
 
 export default async function ContactPage() {
   const { isEnabled: preview } = await draftMode();
-  const cms = await sanityFetch<ContactPageData>(`*[_type == "contactPage"][0]{..., sections[]{...}}`, {
-    preview,
-  });
+  const [sitePage, cms] = await Promise.all([
+    getSitePageBySlug('contact', preview),
+    sanityFetch<ContactPageData>(`*[_type == "contactPage"][0]{..., sections[]{...}}`, {
+      preview,
+    }),
+  ]);
+
+  if (sitePage && Array.isArray(sitePage.sections) && sitePage.sections.length > 0) {
+    const collectionData = await getCollectionData(preview);
+    return (
+      <UniversalSections
+        documentId={sitePage._id || 'sitePage.contact'}
+        documentType={sitePage._type || 'sitePage'}
+        sections={sitePage.sections}
+        collections={collectionData}
+      />
+    );
+  }
+
   const sectionList = Array.isArray(cms?.sections) ? cms.sections.filter(isContactSection) : [];
   const sections = sectionList.length ? sectionList : buildLegacySections(cms ?? undefined);
 

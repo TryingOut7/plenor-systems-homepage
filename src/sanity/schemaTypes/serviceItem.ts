@@ -1,0 +1,140 @@
+import { defineArrayMember, defineField, defineType } from 'sanity';
+
+export const serviceItem = defineType({
+  name: 'serviceItem',
+  title: 'Service Item',
+  type: 'document',
+  groups: [
+    { name: 'content', title: 'Content', default: true },
+    { name: 'metadata', title: 'Metadata' },
+    { name: 'seo', title: 'SEO' },
+  ],
+  fields: [
+    defineField({
+      name: 'title',
+      title: 'Title',
+      type: 'string',
+      group: 'content',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      group: 'metadata',
+      options: { source: 'title' },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'summary',
+      title: 'Summary',
+      type: 'text',
+      rows: 3,
+      group: 'content',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'heroImage',
+      title: 'Hero Image',
+      type: 'image',
+      group: 'content',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
+    }),
+    defineField({
+      name: 'body',
+      title: 'Body',
+      type: 'array',
+      group: 'content',
+      of: [defineArrayMember({ type: 'block' })],
+    }),
+    defineField({
+      name: 'priceFrom',
+      title: 'Price (From)',
+      type: 'number',
+      group: 'metadata',
+      validation: (Rule) => Rule.min(0),
+    }),
+    defineField({
+      name: 'currency',
+      title: 'Currency',
+      type: 'string',
+      group: 'metadata',
+      initialValue: 'USD',
+    }),
+    defineField({
+      name: 'launchDate',
+      title: 'Launch Date',
+      type: 'date',
+      group: 'metadata',
+    }),
+    defineField({
+      name: 'updatedAt',
+      title: 'Updated At',
+      type: 'datetime',
+      group: 'metadata',
+      initialValue: () => new Date().toISOString(),
+    }),
+    defineField({
+      name: 'isFeatured',
+      title: 'Featured',
+      type: 'boolean',
+      group: 'metadata',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      group: 'metadata',
+      of: [defineArrayMember({ type: 'string' })],
+    }),
+    defineField({
+      name: 'brochureFile',
+      title: 'Brochure File',
+      type: 'file',
+      group: 'content',
+    }),
+    defineField({
+      name: 'officeLocation',
+      title: 'Office Location (Geopoint)',
+      type: 'geopoint',
+      group: 'metadata',
+    }),
+    defineField({
+      name: 'relatedPage',
+      title: 'Related Site Page',
+      type: 'reference',
+      group: 'metadata',
+      to: [{ type: 'sitePage' }],
+    }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seoFields',
+      group: 'seo',
+    }),
+  ],
+  orderings: [
+    {
+      title: 'Featured First',
+      name: 'featuredFirst',
+      by: [
+        { field: 'isFeatured', direction: 'desc' },
+        { field: '_updatedAt', direction: 'desc' },
+      ],
+    },
+    {
+      title: 'Title (A-Z)',
+      name: 'titleAsc',
+      by: [{ field: 'title', direction: 'asc' }],
+    },
+  ],
+  preview: {
+    select: {
+      title: 'title',
+      subtitle: 'summary',
+      media: 'heroImage',
+    },
+  },
+});

@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "migrate:sanity:pages": "node scripts/sanity/migrate-pages.mjs --dry-run",
-    "migrate:sanity:pages:apply": "node scripts/sanity/migrate-pages.mjs --apply"
+    "migrate:sanity:pages:apply": "node scripts/sanity/migrate-pages.mjs --apply",
+    "bootstrap:sanity:cms": "node scripts/sanity/bootstrap-cms.mjs",
+    "bootstrap:sanity:cms:apply": "node scripts/sanity/bootstrap-cms.mjs --apply"
   },
   "dependencies": {
     "@portabletext/react": "^6.0.3",

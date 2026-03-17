@@ -1,0 +1,140 @@
+import { defineArrayMember, defineField, defineType } from 'sanity';
+
+export const testimonial = defineType({
+  name: 'testimonial',
+  title: 'Testimonial',
+  type: 'document',
+  groups: [
+    { name: 'content', title: 'Content', default: true },
+    { name: 'metadata', title: 'Metadata' },
+    { name: 'seo', title: 'SEO' },
+  ],
+  fields: [
+    defineField({
+      name: 'personName',
+      title: 'Person Name',
+      type: 'string',
+      group: 'content',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      group: 'metadata',
+      options: { source: 'personName' },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'role',
+      title: 'Role',
+      type: 'string',
+      group: 'content',
+    }),
+    defineField({
+      name: 'company',
+      title: 'Company',
+      type: 'string',
+      group: 'content',
+    }),
+    defineField({
+      name: 'quote',
+      title: 'Quote',
+      type: 'text',
+      rows: 4,
+      group: 'content',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'details',
+      title: 'Details',
+      type: 'array',
+      group: 'content',
+      of: [defineArrayMember({ type: 'block' })],
+    }),
+    defineField({
+      name: 'avatar',
+      title: 'Avatar',
+      type: 'image',
+      group: 'content',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
+    }),
+    defineField({
+      name: 'rating',
+      title: 'Rating',
+      type: 'number',
+      group: 'metadata',
+      initialValue: 5,
+      validation: (Rule) => Rule.min(1).max(5),
+    }),
+    defineField({
+      name: 'featured',
+      title: 'Featured',
+      type: 'boolean',
+      group: 'metadata',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'publishDate',
+      title: 'Publish Date',
+      type: 'date',
+      group: 'metadata',
+    }),
+    defineField({
+      name: 'publishedAt',
+      title: 'Published At',
+      type: 'datetime',
+      group: 'metadata',
+      initialValue: () => new Date().toISOString(),
+    }),
+    defineField({
+      name: 'relatedService',
+      title: 'Related Service',
+      type: 'reference',
+      group: 'metadata',
+      to: [{ type: 'serviceItem' }],
+    }),
+    defineField({
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      group: 'metadata',
+      of: [defineArrayMember({ type: 'string' })],
+    }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seoFields',
+      group: 'seo',
+    }),
+  ],
+  orderings: [
+    {
+      title: 'Featured First',
+      name: 'featuredFirst',
+      by: [
+        { field: 'featured', direction: 'desc' },
+        { field: '_updatedAt', direction: 'desc' },
+      ],
+    },
+    {
+      title: 'Name (A-Z)',
+      name: 'nameAsc',
+      by: [{ field: 'personName', direction: 'asc' }],
+    },
+  ],
+  preview: {
+    select: {
+      title: 'personName',
+      role: 'role',
+      company: 'company',
+      media: 'avatar',
+    },
+    prepare: ({ title, role, company, media }) => ({
+      title: title || 'Untitled Testimonial',
+      subtitle: [role, company].filter(Boolean).join(' · ') || 'Testimonial',
+      media,
+    }),
+  },
+});

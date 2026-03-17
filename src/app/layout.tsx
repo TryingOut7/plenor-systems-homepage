@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import CookieBanner from '@/components/CookieBanner';
 import SkipLink from '@/components/SkipLink';
 import DraftModeBanner from '@/components/DraftModeBanner';
+import { getSiteSettings } from '@/sanity/cms';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -52,16 +53,28 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const { isEnabled: isDraftMode } = await draftMode();
+  const siteSettings = await getSiteSettings(isDraftMode);
 
   return (
     <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
       <body>
         <SkipLink />
-        <Navbar />
+        <Navbar
+          siteName={siteSettings?.siteName}
+          navigationLinks={siteSettings?.navigationLinks}
+          primaryCtaLabel={siteSettings?.primaryCtaLabel}
+          primaryCtaHref={siteSettings?.primaryCtaHref}
+        />
         <main id="main-content" tabIndex={-1} style={{ outline: 'none' }}>
           {children}
         </main>
-        <Footer />
+        <Footer
+          siteName={siteSettings?.siteName}
+          brandTagline={siteSettings?.brandTagline}
+          contactEmail={siteSettings?.contactEmail}
+          footerColumns={siteSettings?.footerColumns}
+          socialLinks={siteSettings?.socialLinks}
+        />
         <CookieBanner />
         <Script
           defer

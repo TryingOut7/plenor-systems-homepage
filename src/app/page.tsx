@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { draftMode } from 'next/headers';
 import HomeSections, { type HomeSection } from '@/components/HomeSections';
 import { sanityFetch } from '@/sanity/client';
+import UniversalSections from '@/components/cms/UniversalSections';
+import { getCollectionData, getSitePageBySlug } from '@/sanity/cms';
 
 export const revalidate = 60;
 
@@ -129,9 +131,17 @@ function buildLegacySections(cms?: LegacyHomeFields): HomeSection[] {
 
 export default async function HomePage() {
   const { isEnabled: preview } = await draftMode();
-  const cms = await sanityFetch<HomePageData>(`*[_type == "homePage"][0]{..., sections[]{...}}`, {
-    preview,
-  });
+  const [sitePage, cms] = await Promise.all([
+    getSitePageBySlug('home', preview),
+    sanityFetch<HomePageData>(`*[_type == "homePage"][0]{..., sections[]{...}}`, {
+      preview,
+    }),
+  ]);
+
+  const renderCmsSections =
+    sitePage && Array.isArray(sitePage.sections) && sitePage.sections.length > 0;
+  const collectionData = renderCmsSections ? await getCollectionData(preview) : null;
+
   const sectionList = Array.isArray(cms?.sections) ? cms.sections.filter(isHomeSection) : [];
   const sections = sectionList.length ? sectionList : buildLegacySections(cms ?? undefined);
 
@@ -166,11 +176,20 @@ export default async function HomePage() {
         }}
       />
 
-      <HomeSections
-        documentId={cms?._id || 'homePage'}
-        documentType={cms?._type || 'homePage'}
-        sections={sections}
-      />
+      {renderCmsSections && collectionData ? (
+        <UniversalSections
+          documentId={sitePage._id || 'sitePage.home'}
+          documentType={sitePage._type || 'sitePage'}
+          sections={sitePage.sections || []}
+          collections={collectionData}
+        />
+      ) : (
+        <HomeSections
+          documentId={cms?._id || 'homePage'}
+          documentType={cms?._type || 'homePage'}
+          sections={sections}
+        />
+      )}
     </>
   );
 }

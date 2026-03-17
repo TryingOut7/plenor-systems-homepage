@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 export default function DraftModeBanner() {
   return (
     <div
@@ -22,7 +24,7 @@ export default function DraftModeBanner() {
       role="status"
     >
       <span>Draft mode active — viewing unpublished content</span>
-      <a
+      <Link
         href="/api/draft-mode/disable"
         style={{
           color: '#ffffff',
@@ -32,7 +34,7 @@ export default function DraftModeBanner() {
         }}
       >
         Exit preview
-      </a>
+      </Link>
     </div>
   );
 }
