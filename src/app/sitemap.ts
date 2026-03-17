@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next';
 import { getSitemapSlugs } from '@/sanity/cms';
 
+export const revalidate = 60;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = 'https://plenor.ai';
   const lastModified = new Date();

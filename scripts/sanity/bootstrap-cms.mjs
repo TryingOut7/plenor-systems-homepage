@@ -56,6 +56,14 @@ const legacyTypeToTitle = {
   contactPage: 'Contact',
 };
 
+const coreLegacyTypes = [
+  'homePage',
+  'aboutPage',
+  'servicesPage',
+  'pricingPage',
+  'contactPage',
+];
+
 function createPlaceholderSections(title) {
   return [
     {
@@ -92,12 +100,25 @@ async function run() {
   });
 
   const legacyDocs = await client.fetch(
-    '*[_type in ["homePage","aboutPage","servicesPage","pricingPage","contactPage"]]{_id,_type,sections}'
+    '*[_type in ["homePage","aboutPage","servicesPage","pricingPage","contactPage"]]{_id,_type,_updatedAt,sections}'
   );
 
-  const sitePages = legacyDocs.map((doc) => {
-    const slug = legacyTypeToSlug[doc._type] || doc._type;
-    const title = legacyTypeToTitle[doc._type] || doc._type;
+  const legacyByType = new Map();
+  for (const doc of legacyDocs) {
+    const existing = legacyByType.get(doc._type);
+    if (!existing) {
+      legacyByType.set(doc._type, doc);
+      continue;
+    }
+    if (new Date(doc._updatedAt || 0).getTime() > new Date(existing._updatedAt || 0).getTime()) {
+      legacyByType.set(doc._type, doc);
+    }
+  }
+
+  const sitePages = coreLegacyTypes.map((legacyType) => {
+    const sourceDoc = legacyByType.get(legacyType);
+    const slug = legacyTypeToSlug[legacyType] || legacyType;
+    const title = legacyTypeToTitle[legacyType] || legacyType;
     return {
       _id: `sitePage.${slug}`,
       _type: 'sitePage',
@@ -106,7 +127,10 @@ async function run() {
       pageMode: 'builder',
       templateKey: slug === 'home' ? 'landing' : 'default',
       isActive: true,
-      sections: Array.isArray(doc.sections) && doc.sections.length > 0 ? doc.sections : createPlaceholderSections(title),
+      sections:
+        Array.isArray(sourceDoc?.sections) && sourceDoc.sections.length > 0
+          ? sourceDoc.sections
+          : createPlaceholderSections(title),
       seo: {
         includeInSitemap: true,
       },

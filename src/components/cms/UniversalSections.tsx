@@ -18,6 +18,7 @@ type SectionTheme = 'navy' | 'charcoal' | 'black' | 'white' | 'light';
 type SectionSize = 'compact' | 'regular' | 'spacious';
 
 type DataPathSegment = string | number | { _key: string };
+type DataAttributeResolver = (path: DataPathSegment[]) => string;
 
 interface UniversalSectionsProps {
   documentId: string;
@@ -155,12 +156,13 @@ export default function UniversalSections({
     return isSectionList(maybeSections) ? maybeSections : current;
   });
 
-  const dataFor = (path: DataPathSegment[]) => dataAttribute(path);
+  const dataFor: DataAttributeResolver = (path) => dataAttribute(path);
 
   const renderSection = (
     section: PageSection,
     sectionPath?: DataPathSegment[],
-    keyPrefix = ''
+    keyPrefix = '',
+    sectionDataFor: DataAttributeResolver = dataFor
   ): React.ReactNode => {
     const key = `${keyPrefix}${section._key || section._type}`;
     const size = normalizeSize(section.size);
@@ -176,7 +178,7 @@ export default function UniversalSections({
         <section
           key={key}
           id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
-          data-sanity={sectionPath ? dataFor(sectionPath) : undefined}
+          data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined}
           style={{
             ...sectionStyle,
             padding: heroPadding[size],
@@ -191,7 +193,7 @@ export default function UniversalSections({
               <p
                 className="section-label"
                 style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '20px' }}
-                data-sanity={sectionPath ? dataFor([...sectionPath, 'eyebrow']) : undefined}
+                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'eyebrow']) : undefined}
               >
                 {section.eyebrow}
               </p>
@@ -203,14 +205,14 @@ export default function UniversalSections({
                 lineHeight: 1.1,
                 marginBottom: '20px',
               }}
-              data-sanity={sectionPath ? dataFor([...sectionPath, 'heading']) : undefined}
+              data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}
             >
               {String(section.heading || '')}
             </h1>
             {section.subheading ? (
               <p
                 style={{ color: 'rgba(255,255,255,0.72)', fontSize: '18px', marginBottom: section.primaryCtaLabel ? '28px' : 0 }}
-                data-sanity={sectionPath ? dataFor([...sectionPath, 'subheading']) : undefined}
+                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'subheading']) : undefined}
               >
                 {String(section.subheading)}
               </p>
@@ -219,7 +221,7 @@ export default function UniversalSections({
               <Link
                 className="btn-ghost"
                 href={normalizePath(String(section.primaryCtaHref || '#'))}
-                data-sanity={sectionPath ? dataFor([...sectionPath, 'primaryCtaLabel']) : undefined}
+                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'primaryCtaLabel']) : undefined}
               >
                 {String(section.primaryCtaLabel)}
               </Link>
@@ -234,14 +236,14 @@ export default function UniversalSections({
         <section
           key={key}
           id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
-          data-sanity={sectionPath ? dataFor(sectionPath) : undefined}
+          data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined}
           style={sectionStyle}
           className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
         >
           <div style={{ ...inner, maxWidth: '800px' }}>
             {section.heading ? (
               <h2
-                data-sanity={sectionPath ? dataFor([...sectionPath, 'heading']) : undefined}
+                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}
                 style={{
                   fontFamily: 'var(--font-display), Georgia, serif',
                   fontSize: 'clamp(28px, 4vw, 42px)',
@@ -252,7 +254,7 @@ export default function UniversalSections({
                 {String(section.heading)}
               </h2>
             ) : null}
-            <div data-sanity={sectionPath ? dataFor([...sectionPath, 'content']) : undefined} style={{ color: '#374151' }}>
+            <div data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'content']) : undefined} style={{ color: '#374151' }}>
               <PortableText value={Array.isArray(section.content) ? (section.content as PortableTextBlock[]) : []} />
             </div>
           </div>
@@ -265,14 +267,14 @@ export default function UniversalSections({
         <section
           key={key}
           id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
-          data-sanity={sectionPath ? dataFor(sectionPath) : undefined}
+          data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined}
           style={sectionStyle}
           className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
         >
           <div style={{ ...inner, maxWidth: '700px', textAlign: 'center' }}>
             {section.heading ? (
               <h2
-                data-sanity={sectionPath ? dataFor([...sectionPath, 'heading']) : undefined}
+                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}
                 style={{
                   fontFamily: 'var(--font-display), Georgia, serif',
                   fontSize: 'clamp(26px, 4vw, 40px)',
@@ -285,7 +287,7 @@ export default function UniversalSections({
             ) : null}
             {section.body ? (
               <p
-                data-sanity={sectionPath ? dataFor([...sectionPath, 'body']) : undefined}
+                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'body']) : undefined}
                 style={{ color: theme === 'white' || theme === 'light' ? '#6B7280' : 'rgba(255,255,255,0.72)', marginBottom: section.buttonLabel ? '24px' : 0 }}
               >
                 {String(section.body)}
@@ -295,7 +297,7 @@ export default function UniversalSections({
               <Link
                 className={theme === 'white' || theme === 'light' ? 'btn-primary' : 'btn-ghost'}
                 href={normalizePath(String(section.buttonHref || '#'))}
-                data-sanity={sectionPath ? dataFor([...sectionPath, 'buttonLabel']) : undefined}
+                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'buttonLabel']) : undefined}
               >
                 {String(section.buttonLabel)}
               </Link>
@@ -311,13 +313,13 @@ export default function UniversalSections({
         <section
           key={key}
           id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
-          data-sanity={sectionPath ? dataFor(sectionPath) : undefined}
+          data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined}
           style={sectionStyle}
           className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
         >
           <div style={inner}>
             {section.heading ? (
-              <h2 style={{ marginBottom: '24px', color: '#1B2D4F' }} data-sanity={sectionPath ? dataFor([...sectionPath, 'heading']) : undefined}>
+              <h2 style={{ marginBottom: '24px', color: '#1B2D4F' }} data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}>
                 {String(section.heading)}
               </h2>
             ) : null}
@@ -330,14 +332,14 @@ export default function UniversalSections({
                     key={`${key}-img-${imageIndex}`}
                     src={url}
                     alt={alt}
-                    data-sanity={sectionPath ? dataFor([...sectionPath, 'images', imageIndex]) : undefined}
+                    data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'images', imageIndex]) : undefined}
                     style={{ width: '100%', height: 'auto', borderRadius: '8px', border: '1px solid #E5E7EB' }}
                   />
                 ) : null;
               })}
             </div>
             {section.caption ? (
-              <p style={{ marginTop: '12px', color: '#6B7280' }} data-sanity={sectionPath ? dataFor([...sectionPath, 'caption']) : undefined}>
+              <p style={{ marginTop: '12px', color: '#6B7280' }} data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'caption']) : undefined}>
                 {String(section.caption)}
               </p>
             ) : null}
@@ -353,13 +355,13 @@ export default function UniversalSections({
         <section
           key={key}
           id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
-          data-sanity={sectionPath ? dataFor(sectionPath) : undefined}
+          data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined}
           style={sectionStyle}
           className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
         >
           <div style={{ ...inner, maxWidth: '900px' }}>
             {section.heading ? (
-              <h2 style={{ marginBottom: '18px', color: '#1B2D4F' }} data-sanity={sectionPath ? dataFor([...sectionPath, 'heading']) : undefined}>
+              <h2 style={{ marginBottom: '18px', color: '#1B2D4F' }} data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}>
                 {String(section.heading)}
               </h2>
             ) : null}
@@ -371,7 +373,7 @@ export default function UniversalSections({
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   style={{ width: '100%', height: '100%', border: 0 }}
-                  data-sanity={sectionPath ? dataFor([...sectionPath, 'embedUrl']) : undefined}
+                  data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'embedUrl']) : undefined}
                 />
               ) : posterUrl ? (
                 <img src={posterUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -390,7 +392,7 @@ export default function UniversalSections({
       const columns = Array.isArray(section.columns) ? section.columns : [];
       const rows = Array.isArray(section.rows) ? section.rows : [];
       return (
-        <section key={key} data-sanity={sectionPath ? dataFor(sectionPath) : undefined} style={sectionStyle}>
+        <section key={key} data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined} style={sectionStyle}>
           <div style={inner}>
             {section.heading ? <h2 style={{ marginBottom: '20px', color: '#1B2D4F' }}>{String(section.heading)}</h2> : null}
             <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
@@ -431,7 +433,7 @@ export default function UniversalSections({
       const columns = Array.isArray(section.planColumns) ? section.planColumns : [];
       const features = Array.isArray(section.features) ? section.features : [];
       return (
-        <section key={key} data-sanity={sectionPath ? dataFor(sectionPath) : undefined} style={sectionStyle}>
+        <section key={key} data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined} style={sectionStyle}>
           <div style={inner}>
             {section.heading ? <h2 style={{ marginBottom: '20px', color: '#1B2D4F' }}>{String(section.heading)}</h2> : null}
             <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
@@ -508,7 +510,7 @@ export default function UniversalSections({
       const pageItems = filteredAndSorted.slice(start, start + limit);
 
       return (
-        <section key={key} data-sanity={sectionPath ? dataFor(sectionPath) : undefined} style={sectionStyle}>
+        <section key={key} data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined} style={sectionStyle}>
           <div style={inner}>
             {config.heading ? <h2 style={{ marginBottom: '20px', color: '#1B2D4F' }}>{config.heading}</h2> : null}
             {config.viewMode === 'table' ? (
@@ -605,17 +607,53 @@ export default function UniversalSections({
     }
 
     if (section._type === 'reusableSectionReference') {
-      const reusableSection = section.reusableSection as { title?: string; sections?: PageSection[] } | undefined;
+      const reusableSection = section.reusableSection as {
+        _id?: string;
+        _type?: string;
+        title?: string;
+        sections?: PageSection[];
+      } | undefined;
       const nestedSections = Array.isArray(reusableSection?.sections) ? reusableSection?.sections : [];
+      const reusableDataFor = reusableSection?._id
+        ? createDataAttribute({
+            id: reusableSection._id,
+            type: reusableSection._type || 'reusableSection',
+          })
+        : null;
       return (
-        <section key={key} style={sectionStyle}>
+        <section
+          key={key}
+          data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined}
+          style={sectionStyle}
+        >
           <div style={inner}>
-            <h2 style={{ marginBottom: '16px', color: '#1B2D4F' }}>
+            <h2
+              style={{ marginBottom: '16px', color: '#1B2D4F' }}
+              data-sanity={
+                sectionPath
+                  ? sectionDataFor([
+                      ...sectionPath,
+                      typeof section.overrideHeading === 'string' ? 'overrideHeading' : 'reusableSection',
+                    ])
+                  : undefined
+              }
+            >
               {typeof section.overrideHeading === 'string' ? section.overrideHeading : reusableSection?.title || 'Reusable Section'}
             </h2>
-            {nestedSections.map((nestedSection, nestedIndex) =>
-              renderSection(nestedSection, undefined, `${key}-nested-${nestedIndex}-`)
-            )}
+            {nestedSections.map((nestedSection, nestedIndex) => {
+              const nestedPath: DataPathSegment[] = nestedSection._key
+                ? ['sections', { _key: nestedSection._key }]
+                : ['sections', nestedIndex];
+              const nestedResolver: DataAttributeResolver = reusableDataFor
+                ? (path) => reusableDataFor(path)
+                : sectionDataFor;
+              return renderSection(
+                nestedSection,
+                reusableDataFor ? nestedPath : undefined,
+                `${key}-nested-${nestedIndex}-`,
+                nestedResolver
+              );
+            })}
           </div>
         </section>
       );

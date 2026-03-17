@@ -63,28 +63,26 @@ async function loadRedirectRules(): Promise<RedirectRule[]> {
 
 export async function middleware(request: NextRequest) {
   const password = process.env.STAGING_PASSWORD;
-
-  // No password set → not staging, let everything through
-  if (!password) return NextResponse.next();
-
   const { pathname } = request.nextUrl;
 
-  // Always allow the login page, its auth API route, the Sanity Studio, and draft mode routes
-  if (
-    pathname === '/staging-login' ||
-    pathname.startsWith('/api/staging-auth') ||
-    pathname.startsWith('/api/draft-mode') ||
-    pathname.startsWith('/studio')
-  ) {
-    return NextResponse.next();
-  }
+  if (password) {
+    // Always allow the login page, its auth API route, the Sanity Studio, and draft mode routes
+    if (
+      pathname === '/staging-login' ||
+      pathname.startsWith('/api/staging-auth') ||
+      pathname.startsWith('/api/draft-mode') ||
+      pathname.startsWith('/studio')
+    ) {
+      return NextResponse.next();
+    }
 
-  // Password protected staging: enforce session cookie.
-  if (password && request.cookies.get(COOKIE)?.value !== password) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/staging-login';
-    url.searchParams.set('next', pathname);
-    return NextResponse.redirect(url);
+    // Password protected staging: enforce session cookie.
+    if (request.cookies.get(COOKIE)?.value !== password) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/staging-login';
+      url.searchParams.set('next', pathname);
+      return NextResponse.redirect(url);
+    }
   }
 
   const rules = await loadRedirectRules();
