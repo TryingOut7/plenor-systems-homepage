@@ -10,10 +10,11 @@ export function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Always allow the login page, its auth API route, and the Sanity Studio
+  // Always allow the login page, its auth API route, the Sanity Studio, and draft mode routes
   if (
     pathname === '/staging-login' ||
     pathname.startsWith('/api/staging-auth') ||
+    pathname.startsWith('/api/draft-mode') ||
     pathname.startsWith('/studio')
   ) {
     return NextResponse.next();

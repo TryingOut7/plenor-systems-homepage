@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { draftMode } from 'next/headers';
 import { sanityFetch } from '@/sanity/client';
 
 export const revalidate = 60;
@@ -58,7 +59,8 @@ const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 const narrow: React.CSSProperties = { maxWidth: '760px', margin: '0 auto' };
 
 export default async function AboutPage() {
-  const cms = await sanityFetch<AboutPageData>(`*[_type == "aboutPage"][0]`);
+  const { isEnabled: preview } = await draftMode();
+  const cms = await sanityFetch<AboutPageData>(`*[_type == "aboutPage"][0]`, { preview });
   const d: Required<AboutPageData> = {
     ...defaults,
     ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)),

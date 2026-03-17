@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { draftMode } from 'next/headers';
 import { sanityFetch } from '@/sanity/client';
 
 export const revalidate = 60;
@@ -101,7 +102,8 @@ const listItem = (text: string) => (
 );
 
 export default async function ServicesPage() {
-  const cms = await sanityFetch<ServicesPageData>(`*[_type == "servicesPage"][0]`);
+  const { isEnabled: preview } = await draftMode();
+  const cms = await sanityFetch<ServicesPageData>(`*[_type == "servicesPage"][0]`, { preview });
   const d: Required<ServicesPageData> = {
     ...defaults,
     ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)),

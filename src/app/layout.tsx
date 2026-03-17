@@ -2,11 +2,13 @@ import type { Metadata } from 'next';
 import { Playfair_Display, DM_Sans } from 'next/font/google';
 import Script from 'next/script';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { draftMode } from 'next/headers';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CookieBanner from '@/components/CookieBanner';
 import SkipLink from '@/components/SkipLink';
+import DraftModeBanner from '@/components/DraftModeBanner';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -43,11 +45,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { isEnabled: isDraftMode } = await draftMode();
+
   return (
     <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
       <body>
@@ -65,6 +69,7 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
         <SpeedInsights />
+        {isDraftMode && <DraftModeBanner />}
       </body>
     </html>
   );

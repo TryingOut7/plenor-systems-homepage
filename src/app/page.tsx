@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { draftMode } from 'next/headers';
 import GuideForm from '@/components/GuideForm';
 import { sanityFetch } from '@/sanity/client';
 
@@ -55,7 +56,8 @@ const defaults: Required<HomePageData> = {
 };
 
 export default async function HomePage() {
-  const cms = await sanityFetch<HomePageData>(`*[_type == "homePage"][0]`);
+  const { isEnabled: preview } = await draftMode();
+  const cms = await sanityFetch<HomePageData>(`*[_type == "homePage"][0]`, { preview });
   const d: Required<HomePageData> = {
     ...defaults,
     ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)),

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { draftMode } from 'next/headers';
 import GuideForm from '@/components/GuideForm';
 import InquiryForm from '@/components/InquiryForm';
 import { sanityFetch } from '@/sanity/client';
@@ -37,7 +38,8 @@ export const metadata: Metadata = {
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
 export default async function ContactPage() {
-  const cms = await sanityFetch<ContactPageData>(`*[_type == "contactPage"][0]`);
+  const { isEnabled: preview } = await draftMode();
+  const cms = await sanityFetch<ContactPageData>(`*[_type == "contactPage"][0]`, { preview });
   const d: Required<ContactPageData> = {
     ...defaults,
     ...Object.fromEntries(Object.entries(cms ?? {}).filter(([, v]) => v != null)),
