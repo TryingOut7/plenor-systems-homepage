@@ -182,7 +182,6 @@ export const pricingPage = defineType({
       title: 'Legacy: Included Items',
       type: 'array',
       of: [
-        defineArrayMember({ type: 'string' }),
         defineArrayMember({
           type: 'object',
           fields: [
