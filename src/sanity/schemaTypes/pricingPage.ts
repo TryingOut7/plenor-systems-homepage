@@ -7,6 +7,23 @@ const hideLegacyFields = ({ document }: { document?: unknown }) => {
   return Array.isArray(sections) && sections.length > 0;
 };
 
+const sectionSizeOptions = [
+  { title: 'Compact', value: 'compact' },
+  { title: 'Regular', value: 'regular' },
+  { title: 'Spacious', value: 'spacious' },
+];
+
+const darkThemeOptions = [
+  { title: 'Navy (Default)', value: 'navy' },
+  { title: 'Charcoal', value: 'charcoal' },
+  { title: 'Black', value: 'black' },
+];
+
+const lightThemeOptions = [
+  { title: 'White', value: 'white' },
+  { title: 'Light Gray', value: 'light' },
+];
+
 export const pricingPage = defineType({
   name: 'pricingPage',
   title: 'Pricing Page',
@@ -15,12 +32,16 @@ export const pricingPage = defineType({
     sections: [
       {
         _type: 'pricingHeroSection',
+        label: 'Pricing',
         heading: 'Let’s find the right fit for your team.',
         subtext:
           'Pricing is tailored based on your team size and scope. Get in touch and we’ll come back with a proposal.',
+        theme: 'navy',
+        size: 'regular',
       },
       {
         _type: 'pricingIncludedSection',
+        label: "What's included",
         heading: 'Everything you need to ship with confidence.',
         items: [
           {
@@ -35,9 +56,12 @@ export const pricingPage = defineType({
         ],
         body:
           'Engagement is straightforward to start. The framework is accessible to teams of any size — no minimum headcount or project scale required.',
+        theme: 'white',
+        size: 'regular',
       },
       {
         _type: 'pricingAudienceSection',
+        label: 'Who we work with',
         heading: 'No minimum team size. Any stage.',
         audiences: [
           {
@@ -53,16 +77,29 @@ export const pricingPage = defineType({
             copy: 'Larger organisations that need a repeatable framework across multiple product lines or teams.',
           },
         ],
+        note: 'There is no minimum team size requirement to work with us.',
+        theme: 'light',
+        size: 'regular',
       },
       {
         _type: 'pricingCtaSection',
         heading: 'Ready to talk?',
         body: 'Tell us about your product and team — we’ll come back with a proposal.',
+        primaryButtonLabel: 'Get in touch',
+        primaryButtonHref: '/contact',
+        secondaryLinkLabel: '← Back to Services',
+        secondaryLinkHref: '/services',
+        theme: 'white',
+        size: 'regular',
       },
       {
         _type: 'pricingGuideSection',
         heading: 'Not ready to talk yet?',
         body: 'Start with the free guide to get a sense of the problems the framework addresses.',
+        buttonLabel: 'Get the free guide',
+        buttonHref: '/contact#guide',
+        theme: 'light',
+        size: 'compact',
       },
     ],
   },
@@ -89,8 +126,23 @@ export const pricingPage = defineType({
           title: 'Hero Section',
           type: 'object',
           fields: [
+            defineField({ name: 'label', title: 'Section Label', type: 'string', initialValue: 'Pricing' }),
             defineField({ name: 'heading', title: 'Heading', type: 'string' }),
             defineField({ name: 'subtext', title: 'Subtext', type: 'text', rows: 3 }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'navy',
+              options: { list: darkThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },
@@ -102,6 +154,7 @@ export const pricingPage = defineType({
           title: 'Included Section',
           type: 'object',
           fields: [
+            defineField({ name: 'label', title: 'Section Label', type: 'string', initialValue: "What's included" }),
             defineField({ name: 'heading', title: 'Heading', type: 'string' }),
             defineField({
               name: 'items',
@@ -119,6 +172,20 @@ export const pricingPage = defineType({
               ],
             }),
             defineField({ name: 'body', title: 'Body', type: 'text', rows: 3 }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'white',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },
@@ -130,6 +197,7 @@ export const pricingPage = defineType({
           title: 'Audience Section',
           type: 'object',
           fields: [
+            defineField({ name: 'label', title: 'Section Label', type: 'string', initialValue: 'Who we work with' }),
             defineField({ name: 'heading', title: 'Heading', type: 'string' }),
             defineField({
               name: 'audiences',
@@ -146,6 +214,26 @@ export const pricingPage = defineType({
                 }),
               ],
             }),
+            defineField({
+              name: 'note',
+              title: 'Footer Note',
+              type: 'string',
+              initialValue: 'There is no minimum team size requirement to work with us.',
+            }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'light',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },
@@ -159,6 +247,24 @@ export const pricingPage = defineType({
           fields: [
             defineField({ name: 'heading', title: 'Heading', type: 'string' }),
             defineField({ name: 'body', title: 'Body', type: 'text', rows: 2 }),
+            defineField({ name: 'primaryButtonLabel', title: 'Primary Button Label', type: 'string', initialValue: 'Get in touch' }),
+            defineField({ name: 'primaryButtonHref', title: 'Primary Button URL', type: 'string', initialValue: '/contact' }),
+            defineField({ name: 'secondaryLinkLabel', title: 'Secondary Link Label', type: 'string', initialValue: '← Back to Services' }),
+            defineField({ name: 'secondaryLinkHref', title: 'Secondary Link URL', type: 'string', initialValue: '/services' }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'white',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },
@@ -172,6 +278,22 @@ export const pricingPage = defineType({
           fields: [
             defineField({ name: 'heading', title: 'Heading', type: 'string' }),
             defineField({ name: 'body', title: 'Body', type: 'text', rows: 2 }),
+            defineField({ name: 'buttonLabel', title: 'Button Label', type: 'string', initialValue: 'Get the free guide' }),
+            defineField({ name: 'buttonHref', title: 'Button URL', type: 'string', initialValue: '/contact#guide' }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'light',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'compact',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },

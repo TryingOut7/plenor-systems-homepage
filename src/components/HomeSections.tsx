@@ -16,6 +16,9 @@ type HomeSectionBase = {
     | 'homeGuideSection';
 };
 
+type SectionTheme = 'navy' | 'charcoal' | 'black' | 'white' | 'light';
+type SectionSize = 'compact' | 'regular' | 'spacious';
+
 type AudienceItem = {
   _key?: string;
   label?: string;
@@ -26,6 +29,11 @@ export type HomeHeroSection = HomeSectionBase & {
   _type: 'homeHeroSection';
   heading?: string;
   subtext?: string;
+  eyebrow?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type HomeProblemSection = HomeSectionBase & {
@@ -33,6 +41,9 @@ export type HomeProblemSection = HomeSectionBase & {
   heading?: string;
   body1?: string;
   body2?: string;
+  label?: string;
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type HomeWhatWeDoSection = HomeSectionBase & {
@@ -42,18 +53,32 @@ export type HomeWhatWeDoSection = HomeSectionBase & {
   testingCardBody?: string;
   launchCardTitle?: string;
   launchCardBody?: string;
+  label?: string;
+  stage1Label?: string;
+  stage2Label?: string;
+  cardLinkLabel?: string;
+  cardLinkHref?: string;
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type HomeAudienceSection = HomeSectionBase & {
   _type: 'homeAudienceSection';
   heading?: string;
   audiences?: AudienceItem[];
+  label?: string;
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type HomeGuideSection = HomeSectionBase & {
   _type: 'homeGuideSection';
   heading?: string;
   body?: string;
+  label?: string;
+  highlightText?: string;
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type HomeSection =
@@ -72,6 +97,30 @@ interface HomeSectionsProps {
 type DataPathSegment = string | number | { _key: string };
 
 const inner: CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
+
+const sectionPadding: Record<SectionSize, string> = {
+  compact: '80px 32px',
+  regular: '100px 32px',
+  spacious: '124px 32px',
+};
+
+const heroPadding: Record<SectionSize, string> = {
+  compact: '96px 32px 104px',
+  regular: '120px 32px 128px',
+  spacious: '140px 32px 152px',
+};
+
+function getHeroBackgroundColor(theme?: SectionTheme): string {
+  if (theme === 'charcoal') return '#1F2937';
+  if (theme === 'black') return '#111827';
+  return '#1B2D4F';
+}
+
+function getLightBackgroundColor(theme: SectionTheme | undefined, fallback: 'white' | 'light'): string {
+  if (theme === 'light') return '#F8F9FA';
+  if (theme === 'white') return '#ffffff';
+  return fallback === 'light' ? '#F8F9FA' : '#ffffff';
+}
 
 function isSectionList(value: unknown): value is HomeSection[] {
   return Array.isArray(value);
@@ -96,14 +145,17 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
           : ['sections', index];
 
         if (section._type === 'homeHeroSection') {
+          const heroTheme = getHeroBackgroundColor(section.theme);
+          const heroSize = section.size ?? 'regular';
+
           return (
             <section
               key={key}
               aria-labelledby="hero-heading"
               data-sanity={dataFor(sectionPath)}
               style={{
-                backgroundColor: '#1B2D4F',
-                padding: '120px 32px 128px',
+                backgroundColor: heroTheme,
+                padding: heroPadding[heroSize],
                 position: 'relative',
                 overflow: 'hidden',
               }}
@@ -125,13 +177,14 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
               <div style={{ ...inner, position: 'relative', zIndex: 1 }}>
                 <p
                   className="section-label animate-fade-in"
+                  data-sanity={dataFor([...sectionPath, 'eyebrow'])}
                   style={{
                     color: 'rgba(255,255,255,0.45)',
                     marginBottom: '28px',
                     letterSpacing: '0.14em',
                   }}
                 >
-                  Product Development Framework
+                  {section.eyebrow || 'Product Development Framework'}
                 </p>
 
                 <h1
@@ -167,8 +220,8 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
                 </p>
 
                 <div className="animate-fade-up-delay-2">
-                  <Link href="/contact#guide" className="btn-ghost">
-                    Get the Free Guide
+                  <Link href={section.ctaHref || '/contact#guide'} className="btn-ghost" data-sanity={dataFor([...sectionPath, 'ctaLabel'])}>
+                    {section.ctaLabel || 'Get the Free Guide'}
                   </Link>
                 </div>
               </div>
@@ -177,16 +230,19 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
         }
 
         if (section._type === 'homeProblemSection') {
+          const problemSize = section.size ?? 'regular';
+          const problemBackground = getLightBackgroundColor(section.theme, 'white');
+
           return (
             <section
               key={key}
               aria-labelledby="problem-heading"
               data-sanity={dataFor(sectionPath)}
-              style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
+              style={{ padding: sectionPadding[problemSize], backgroundColor: problemBackground }}
             >
               <div style={{ ...inner, maxWidth: '760px' }}>
-                <p className="section-label" style={{ marginBottom: '24px' }}>
-                  The Problem
+                <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '24px' }}>
+                  {section.label || 'The Problem'}
                 </p>
                 <h2
                   id="problem-heading"
@@ -233,17 +289,22 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
         }
 
         if (section._type === 'homeWhatWeDoSection') {
+          const whatWeDoSize = section.size ?? 'regular';
+          const whatWeDoBackground = getLightBackgroundColor(section.theme, 'light');
+          const cardLinkLabel = section.cardLinkLabel || 'How it works';
+          const cardLinkHref = section.cardLinkHref || '/services';
+
           return (
             <section
               key={key}
               aria-labelledby="what-we-do-heading"
               data-sanity={dataFor(sectionPath)}
-              style={{ padding: '100px 32px', backgroundColor: '#F8F9FA' }}
+              style={{ padding: sectionPadding[whatWeDoSize], backgroundColor: whatWeDoBackground }}
             >
               <div style={inner}>
                 <div style={{ marginBottom: '56px' }}>
-                  <p className="section-label" style={{ marginBottom: '12px' }}>
-                    What We Do
+                  <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '12px' }}>
+                    {section.label || 'What We Do'}
                   </p>
                   <h2
                     id="what-we-do-heading"
@@ -290,8 +351,8 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
                     >
                       01
                     </span>
-                    <p id="card-testing-label" className="section-label" style={{ marginBottom: '16px' }}>
-                      Stage 1
+                    <p id="card-testing-label" className="section-label" data-sanity={dataFor([...sectionPath, 'stage1Label'])} style={{ marginBottom: '16px' }}>
+                      {section.stage1Label || 'Stage 1'}
                     </p>
                     <h3
                       data-sanity={dataFor([...sectionPath, 'testingCardTitle'])}
@@ -314,7 +375,7 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
                       {section.testingCardBody}
                     </p>
                     <Link
-                      href="/services"
+                      href={cardLinkHref}
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -326,8 +387,9 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
                         letterSpacing: '0.01em',
                       }}
                       className="card-link"
+                      data-sanity={dataFor([...sectionPath, 'cardLinkLabel'])}
                     >
-                      How it works
+                      {cardLinkLabel}
                       <span aria-hidden="true">→</span>
                     </Link>
                   </article>
@@ -354,8 +416,8 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
                     >
                       02
                     </span>
-                    <p id="card-launch-label" className="section-label" style={{ marginBottom: '16px' }}>
-                      Stage 2
+                    <p id="card-launch-label" className="section-label" data-sanity={dataFor([...sectionPath, 'stage2Label'])} style={{ marginBottom: '16px' }}>
+                      {section.stage2Label || 'Stage 2'}
                     </p>
                     <h3
                       data-sanity={dataFor([...sectionPath, 'launchCardTitle'])}
@@ -378,7 +440,7 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
                       {section.launchCardBody}
                     </p>
                     <Link
-                      href="/services"
+                      href={cardLinkHref}
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -390,8 +452,9 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
                         letterSpacing: '0.01em',
                       }}
                       className="card-link"
+                      data-sanity={dataFor([...sectionPath, 'cardLinkLabel'])}
                     >
-                      How it works
+                      {cardLinkLabel}
                       <span aria-hidden="true">→</span>
                     </Link>
                   </article>
@@ -408,18 +471,20 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
 
         if (section._type === 'homeAudienceSection') {
           const audiences = section.audiences ?? [];
+          const audienceSize = section.size ?? 'regular';
+          const audienceBackground = getLightBackgroundColor(section.theme, 'white');
 
           return (
             <section
               key={key}
               aria-labelledby="who-heading"
               data-sanity={dataFor(sectionPath)}
-              style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
+              style={{ padding: sectionPadding[audienceSize], backgroundColor: audienceBackground }}
             >
               <div style={inner}>
                 <div style={{ marginBottom: '56px' }}>
-                  <p className="section-label" style={{ marginBottom: '12px' }}>
-                    Who It&apos;s For
+                  <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '12px' }}>
+                    {section.label || "Who It's For"}
                   </p>
                   <h2
                     id="who-heading"
@@ -495,6 +560,9 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
         }
 
         if (section._type === 'homeGuideSection') {
+          const guideSize = section.size ?? 'regular';
+          const guideBackground = getHeroBackgroundColor(section.theme);
+
           return (
             <section
               key={key}
@@ -502,8 +570,8 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
               id="guide"
               data-sanity={dataFor(sectionPath)}
               style={{
-                padding: '100px 32px',
-                backgroundColor: '#1B2D4F',
+                padding: sectionPadding[guideSize],
+                backgroundColor: guideBackground,
                 position: 'relative',
                 overflow: 'hidden',
               }}
@@ -528,8 +596,8 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
               </div>
 
               <div style={{ ...inner, maxWidth: '640px', position: 'relative', zIndex: 1 }}>
-                <p className="section-label" style={{ color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>
-                  Free Resource
+                <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>
+                  {section.label || 'Free Resource'}
                 </p>
                 <h2
                   id="guide-cta-heading"
@@ -550,8 +618,8 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
                   data-sanity={dataFor([...sectionPath, 'body'])}
                   style={{ fontSize: '17px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.65, marginBottom: '48px' }}
                 >
-                  <strong style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>
-                    The 7 Most Common Product Development Mistakes — and How to Avoid Them.
+                  <strong data-sanity={dataFor([...sectionPath, 'highlightText'])} style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>
+                    {section.highlightText || 'The 7 Most Common Product Development Mistakes — and How to Avoid Them.'}
                   </strong>{' '}
                   {section.body}
                 </p>

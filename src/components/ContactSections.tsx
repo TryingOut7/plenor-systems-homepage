@@ -12,27 +12,50 @@ type ContactSectionBase = {
   _type: 'contactHeroSection' | 'contactGuideSection' | 'contactInquirySection' | 'contactPrivacySection';
 };
 
+type SectionTheme = 'navy' | 'charcoal' | 'black' | 'white' | 'light';
+type SectionSize = 'compact' | 'regular' | 'spacious';
+
 export type ContactHeroSection = ContactSectionBase & {
   _type: 'contactHeroSection';
+  label?: string;
   heading?: string;
   subtext?: string;
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type ContactGuideSection = ContactSectionBase & {
   _type: 'contactGuideSection';
+  label?: string;
   heading?: string;
+  highlightText?: string;
   body?: string;
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type ContactInquirySection = ContactSectionBase & {
   _type: 'contactInquirySection';
+  label?: string;
   heading?: string;
   subtext?: string;
+  nextStepsLabel?: string;
+  nextStepsBody?: string;
+  directEmailLabel?: string;
+  emailAddress?: string;
+  linkedinLabel?: string;
+  linkedinHref?: string;
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type ContactPrivacySection = ContactSectionBase & {
   _type: 'contactPrivacySection';
   label?: string;
+  policyLinkLabel?: string;
+  policyLinkHref?: string;
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type ContactSection =
@@ -50,6 +73,30 @@ interface ContactSectionsProps {
 type DataPathSegment = string | number | { _key: string };
 
 const inner: CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
+
+const sectionPadding: Record<SectionSize, string> = {
+  compact: '80px 32px',
+  regular: '100px 32px',
+  spacious: '124px 32px',
+};
+
+const heroPadding: Record<SectionSize, string> = {
+  compact: '96px 32px 104px',
+  regular: '100px 32px 108px',
+  spacious: '124px 32px 132px',
+};
+
+function getDarkBackgroundColor(theme?: SectionTheme): string {
+  if (theme === 'charcoal') return '#1F2937';
+  if (theme === 'black') return '#111827';
+  return '#1B2D4F';
+}
+
+function getLightBackgroundColor(theme: SectionTheme | undefined, fallback: 'white' | 'light'): string {
+  if (theme === 'light') return '#F8F9FA';
+  if (theme === 'white') return '#ffffff';
+  return fallback === 'light' ? '#F8F9FA' : '#ffffff';
+}
 
 function isSectionList(value: unknown): value is ContactSection[] {
   return Array.isArray(value);
@@ -74,14 +121,17 @@ export default function ContactSections({ documentId, documentType, sections }: 
           : ['sections', index];
 
         if (section._type === 'contactHeroSection') {
+          const heroTheme = getDarkBackgroundColor(section.theme);
+          const heroSize = section.size ?? 'regular';
+
           return (
             <section
               key={key}
               aria-labelledby="contact-hero-heading"
               data-sanity={dataFor(sectionPath)}
               style={{
-                backgroundColor: '#1B2D4F',
-                padding: '100px 32px 108px',
+                backgroundColor: heroTheme,
+                padding: heroPadding[heroSize],
                 position: 'relative',
                 overflow: 'hidden',
               }}
@@ -100,8 +150,12 @@ export default function ContactSections({ documentId, documentType, sections }: 
                 }}
               />
               <div style={{ maxWidth: '680px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-                <p className="section-label animate-fade-in" style={{ color: 'rgba(255,255,255,0.45)', marginBottom: '24px' }}>
-                  Contact
+                <p
+                  className="section-label animate-fade-in"
+                  data-sanity={dataFor([...sectionPath, 'label'])}
+                  style={{ color: 'rgba(255,255,255,0.45)', marginBottom: '24px' }}
+                >
+                  {section.label || 'Contact'}
                 </p>
                 <h1
                   id="contact-hero-heading"
@@ -132,13 +186,16 @@ export default function ContactSections({ documentId, documentType, sections }: 
         }
 
         if (section._type === 'contactGuideSection') {
+          const guideSize = section.size ?? 'regular';
+          const guideBackground = getLightBackgroundColor(section.theme, 'light');
+
           return (
             <section
               key={key}
               id="guide"
               aria-labelledby="guide-form-heading"
               data-sanity={dataFor(sectionPath)}
-              style={{ padding: '100px 32px', backgroundColor: '#F8F9FA' }}
+              style={{ padding: sectionPadding[guideSize], backgroundColor: guideBackground }}
             >
               <div style={{ ...inner, maxWidth: '860px' }}>
                 <div
@@ -150,7 +207,9 @@ export default function ContactSections({ documentId, documentType, sections }: 
                   }}
                 >
                   <div>
-                    <p className="section-label" style={{ marginBottom: '16px' }}>Free resource</p>
+                    <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '16px' }}>
+                      {section.label || 'Free resource'}
+                    </p>
                     <h2
                       id="guide-form-heading"
                       data-sanity={dataFor([...sectionPath, 'heading'])}
@@ -168,8 +227,8 @@ export default function ContactSections({ documentId, documentType, sections }: 
                     </h2>
                     <div style={{ width: '32px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '24px', borderRadius: '2px' }} aria-hidden="true" />
                     <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.7, marginBottom: '16px' }}>
-                      <strong style={{ color: '#1A1A1A', fontWeight: 600 }}>
-                        The 7 Most Common Product Development Mistakes — and How to Avoid Them.
+                      <strong data-sanity={dataFor([...sectionPath, 'highlightText'])} style={{ color: '#1A1A1A', fontWeight: 600 }}>
+                        {section.highlightText || 'The 7 Most Common Product Development Mistakes — and How to Avoid Them.'}
                       </strong>
                     </p>
                     <p data-sanity={dataFor([...sectionPath, 'body'])} style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65 }}>
@@ -195,12 +254,16 @@ export default function ContactSections({ documentId, documentType, sections }: 
         }
 
         if (section._type === 'contactInquirySection') {
+          const inquirySize = section.size ?? 'regular';
+          const inquiryBackground = getLightBackgroundColor(section.theme, 'white');
+          const emailAddress = section.emailAddress || 'hello@plenor.ai';
+
           return (
             <section
               key={key}
               aria-labelledby="inquiry-form-heading"
               data-sanity={dataFor(sectionPath)}
-              style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
+              style={{ padding: sectionPadding[inquirySize], backgroundColor: inquiryBackground }}
             >
               <div style={{ ...inner, maxWidth: '860px' }}>
                 <div
@@ -212,7 +275,9 @@ export default function ContactSections({ documentId, documentType, sections }: 
                   }}
                 >
                   <div>
-                    <p className="section-label" style={{ marginBottom: '16px' }}>Send an inquiry</p>
+                    <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '16px' }}>
+                      {section.label || 'Send an inquiry'}
+                    </p>
                     <h2
                       id="inquiry-form-heading"
                       data-sanity={dataFor([...sectionPath, 'heading'])}
@@ -243,6 +308,7 @@ export default function ContactSections({ documentId, documentType, sections }: 
                       }}
                     >
                       <p
+                        data-sanity={dataFor([...sectionPath, 'nextStepsLabel'])}
                         style={{
                           fontWeight: 600,
                           fontSize: '14px',
@@ -250,33 +316,35 @@ export default function ContactSections({ documentId, documentType, sections }: 
                           marginBottom: '6px',
                         }}
                       >
-                        What happens next
+                        {section.nextStepsLabel || 'What happens next'}
                       </p>
-                      <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: 1.6 }}>
-                        We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.
+                      <p data-sanity={dataFor([...sectionPath, 'nextStepsBody'])} style={{ fontSize: '14px', color: '#6B7280', lineHeight: 1.6 }}>
+                        {section.nextStepsBody || 'We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.'}
                       </p>
                     </div>
 
                     <div>
-                      <p style={{ fontWeight: 600, fontSize: '14px', color: '#1A1A1A', marginBottom: '8px' }}>
-                        Prefer email directly?
+                      <p data-sanity={dataFor([...sectionPath, 'directEmailLabel'])} style={{ fontWeight: 600, fontSize: '14px', color: '#1A1A1A', marginBottom: '8px' }}>
+                        {section.directEmailLabel || 'Prefer email directly?'}
                       </p>
                       <a
-                        href="mailto:hello@plenor.ai"
+                        href={`mailto:${emailAddress}`}
+                        data-sanity={dataFor([...sectionPath, 'emailAddress'])}
                         style={{ color: '#1B2D4F', fontWeight: 600, fontSize: '14px', textDecoration: 'none' }}
                         className="text-link"
                       >
-                        hello@plenor.ai
+                        {emailAddress}
                       </a>
                       <span style={{ color: '#E5E7EB', margin: '0 10px' }}>·</span>
                       <a
-                        href="https://www.linkedin.com/company/plenor-ai"
+                        href={section.linkedinHref || 'https://www.linkedin.com/company/plenor-ai'}
+                        data-sanity={dataFor([...sectionPath, 'linkedinLabel'])}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ color: '#6B7280', fontSize: '14px', textDecoration: 'none' }}
                         className="text-link"
                       >
-                        LinkedIn →
+                        {section.linkedinLabel || 'LinkedIn →'}
                       </a>
                     </div>
                   </div>
@@ -299,21 +367,24 @@ export default function ContactSections({ documentId, documentType, sections }: 
         }
 
         if (section._type === 'contactPrivacySection') {
+          const privacySize = section.size ?? 'compact';
+          const privacyBackground = getLightBackgroundColor(section.theme, 'light');
+
           return (
             <div
               key={key}
               data-sanity={dataFor(sectionPath)}
               style={{
-                backgroundColor: '#F8F9FA',
+                backgroundColor: privacyBackground,
                 borderTop: '1px solid #E5E7EB',
-                padding: '20px 32px',
+                padding: privacySize === 'compact' ? '20px 32px' : sectionPadding[privacySize],
                 textAlign: 'center',
               }}
             >
               <p data-sanity={dataFor([...sectionPath, 'label'])} style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
                 {section.label || 'By submitting this form, you agree to our'}{' '}
-                <Link href="/privacy" style={{ color: '#6B7280', textDecoration: 'underline' }}>
-                  Privacy Policy
+                <Link href={section.policyLinkHref || '/privacy'} data-sanity={dataFor([...sectionPath, 'policyLinkLabel'])} style={{ color: '#6B7280', textDecoration: 'underline' }}>
+                  {section.policyLinkLabel || 'Privacy Policy'}
                 </Link>
                 .
               </p>

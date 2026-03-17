@@ -7,6 +7,23 @@ const hideLegacyFields = ({ document }: { document?: unknown }) => {
   return Array.isArray(sections) && sections.length > 0;
 };
 
+const sectionSizeOptions = [
+  { title: 'Compact', value: 'compact' },
+  { title: 'Regular', value: 'regular' },
+  { title: 'Spacious', value: 'spacious' },
+];
+
+const darkThemeOptions = [
+  { title: 'Navy (Default)', value: 'navy' },
+  { title: 'Charcoal', value: 'charcoal' },
+  { title: 'Black', value: 'black' },
+];
+
+const lightThemeOptions = [
+  { title: 'White', value: 'white' },
+  { title: 'Light Gray', value: 'light' },
+];
+
 export const homePage = defineType({
   name: 'homePage',
   title: 'Home Page',
@@ -17,6 +34,11 @@ export const homePage = defineType({
         _type: 'homeHeroSection',
         heading: 'Plenor Systems brings structure to the two most failure-prone stages of product development.',
         subtext: 'Testing & QA and Launch & Go-to-Market, done right.',
+        eyebrow: 'Product Development Framework',
+        ctaLabel: 'Get the Free Guide',
+        ctaHref: '/contact#guide',
+        theme: 'navy',
+        size: 'regular',
       },
       {
         _type: 'homeProblemSection',
@@ -25,6 +47,9 @@ export const homePage = defineType({
           "Teams spend months building a product, then rush testing, skip structured QA, and launch without a clear go-to-market plan. The result: bugs found by customers, positioning that misses the market, and launches that don't generate expected traction.",
         body2:
           "These aren't execution failures — they're structural ones. The final stages of product development are consistently underprepared. Plenor Systems is built specifically to fix that.",
+        label: 'The Problem',
+        theme: 'white',
+        size: 'regular',
       },
       {
         _type: 'homeWhatWeDoSection',
@@ -35,10 +60,18 @@ export const homePage = defineType({
         launchCardTitle: 'Launch & Go-to-Market with a plan that holds up on launch day.',
         launchCardBody:
           'From positioning and channel selection to operational readiness, the framework keeps go-to-market work structured rather than reactive.',
+        label: 'What We Do',
+        stage1Label: 'Stage 1',
+        stage2Label: 'Stage 2',
+        cardLinkLabel: 'How it works',
+        cardLinkHref: '/services',
+        theme: 'light',
+        size: 'regular',
       },
       {
         _type: 'homeAudienceSection',
         heading: 'Built for teams at every stage.',
+        label: "Who It's For",
         audiences: [
           {
             label: 'Startups',
@@ -53,12 +86,18 @@ export const homePage = defineType({
             copy: 'Larger organisations that need a rigorous, repeatable framework that scales across products and teams.',
           },
         ],
+        theme: 'white',
+        size: 'regular',
       },
       {
         _type: 'homeGuideSection',
         heading: 'Get the free guide',
+        label: 'Free Resource',
+        highlightText: 'The 7 Most Common Product Development Mistakes — and How to Avoid Them.',
         body:
           'The guide covers the specific errors teams make in Testing & QA and Launch & Go-to-Market, and what to do instead. Enter your name and email and the PDF is sent to your inbox automatically.',
+        theme: 'navy',
+        size: 'regular',
       },
     ],
   },
@@ -98,6 +137,38 @@ export const homePage = defineType({
               type: 'string',
               initialValue: 'Testing & QA and Launch & Go-to-Market, done right.',
             }),
+            defineField({
+              name: 'eyebrow',
+              title: 'Eyebrow Label',
+              type: 'string',
+              initialValue: 'Product Development Framework',
+            }),
+            defineField({
+              name: 'ctaLabel',
+              title: 'CTA Button Label',
+              type: 'string',
+              initialValue: 'Get the Free Guide',
+            }),
+            defineField({
+              name: 'ctaHref',
+              title: 'CTA Button Link',
+              type: 'string',
+              initialValue: '/contact#guide',
+            }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'navy',
+              options: { list: darkThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },
@@ -117,6 +188,26 @@ export const homePage = defineType({
             }),
             defineField({ name: 'body1', title: 'Body Paragraph 1', type: 'text', rows: 4 }),
             defineField({ name: 'body2', title: 'Body Paragraph 2', type: 'text', rows: 4 }),
+            defineField({
+              name: 'label',
+              title: 'Section Label',
+              type: 'string',
+              initialValue: 'The Problem',
+            }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'white',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },
@@ -138,6 +229,50 @@ export const homePage = defineType({
             defineField({ name: 'testingCardBody', title: 'Stage 1 Body', type: 'text', rows: 3 }),
             defineField({ name: 'launchCardTitle', title: 'Stage 2 Title', type: 'string' }),
             defineField({ name: 'launchCardBody', title: 'Stage 2 Body', type: 'text', rows: 3 }),
+            defineField({
+              name: 'label',
+              title: 'Section Label',
+              type: 'string',
+              initialValue: 'What We Do',
+            }),
+            defineField({
+              name: 'stage1Label',
+              title: 'Stage 1 Label',
+              type: 'string',
+              initialValue: 'Stage 1',
+            }),
+            defineField({
+              name: 'stage2Label',
+              title: 'Stage 2 Label',
+              type: 'string',
+              initialValue: 'Stage 2',
+            }),
+            defineField({
+              name: 'cardLinkLabel',
+              title: 'Card Link Label',
+              type: 'string',
+              initialValue: 'How it works',
+            }),
+            defineField({
+              name: 'cardLinkHref',
+              title: 'Card Link URL',
+              type: 'string',
+              initialValue: '/services',
+            }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'light',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },
@@ -156,6 +291,12 @@ export const homePage = defineType({
               initialValue: 'Built for teams at every stage.',
             }),
             defineField({
+              name: 'label',
+              title: 'Section Label',
+              type: 'string',
+              initialValue: "Who It's For",
+            }),
+            defineField({
               name: 'audiences',
               title: 'Audiences',
               type: 'array',
@@ -170,6 +311,20 @@ export const homePage = defineType({
                 }),
               ],
             }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'white',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },
@@ -182,7 +337,33 @@ export const homePage = defineType({
           type: 'object',
           fields: [
             defineField({ name: 'heading', title: 'Heading', type: 'string', initialValue: 'Get the free guide' }),
+            defineField({
+              name: 'label',
+              title: 'Section Label',
+              type: 'string',
+              initialValue: 'Free Resource',
+            }),
+            defineField({
+              name: 'highlightText',
+              title: 'Highlighted Intro Text',
+              type: 'string',
+              initialValue: 'The 7 Most Common Product Development Mistakes — and How to Avoid Them.',
+            }),
             defineField({ name: 'body', title: 'Body', type: 'text', rows: 4 }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'navy',
+              options: { list: darkThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },

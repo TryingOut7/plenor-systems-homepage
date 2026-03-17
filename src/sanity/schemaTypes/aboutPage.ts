@@ -7,6 +7,23 @@ const hideLegacyFields = ({ document }: { document?: unknown }) => {
   return Array.isArray(sections) && sections.length > 0;
 };
 
+const sectionSizeOptions = [
+  { title: 'Compact', value: 'compact' },
+  { title: 'Regular', value: 'regular' },
+  { title: 'Spacious', value: 'spacious' },
+];
+
+const darkThemeOptions = [
+  { title: 'Navy (Default)', value: 'navy' },
+  { title: 'Charcoal', value: 'charcoal' },
+  { title: 'Black', value: 'black' },
+];
+
+const lightThemeOptions = [
+  { title: 'White', value: 'white' },
+  { title: 'Light Gray', value: 'light' },
+];
+
 export const aboutPage = defineType({
   name: 'aboutPage',
   title: 'About Page',
@@ -22,6 +39,8 @@ export const aboutPage = defineType({
           'Most frameworks cover the full development lifecycle. Plenor Systems covers only the final two stages - not because the others do not matter, but because these two are where structure is most absent and most needed.',
           'The framework is used by teams ranging from early-stage startups to enterprise product groups who need a repeatable, structured process for the stretch of work between build completion and a successful launch.',
         ],
+        theme: 'navy',
+        size: 'regular',
       },
       {
         _type: 'aboutFocusSection',
@@ -34,12 +53,16 @@ export const aboutPage = defineType({
         ],
         linkLabel: 'See how the two stages work ->',
         linkHref: '/services',
+        theme: 'white',
+        size: 'regular',
       },
       {
         _type: 'aboutMissionSection',
         label: 'What we believe',
         quote:
           'A well-built product deserves a structured path to market - and consistent quality standards before it gets there.',
+        theme: 'light',
+        size: 'regular',
       },
       {
         _type: 'aboutFounderSection',
@@ -48,6 +71,8 @@ export const aboutPage = defineType({
         founderName: '',
         founderRole: '',
         founderBio: '',
+        theme: 'white',
+        size: 'regular',
       },
       {
         _type: 'aboutCtaSection',
@@ -57,6 +82,8 @@ export const aboutPage = defineType({
         primaryButtonHref: '/contact',
         secondaryButtonLabel: 'Get the free guide',
         secondaryButtonHref: '/contact#guide',
+        theme: 'navy',
+        size: 'regular',
       },
     ],
   },
@@ -101,6 +128,20 @@ export const aboutPage = defineType({
               type: 'array',
               of: [defineArrayMember({ type: 'text', rows: 3 })],
               validation: (Rule) => Rule.required().min(1).max(3),
+            }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'navy',
+              options: { list: darkThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
             }),
           ],
           preview: {
@@ -147,6 +188,20 @@ export const aboutPage = defineType({
               type: 'string',
               initialValue: '/services',
             }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'white',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },
@@ -172,6 +227,20 @@ export const aboutPage = defineType({
               title: 'Mission Quote',
               type: 'text',
               rows: 3,
+            }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'light',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
             }),
           ],
           preview: {
@@ -202,6 +271,20 @@ export const aboutPage = defineType({
             defineField({ name: 'founderName', title: 'Founder Name', type: 'string' }),
             defineField({ name: 'founderRole', title: 'Founder Role', type: 'string' }),
             defineField({ name: 'founderBio', title: 'Founder Bio', type: 'text', rows: 3 }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'white',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: {
@@ -254,6 +337,20 @@ export const aboutPage = defineType({
               title: 'Secondary Button URL',
               type: 'string',
               initialValue: '/contact#guide',
+            }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'navy',
+              options: { list: darkThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
             }),
           ],
           preview: {

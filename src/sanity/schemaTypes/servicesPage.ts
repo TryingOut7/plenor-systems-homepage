@@ -7,6 +7,23 @@ const hideLegacyFields = ({ document }: { document?: unknown }) => {
   return Array.isArray(sections) && sections.length > 0;
 };
 
+const sectionSizeOptions = [
+  { title: 'Compact', value: 'compact' },
+  { title: 'Regular', value: 'regular' },
+  { title: 'Spacious', value: 'spacious' },
+];
+
+const darkThemeOptions = [
+  { title: 'Navy (Default)', value: 'navy' },
+  { title: 'Charcoal', value: 'charcoal' },
+  { title: 'Black', value: 'black' },
+];
+
+const lightThemeOptions = [
+  { title: 'White', value: 'white' },
+  { title: 'Light Gray', value: 'light' },
+];
+
 export const servicesPage = defineType({
   name: 'servicesPage',
   title: 'Services Page',
@@ -15,12 +32,20 @@ export const servicesPage = defineType({
     sections: [
       {
         _type: 'servicesHeroSection',
+        label: 'Framework Overview',
         heading: 'Two framework stages. The two that decide whether a product succeeds.',
         subtext:
           'Testing & QA and Launch & Go-to-Market are where most product failures originate — not in design or development. Plenor Systems is built specifically for these stages.',
+        theme: 'navy',
+        size: 'regular',
       },
       {
         _type: 'servicesTestingSection',
+        label: 'Stage 1',
+        stageNumber: '01',
+        heading: 'Testing & QA',
+        itemsHeading: 'What it covers',
+        whoForHeading: "Who it's for",
         body:
           'Shipping without a structured quality process means issues surface after release — when they’re most expensive to fix. The Testing & QA module establishes clear quality criteria, verification steps, and release gates before code reaches users.',
         items: [
@@ -31,9 +56,16 @@ export const servicesPage = defineType({
         ],
         whoFor:
           'Teams that are shipping frequently and catching issues too late, or organisations preparing for a significant launch that cannot afford post-release rework.',
+        theme: 'white',
+        size: 'regular',
       },
       {
         _type: 'servicesLaunchSection',
+        label: 'Stage 2',
+        stageNumber: '02',
+        heading: 'Launch & Go-to-Market',
+        itemsHeading: 'What it covers',
+        whoForHeading: "Who it's for",
         body:
           'A product can pass QA and still underperform at launch. Go-to-market failures are often structural — unclear positioning, undefined channels, or a launch day without operational readiness. The Launch & GTM module addresses each of these.',
         items: [
@@ -44,24 +76,38 @@ export const servicesPage = defineType({
         ],
         whoFor:
           'Startups preparing for a first launch, product teams at SMEs rolling out a new offering, and enterprise groups managing a significant market entry.',
+        theme: 'light',
+        size: 'regular',
       },
       {
         _type: 'servicesWhySection',
+        label: 'The Approach',
         heading: 'Why a framework, not a one-off engagement',
         body1:
           'Ad-hoc approaches to testing and go-to-market work in isolation but don’t build repeatable capability. Each launch starts from scratch, and teams re-learn the same lessons.',
         body2:
           'A structured framework means your team builds consistent habits — clear criteria before testing begins, defined channels before launch planning starts. It works for startups moving fast and for enterprises that need process rigour across multiple products.',
         body3: 'The framework is not prescriptive. It sets the structure; your team fills in the specifics.',
+        theme: 'white',
+        size: 'regular',
       },
       {
         _type: 'servicesLinksSection',
-        label: 'Internal links',
+        leftLinkLabel: 'About Plenor Systems',
+        leftLinkHref: '/about',
+        rightLinkLabel: 'Pricing',
+        rightLinkHref: '/pricing',
+        theme: 'light',
+        size: 'compact',
       },
       {
         _type: 'servicesCtaSection',
         heading: 'Not sure yet?',
         body: 'Start with the guide — see the kinds of mistakes the framework is designed to prevent.',
+        ctaLabel: 'Get the Free Guide',
+        ctaHref: '/contact#guide',
+        theme: 'navy',
+        size: 'regular',
       },
     ],
   },
@@ -88,8 +134,23 @@ export const servicesPage = defineType({
           title: 'Hero Section',
           type: 'object',
           fields: [
+            defineField({ name: 'label', title: 'Section Label', type: 'string', initialValue: 'Framework Overview' }),
             defineField({ name: 'heading', title: 'Heading', type: 'string' }),
             defineField({ name: 'subtext', title: 'Subtext', type: 'text', rows: 3 }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'navy',
+              options: { list: darkThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },
@@ -101,9 +162,28 @@ export const servicesPage = defineType({
           title: 'Testing Section',
           type: 'object',
           fields: [
+            defineField({ name: 'label', title: 'Section Label', type: 'string', initialValue: 'Stage 1' }),
+            defineField({ name: 'stageNumber', title: 'Stage Number', type: 'string', initialValue: '01' }),
+            defineField({ name: 'heading', title: 'Heading', type: 'string', initialValue: 'Testing & QA' }),
             defineField({ name: 'body', title: 'Body', type: 'text', rows: 4 }),
             defineField({ name: 'items', title: 'Items', type: 'array', of: [defineArrayMember({ type: 'string' })] }),
+            defineField({ name: 'itemsHeading', title: 'Items Heading', type: 'string', initialValue: 'What it covers' }),
             defineField({ name: 'whoFor', title: 'Who It\'s For', type: 'text', rows: 3 }),
+            defineField({ name: 'whoForHeading', title: 'Who It\'s For Heading', type: 'string', initialValue: "Who it's for" }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'white',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             prepare: () => ({ title: 'Stage 1: Testing & QA', subtitle: 'Module section' }),
@@ -114,9 +194,33 @@ export const servicesPage = defineType({
           title: 'Launch Section',
           type: 'object',
           fields: [
+            defineField({ name: 'label', title: 'Section Label', type: 'string', initialValue: 'Stage 2' }),
+            defineField({ name: 'stageNumber', title: 'Stage Number', type: 'string', initialValue: '02' }),
+            defineField({
+              name: 'heading',
+              title: 'Heading',
+              type: 'string',
+              initialValue: 'Launch & Go-to-Market',
+            }),
             defineField({ name: 'body', title: 'Body', type: 'text', rows: 4 }),
             defineField({ name: 'items', title: 'Items', type: 'array', of: [defineArrayMember({ type: 'string' })] }),
+            defineField({ name: 'itemsHeading', title: 'Items Heading', type: 'string', initialValue: 'What it covers' }),
             defineField({ name: 'whoFor', title: 'Who It\'s For', type: 'text', rows: 3 }),
+            defineField({ name: 'whoForHeading', title: 'Who It\'s For Heading', type: 'string', initialValue: "Who it's for" }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'light',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             prepare: () => ({ title: 'Stage 2: Launch & GTM', subtitle: 'Module section' }),
@@ -127,10 +231,25 @@ export const servicesPage = defineType({
           title: 'Why Framework Section',
           type: 'object',
           fields: [
+            defineField({ name: 'label', title: 'Section Label', type: 'string', initialValue: 'The Approach' }),
             defineField({ name: 'heading', title: 'Heading', type: 'string' }),
             defineField({ name: 'body1', title: 'Paragraph 1', type: 'text', rows: 3 }),
             defineField({ name: 'body2', title: 'Paragraph 2', type: 'text', rows: 3 }),
             defineField({ name: 'body3', title: 'Paragraph 3', type: 'text', rows: 3 }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'white',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },
@@ -142,17 +261,27 @@ export const servicesPage = defineType({
           title: 'Internal Links Section',
           type: 'object',
           fields: [
+            defineField({ name: 'leftLinkLabel', title: 'Left Link Label', type: 'string', initialValue: 'About Plenor Systems' }),
+            defineField({ name: 'leftLinkHref', title: 'Left Link URL', type: 'string', initialValue: '/about' }),
+            defineField({ name: 'rightLinkLabel', title: 'Right Link Label', type: 'string', initialValue: 'Pricing' }),
+            defineField({ name: 'rightLinkHref', title: 'Right Link URL', type: 'string', initialValue: '/pricing' }),
             defineField({
-              name: 'label',
-              title: 'Label',
+              name: 'theme',
+              title: 'Theme',
               type: 'string',
-              initialValue: 'Internal links',
-              readOnly: true,
+              initialValue: 'light',
+              options: { list: lightThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'compact',
+              options: { list: sectionSizeOptions, layout: 'radio' },
             }),
           ],
           preview: {
-            select: { title: 'label' },
-            prepare: ({ title }) => ({ title: title || 'Internal links', subtitle: 'Navigation section' }),
+            prepare: () => ({ title: 'Internal links', subtitle: 'Navigation section' }),
           },
         }),
         defineArrayMember({
@@ -162,6 +291,22 @@ export const servicesPage = defineType({
           fields: [
             defineField({ name: 'heading', title: 'Heading', type: 'string' }),
             defineField({ name: 'body', title: 'Body', type: 'text', rows: 3 }),
+            defineField({ name: 'ctaLabel', title: 'CTA Button Label', type: 'string', initialValue: 'Get the Free Guide' }),
+            defineField({ name: 'ctaHref', title: 'CTA Button URL', type: 'string', initialValue: '/contact#guide' }),
+            defineField({
+              name: 'theme',
+              title: 'Theme',
+              type: 'string',
+              initialValue: 'navy',
+              options: { list: darkThemeOptions, layout: 'radio' },
+            }),
+            defineField({
+              name: 'size',
+              title: 'Section Size',
+              type: 'string',
+              initialValue: 'regular',
+              options: { list: sectionSizeOptions, layout: 'radio' },
+            }),
           ],
           preview: {
             select: { title: 'heading' },

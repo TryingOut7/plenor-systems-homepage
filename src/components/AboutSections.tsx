@@ -15,11 +15,16 @@ type AboutSectionBase = {
     | 'aboutCtaSection';
 };
 
+type SectionTheme = 'navy' | 'charcoal' | 'black' | 'white' | 'light';
+type SectionSize = 'compact' | 'regular' | 'spacious';
+
 export type AboutHeroSection = AboutSectionBase & {
   _type: 'aboutHeroSection';
   label?: string;
   heading?: string;
   paragraphs?: string[];
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type AboutFocusSection = AboutSectionBase & {
@@ -29,12 +34,16 @@ export type AboutFocusSection = AboutSectionBase & {
   paragraphs?: string[];
   linkLabel?: string;
   linkHref?: string;
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type AboutMissionSection = AboutSectionBase & {
   _type: 'aboutMissionSection';
   label?: string;
   quote?: string;
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type AboutFounderSection = AboutSectionBase & {
@@ -44,6 +53,8 @@ export type AboutFounderSection = AboutSectionBase & {
   founderName?: string;
   founderRole?: string;
   founderBio?: string;
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type AboutCtaSection = AboutSectionBase & {
@@ -54,6 +65,8 @@ export type AboutCtaSection = AboutSectionBase & {
   primaryButtonHref?: string;
   secondaryButtonLabel?: string;
   secondaryButtonHref?: string;
+  theme?: SectionTheme;
+  size?: SectionSize;
 };
 
 export type AboutSection =
@@ -74,6 +87,30 @@ type DataPathSegment = string | number | { _key: string };
 
 const inner: CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 const narrow: CSSProperties = { maxWidth: '760px', margin: '0 auto' };
+
+const sectionPadding: Record<SectionSize, string> = {
+  compact: '80px 32px',
+  regular: '100px 32px',
+  spacious: '124px 32px',
+};
+
+const heroPadding: Record<SectionSize, string> = {
+  compact: '96px 32px 104px',
+  regular: '100px 32px 108px',
+  spacious: '124px 32px 132px',
+};
+
+function getDarkBackgroundColor(theme?: SectionTheme): string {
+  if (theme === 'charcoal') return '#1F2937';
+  if (theme === 'black') return '#111827';
+  return '#1B2D4F';
+}
+
+function getLightBackgroundColor(theme: SectionTheme | undefined, fallback: 'white' | 'light'): string {
+  if (theme === 'light') return '#F8F9FA';
+  if (theme === 'white') return '#ffffff';
+  return fallback === 'light' ? '#F8F9FA' : '#ffffff';
+}
 
 function isSectionList(value: unknown): value is AboutSection[] {
   return Array.isArray(value);
@@ -185,6 +222,8 @@ export default function AboutSections({
 
         if (section._type === 'aboutHeroSection') {
           const paragraphs = section.paragraphs ?? [];
+          const heroTheme = getDarkBackgroundColor(section.theme);
+          const heroSize = section.size ?? 'regular';
 
           return (
             <section
@@ -192,8 +231,8 @@ export default function AboutSections({
               aria-labelledby="about-hero-heading"
               data-sanity={dataForSection(sectionPath)}
               style={{
-                backgroundColor: '#1B2D4F',
-                padding: '100px 32px 108px',
+                backgroundColor: heroTheme,
+                padding: heroPadding[heroSize],
                 position: 'relative',
                 overflow: 'hidden',
               }}
@@ -257,13 +296,15 @@ export default function AboutSections({
 
         if (section._type === 'aboutFocusSection') {
           const paragraphs = section.paragraphs ?? [];
+          const focusSize = section.size ?? 'regular';
+          const focusBackground = getLightBackgroundColor(section.theme, 'white');
 
           return (
             <section
               key={key}
               aria-labelledby="focus-heading"
               data-sanity={dataForSection(sectionPath)}
-              style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
+              style={{ padding: sectionPadding[focusSize], backgroundColor: focusBackground }}
             >
               <div style={narrow}>
                 <p
@@ -334,14 +375,17 @@ export default function AboutSections({
         }
 
         if (section._type === 'aboutMissionSection') {
+          const missionSize = section.size ?? 'regular';
+          const missionBackground = getLightBackgroundColor(section.theme, 'light');
+
           return (
             <section
               key={key}
               aria-labelledby="mission-heading"
               data-sanity={dataForSection(sectionPath)}
               style={{
-                padding: '100px 32px',
-                backgroundColor: '#F8F9FA',
+                padding: sectionPadding[missionSize],
+                backgroundColor: missionBackground,
                 position: 'relative',
                 overflow: 'hidden',
               }}
@@ -394,12 +438,15 @@ export default function AboutSections({
         }
 
         if (section._type === 'aboutFounderSection') {
+          const founderSize = section.size ?? 'regular';
+          const founderBackground = getLightBackgroundColor(section.theme, 'white');
+
           return (
             <section
               key={key}
               aria-labelledby="team-heading"
               data-sanity={dataForSection(sectionPath)}
-              style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
+              style={{ padding: sectionPadding[founderSize], backgroundColor: founderBackground }}
             >
               <div style={narrow}>
                 <p
@@ -504,14 +551,17 @@ export default function AboutSections({
         }
 
         if (section._type === 'aboutCtaSection') {
+          const ctaSize = section.size ?? 'regular';
+          const ctaBackground = getDarkBackgroundColor(section.theme);
+
           return (
             <section
               key={key}
               aria-labelledby="about-cta-heading"
               data-sanity={dataForSection(sectionPath)}
               style={{
-                padding: '100px 32px',
-                backgroundColor: '#1B2D4F',
+                padding: sectionPadding[ctaSize],
+                backgroundColor: ctaBackground,
                 position: 'relative',
                 overflow: 'hidden',
               }}
