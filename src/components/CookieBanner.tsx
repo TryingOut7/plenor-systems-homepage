@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function CookieBanner() {
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return !window.localStorage.getItem('plenor_cookie_consent');
-  });
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    setVisible(!window.localStorage.getItem('plenor_cookie_consent'));
+  }, []);
 
   function accept() {
     localStorage.setItem('plenor_cookie_consent', 'accepted');

@@ -585,7 +585,24 @@ export function createSiteSectionMembers() {
           title: 'Cross Dataset Reference',
           type: 'crossDatasetReference',
           dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
-          to: [{ type: 'sitePage' }],
+          to: [
+            {
+              type: 'sitePage',
+              preview: {
+                select: { title: 'title', subtitle: 'slug.current' },
+                prepare: ({
+                  title,
+                  subtitle,
+                }: {
+                  title?: string;
+                  subtitle?: string;
+                }) => ({
+                  title: title || 'Untitled page',
+                  subtitle: subtitle ? `/${subtitle}` : '/',
+                }),
+              },
+            },
+          ],
           fieldset: 'content',
         }),
         defineField({
@@ -594,7 +611,24 @@ export function createSiteSectionMembers() {
           type: 'globalDocumentReference',
           resourceType: 'dataset',
           resourceId: `${process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'project'}.${process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'}`,
-          to: [{ type: 'sitePage' }],
+          to: [
+            {
+              type: 'sitePage',
+              preview: {
+                select: { title: 'title', subtitle: 'slug.current' },
+                prepare: ({
+                  title,
+                  subtitle,
+                }: {
+                  title?: string;
+                  subtitle?: string;
+                }) => ({
+                  title: title || 'Untitled page',
+                  subtitle: subtitle ? `/${subtitle}` : '/',
+                }),
+              },
+            },
+          ],
           fieldset: 'content',
         }),
         ...getCommonDesignFields('white', 'regular'),
