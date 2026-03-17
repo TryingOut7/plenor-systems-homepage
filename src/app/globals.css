@@ -40,6 +40,11 @@ h1, h2, h3 {
   letter-spacing: -0.02em;
 }
 
+/* Headings — Playfair Display */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
 /* Focus styles – always visible */
 :focus-visible {
   outline: 2px solid #1B2D4F;

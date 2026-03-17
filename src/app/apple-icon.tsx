@@ -15,12 +15,12 @@ export default function AppleIcon() {
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: '#1B2D4F',
-          borderRadius: 24,
+          borderRadius: 36,
         }}
       >
         <div
           style={{
-            fontSize: 110,
+            fontSize: 96,
             fontWeight: 700,
             color: '#ffffff',
             lineHeight: 1,

@@ -1,24 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { sendInquiryEmails } from '@/lib/email';
 import { logInquirySubmission } from '@/lib/db';
-
-const LOG_PATH = path.join(process.cwd(), 'data', 'inquiry_submissions.json');
-
-function ensureLogFile() {
-  const dir = path.dirname(LOG_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  if (!fs.existsSync(LOG_PATH)) fs.writeFileSync(LOG_PATH, '[]', 'utf8');
-}
-
-function appendSubmission(entry: Record<string, string>) {
-  ensureLogFile();
-  const raw = fs.readFileSync(LOG_PATH, 'utf8');
-  const log: unknown[] = JSON.parse(raw);
-  log.push(entry);
-  fs.writeFileSync(LOG_PATH, JSON.stringify(log, null, 2), 'utf8');
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -52,12 +34,11 @@ export async function POST(req: NextRequest) {
       submittedAt: new Date().toISOString(),
     };
 
-    // Persist to DB (production) with file fallback (local dev)
+    // Persist to DB
     try {
       await logInquirySubmission(entry.name, entry.email, entry.company, entry.challenge);
     } catch {
-      try { appendSubmission(entry); } catch { /* non-fatal */ }
-      console.error('DB log failed for inquiry submission');
+      console.error('DB log failed for inquiry submission — entry:', JSON.stringify(entry));
     }
 
     // Route inquiry to Plenor Systems inbox + send acknowledgment to visitor

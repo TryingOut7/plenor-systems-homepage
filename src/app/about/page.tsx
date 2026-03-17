@@ -35,9 +35,9 @@ const defaults: Required<AboutPageData> = {
     'The narrow focus is a strength, not a limitation. Teams get a framework that is actually applicable to the work at hand, not a set of generic principles that need extensive interpretation.',
   missionQuote:
     'A well-built product deserves a structured path to market \u2014 and consistent quality standards before it gets there.',
-  founderName: '[Founder Name]',
-  founderRole: '[Role]',
-  founderBio: '[One-line background \u2014 update this via the CMS before going live.]',
+  founderName: '',
+  founderRole: '',
+  founderBio: '',
   ctaHeading: 'Want to work together?',
   ctaBody: 'Get in touch to discuss your product and team, or start with the free guide.',
 };
@@ -218,80 +218,81 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* 4. Team / Founder */}
-      <section
-        aria-labelledby="team-heading"
-        style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
-      >
-        <div style={narrow}>
-          <p className="section-label" style={{ marginBottom: '16px' }}>The Team</p>
-          <h2
-            id="team-heading"
-            style={{
-              fontFamily: 'var(--font-display), Georgia, serif',
-              fontSize: 'clamp(26px, 3.5vw, 38px)',
-              fontWeight: 700,
-              color: '#1B2D4F',
-              letterSpacing: '-0.02em',
-              lineHeight: 1.15,
-              marginBottom: '40px',
-            }}
-          >
-            The people behind the framework.
-          </h2>
-
-          <div
-            style={{
-              display: 'flex',
-              gap: '28px',
-              alignItems: 'flex-start',
-              flexWrap: 'wrap',
-              padding: '36px',
-              border: '1px solid #E5E7EB',
-              borderTop: '3px solid #1B2D4F',
-              borderRadius: '4px',
-            }}
-          >
+      {/* 4. Team / Founder — only rendered when CMS has content */}
+      {d.founderName && (
+        <section
+          aria-labelledby="team-heading"
+          style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
+        >
+          <div style={narrow}>
+            <p className="section-label" style={{ marginBottom: '16px' }}>The Team</p>
+            <h2
+              id="team-heading"
+              style={{
+                fontFamily: 'var(--font-display), Georgia, serif',
+                fontSize: 'clamp(26px, 3.5vw, 38px)',
+                fontWeight: 700,
+                color: '#1B2D4F',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.15,
+                marginBottom: '40px',
+              }}
+            >
+              The people behind the framework.
+            </h2>
             <div
               style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                backgroundColor: '#E5E7EB',
-                flexShrink: 0,
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                gap: '28px',
+                alignItems: 'flex-start',
+                flexWrap: 'wrap',
+                padding: '36px',
+                border: '1px solid #E5E7EB',
+                borderTop: '3px solid #1B2D4F',
+                borderRadius: '4px',
               }}
-              aria-hidden="true"
             >
-              <svg width="26" height="26" fill="none" stroke="#6B7280" strokeWidth="1.5" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-              </svg>
-            </div>
-            <div>
-              <p
+              <div
                 style={{
-                  fontFamily: 'var(--font-display), Georgia, serif',
-                  fontWeight: 700,
-                  fontSize: '18px',
-                  color: '#1A1A1A',
-                  letterSpacing: '-0.01em',
-                  marginBottom: '4px',
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '50%',
+                  backgroundColor: '#E5E7EB',
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
+                aria-hidden="true"
               >
-                {d.founderName}
-              </p>
-              <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '12px', letterSpacing: '0.02em' }}>
-                {d.founderRole} · Plenor Systems
-              </p>
-              <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65 }}>
-                {d.founderBio}
-              </p>
+                <svg width="26" height="26" fill="none" stroke="#6B7280" strokeWidth="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                </svg>
+              </div>
+              <div>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-display), Georgia, serif',
+                    fontWeight: 700,
+                    fontSize: '18px',
+                    color: '#1A1A1A',
+                    letterSpacing: '-0.01em',
+                    marginBottom: '4px',
+                  }}
+                >
+                  {d.founderName}
+                </p>
+                <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '12px', letterSpacing: '0.02em' }}>
+                  {d.founderRole} · Plenor Systems
+                </p>
+                <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65 }}>
+                  {d.founderBio}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 5. CTA */}
       <section

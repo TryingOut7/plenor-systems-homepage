@@ -1,24 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { sendGuideEmail } from '@/lib/email';
 import { logGuideSubmission } from '@/lib/db';
-
-const LOG_PATH = path.join(process.cwd(), 'data', 'guide_submissions.json');
-
-function ensureLogFile() {
-  const dir = path.dirname(LOG_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  if (!fs.existsSync(LOG_PATH)) fs.writeFileSync(LOG_PATH, '[]', 'utf8');
-}
-
-function appendSubmission(entry: Record<string, string>) {
-  ensureLogFile();
-  const raw = fs.readFileSync(LOG_PATH, 'utf8');
-  const log: unknown[] = JSON.parse(raw);
-  log.push(entry);
-  fs.writeFileSync(LOG_PATH, JSON.stringify(log, null, 2), 'utf8');
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,13 +22,11 @@ export async function POST(req: NextRequest) {
       submittedAt: new Date().toISOString(),
     };
 
-    // Persist to DB (production) with file fallback (local dev)
+    // Persist to DB
     try {
       await logGuideSubmission(entry.name, entry.email);
     } catch {
-      // DB unavailable — fall back to file log
-      try { appendSubmission(entry); } catch { /* non-fatal */ }
-      console.error('DB log failed for guide submission');
+      console.error('DB log failed for guide submission — entry:', JSON.stringify(entry));
     }
 
     // Send guide delivery email via Resend

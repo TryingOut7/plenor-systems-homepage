@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = 'https://plenor.ai';
-  const lastModified = new Date('2026-03-01');
+  const lastModified = new Date();
 
   return [
     { url: `${base}/`, lastModified, changeFrequency: 'monthly', priority: 1.0 },
