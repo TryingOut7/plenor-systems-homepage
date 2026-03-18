@@ -59,17 +59,17 @@ export default async function TestimonialPage({
   if (!item) notFound();
 
   return (
-    <article style={{ maxWidth: '860px', margin: '0 auto', padding: '84px 24px 96px' }}>
+    <article style={{ maxWidth: '840px', margin: '0 auto', padding: '84px 24px 96px' }}>
       <p className="section-label" style={{ marginBottom: '16px' }}>
         Testimonial
       </p>
       <h1
         style={{
           fontFamily: 'var(--font-display), Georgia, serif',
-          fontSize: 'clamp(34px, 4.5vw, 54px)',
+          fontSize: 'clamp(36px, 5vw, 58px)',
           color: '#1B2D4F',
-          lineHeight: 1.12,
-          marginBottom: '14px',
+          lineHeight: 1.08,
+          marginBottom: '16px',
         }}
       >
         {item.personName}

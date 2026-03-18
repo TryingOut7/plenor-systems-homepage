@@ -224,7 +224,7 @@ async function run() {
       role: 'VP Product',
       company: 'Example Co',
       quote: 'The framework gave us a repeatable launch process and better release quality.',
-      featured: true,
+      isFeatured: true,
       rating: 5,
       publishedAt: new Date().toISOString(),
       seo: { includeInSitemap: true },

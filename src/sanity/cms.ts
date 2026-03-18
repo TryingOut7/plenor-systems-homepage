@@ -74,7 +74,7 @@ export type BlogPost = {
   title?: string;
   slug?: { current?: string };
   excerpt?: string;
-  quote?: string;
+  isFeatured?: boolean;
   publishedAt?: string;
   publishDate?: string;
   readingTimeMinutes?: number;
@@ -113,8 +113,9 @@ export type Testimonial = {
   company?: string;
   quote?: string;
   slug?: { current?: string };
-  featured?: boolean;
+  isFeatured?: boolean;
   rating?: number;
+  tags?: string[];
   publishDate?: string;
   publishedAt?: string;
   details?: unknown[];
@@ -210,6 +211,7 @@ const COLLECTION_DATA_QUERY = `
     title,
     slug,
     excerpt,
+    isFeatured,
     publishedAt,
     publishDate,
     readingTimeMinutes,
@@ -228,7 +230,7 @@ const COLLECTION_DATA_QUERY = `
     currency,
     heroImage{alt, asset->{url}}
   },
-  "testimonials": *[_type == "testimonial"] | order(coalesce(publishedAt, _updatedAt) desc){
+  "testimonials": *[_type == "testimonial"] | order(coalesce(publishedAt, _createdAt) desc){
     _id,
     _type,
     personName,
@@ -236,8 +238,9 @@ const COLLECTION_DATA_QUERY = `
     company,
     quote,
     slug,
-    featured,
+    isFeatured,
     rating,
+    tags,
     publishDate,
     publishedAt,
     avatar{alt, asset->{url}}
@@ -251,6 +254,7 @@ const BLOG_POST_BY_SLUG_QUERY = `
   title,
   slug,
   excerpt,
+  isFeatured,
   publishedAt,
   publishDate,
   readingTimeMinutes,
@@ -306,8 +310,9 @@ const TESTIMONIAL_BY_SLUG_QUERY = `
   quote,
   details,
   slug,
-  featured,
+  isFeatured,
   rating,
+  tags,
   publishDate,
   publishedAt,
   seo{

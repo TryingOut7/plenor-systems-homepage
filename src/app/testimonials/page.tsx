@@ -14,7 +14,7 @@ export default async function TestimonialsIndexPage() {
   const { testimonials } = await getCollectionData(preview);
 
   return (
-    <section style={{ padding: '84px 24px 96px', backgroundColor: '#F8F9FA' }}>
+    <section style={{ padding: '84px 24px 96px', backgroundColor: '#ffffff' }}>
       <div style={{ maxWidth: '960px', margin: '0 auto' }}>
         <p className="section-label" style={{ marginBottom: '14px' }}>
           Testimonials

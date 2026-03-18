@@ -411,7 +411,7 @@ export function createSiteSectionMembers() {
           title: 'Filter Field',
           type: 'string',
           fieldset: 'content',
-          description: 'Optional field name for equality filtering (example: "tags" or "featured").',
+          description: 'Optional field name for equality filtering (example: "tags" or "isFeatured").',
         }),
         defineField({
           name: 'filterValue',

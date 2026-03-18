@@ -55,7 +55,7 @@ export default async function ServiceItemPage({
   if (!item) notFound();
 
   return (
-    <article style={{ maxWidth: '900px', margin: '0 auto', padding: '84px 24px 96px' }}>
+    <article style={{ maxWidth: '840px', margin: '0 auto', padding: '84px 24px 96px' }}>
       <p className="section-label" style={{ marginBottom: '16px' }}>
         Service
       </p>
@@ -65,7 +65,7 @@ export default async function ServiceItemPage({
           fontSize: 'clamp(36px, 5vw, 58px)',
           color: '#1B2D4F',
           lineHeight: 1.08,
-          marginBottom: '20px',
+          marginBottom: '16px',
         }}
       >
         {item.title}

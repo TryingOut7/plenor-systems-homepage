@@ -69,7 +69,7 @@ export const testimonial = defineType({
       validation: (Rule) => Rule.min(1).max(5),
     }),
     defineField({
-      name: 'featured',
+      name: 'isFeatured',
       title: 'Featured',
       type: 'boolean',
       group: 'metadata',
@@ -114,7 +114,7 @@ export const testimonial = defineType({
       title: 'Featured First',
       name: 'featuredFirst',
       by: [
-        { field: 'featured', direction: 'desc' },
+        { field: 'isFeatured', direction: 'desc' },
         { field: '_updatedAt', direction: 'desc' },
       ],
     },
