@@ -263,12 +263,11 @@ export default function ContactSections({ documentId, documentType, sections, gu
                   }}
                 >
                   <div>
-                    <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '16px' }}>
+                    <p className="section-label" style={{ marginBottom: '16px' }}>
                       {section.label || 'Send an inquiry'}
                     </p>
                     <h2
                       id="inquiry-form-heading"
-                      data-sanity={dataFor([...sectionPath, 'heading'])}
                       style={{
                         fontFamily: 'var(--font-display), Georgia, serif',
                         fontSize: 'clamp(24px, 3vw, 34px)',
@@ -282,7 +281,7 @@ export default function ContactSections({ documentId, documentType, sections, gu
                       {section.heading}
                     </h2>
                     <div style={{ width: '32px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '24px', borderRadius: '2px' }} aria-hidden="true" />
-                    <p data-sanity={dataFor([...sectionPath, 'subtext'])} style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '32px' }}>
+                    <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '32px' }}>
                       {section.subtext}
                     </p>
 
@@ -296,7 +295,6 @@ export default function ContactSections({ documentId, documentType, sections, gu
                       }}
                     >
                       <p
-                        data-sanity={dataFor([...sectionPath, 'nextStepsLabel'])}
                         style={{
                           fontWeight: 600,
                           fontSize: '14px',
@@ -306,18 +304,17 @@ export default function ContactSections({ documentId, documentType, sections, gu
                       >
                         {section.nextStepsLabel || 'What happens next'}
                       </p>
-                      <p data-sanity={dataFor([...sectionPath, 'nextStepsBody'])} style={{ fontSize: '14px', color: '#6B7280', lineHeight: 1.6 }}>
+                      <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: 1.6 }}>
                         {section.nextStepsBody || 'We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.'}
                       </p>
                     </div>
 
                     <div>
-                      <p data-sanity={dataFor([...sectionPath, 'directEmailLabel'])} style={{ fontWeight: 600, fontSize: '14px', color: '#1A1A1A', marginBottom: '8px' }}>
+                      <p style={{ fontWeight: 600, fontSize: '14px', color: '#1A1A1A', marginBottom: '8px' }}>
                         {section.directEmailLabel || 'Prefer email directly?'}
                       </p>
                       <a
                         href={`mailto:${emailAddress}`}
-                        data-sanity={dataFor([...sectionPath, 'emailAddress'])}
                         style={{ color: '#1B2D4F', fontWeight: 600, fontSize: '14px', textDecoration: 'none' }}
                         className="text-link"
                       >
@@ -326,7 +323,6 @@ export default function ContactSections({ documentId, documentType, sections, gu
                       <span style={{ color: '#E5E7EB', margin: '0 10px' }}>·</span>
                       <a
                         href={section.linkedinHref || 'https://www.linkedin.com/company/plenor-ai'}
-                        data-sanity={dataFor([...sectionPath, 'linkedinLabel'])}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ color: '#6B7280', fontSize: '14px', textDecoration: 'none' }}
@@ -361,7 +357,6 @@ export default function ContactSections({ documentId, documentType, sections, gu
           return (
             <div
               key={key}
-              data-sanity={dataFor(sectionPath)}
               style={{
                 backgroundColor: privacyBackground,
                 borderTop: '1px solid #E5E7EB',
@@ -369,9 +364,9 @@ export default function ContactSections({ documentId, documentType, sections, gu
                 textAlign: 'center',
               }}
             >
-              <p data-sanity={dataFor([...sectionPath, 'label'])} style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
+              <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
                 {section.label || 'By submitting this form, you agree to our'}{' '}
-                <Link href={section.policyLinkHref || '/privacy'} data-sanity={dataFor([...sectionPath, 'policyLinkLabel'])} style={{ color: '#6B7280', textDecoration: 'underline' }}>
+                <Link href={section.policyLinkHref || '/privacy'} style={{ color: '#6B7280', textDecoration: 'underline' }}>
                   {section.policyLinkLabel || 'Privacy Policy'}
                 </Link>
                 .
