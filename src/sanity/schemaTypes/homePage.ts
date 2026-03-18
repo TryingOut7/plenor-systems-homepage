@@ -101,6 +101,10 @@ export const homePage = defineType({
       },
     ],
   },
+  groups: [
+    { name: 'content', title: 'Content', default: true },
+    { name: 'seo', title: 'SEO' },
+  ],
   fieldsets: [
     {
       name: 'legacy',
@@ -485,6 +489,12 @@ export const homePage = defineType({
       rows: 4,
       fieldset: 'legacy',
       hidden: hideLegacyFields,
+    }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seoFields',
+      group: 'seo',
     }),
     createSchemaTypePlaygroundField(),
   ],

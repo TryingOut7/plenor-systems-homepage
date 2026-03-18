@@ -111,6 +111,10 @@ export const servicesPage = defineType({
       },
     ],
   },
+  groups: [
+    { name: 'content', title: 'Content', default: true },
+    { name: 'seo', title: 'SEO' },
+  ],
   fieldsets: [
     {
       name: 'legacy',
@@ -344,6 +348,12 @@ export const servicesPage = defineType({
     defineField({ name: 'whyFrameworkBody3', title: 'Legacy: Why Framework Paragraph 3', type: 'text', rows: 3, fieldset: 'legacy', hidden: hideLegacyFields }),
     defineField({ name: 'ctaHeading', title: 'Legacy: CTA Heading', type: 'string', fieldset: 'legacy', hidden: hideLegacyFields }),
     defineField({ name: 'ctaBody', title: 'Legacy: CTA Body', type: 'text', rows: 2, fieldset: 'legacy', hidden: hideLegacyFields }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seoFields',
+      group: 'seo',
+    }),
     createSchemaTypePlaygroundField(),
   ],
   preview: { prepare: () => ({ title: 'Services Page' }) },

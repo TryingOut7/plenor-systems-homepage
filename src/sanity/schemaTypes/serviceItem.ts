@@ -1,5 +1,6 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
 import { EditIcon } from '@sanity/icons';
+import { isSlugUniqueAcrossTypes } from './shared/slugValidation';
 
 export const serviceItem = defineType({
   name: 'serviceItem',
@@ -26,7 +27,7 @@ export const serviceItem = defineType({
       type: 'slug',
       group: 'content',
       description: 'Auto-generated from the title.',
-      options: { source: 'title' },
+      options: { source: 'title', isUnique: isSlugUniqueAcrossTypes },
       validation: (Rule) => Rule.required(),
     }),
     defineField({

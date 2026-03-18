@@ -1,6 +1,7 @@
 import { defineField, defineType } from 'sanity';
 import { ComponentIcon } from '@sanity/icons';
 import { createSiteSectionMembers, siteSectionsInsertMenu } from './shared/siteSections';
+import { isSlugUniqueAcrossTypes } from './shared/slugValidation';
 
 export const reusableSection = defineType({
   name: 'reusableSection',
@@ -26,7 +27,7 @@ export const reusableSection = defineType({
       title: 'Slug',
       type: 'slug',
       group: 'content',
-      options: { source: 'title' },
+      options: { source: 'title', isUnique: isSlugUniqueAcrossTypes },
       validation: (Rule) => Rule.required(),
     }),
     defineField({

@@ -87,6 +87,10 @@ export const aboutPage = defineType({
       },
     ],
   },
+  groups: [
+    { name: 'content', title: 'Content', default: true },
+    { name: 'seo', title: 'SEO' },
+  ],
   fieldsets: [
     {
       name: 'legacy',
@@ -456,6 +460,12 @@ export const aboutPage = defineType({
       rows: 2,
       fieldset: 'legacy',
       hidden: hideLegacyFields,
+    }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seoFields',
+      group: 'seo',
     }),
     createSchemaTypePlaygroundField(),
   ],

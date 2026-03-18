@@ -1,5 +1,6 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
 import { UsersIcon } from '@sanity/icons';
+import { isSlugUniqueAcrossTypes } from './shared/slugValidation';
 
 export const testimonial = defineType({
   name: 'testimonial',
@@ -72,7 +73,7 @@ export const testimonial = defineType({
       title: 'URL Path',
       type: 'slug',
       group: 'metadata',
-      options: { source: 'personName' },
+      options: { source: 'personName', isUnique: isSlugUniqueAcrossTypes },
       validation: (Rule) => Rule.required(),
     }),
     defineField({

@@ -436,7 +436,7 @@ const SITEMAP_SLUGS_QUERY = `
     "includeInSitemap": coalesce(seo.includeInSitemap, true),
     "_updatedAt": _updatedAt
   },
-  "blogPosts": *[_type == "blogPost"]{
+  "blogPosts": *[_type == "blogPost" && defined(publishedAt) && publishedAt <= now()]{
     "slug": slug.current,
     "includeInSitemap": coalesce(seo.includeInSitemap, true),
     "_updatedAt": _updatedAt
@@ -446,7 +446,7 @@ const SITEMAP_SLUGS_QUERY = `
     "includeInSitemap": coalesce(seo.includeInSitemap, true),
     "_updatedAt": _updatedAt
   },
-  "testimonials": *[_type == "testimonial"]{
+  "testimonials": *[_type == "testimonial" && defined(publishedAt) && publishedAt <= now()]{
     "slug": slug.current,
     "includeInSitemap": coalesce(seo.includeInSitemap, true),
     "_updatedAt": _updatedAt

@@ -1,5 +1,6 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
 import { ComposeIcon } from '@sanity/icons';
+import { isSlugUniqueAcrossTypes } from './shared/slugValidation';
 
 export const blogPost = defineType({
   name: 'blogPost',
@@ -26,7 +27,7 @@ export const blogPost = defineType({
       type: 'slug',
       group: 'content',
       description: 'Auto-generated from the title. Used in the blog post URL.',
-      options: { source: 'title' },
+      options: { source: 'title', isUnique: isSlugUniqueAcrossTypes },
       validation: (Rule) => Rule.required(),
     }),
     defineField({

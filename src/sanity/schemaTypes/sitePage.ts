@@ -1,6 +1,7 @@
 import { defineField, defineType } from 'sanity';
 import { DocumentsIcon } from '@sanity/icons';
 import { createSiteSectionMembers, siteSectionsInsertMenu } from './shared/siteSections';
+import { isSlugUniqueAcrossTypes } from './shared/slugValidation';
 
 export const sitePage = defineType({
   name: 'sitePage',
@@ -28,7 +29,7 @@ export const sitePage = defineType({
       type: 'slug',
       group: 'content',
       description: 'The URL-friendly path for this page (auto-generated from title).',
-      options: { source: 'title' },
+      options: { source: 'title', isUnique: isSlugUniqueAcrossTypes },
       validation: (Rule) => Rule.required(),
     }),
     defineField({

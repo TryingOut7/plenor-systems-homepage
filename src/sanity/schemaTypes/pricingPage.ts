@@ -103,6 +103,10 @@ export const pricingPage = defineType({
       },
     ],
   },
+  groups: [
+    { name: 'content', title: 'Content', default: true },
+    { name: 'seo', title: 'SEO' },
+  ],
   fieldsets: [
     {
       name: 'legacy',
@@ -344,6 +348,12 @@ export const pricingPage = defineType({
     defineField({ name: 'ctaBody', title: 'Legacy: CTA Body', type: 'text', rows: 2, fieldset: 'legacy', hidden: hideLegacyFields }),
     defineField({ name: 'notReadyHeading', title: 'Legacy: Not Ready Heading', type: 'string', fieldset: 'legacy', hidden: hideLegacyFields }),
     defineField({ name: 'notReadyBody', title: 'Legacy: Not Ready Body', type: 'text', rows: 2, fieldset: 'legacy', hidden: hideLegacyFields }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seoFields',
+      group: 'seo',
+    }),
     createSchemaTypePlaygroundField(),
   ],
   preview: { prepare: () => ({ title: 'Pricing Page' }) },

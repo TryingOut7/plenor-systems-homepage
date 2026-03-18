@@ -61,6 +61,50 @@ async function loadRedirectRules(): Promise<RedirectRule[]> {
   }
 }
 
+/**
+ * Converts a fromPath pattern with a trailing wildcard `*` into a regex.
+ * e.g. "/old-blog/*" matches "/old-blog/post-1", "/old-blog/a/b/c"
+ * Literal paths (no wildcard) match exactly.
+ */
+function matchesFromPath(ruleFrom: string, requestPath: string): boolean {
+  const normalizedFrom = normalizePath(ruleFrom);
+  if (normalizedFrom.endsWith('/*')) {
+    const prefix = normalizedFrom.slice(0, -2); // strip "/*"
+    return requestPath === prefix || requestPath.startsWith(prefix + '/');
+  }
+  return normalizedFrom === requestPath;
+}
+
+function findRedirectMatch(
+  rules: RedirectRule[],
+  normalizedPath: string,
+): RedirectRule | undefined {
+  return rules.find(
+    (rule) =>
+      typeof rule.fromPath === 'string' &&
+      typeof rule.toPath === 'string' &&
+      matchesFromPath(rule.fromPath, normalizedPath),
+  );
+}
+
+/**
+ * Resolves the target path, carrying over the wildcard suffix when applicable.
+ * e.g. from="/old-blog/*", to="/blog/*", request="/old-blog/my-post" → "/blog/my-post"
+ */
+function resolveRedirectTarget(
+  fromPath: string,
+  toPath: string,
+  requestPath: string,
+): string {
+  const normalizedFrom = normalizePath(fromPath);
+  if (normalizedFrom.endsWith('/*') && toPath.endsWith('/*')) {
+    const prefix = normalizedFrom.slice(0, -2);
+    const suffix = requestPath.slice(prefix.length); // includes leading "/"
+    return toPath.slice(0, -2) + suffix;
+  }
+  return toPath;
+}
+
 export async function middleware(request: NextRequest) {
   const password = process.env.STAGING_PASSWORD;
   const { pathname } = request.nextUrl;
@@ -87,18 +131,16 @@ export async function middleware(request: NextRequest) {
 
   const rules = await loadRedirectRules();
   const normalizedPath = normalizePath(pathname);
-  const match = rules.find(
-    (rule) =>
-      typeof rule.fromPath === 'string' &&
-      typeof rule.toPath === 'string' &&
-      normalizePath(rule.fromPath) === normalizedPath
-  );
+  const match = findRedirectMatch(rules, normalizedPath);
 
   if (match?.toPath) {
-    const toPath = normalizePath(match.toPath);
+    const resolvedTo = resolveRedirectTarget(match.fromPath ?? '', match.toPath, normalizedPath);
+    const toPath = normalizePath(resolvedTo);
     if (toPath !== normalizedPath) {
       const url = request.nextUrl.clone();
       url.pathname = toPath;
+      // Preserve query string from the original request
+      // (url.search is already carried over from request.nextUrl.clone())
       return NextResponse.redirect(url, match.isPermanent ? 308 : 307);
     }
   }
