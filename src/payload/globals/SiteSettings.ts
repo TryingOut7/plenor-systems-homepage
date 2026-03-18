@@ -5,6 +5,14 @@ export const SiteSettings: GlobalConfig = {
   access: {
     read: () => true,
   },
+  versions: {
+    max: 25,
+    drafts: {
+      autosave: {
+        interval: 1000,
+      },
+    },
+  },
   fields: [
     // ─── Branding ─────────────────────────────────────────────────────────
     {

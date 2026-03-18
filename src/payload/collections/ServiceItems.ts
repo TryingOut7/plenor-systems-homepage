@@ -10,6 +10,18 @@ export const ServiceItems: CollectionConfig = {
   access: {
     read: () => true,
   },
+  versions: {
+    maxPerDoc: 25,
+    drafts: {
+      autosave: {
+        interval: 800,
+      },
+      schedulePublish: true,
+      validate: false,
+    },
+  },
+  trash: true,
+  enableQueryPresets: true,
   fields: [
     {
       name: 'title',

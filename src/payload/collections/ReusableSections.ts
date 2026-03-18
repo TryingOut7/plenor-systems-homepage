@@ -9,6 +9,16 @@ export const ReusableSections: CollectionConfig = {
   access: {
     read: () => true,
   },
+  versions: {
+    maxPerDoc: 10,
+    drafts: {
+      autosave: {
+        interval: 800,
+      },
+    },
+  },
+  trash: true,
+  enableQueryPresets: true,
   fields: [
     {
       name: 'title',

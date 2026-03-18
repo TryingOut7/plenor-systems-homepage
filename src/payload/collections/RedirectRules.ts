@@ -9,6 +9,8 @@ export const RedirectRules: CollectionConfig = {
   access: {
     read: () => true,
   },
+  trash: true,
+  enableQueryPresets: true,
   fields: [
     {
       name: 'fromPath',

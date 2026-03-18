@@ -12,8 +12,17 @@ export const SitePages: CollectionConfig = {
     read: () => true,
   },
   versions: {
-    drafts: true,
+    maxPerDoc: 50,
+    drafts: {
+      autosave: {
+        interval: 800,
+      },
+      schedulePublish: true,
+      validate: false,
+    },
   },
+  trash: true,
+  enableQueryPresets: true,
   fields: [
     {
       name: 'title',

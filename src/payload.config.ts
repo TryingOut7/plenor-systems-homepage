@@ -56,14 +56,74 @@ export default buildConfig({
       ],
     },
   },
+  // ─── Folders ───────────────────────────────────────────────────────────────
+  folders: {
+    browseByFolder: true,
+    collectionSpecific: true,
+  },
+
+  // ─── Query Presets ────────────────────────────────────────────────────────
+  queryPresets: {
+    access: {
+      read: () => true,
+      create: ({ req }) => !!req.user,
+      update: ({ req }) => !!req.user,
+      delete: ({ req }) => !!req.user,
+    },
+    constraints: {
+      read: [
+        { label: 'Everyone', value: 'everyone', access: () => true },
+      ],
+    },
+  },
+
+  // ─── Jobs Queue ───────────────────────────────────────────────────────────
+  jobs: {
+    access: {
+      queue: ({ req }) => !!req.user,
+      run: ({ req }) => !!req.user,
+    },
+    tasks: [],
+    workflows: [],
+    deleteJobOnComplete: true,
+  },
+
   collections: [
     {
       slug: 'users',
-      auth: true,
+      auth: {
+        tokenExpiration: 28800, // 8 hours
+        useAPIKey: true,
+        maxLoginAttempts: 5,
+        lockTime: 600000, // 10 minutes
+        verify: false,
+      },
       access: {
         read: () => true,
       },
-      fields: [],
+      admin: {
+        useAsTitle: 'email',
+      },
+      enableQueryPresets: true,
+      fields: [
+        {
+          name: 'name',
+          type: 'text',
+        },
+        {
+          name: 'role',
+          type: 'select',
+          defaultValue: 'editor',
+          options: [
+            { label: 'Admin', value: 'admin' },
+            { label: 'Editor', value: 'editor' },
+            { label: 'Viewer', value: 'viewer' },
+          ],
+          admin: {
+            position: 'sidebar',
+          },
+        },
+      ],
     },
     Media,
     BlogPosts,
