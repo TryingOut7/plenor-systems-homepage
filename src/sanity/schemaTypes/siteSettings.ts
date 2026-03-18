@@ -1,9 +1,11 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
+import { CogIcon } from '@sanity/icons';
 
 export const siteSettings = defineType({
   name: 'siteSettings',
   title: 'Site Settings',
   type: 'document',
+  icon: CogIcon,
   groups: [
     { name: 'branding', title: 'Branding', default: true },
     { name: 'navigation', title: 'Navigation' },

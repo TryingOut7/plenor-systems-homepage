@@ -1,35 +1,31 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
+import { UsersIcon } from '@sanity/icons';
 
 export const testimonial = defineType({
   name: 'testimonial',
   title: 'Testimonial',
   type: 'document',
+  icon: UsersIcon,
+  description: 'Customer quotes and reviews.',
   groups: [
     { name: 'content', title: 'Content', default: true },
-    { name: 'metadata', title: 'Metadata' },
+    { name: 'metadata', title: 'Details' },
     { name: 'seo', title: 'SEO' },
   ],
   fields: [
     defineField({
       name: 'personName',
-      title: 'Person Name',
+      title: 'Name',
       type: 'string',
       group: 'content',
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      group: 'metadata',
-      options: { source: 'personName' },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'role',
-      title: 'Role',
+      title: 'Job Title',
       type: 'string',
       group: 'content',
+      description: 'e.g. "CTO", "Head of Product"',
     }),
     defineField({
       name: 'company',
@@ -40,21 +36,15 @@ export const testimonial = defineType({
     defineField({
       name: 'quote',
       title: 'Quote',
+      description: 'The testimonial text shown on the site.',
       type: 'text',
       rows: 4,
       group: 'content',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'details',
-      title: 'Details',
-      type: 'array',
-      group: 'content',
-      of: [defineArrayMember({ type: 'block' })],
-    }),
-    defineField({
       name: 'avatar',
-      title: 'Avatar',
+      title: 'Photo',
       type: 'image',
       group: 'content',
       options: { hotspot: true },
@@ -63,23 +53,35 @@ export const testimonial = defineType({
     defineField({
       name: 'rating',
       title: 'Rating',
+      description: 'Star rating from 1 to 5.',
       type: 'number',
-      group: 'metadata',
+      group: 'content',
       initialValue: 5,
       validation: (Rule) => Rule.min(1).max(5),
     }),
     defineField({
+      name: 'details',
+      title: 'Extended Details',
+      description: 'Optional longer testimonial content (not shown on listing cards).',
+      type: 'array',
+      group: 'content',
+      of: [defineArrayMember({ type: 'block' })],
+    }),
+    defineField({
+      name: 'slug',
+      title: 'URL Path',
+      type: 'slug',
+      group: 'metadata',
+      options: { source: 'personName' },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'isFeatured',
       title: 'Featured',
+      description: 'Show this testimonial prominently on the site.',
       type: 'boolean',
       group: 'metadata',
       initialValue: false,
-    }),
-    defineField({
-      name: 'publishDate',
-      title: 'Publish Date',
-      type: 'date',
-      group: 'metadata',
     }),
     defineField({
       name: 'publishedAt',
@@ -91,6 +93,7 @@ export const testimonial = defineType({
     defineField({
       name: 'relatedService',
       title: 'Related Service',
+      description: 'Link to the service this testimonial is about.',
       type: 'reference',
       group: 'metadata',
       to: [{ type: 'serviceItem' }],
@@ -101,6 +104,14 @@ export const testimonial = defineType({
       type: 'array',
       group: 'metadata',
       of: [defineArrayMember({ type: 'string' })],
+      options: { layout: 'tags' },
+    }),
+    defineField({
+      name: 'publishDate',
+      title: 'Publish Date',
+      type: 'date',
+      group: 'metadata',
+      hidden: true,
     }),
     defineField({
       name: 'seo',
@@ -130,10 +141,11 @@ export const testimonial = defineType({
       role: 'role',
       company: 'company',
       media: 'avatar',
+      featured: 'isFeatured',
     },
-    prepare: ({ title, role, company, media }) => ({
-      title: title || 'Untitled Testimonial',
-      subtitle: [role, company].filter(Boolean).join(' · ') || 'Testimonial',
+    prepare: ({ title, role, company, media, featured }) => ({
+      title: `${featured ? '* ' : ''}${title || 'Untitled Testimonial'}`,
+      subtitle: [role, company].filter(Boolean).join(' at ') || 'Testimonial',
       media,
     }),
   },

@@ -1,10 +1,13 @@
 import { defineField, defineType } from 'sanity';
+import { ComponentIcon } from '@sanity/icons';
 import { createSiteSectionMembers, siteSectionsInsertMenu } from './shared/siteSections';
 
 export const reusableSection = defineType({
   name: 'reusableSection',
   title: 'Reusable Section',
   type: 'document',
+  icon: ComponentIcon,
+  description: 'Content blocks you can embed in multiple pages.',
   groups: [
     { name: 'content', title: 'Content', default: true },
     { name: 'seo', title: 'SEO' },
@@ -12,9 +15,10 @@ export const reusableSection = defineType({
   fields: [
     defineField({
       name: 'title',
-      title: 'Title',
+      title: 'Section Name',
       type: 'string',
       group: 'content',
+      description: 'Internal name to identify this reusable block.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -30,6 +34,7 @@ export const reusableSection = defineType({
       title: 'Sections',
       type: 'array',
       group: 'content',
+      description: 'The content blocks that make up this reusable section.',
       of: createSiteSectionMembers(),
       options: {
         insertMenu: siteSectionsInsertMenu,

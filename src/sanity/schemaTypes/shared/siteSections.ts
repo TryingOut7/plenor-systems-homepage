@@ -30,7 +30,7 @@ function hideForNonAdmins({ currentUser }: { currentUser?: SanityUser | null }):
 function getCommonFieldsets() {
   return [
     { name: 'content', title: 'Content' },
-    { name: 'design', title: 'Design' },
+    { name: 'design', title: 'Appearance', options: { collapsible: true, collapsed: false } },
     { name: 'advanced', title: 'Advanced', options: { collapsible: true, collapsed: true } },
   ];
 }
@@ -39,17 +39,19 @@ function getCommonDesignFields(defaultTheme = 'white', defaultSize = 'regular') 
   return [
     defineField({
       name: 'theme',
-      title: 'Theme',
+      title: 'Color Theme',
       type: 'string',
       fieldset: 'design',
+      description: 'Background colour scheme for this section.',
       initialValue: defaultTheme,
       options: { list: sectionThemeOptions, layout: 'radio' },
     }),
     defineField({
       name: 'size',
-      title: 'Section Size',
+      title: 'Spacing',
       type: 'string',
       fieldset: 'design',
+      description: 'Vertical padding around this section.',
       initialValue: defaultSize,
       options: { list: sectionSizeOptions, layout: 'radio' },
     }),
@@ -57,7 +59,7 @@ function getCommonDesignFields(defaultTheme = 'white', defaultSize = 'regular') 
       name: 'anchorId',
       title: 'Anchor ID',
       type: 'string',
-      description: 'Optional anchor (without #), e.g. "pricing-table".',
+      description: 'Lets you link directly to this section, e.g. /page#pricing-table',
       fieldset: 'advanced',
     }),
     defineField({
@@ -86,7 +88,7 @@ export const siteSectionTypeNames = {
 } as const;
 
 export const siteSectionsInsertMenu: InsertMenuOptions = {
-  views: [{ name: 'list' }],
+  views: [{ name: 'grid' }, { name: 'list' }],
   groups: [
     {
       name: 'layout',
@@ -105,7 +107,7 @@ export const siteSectionsInsertMenu: InsertMenuOptions = {
     },
     {
       name: 'data',
-      title: 'Data',
+      title: 'Data & Lists',
       of: [siteSectionTypeNames.simpleTable, siteSectionTypeNames.comparisonTable, siteSectionTypeNames.dynamicList],
     },
     {
@@ -118,15 +120,17 @@ export const siteSectionsInsertMenu: InsertMenuOptions = {
 
 export function createSiteSectionMembers() {
   return [
+    // ── Layout ──────────────────────────────────────
     defineArrayMember({
       name: siteSectionTypeNames.hero,
-      title: '[Layout] Hero',
+      title: 'Hero Banner',
       type: 'object',
       fieldsets: getCommonFieldsets(),
       fields: [
         defineField({
           name: 'eyebrow',
-          title: 'Eyebrow',
+          title: 'Eyebrow Text',
+          description: 'Small text shown above the heading.',
           type: 'string',
           fieldset: 'content',
         }),
@@ -146,33 +150,81 @@ export function createSiteSectionMembers() {
         }),
         defineField({
           name: 'primaryCtaLabel',
-          title: 'Primary CTA Label',
+          title: 'Button Text',
           type: 'string',
           fieldset: 'content',
         }),
         defineField({
           name: 'primaryCtaHref',
-          title: 'Primary CTA URL',
+          title: 'Button Link',
           type: 'string',
           fieldset: 'content',
+          description: 'URL or path the button links to.',
         }),
         ...getCommonDesignFields('navy', 'regular'),
       ],
       preview: {
-        select: { title: 'heading' },
-        prepare: ({ title }) => ({ title: title || 'Hero', subtitle: 'Layout section' }),
+        select: { title: 'heading', theme: 'theme' },
+        prepare: ({ title, theme }) => ({
+          title: title || 'Hero Banner',
+          subtitle: `Hero \u00B7 ${theme || 'navy'}`,
+        }),
       },
     }),
     defineArrayMember({
+      name: siteSectionTypeNames.spacer,
+      title: 'Spacer',
+      type: 'object',
+      fieldsets: getCommonFieldsets(),
+      fields: [
+        defineField({
+          name: 'height',
+          title: 'Height (px)',
+          type: 'number',
+          fieldset: 'content',
+          description: 'Vertical space in pixels (8\u2013240).',
+          initialValue: 40,
+          validation: (Rule) => Rule.required().min(8).max(240),
+        }),
+        ...getCommonDesignFields('white', 'compact'),
+      ],
+      preview: {
+        select: { height: 'height' },
+        prepare: ({ height }) => ({ title: `Spacer \u00B7 ${height || 40}px`, subtitle: 'Layout' }),
+      },
+    }),
+    defineArrayMember({
+      name: siteSectionTypeNames.divider,
+      title: 'Divider Line',
+      type: 'object',
+      fieldsets: getCommonFieldsets(),
+      fields: [
+        defineField({
+          name: 'label',
+          title: 'Label',
+          type: 'string',
+          fieldset: 'content',
+          description: 'Optional text shown on the divider line.',
+        }),
+        ...getCommonDesignFields('light', 'compact'),
+      ],
+      preview: {
+        select: { title: 'label' },
+        prepare: ({ title }) => ({ title: title || 'Divider', subtitle: 'Layout' }),
+      },
+    }),
+
+    // ── Content ─────────────────────────────────────
+    defineArrayMember({
       name: siteSectionTypeNames.richText,
-      title: '[Content] Rich Text',
+      title: 'Rich Text',
       type: 'object',
       fieldsets: getCommonFieldsets(),
       fields: [
         defineField({ name: 'heading', title: 'Heading', type: 'string', fieldset: 'content' }),
         defineField({
           name: 'content',
-          title: 'Content',
+          title: 'Body',
           type: 'array',
           fieldset: 'content',
           of: [defineArrayMember({ type: 'block' })],
@@ -182,29 +234,69 @@ export function createSiteSectionMembers() {
       ],
       preview: {
         select: { title: 'heading' },
-        prepare: ({ title }) => ({ title: title || 'Rich Text', subtitle: 'Content section' }),
+        prepare: ({ title }) => ({ title: title || 'Rich Text', subtitle: 'Content' }),
       },
     }),
     defineArrayMember({
       name: siteSectionTypeNames.cta,
-      title: '[Content] CTA',
+      title: 'Call to Action',
       type: 'object',
       fieldsets: getCommonFieldsets(),
       fields: [
         defineField({ name: 'heading', title: 'Heading', type: 'string', fieldset: 'content' }),
         defineField({ name: 'body', title: 'Body', type: 'text', rows: 3, fieldset: 'content' }),
-        defineField({ name: 'buttonLabel', title: 'Button Label', type: 'string', fieldset: 'content' }),
-        defineField({ name: 'buttonHref', title: 'Button URL', type: 'string', fieldset: 'content' }),
+        defineField({ name: 'buttonLabel', title: 'Button Text', type: 'string', fieldset: 'content' }),
+        defineField({
+          name: 'buttonHref',
+          title: 'Button Link',
+          type: 'string',
+          fieldset: 'content',
+          description: 'URL or path the button links to.',
+        }),
         ...getCommonDesignFields('light', 'regular'),
       ],
       preview: {
         select: { title: 'heading' },
-        prepare: ({ title }) => ({ title: title || 'CTA', subtitle: 'Content section' }),
+        prepare: ({ title }) => ({ title: title || 'Call to Action', subtitle: 'Content' }),
       },
     }),
     defineArrayMember({
+      name: siteSectionTypeNames.reusableRef,
+      title: 'Reusable Block',
+      type: 'object',
+      fieldsets: getCommonFieldsets(),
+      fields: [
+        defineField({
+          name: 'reusableSection',
+          title: 'Choose Reusable Section',
+          type: 'reference',
+          to: [{ type: 'reusableSection' }],
+          fieldset: 'content',
+          description: 'Pick a reusable section to embed here.',
+          validation: (Rule) => Rule.required(),
+        }),
+        defineField({
+          name: 'overrideHeading',
+          title: 'Override Heading',
+          type: 'string',
+          fieldset: 'content',
+          description: 'Optionally replace the reusable section\u2019s heading.',
+        }),
+        ...getCommonDesignFields('white', 'regular'),
+      ],
+      preview: {
+        select: { title: 'overrideHeading', refTitle: 'reusableSection.title' },
+        prepare: ({ title, refTitle }) => ({
+          title: title || refTitle || 'Reusable Block',
+          subtitle: 'Embedded content',
+        }),
+      },
+    }),
+
+    // ── Media ───────────────────────────────────────
+    defineArrayMember({
       name: siteSectionTypeNames.image,
-      title: '[Media] Image / Gallery',
+      title: 'Image / Gallery',
       type: 'object',
       fieldsets: getCommonFieldsets(),
       fields: [
@@ -214,6 +306,7 @@ export function createSiteSectionMembers() {
           title: 'Images',
           type: 'array',
           fieldset: 'content',
+          description: 'Upload one or more images. Multiple images show as a gallery.',
           of: [
             defineArrayMember({
               type: 'image',
@@ -228,35 +321,37 @@ export function createSiteSectionMembers() {
       ],
       preview: {
         select: { title: 'heading', media: 'images.0' },
-        prepare: ({ title, media }) => ({ title: title || 'Image / Gallery', subtitle: 'Media section', media }),
+        prepare: ({ title, media }) => ({ title: title || 'Image / Gallery', subtitle: 'Media', media }),
       },
     }),
     defineArrayMember({
       name: siteSectionTypeNames.video,
-      title: '[Media] Video',
+      title: 'Video',
       type: 'object',
       fieldsets: getCommonFieldsets(),
       fields: [
         defineField({ name: 'heading', title: 'Heading', type: 'string', fieldset: 'content' }),
         defineField({
           name: 'embedUrl',
-          title: 'Embed URL',
-          description: 'YouTube/Vimeo URL or direct embed URL.',
+          title: 'Video URL',
+          description: 'Paste a YouTube or Vimeo link.',
           type: 'url',
           fieldset: 'content',
         }),
         defineField({
           name: 'videoFile',
-          title: 'Uploaded Video File',
+          title: 'Or Upload a Video',
           type: 'file',
           fieldset: 'content',
+          description: 'Upload a video file instead of using an embed URL.',
         }),
         defineField({
           name: 'posterImage',
-          title: 'Poster Image',
+          title: 'Poster / Thumbnail',
           type: 'image',
           options: { hotspot: true },
           fieldset: 'content',
+          description: 'Shown before the video plays.',
           fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
         }),
         defineField({
@@ -271,22 +366,25 @@ export function createSiteSectionMembers() {
       ],
       preview: {
         select: { title: 'heading', url: 'embedUrl' },
-        prepare: ({ title, url }) => ({ title: title || 'Video', subtitle: url || 'Media section' }),
+        prepare: ({ title, url }) => ({ title: title || 'Video', subtitle: url || 'Media' }),
       },
     }),
+
+    // ── Data & Lists ────────────────────────────────
     defineArrayMember({
       name: siteSectionTypeNames.simpleTable,
-      title: '[Data] Simple Table',
+      title: 'Table',
       type: 'object',
       fieldsets: getCommonFieldsets(),
       fields: [
         defineField({ name: 'heading', title: 'Heading', type: 'string', fieldset: 'content' }),
         defineField({
           name: 'columns',
-          title: 'Columns',
+          title: 'Column Headers',
           type: 'array',
           of: [defineArrayMember({ type: 'string' })],
           fieldset: 'content',
+          description: 'Define your table columns first.',
           validation: (Rule) => Rule.required().min(1),
         }),
         defineField({
@@ -300,9 +398,10 @@ export function createSiteSectionMembers() {
               fields: [
                 defineField({
                   name: 'cells',
-                  title: 'Cells',
+                  title: 'Cell Values',
                   type: 'array',
                   of: [defineArrayMember({ type: 'string' })],
+                  description: 'One value per column, in order.',
                   validation: (Rule) => Rule.required().min(1),
                 }),
               ],
@@ -318,22 +417,23 @@ export function createSiteSectionMembers() {
       ],
       preview: {
         select: { title: 'heading' },
-        prepare: ({ title }) => ({ title: title || 'Simple Table', subtitle: 'Data section' }),
+        prepare: ({ title }) => ({ title: title || 'Table', subtitle: 'Data' }),
       },
     }),
     defineArrayMember({
       name: siteSectionTypeNames.comparisonTable,
-      title: '[Data] Comparison Table',
+      title: 'Comparison / Pricing Table',
       type: 'object',
       fieldsets: getCommonFieldsets(),
       fields: [
         defineField({ name: 'heading', title: 'Heading', type: 'string', fieldset: 'content' }),
         defineField({
           name: 'planColumns',
-          title: 'Columns',
+          title: 'Plan / Column Names',
           type: 'array',
           of: [defineArrayMember({ type: 'string' })],
           fieldset: 'content',
+          description: 'e.g. "Starter", "Pro", "Enterprise"',
           validation: (Rule) => Rule.required().min(2),
         }),
         defineField({
@@ -341,16 +441,18 @@ export function createSiteSectionMembers() {
           title: 'Features',
           type: 'array',
           fieldset: 'content',
+          description: 'Each feature row shows a label and a value per plan.',
           of: [
             defineArrayMember({
               type: 'object',
               fields: [
-                defineField({ name: 'label', title: 'Feature Label', type: 'string', validation: (Rule) => Rule.required() }),
+                defineField({ name: 'label', title: 'Feature Name', type: 'string', validation: (Rule) => Rule.required() }),
                 defineField({
                   name: 'values',
-                  title: 'Values',
+                  title: 'Values per Plan',
                   type: 'array',
                   of: [defineArrayMember({ type: 'string' })],
+                  description: 'One value for each plan column, in order. Use \u2713 / \u2717 for yes/no.',
                   validation: (Rule) => Rule.required().min(2),
                 }),
               ],
@@ -365,25 +467,26 @@ export function createSiteSectionMembers() {
       ],
       preview: {
         select: { title: 'heading' },
-        prepare: ({ title }) => ({ title: title || 'Comparison Table', subtitle: 'Data section' }),
+        prepare: ({ title }) => ({ title: title || 'Comparison Table', subtitle: 'Data' }),
       },
     }),
     defineArrayMember({
       name: siteSectionTypeNames.dynamicList,
-      title: '[Data] Dynamic List / Repeater',
+      title: 'Auto-Generated List',
       type: 'object',
       fieldsets: getCommonFieldsets(),
       fields: [
         defineField({ name: 'heading', title: 'Heading', type: 'string', fieldset: 'content' }),
         defineField({
           name: 'source',
-          title: 'Source Collection',
+          title: 'Content Source',
           type: 'string',
           fieldset: 'content',
+          description: 'Which collection to pull items from.',
           options: {
             list: [
               { title: 'Blog Posts', value: 'blogPost' },
-              { title: 'Service Items', value: 'serviceItem' },
+              { title: 'Services', value: 'serviceItem' },
               { title: 'Testimonials', value: 'testimonial' },
             ],
             layout: 'radio',
@@ -393,7 +496,7 @@ export function createSiteSectionMembers() {
         }),
         defineField({
           name: 'viewMode',
-          title: 'View Mode',
+          title: 'Display Style',
           type: 'string',
           fieldset: 'content',
           options: {
@@ -407,54 +510,57 @@ export function createSiteSectionMembers() {
           initialValue: 'cards',
         }),
         defineField({
-          name: 'filterField',
-          title: 'Filter Field',
-          type: 'string',
+          name: 'limit',
+          title: 'Items to Show',
+          type: 'number',
           fieldset: 'content',
-          description: 'Optional field name for equality filtering (example: "tags" or "isFeatured").',
+          description: 'Maximum number of items per page.',
+          initialValue: 6,
+          validation: (Rule) => Rule.required().min(1).max(50),
         }),
         defineField({
-          name: 'filterValue',
-          title: 'Filter Value',
-          type: 'string',
+          name: 'enablePagination',
+          title: 'Show Pagination',
+          type: 'boolean',
           fieldset: 'content',
-          description: 'Optional filter value matched against filter field.',
+          description: 'Show next/previous controls when there are more items.',
+          initialValue: true,
         }),
         defineField({
           name: 'sortField',
-          title: 'Sort Field',
+          title: 'Sort By',
           type: 'string',
           fieldset: 'content',
+          description: 'Field name to sort results by (e.g. publishedAt, title).',
           initialValue: 'publishedAt',
         }),
         defineField({
           name: 'sortDirection',
-          title: 'Sort Direction',
+          title: 'Sort Order',
           type: 'string',
           fieldset: 'content',
           options: {
             list: [
-              { title: 'Descending', value: 'desc' },
-              { title: 'Ascending', value: 'asc' },
+              { title: 'Newest First', value: 'desc' },
+              { title: 'Oldest First', value: 'asc' },
             ],
             layout: 'radio',
           },
           initialValue: 'desc',
         }),
         defineField({
-          name: 'limit',
-          title: 'Items Per Page',
-          type: 'number',
-          fieldset: 'content',
-          initialValue: 6,
-          validation: (Rule) => Rule.required().min(1).max(50),
+          name: 'filterField',
+          title: 'Filter Field',
+          type: 'string',
+          fieldset: 'advanced',
+          description: 'Optional: field name to filter by (e.g. "tags" or "isFeatured").',
         }),
         defineField({
-          name: 'enablePagination',
-          title: 'Enable Pagination',
-          type: 'boolean',
-          fieldset: 'content',
-          initialValue: true,
+          name: 'filterValue',
+          title: 'Filter Value',
+          type: 'string',
+          fieldset: 'advanced',
+          description: 'Value to match against the filter field.',
         }),
         ...getCommonDesignFields('white', 'regular'),
       ],
@@ -464,82 +570,20 @@ export function createSiteSectionMembers() {
           source: 'source',
           mode: 'viewMode',
         },
-        prepare: ({ title, source, mode }) => ({
-          title: title || 'Dynamic List',
-          subtitle: `${source || 'unknown'} · ${mode || 'cards'}`,
-        }),
+        prepare: ({ title, source, mode }) => {
+          const sourceLabel = { blogPost: 'Blog', serviceItem: 'Services', testimonial: 'Testimonials' }[source as string] || source;
+          return {
+            title: title || 'Auto-Generated List',
+            subtitle: `${sourceLabel} \u00B7 ${mode || 'cards'}`,
+          };
+        },
       },
     }),
-    defineArrayMember({
-      name: siteSectionTypeNames.reusableRef,
-      title: '[Content] Reusable Section Reference',
-      type: 'object',
-      fieldsets: getCommonFieldsets(),
-      fields: [
-        defineField({
-          name: 'reusableSection',
-          title: 'Reusable Section',
-          type: 'reference',
-          to: [{ type: 'reusableSection' }],
-          fieldset: 'content',
-          validation: (Rule) => Rule.required(),
-        }),
-        defineField({
-          name: 'overrideHeading',
-          title: 'Override Heading',
-          type: 'string',
-          fieldset: 'content',
-        }),
-        ...getCommonDesignFields('white', 'regular'),
-      ],
-      preview: {
-        select: { title: 'overrideHeading' },
-        prepare: ({ title }) => ({ title: title || 'Reusable Section', subtitle: 'Content reference' }),
-      },
-    }),
-    defineArrayMember({
-      name: siteSectionTypeNames.spacer,
-      title: '[Layout] Spacer',
-      type: 'object',
-      fieldsets: getCommonFieldsets(),
-      fields: [
-        defineField({
-          name: 'height',
-          title: 'Height (px)',
-          type: 'number',
-          fieldset: 'content',
-          initialValue: 40,
-          validation: (Rule) => Rule.required().min(8).max(240),
-        }),
-        ...getCommonDesignFields('white', 'compact'),
-      ],
-      preview: {
-        select: { height: 'height' },
-        prepare: ({ height }) => ({ title: `Spacer (${height || 40}px)`, subtitle: 'Layout section' }),
-      },
-    }),
-    defineArrayMember({
-      name: siteSectionTypeNames.divider,
-      title: '[Layout] Divider',
-      type: 'object',
-      fieldsets: getCommonFieldsets(),
-      fields: [
-        defineField({
-          name: 'label',
-          title: 'Label',
-          type: 'string',
-          fieldset: 'content',
-        }),
-        ...getCommonDesignFields('light', 'compact'),
-      ],
-      preview: {
-        select: { title: 'label' },
-        prepare: ({ title }) => ({ title: title || 'Divider', subtitle: 'Layout section' }),
-      },
-    }),
+
+    // ── Advanced ────────────────────────────────────
     defineArrayMember({
       name: siteSectionTypeNames.advanced,
-      title: '[Advanced] Data Types Playground',
+      title: 'Data Types Playground',
       type: 'object',
       fieldsets: getCommonFieldsets(),
       fields: [
@@ -635,7 +679,7 @@ export function createSiteSectionMembers() {
       ],
       preview: {
         select: { title: 'title' },
-        prepare: ({ title }) => ({ title: title || 'Advanced Data', subtitle: 'Advanced section' }),
+        prepare: ({ title }) => ({ title: title || 'Advanced Data', subtitle: 'Playground' }),
       },
     }),
   ];
