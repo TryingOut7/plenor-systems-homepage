@@ -108,7 +108,7 @@ function getLightBackgroundColor(theme: SectionTheme | undefined, fallback: 'whi
   return fallback === 'light' ? '#F8F9FA' : '#ffffff';
 }
 
-export default function PricingSections({ documentId, documentType, sections }: PricingSectionsProps) {
+export default function PricingSections({ sections }: PricingSectionsProps) {
   return (
     <>
       {sections.map((section, index) => {
@@ -122,7 +122,6 @@ export default function PricingSections({ documentId, documentType, sections }: 
             <section
               key={key}
               aria-labelledby="pricing-hero-heading"
-              data-sanity={dataFor(sectionPath)}
               style={{
                 backgroundColor: heroTheme,
                 padding: heroPadding[heroSize],
@@ -146,7 +145,6 @@ export default function PricingSections({ documentId, documentType, sections }: 
               <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
                 <p
                   className="section-label animate-fade-in"
-                  data-sanity={dataFor([...sectionPath, 'label'])}
                   style={{ color: 'rgba(255,255,255,0.45)', marginBottom: '24px' }}
                 >
                   {section.label || 'Pricing'}
@@ -154,7 +152,6 @@ export default function PricingSections({ documentId, documentType, sections }: 
                 <h1
                   id="pricing-hero-heading"
                   className="animate-fade-up"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(36px, 5.5vw, 60px)',
@@ -169,7 +166,6 @@ export default function PricingSections({ documentId, documentType, sections }: 
                 </h1>
                 <p
                   className="animate-fade-up-delay-1"
-                  data-sanity={dataFor([...sectionPath, 'subtext'])}
                   style={{ fontSize: '18px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}
                 >
                   {section.subtext}
@@ -188,16 +184,14 @@ export default function PricingSections({ documentId, documentType, sections }: 
             <section
               key={key}
               aria-labelledby="included-heading"
-              data-sanity={dataFor(sectionPath)}
               style={{ padding: sectionPadding[includedSize], backgroundColor: includedBackground }}
             >
               <div style={{ ...inner, maxWidth: '800px' }}>
-                <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '16px' }}>
+                <p className="section-label" style={{ marginBottom: '16px' }}>
                   {section.label || "What's included"}
                 </p>
                 <h2
                   id="included-heading"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(26px, 3.5vw, 38px)',
@@ -214,17 +208,13 @@ export default function PricingSections({ documentId, documentType, sections }: 
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
                   {items.map((item, itemIndex) => {
-                    const itemPath: DataPathSegment[] =
-                      typeof item === 'object' && item && '_key' in item && item._key
-                        ? [...sectionPath, 'items', { _key: item._key }]
-                        : [...sectionPath, 'items', itemIndex];
                     const title = typeof item === 'string' ? item : item.title || '';
                     const desc = typeof item === 'string' ? '' : item.desc || '';
+                    const itemKey = typeof item === 'string' ? `${item}-${itemIndex}` : (item as { _key?: string })._key || `${title}-${itemIndex}`;
 
                     return (
                       <div
-                        key={typeof item === 'string' ? `${item}-${itemIndex}` : item._key || `${title}-${itemIndex}`}
-                        data-sanity={dataFor(itemPath)}
+                        key={itemKey}
                         style={{
                           display: 'flex',
                           gap: '28px',
@@ -253,13 +243,12 @@ export default function PricingSections({ documentId, documentType, sections }: 
                         </div>
                         <div>
                           <p
-                            data-sanity={typeof item === 'string' ? dataFor(itemPath) : dataFor([...itemPath, 'title'])}
                             style={{ fontWeight: 600, fontSize: '16px', color: '#1A1A1A', marginBottom: desc ? '4px' : 0 }}
                           >
                             {title}
                           </p>
                           {desc ? (
-                            <p data-sanity={dataFor([...itemPath, 'desc'])} style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65 }}>
+                            <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65 }}>
                               {desc}
                             </p>
                           ) : null}
@@ -269,7 +258,7 @@ export default function PricingSections({ documentId, documentType, sections }: 
                   })}
                 </div>
 
-                <p data-sanity={dataFor([...sectionPath, 'body'])} style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginTop: '32px' }}>
+                <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginTop: '32px' }}>
                   {section.body}
                 </p>
               </div>
@@ -286,16 +275,14 @@ export default function PricingSections({ documentId, documentType, sections }: 
             <section
               key={key}
               aria-labelledby="who-we-work-heading"
-              data-sanity={dataFor(sectionPath)}
               style={{ padding: sectionPadding[audienceSize], backgroundColor: audienceBackground }}
             >
               <div style={{ ...inner, maxWidth: '800px' }}>
-                <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '16px' }}>
+                <p className="section-label" style={{ marginBottom: '16px' }}>
                   {section.label || 'Who we work with'}
                 </p>
                 <h2
                   id="who-we-work-heading"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(26px, 3.5vw, 38px)',
@@ -319,42 +306,34 @@ export default function PricingSections({ documentId, documentType, sections }: 
                     overflow: 'hidden',
                   }}
                 >
-                  {audiences.map((audience, audienceIndex) => {
-                    const audiencePath: DataPathSegment[] = audience._key
-                      ? [...sectionPath, 'audiences', { _key: audience._key }]
-                      : [...sectionPath, 'audiences', audienceIndex];
-
-                    return (
-                      <div
-                        key={audience._key ?? `${audience.label}-${audienceIndex}`}
-                        data-sanity={dataFor(audiencePath)}
+                  {audiences.map((audience, audienceIndex) => (
+                    <div
+                      key={audience._key ?? `${audience.label}-${audienceIndex}`}
+                      style={{
+                        backgroundColor: '#ffffff',
+                        padding: '32px 28px',
+                      }}
+                    >
+                      <p
                         style={{
-                          backgroundColor: '#ffffff',
-                          padding: '32px 28px',
+                          fontFamily: 'var(--font-display), Georgia, serif',
+                          fontWeight: 700,
+                          fontSize: '20px',
+                          color: '#1B2D4F',
+                          marginBottom: '10px',
+                          letterSpacing: '-0.01em',
                         }}
                       >
-                        <p
-                          data-sanity={dataFor([...audiencePath, 'label'])}
-                          style={{
-                            fontFamily: 'var(--font-display), Georgia, serif',
-                            fontWeight: 700,
-                            fontSize: '20px',
-                            color: '#1B2D4F',
-                            marginBottom: '10px',
-                            letterSpacing: '-0.01em',
-                          }}
-                        >
-                          {audience.label}
-                        </p>
-                        <p data-sanity={dataFor([...audiencePath, 'copy'])} style={{ fontSize: '14px', color: '#6B7280', lineHeight: 1.65 }}>
-                          {audience.copy}
-                        </p>
-                      </div>
-                    );
-                  })}
+                        {audience.label}
+                      </p>
+                      <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: 1.65 }}>
+                        {audience.copy}
+                      </p>
+                    </div>
+                  ))}
                 </div>
 
-                <p data-sanity={dataFor([...sectionPath, 'note'])} style={{ fontSize: '14px', color: '#6B7280', marginTop: '20px' }}>
+                <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '20px' }}>
                   {section.note || 'There is no minimum team size requirement to work with us.'}
                 </p>
               </div>
@@ -370,13 +349,11 @@ export default function PricingSections({ documentId, documentType, sections }: 
             <section
               key={key}
               aria-labelledby="pricing-contact-heading"
-              data-sanity={dataFor(sectionPath)}
               style={{ padding: sectionPadding[ctaSize], backgroundColor: ctaBackground }}
             >
               <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
                 <h2
                   id="pricing-contact-heading"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(26px, 4vw, 38px)',
@@ -389,20 +366,19 @@ export default function PricingSections({ documentId, documentType, sections }: 
                 >
                   {section.heading}
                 </h2>
-                <p data-sanity={dataFor([...sectionPath, 'body'])} style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.65, marginBottom: '36px' }}>
+                <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.65, marginBottom: '36px' }}>
                   {section.body}
                 </p>
-                <Link href={section.primaryButtonHref || '/contact'} className="btn-secondary" data-sanity={dataFor([...sectionPath, 'primaryButtonLabel'])}>
+                <Link href={section.primaryButtonHref || '/contact'} className="btn-secondary">
                   {section.primaryButtonLabel || 'Get in touch'}
                 </Link>
                 <div style={{ marginTop: '20px' }}>
                   <Link
                     href={section.secondaryLinkHref || '/services'}
-                    data-sanity={dataFor([...sectionPath, 'secondaryLinkLabel'])}
                     style={{ color: '#6B7280', fontSize: '14px', textDecoration: 'none', fontWeight: 500 }}
                     className="breadcrumb-link"
                   >
-                    {section.secondaryLinkLabel || '← Back to Services'}
+                    {section.secondaryLinkLabel || '\u2190 Back to Services'}
                   </Link>
                 </div>
               </div>
@@ -418,7 +394,6 @@ export default function PricingSections({ documentId, documentType, sections }: 
             <section
               key={key}
               aria-labelledby="pricing-guide-heading"
-              data-sanity={dataFor(sectionPath)}
               style={{
                 padding: guideSize === 'compact' ? '64px 32px' : sectionPadding[guideSize],
                 backgroundColor: guideBackground,
@@ -428,7 +403,6 @@ export default function PricingSections({ documentId, documentType, sections }: 
               <div style={{ maxWidth: '560px', margin: '0 auto', textAlign: 'center' }}>
                 <h2
                   id="pricing-guide-heading"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: '22px',
@@ -440,12 +414,11 @@ export default function PricingSections({ documentId, documentType, sections }: 
                 >
                   {section.heading}
                 </h2>
-                <p data-sanity={dataFor([...sectionPath, 'body'])} style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '24px' }}>
+                <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '24px' }}>
                   {section.body}
                 </p>
                 <Link
                   href={section.buttonHref || '/contact#guide'}
-                  data-sanity={dataFor([...sectionPath, 'buttonLabel'])}
                   className="btn-secondary"
                   style={{ fontSize: '14px', padding: '10px 24px' }}
                 >

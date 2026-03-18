@@ -24,7 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((page) => page.includeInSitemap !== false && page.slug)
       .map((page) => ({
         url: `${base}/${page.slug}`,
-        lastModified: page._updatedAt ? new Date(page._updatedAt) : lastModified,
+        lastModified: page.updatedAt ? new Date(page.updatedAt) : lastModified,
         changeFrequency: 'weekly' as const,
         priority: 0.7,
       })),
@@ -32,7 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((post) => post.includeInSitemap !== false && post.slug)
       .map((post) => ({
         url: `${base}/blog/${post.slug}`,
-        lastModified: post._updatedAt ? new Date(post._updatedAt) : lastModified,
+        lastModified: post.updatedAt ? new Date(post.updatedAt) : lastModified,
         changeFrequency: 'weekly' as const,
         priority: 0.7,
       })),
@@ -40,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((service) => service.includeInSitemap !== false && service.slug)
       .map((service) => ({
         url: `${base}/services/${service.slug}`,
-        lastModified: service._updatedAt ? new Date(service._updatedAt) : lastModified,
+        lastModified: service.updatedAt ? new Date(service.updatedAt) : lastModified,
         changeFrequency: 'monthly' as const,
         priority: 0.8,
       })),
@@ -48,7 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((testimonial) => testimonial.includeInSitemap !== false && testimonial.slug)
       .map((testimonial) => ({
         url: `${base}/testimonials/${testimonial.slug}`,
-        lastModified: testimonial._updatedAt ? new Date(testimonial._updatedAt) : lastModified,
+        lastModified: testimonial.updatedAt ? new Date(testimonial.updatedAt) : lastModified,
         changeFrequency: 'monthly' as const,
         priority: 0.6,
       })),

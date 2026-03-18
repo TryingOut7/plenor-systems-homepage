@@ -98,8 +98,6 @@ interface ServicesSectionsProps {
   sections: ServicesSection[];
 }
 
-type DataPathSegment = string | number | { _key: string };
-
 const inner: CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 const narrow: CSSProperties = { maxWidth: '760px', margin: '0 auto' };
 
@@ -127,15 +125,10 @@ function getLightBackgroundColor(theme: SectionTheme | undefined, fallback: 'whi
   return fallback === 'light' ? '#F8F9FA' : '#ffffff';
 }
 
-function isSectionList(value: unknown): value is ServicesSection[] {
-  return Array.isArray(value);
-}
-
-function listItem(text: string, dataSanity?: string) {
+function listItem(text: string) {
   return (
     <li
-      key={dataSanity || text}
-      data-sanity={dataSanity}
+      key={text}
       style={{
         display: 'flex',
         gap: '16px',
@@ -162,23 +155,11 @@ function listItem(text: string, dataSanity?: string) {
   );
 }
 
-export default function ServicesSections({ documentId, documentType, sections }: ServicesSectionsProps) {
-  const dataAttribute = createDataAttribute({ id: documentId, type: documentType });
-  const optimisticSections = useOptimistic(sections, (current, action) => {
-    if (action.id !== documentId || action.type !== documentType) return current;
-    const maybeSections = (action.document as { sections?: unknown })?.sections;
-    return isSectionList(maybeSections) ? maybeSections : current;
-  });
-
-  const dataFor = (path: DataPathSegment[]) => dataAttribute(path);
-
+export default function ServicesSections({ sections }: ServicesSectionsProps) {
   return (
     <>
-      {optimisticSections.map((section, index) => {
+      {sections.map((section, index) => {
         const key = section._key ?? `${section._type}-${index}`;
-        const sectionPath: DataPathSegment[] = section._key
-          ? ['sections', { _key: section._key }]
-          : ['sections', index];
 
         if (section._type === 'servicesHeroSection') {
           const heroTheme = getDarkBackgroundColor(section.theme);
@@ -188,7 +169,6 @@ export default function ServicesSections({ documentId, documentType, sections }:
             <section
               key={key}
               aria-labelledby="services-hero-heading"
-              data-sanity={dataFor(sectionPath)}
               style={{
                 backgroundColor: heroTheme,
                 padding: heroPadding[heroSize],
@@ -212,7 +192,6 @@ export default function ServicesSections({ documentId, documentType, sections }:
               <div style={{ ...inner, maxWidth: '760px', position: 'relative', zIndex: 1 }}>
                 <p
                   className="section-label animate-fade-in"
-                  data-sanity={dataFor([...sectionPath, 'label'])}
                   style={{ color: 'rgba(255,255,255,0.45)', marginBottom: '24px' }}
                 >
                   {section.label || 'Framework Overview'}
@@ -220,7 +199,6 @@ export default function ServicesSections({ documentId, documentType, sections }:
                 <h1
                   id="services-hero-heading"
                   className="animate-fade-up"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(36px, 5.5vw, 60px)',
@@ -235,7 +213,6 @@ export default function ServicesSections({ documentId, documentType, sections }:
                 </h1>
                 <p
                   className="animate-fade-up-delay-1"
-                  data-sanity={dataFor([...sectionPath, 'subtext'])}
                   style={{ fontSize: '18px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}
                 >
                   {section.subtext}
@@ -254,13 +231,11 @@ export default function ServicesSections({ documentId, documentType, sections }:
             <section
               key={key}
               aria-labelledby="testing-heading"
-              data-sanity={dataFor(sectionPath)}
               style={{ padding: sectionPadding[testingSize], backgroundColor: testingBackground }}
             >
               <div style={narrow}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0', marginBottom: '40px' }}>
                   <span
-                    data-sanity={dataFor([...sectionPath, 'stageNumber'])}
                     aria-hidden="true"
                     style={{
                       fontFamily: 'var(--font-display), Georgia, serif',
@@ -277,12 +252,11 @@ export default function ServicesSections({ documentId, documentType, sections }:
                   </span>
                 </div>
 
-                <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '16px' }}>
+                <p className="section-label" style={{ marginBottom: '16px' }}>
                   {section.label || 'Stage 1'}
                 </p>
                 <h2
                   id="testing-heading"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(28px, 4vw, 42px)',
@@ -296,7 +270,7 @@ export default function ServicesSections({ documentId, documentType, sections }:
                   {section.heading || 'Testing & QA'}
                 </h2>
                 <div style={{ width: '40px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '28px', borderRadius: '2px' }} aria-hidden="true" />
-                <p data-sanity={dataFor([...sectionPath, 'body'])} style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '36px' }}>
+                <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '36px' }}>
                   {section.body}
                 </p>
 
@@ -309,7 +283,6 @@ export default function ServicesSections({ documentId, documentType, sections }:
                 >
                   <div>
                     <h3
-                      data-sanity={dataFor([...sectionPath, 'itemsHeading'])}
                       style={{
                         fontFamily: 'var(--font-display), Georgia, serif',
                         fontSize: '18px',
@@ -322,12 +295,11 @@ export default function ServicesSections({ documentId, documentType, sections }:
                       {section.itemsHeading || 'What it covers'}
                     </h3>
                     <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {items.map((item, itemIndex) => listItem(item, dataFor([...sectionPath, 'items', itemIndex])))}
+                      {items.map((item) => listItem(item))}
                     </ul>
                   </div>
                   <div>
                     <h3
-                      data-sanity={dataFor([...sectionPath, 'whoForHeading'])}
                       style={{
                         fontFamily: 'var(--font-display), Georgia, serif',
                         fontSize: '18px',
@@ -339,7 +311,7 @@ export default function ServicesSections({ documentId, documentType, sections }:
                     >
                       {section.whoForHeading || "Who it's for"}
                     </h3>
-                    <p data-sanity={dataFor([...sectionPath, 'whoFor'])} style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.7 }}>
+                    <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.7 }}>
                       {section.whoFor}
                     </p>
                   </div>
@@ -358,13 +330,11 @@ export default function ServicesSections({ documentId, documentType, sections }:
             <section
               key={key}
               aria-labelledby="launch-heading"
-              data-sanity={dataFor(sectionPath)}
               style={{ padding: sectionPadding[launchSize], backgroundColor: launchBackground }}
             >
               <div style={narrow}>
                 <div style={{ marginBottom: '40px' }}>
                   <span
-                    data-sanity={dataFor([...sectionPath, 'stageNumber'])}
                     aria-hidden="true"
                     style={{
                       fontFamily: 'var(--font-display), Georgia, serif',
@@ -382,12 +352,11 @@ export default function ServicesSections({ documentId, documentType, sections }:
                   </span>
                 </div>
 
-                <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '16px' }}>
+                <p className="section-label" style={{ marginBottom: '16px' }}>
                   {section.label || 'Stage 2'}
                 </p>
                 <h2
                   id="launch-heading"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(28px, 4vw, 42px)',
@@ -401,7 +370,7 @@ export default function ServicesSections({ documentId, documentType, sections }:
                   {section.heading || 'Launch & Go-to-Market'}
                 </h2>
                 <div style={{ width: '40px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '28px', borderRadius: '2px' }} aria-hidden="true" />
-                <p data-sanity={dataFor([...sectionPath, 'body'])} style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '36px' }}>
+                <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '36px' }}>
                   {section.body}
                 </p>
 
@@ -414,7 +383,6 @@ export default function ServicesSections({ documentId, documentType, sections }:
                 >
                   <div>
                     <h3
-                      data-sanity={dataFor([...sectionPath, 'itemsHeading'])}
                       style={{
                         fontFamily: 'var(--font-display), Georgia, serif',
                         fontSize: '18px',
@@ -427,12 +395,11 @@ export default function ServicesSections({ documentId, documentType, sections }:
                       {section.itemsHeading || 'What it covers'}
                     </h3>
                     <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {items.map((item, itemIndex) => listItem(item, dataFor([...sectionPath, 'items', itemIndex])))}
+                      {items.map((item) => listItem(item))}
                     </ul>
                   </div>
                   <div>
                     <h3
-                      data-sanity={dataFor([...sectionPath, 'whoForHeading'])}
                       style={{
                         fontFamily: 'var(--font-display), Georgia, serif',
                         fontSize: '18px',
@@ -444,7 +411,7 @@ export default function ServicesSections({ documentId, documentType, sections }:
                     >
                       {section.whoForHeading || "Who it's for"}
                     </h3>
-                    <p data-sanity={dataFor([...sectionPath, 'whoFor'])} style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.7 }}>
+                    <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.7 }}>
                       {section.whoFor}
                     </p>
                   </div>
@@ -462,16 +429,14 @@ export default function ServicesSections({ documentId, documentType, sections }:
             <section
               key={key}
               aria-labelledby="why-framework-heading"
-              data-sanity={dataFor(sectionPath)}
               style={{ padding: sectionPadding[whySize], backgroundColor: whyBackground }}
             >
               <div style={narrow}>
-                <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '16px' }}>
+                <p className="section-label" style={{ marginBottom: '16px' }}>
                   {section.label || 'The Approach'}
                 </p>
                 <h2
                   id="why-framework-heading"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(26px, 3.5vw, 38px)',
@@ -485,13 +450,13 @@ export default function ServicesSections({ documentId, documentType, sections }:
                   {section.heading}
                 </h2>
                 <div style={{ width: '40px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '32px', borderRadius: '2px' }} aria-hidden="true" />
-                <p data-sanity={dataFor([...sectionPath, 'body1'])} style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '20px' }}>
+                <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '20px' }}>
                   {section.body1}
                 </p>
-                <p data-sanity={dataFor([...sectionPath, 'body2'])} style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '20px' }}>
+                <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '20px' }}>
                   {section.body2}
                 </p>
-                <p data-sanity={dataFor([...sectionPath, 'body3'])} style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7 }}>
+                <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7 }}>
                   {section.body3}
                 </p>
               </div>
@@ -506,7 +471,6 @@ export default function ServicesSections({ documentId, documentType, sections }:
           return (
             <div
               key={key}
-              data-sanity={dataFor(sectionPath)}
               style={{
                 backgroundColor: linksBackground,
                 borderTop: '1px solid #E5E7EB',
@@ -517,7 +481,6 @@ export default function ServicesSections({ documentId, documentType, sections }:
               <div style={{ ...inner, display: 'flex', flexWrap: 'wrap', gap: '8px 32px', justifyContent: 'center' }}>
                 <Link
                   href={section.leftLinkHref || '/about'}
-                  data-sanity={dataFor([...sectionPath, 'leftLinkLabel'])}
                   style={{ color: '#6B7280', fontSize: '14px', textDecoration: 'none', fontWeight: 500 }}
                   className="breadcrumb-link"
                 >
@@ -525,7 +488,6 @@ export default function ServicesSections({ documentId, documentType, sections }:
                 </Link>
                 <Link
                   href={section.rightLinkHref || '/pricing'}
-                  data-sanity={dataFor([...sectionPath, 'rightLinkLabel'])}
                   style={{ color: '#6B7280', fontSize: '14px', textDecoration: 'none', fontWeight: 500 }}
                   className="breadcrumb-link"
                 >
@@ -544,7 +506,6 @@ export default function ServicesSections({ documentId, documentType, sections }:
             <section
               key={key}
               aria-labelledby="services-cta-heading"
-              data-sanity={dataFor(sectionPath)}
               style={{
                 padding: sectionPadding[ctaSize],
                 backgroundColor: ctaBackground,
@@ -568,7 +529,6 @@ export default function ServicesSections({ documentId, documentType, sections }:
               <div style={{ ...inner, maxWidth: '600px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
                 <h2
                   id="services-cta-heading"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(26px, 4vw, 38px)',
@@ -581,10 +541,10 @@ export default function ServicesSections({ documentId, documentType, sections }:
                 >
                   {section.heading}
                 </h2>
-                <p data-sanity={dataFor([...sectionPath, 'body'])} style={{ fontSize: '17px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6, marginBottom: '36px' }}>
+                <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6, marginBottom: '36px' }}>
                   {section.body}
                 </p>
-                <Link href={section.ctaHref || '/contact#guide'} className="btn-ghost" data-sanity={dataFor([...sectionPath, 'ctaLabel'])}>
+                <Link href={section.ctaHref || '/contact#guide'} className="btn-ghost">
                   {section.ctaLabel || 'Get the Free Guide'}
                 </Link>
               </div>

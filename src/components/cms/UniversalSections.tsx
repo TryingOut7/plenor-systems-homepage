@@ -244,7 +244,7 @@ export default function UniversalSections({
                 {String(section.heading)}
               </h2>
             ) : null}
-            <RichText data={section.content} style={{ color: bodyColor(theme) }} />
+            <RichText data={section.content as import('@payloadcms/richtext-lexical/lexical').SerializedEditorState | null | undefined} style={{ color: bodyColor(theme) }} />
           </div>
         </section>
       );

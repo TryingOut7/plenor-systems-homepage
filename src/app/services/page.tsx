@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { draftMode } from 'next/headers';
 import ServicesSections, { type ServicesSection } from '@/components/ServicesSections';
-import { getPayload } from '@/payload/client';
 import UniversalSections from '@/components/cms/UniversalSections';
 import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 
@@ -24,18 +23,12 @@ interface LegacyServicesFields {
   ctaBody?: string;
 }
 
-interface ServicesPageData extends LegacyServicesFields {
-  _id?: string;
-  _type?: string;
-  sections?: ServicesSection[];
-}
-
 const defaults: Required<LegacyServicesFields> = {
   heroHeading: 'Two framework stages. The two that decide whether a product succeeds.',
   heroSubtext:
     'Testing & QA and Launch & Go-to-Market are where most product failures originate — not in design or development. Plenor Systems is built specifically for these stages.',
   testingBody:
-    'Shipping without a structured quality process means issues surface after release — when they’re most expensive to fix. The Testing & QA module establishes clear quality criteria, verification steps, and release gates before code reaches users.',
+    'Shipping without a structured quality process means issues surface after release — when they\u2019re most expensive to fix. The Testing & QA module establishes clear quality criteria, verification steps, and release gates before code reaches users.',
   testingItems: [
     'Defining quality criteria and acceptance standards before development completes',
     'Structured test planning: functional, regression, performance, and edge-case coverage',
@@ -56,7 +49,7 @@ const defaults: Required<LegacyServicesFields> = {
     'Startups preparing for a first launch, product teams at SMEs rolling out a new offering, and enterprise groups managing a significant market entry.',
   whyFrameworkHeading: 'Why a framework, not a one-off engagement',
   whyFrameworkBody1:
-    'Ad-hoc approaches to testing and go-to-market work in isolation but don’t build repeatable capability. Each launch starts from scratch, and teams re-learn the same lessons.',
+    'Ad-hoc approaches to testing and go-to-market work in isolation but don\u2019t build repeatable capability. Each launch starts from scratch, and teams re-learn the same lessons.',
   whyFrameworkBody2:
     'A structured framework means your team builds consistent habits — clear criteria before testing begins, defined channels before launch planning starts. It works for startups moving fast and for enterprises that need process rigour across multiple products.',
   whyFrameworkBody3:
@@ -81,48 +74,35 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-function isServicesSection(value: unknown): value is ServicesSection {
-  if (!value || typeof value !== 'object') return false;
-  const sectionType = (value as { _type?: string })._type;
-  return (
-    sectionType === 'servicesHeroSection' ||
-    sectionType === 'servicesTestingSection' ||
-    sectionType === 'servicesLaunchSection' ||
-    sectionType === 'servicesWhySection' ||
-    sectionType === 'servicesLinksSection' ||
-    sectionType === 'servicesCtaSection'
-  );
-}
-
-function buildLegacySections(cms?: LegacyServicesFields): ServicesSection[] {
+function buildLegacySections(): ServicesSection[] {
   return [
     {
       _key: 'hero',
       _type: 'servicesHeroSection',
-      heading: cms?.heroHeading ?? defaults.heroHeading,
-      subtext: cms?.heroSubtext ?? defaults.heroSubtext,
+      heading: defaults.heroHeading,
+      subtext: defaults.heroSubtext,
     },
     {
       _key: 'testing',
       _type: 'servicesTestingSection',
-      body: cms?.testingBody ?? defaults.testingBody,
-      items: cms?.testingItems?.length ? cms.testingItems : defaults.testingItems,
-      whoFor: cms?.testingWhoFor ?? defaults.testingWhoFor,
+      body: defaults.testingBody,
+      items: defaults.testingItems,
+      whoFor: defaults.testingWhoFor,
     },
     {
       _key: 'launch',
       _type: 'servicesLaunchSection',
-      body: cms?.launchBody ?? defaults.launchBody,
-      items: cms?.launchItems?.length ? cms.launchItems : defaults.launchItems,
-      whoFor: cms?.launchWhoFor ?? defaults.launchWhoFor,
+      body: defaults.launchBody,
+      items: defaults.launchItems,
+      whoFor: defaults.launchWhoFor,
     },
     {
       _key: 'why',
       _type: 'servicesWhySection',
-      heading: cms?.whyFrameworkHeading ?? defaults.whyFrameworkHeading,
-      body1: cms?.whyFrameworkBody1 ?? defaults.whyFrameworkBody1,
-      body2: cms?.whyFrameworkBody2 ?? defaults.whyFrameworkBody2,
-      body3: cms?.whyFrameworkBody3 ?? defaults.whyFrameworkBody3,
+      heading: defaults.whyFrameworkHeading,
+      body1: defaults.whyFrameworkBody1,
+      body2: defaults.whyFrameworkBody2,
+      body3: defaults.whyFrameworkBody3,
     },
     {
       _key: 'links',
@@ -131,39 +111,34 @@ function buildLegacySections(cms?: LegacyServicesFields): ServicesSection[] {
     {
       _key: 'cta',
       _type: 'servicesCtaSection',
-      heading: cms?.ctaHeading ?? defaults.ctaHeading,
-      body: cms?.ctaBody ?? defaults.ctaBody,
+      heading: defaults.ctaHeading,
+      body: defaults.ctaBody,
     },
   ];
 }
 
 export default async function ServicesPage() {
   const { isEnabled: preview } = await draftMode();
-  const [sitePage, cms, siteSettings] = await Promise.all([
-    getSitePageBySlug('services', preview),
-    getPayload().then(async (payload) => {
-      const result = await payload.find({ collection: 'services-pages', limit: 1 });
-      return (result.docs[0] as ServicesPageData | undefined) ?? null;
-    }),
+  const [sitePage, siteSettings] = await Promise.all([
+    getSitePageBySlug('services'),
     getSiteSettings(),
   ]);
   const siteName = siteSettings?.siteName || 'Plenor Systems';
   const siteUrl = siteSettings?.siteUrl || 'https://plenor.ai';
 
   if (sitePage && Array.isArray(sitePage.sections) && sitePage.sections.length > 0) {
-    const collectionData = await getCollectionData(preview);
+    const collectionData = await getCollectionData();
     return (
       <UniversalSections
-        documentId={sitePage._id || 'sitePage.services'}
-        documentType={sitePage._type || 'sitePage'}
+        documentId={sitePage.id || 'sitePage.services'}
+        documentType={'sitePage'}
         sections={sitePage.sections}
         collections={collectionData}
       />
     );
   }
 
-  const sectionList = Array.isArray(cms?.sections) ? cms.sections.filter(isServicesSection) : [];
-  const sections = sectionList.length ? sectionList : buildLegacySections(cms ?? undefined);
+  const sections = buildLegacySections();
 
   return (
     <>
@@ -187,8 +162,8 @@ export default async function ServicesPage() {
       />
 
       <ServicesSections
-        documentId={cms?._id || 'servicesPage'}
-        documentType={cms?._type || 'servicesPage'}
+        documentId={'servicesPage'}
+        documentType={'servicesPage'}
         sections={sections}
       />
     </>

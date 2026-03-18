@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function BlogIndexPage() {
   const { isEnabled: preview } = await draftMode();
-  const { blogPosts } = await getCollectionData(preview);
+  const { blogPosts } = await getCollectionData();
 
   return (
     <section style={{ padding: '84px 24px 96px', backgroundColor: '#ffffff' }}>
@@ -35,9 +35,9 @@ export default async function BlogIndexPage() {
         </h1>
         <div style={{ display: 'grid', gap: '14px' }}>
           {blogPosts.map((post, index) => (
-            <article key={post._id || index} style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '18px' }}>
+            <article key={post.id || index} style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '18px' }}>
               <h2 style={{ marginBottom: '8px', fontSize: '24px', color: '#1B2D4F' }}>
-                <Link href={`/blog/${post.slug?.current || ''}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link href={`/blog/${post.slug || ''}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   {post.title}
                 </Link>
               </h2>
@@ -51,7 +51,7 @@ export default async function BlogIndexPage() {
                   <>
                     {post.tags.map((tag) => (
                       <span
-                        key={tag}
+                        key={typeof tag === 'string' ? tag : tag?.tag || index}
                         style={{
                           display: 'inline-block',
                           padding: '2px 8px',
@@ -62,7 +62,7 @@ export default async function BlogIndexPage() {
                           borderRadius: '4px',
                         }}
                       >
-                        {tag}
+                        {typeof tag === 'string' ? tag : tag?.tag}
                       </span>
                     ))}
                   </>

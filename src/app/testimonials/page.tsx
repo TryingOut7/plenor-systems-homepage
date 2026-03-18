@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function TestimonialsIndexPage() {
   const { isEnabled: preview } = await draftMode();
-  const { testimonials } = await getCollectionData(preview);
+  const { testimonials } = await getCollectionData();
 
   return (
     <section style={{ padding: '84px 24px 96px', backgroundColor: '#ffffff' }}>
@@ -36,9 +36,9 @@ export default async function TestimonialsIndexPage() {
         </h1>
         <div style={{ display: 'grid', gap: '14px' }}>
           {testimonials.map((entry, index) => (
-            <article key={entry._id || index} className="feature-card">
+            <article key={entry.id || index} className="feature-card">
               <h2 style={{ marginBottom: '4px', fontSize: '24px', color: '#1B2D4F' }}>
-                <Link href={`/testimonials/${entry.slug?.current || ''}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link href={`/testimonials/${entry.slug || ''}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   {entry.personName}
                 </Link>
               </h2>
