@@ -1,6 +1,10 @@
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { buildConfig } from 'payload';
-import { sqliteAdapter } from '@payloadcms/db-sqlite';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import sharp from 'sharp';
 
@@ -15,7 +19,6 @@ import { stripePlugin } from '@payloadcms/plugin-stripe';
 import { sentryPlugin } from '@payloadcms/plugin-sentry';
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant';
 import { mcpPlugin } from '@payloadcms/plugin-mcp';
-import { payloadCloud } from '@payloadcms/plugin-cloud';
 import { ecommercePlugin } from '@payloadcms/plugin-ecommerce';
 
 // ─── Storage Adapters ─────────────────────────────────────────────────────────
@@ -43,7 +46,7 @@ export default buildConfig({
   admin: {
     user: 'users',
     importMap: {
-      baseDir: path.resolve(import.meta.dirname),
+      baseDir: path.resolve(__dirname),
     },
     livePreview: {
       url: serverURL,
@@ -135,15 +138,15 @@ export default buildConfig({
   ],
   globals: [SiteSettings],
   editor: lexicalEditor(),
-  db: sqliteAdapter({
-    client: {
-      url: process.env.DATABASE_URI || 'file:./payload.db',
+  db: postgresAdapter({
+    pool: {
+      connectionString: process.env.DATABASE_URI,
     },
   }),
   secret: process.env.PAYLOAD_SECRET || 'payload-dev-secret-change-in-production',
   sharp,
   typescript: {
-    outputFile: path.resolve(import.meta.dirname, 'payload-types.ts'),
+    outputFile: path.resolve(__dirname, 'payload-types.ts'),
   },
 
   // ─── Email ────────────────────────────────────────────────────────────────────
@@ -159,7 +162,7 @@ export default buildConfig({
 
   // ─── GraphQL ──────────────────────────────────────────────────────────────────
   graphQL: {
-    schemaOutputFile: path.resolve(import.meta.dirname, 'payload-graphql-schema.graphql'),
+    schemaOutputFile: path.resolve(__dirname, 'payload-graphql-schema.graphql'),
   },
 
   // ─── Plugins ──────────────────────────────────────────────────────────────────
@@ -303,11 +306,7 @@ export default buildConfig({
     // Model Context Protocol for AI assistant integration
     mcpPlugin({}),
 
-    // ── Payload Cloud Plugin ──────────────────────────────────────────────────
-    // Official Payload Cloud integration (S3 storage + Cloudflare CDN + Resend email)
-    payloadCloud(),
-
-    // ── Ecommerce Plugin ──────────────────────────────────────────────────────
+// ── Ecommerce Plugin ──────────────────────────────────────────────────────
     // Full ecommerce with products, orders, carts, and payment gateway support
     ecommercePlugin(),
 
