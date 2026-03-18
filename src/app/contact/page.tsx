@@ -3,7 +3,7 @@ import { draftMode } from 'next/headers';
 import ContactSections, { type ContactSection } from '@/components/ContactSections';
 import { sanityFetch } from '@/sanity/client';
 import UniversalSections from '@/components/cms/UniversalSections';
-import { getCollectionData, getSitePageBySlug } from '@/sanity/cms';
+import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/sanity/cms';
 
 export const revalidate = 60;
 
@@ -34,18 +34,21 @@ const guideHeading = 'Get the free guide';
 const guideBody =
   'The guide covers the specific errors teams make in Testing & QA and Launch & Go-to-Market, and what to do instead. Enter your name and email and the PDF is sent to your inbox automatically.';
 
-export const metadata: Metadata = {
-  title: 'Contact — Send an Inquiry',
-  description:
-    'Send a direct inquiry to Plenor Systems. Tell us about your product and team.',
-  alternates: { canonical: 'https://plenor.ai/contact' },
-  openGraph: {
-    title: 'Contact Plenor Systems',
-    description:
-      'Send a direct inquiry to Plenor Systems. Tell us about your product and team.',
-    url: 'https://plenor.ai/contact',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const siteName = settings?.siteName || 'Plenor Systems';
+  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  return {
+    title: 'Contact — Send an Inquiry',
+    description: `Send a direct inquiry to ${siteName}. Tell us about your product and team.`,
+    alternates: { canonical: `${siteUrl}/contact` },
+    openGraph: {
+      title: `Contact ${siteName}`,
+      description: `Send a direct inquiry to ${siteName}. Tell us about your product and team.`,
+      url: `${siteUrl}/contact`,
+    },
+  };
+}
 
 function isContactSection(value: unknown): value is ContactSection {
   if (!value || typeof value !== 'object') return false;
@@ -88,11 +91,12 @@ function buildLegacySections(cms?: LegacyContactFields): ContactSection[] {
 
 export default async function ContactPage() {
   const { isEnabled: preview } = await draftMode();
-  const [sitePage, cms] = await Promise.all([
+  const [sitePage, cms, siteSettings] = await Promise.all([
     getSitePageBySlug('contact', preview),
     sanityFetch<ContactPageData>(`*[_type == "contactPage"][0]{..., sections[]{...}}`, {
       preview,
     }),
+    getSiteSettings(preview),
   ]);
 
   if (sitePage && Array.isArray(sitePage.sections) && sitePage.sections.length > 0) {
@@ -115,6 +119,8 @@ export default async function ContactPage() {
       documentId={cms?._id || 'contactPage'}
       documentType={cms?._type || 'contactPage'}
       sections={sections}
+      guideFormLabels={siteSettings?.guideForm}
+      inquiryFormLabels={siteSettings?.inquiryForm}
     />
   );
 }

@@ -10,7 +10,25 @@ interface FieldErrors {
   email?: string;
 }
 
-export default function GuideForm() {
+interface GuideFormProps {
+  submitLabel?: string;
+  submittingLabel?: string;
+  successHeading?: string;
+  successBody?: string;
+  footerText?: string;
+  namePlaceholder?: string;
+  emailPlaceholder?: string;
+}
+
+export default function GuideForm({
+  submitLabel = 'Send me the guide',
+  submittingLabel = 'Sending\u2026',
+  successHeading = 'Guide on its way!',
+  successBody = 'Check your inbox \u2014 the PDF will arrive shortly from Plenor Systems.',
+  footerText = 'The PDF will be sent to your email automatically. No spam, no mailing lists.',
+  namePlaceholder = 'Your name',
+  emailPlaceholder = 'you@company.com',
+}: GuideFormProps) {
   const [state, setState] = useState<FormState>('idle');
   const [errors, setErrors] = useState<FieldErrors>({});
   const [errorMessage, setErrorMessage] = useState('');
@@ -108,10 +126,10 @@ export default function GuideForm() {
             marginBottom: '8px',
           }}
         >
-          Guide on its way!
+          {successHeading}
         </p>
         <p style={{ color: '#6B7280', fontSize: '15px' }}>
-          Check your inbox — the PDF will arrive shortly from Plenor Systems.
+          {successBody}
         </p>
       </div>
     );
@@ -148,7 +166,7 @@ export default function GuideForm() {
           type="text"
           name="name"
           autoComplete="name"
-          placeholder="Your name"
+          placeholder={namePlaceholder}
           required
           aria-required="true"
           aria-describedby={errors.name ? 'guide-name-error' : undefined}
@@ -174,7 +192,7 @@ export default function GuideForm() {
           type="email"
           name="email"
           autoComplete="email"
-          placeholder="you@company.com"
+          placeholder={emailPlaceholder}
           required
           aria-required="true"
           aria-describedby={errors.email ? 'guide-email-error' : undefined}
@@ -231,11 +249,11 @@ export default function GuideForm() {
         style={{ width: '100%', opacity: state === 'submitting' ? 0.7 : 1 }}
         aria-disabled={state === 'submitting'}
       >
-        {state === 'submitting' ? 'Sending…' : 'Send me the guide'}
+        {state === 'submitting' ? submittingLabel : submitLabel}
       </button>
 
       <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '12px', textAlign: 'center' }}>
-        The PDF will be sent to your email automatically. No spam, no mailing lists.{' '}
+        {footerText}{' '}
         <Link href="/privacy" style={{ color: '#6B7280', textDecoration: 'underline' }}>
           Privacy Policy
         </Link>

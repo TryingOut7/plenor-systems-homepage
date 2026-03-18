@@ -64,10 +64,25 @@ export type ContactSection =
   | ContactInquirySection
   | ContactPrivacySection;
 
+interface FormLabels {
+  submitLabel?: string;
+  submittingLabel?: string;
+  successHeading?: string;
+  successBody?: string;
+  footerText?: string;
+  consentText?: string;
+  namePlaceholder?: string;
+  emailPlaceholder?: string;
+  companyPlaceholder?: string;
+  challengePlaceholder?: string;
+}
+
 interface ContactSectionsProps {
   documentId: string;
   documentType: string;
   sections: ContactSection[];
+  guideFormLabels?: FormLabels;
+  inquiryFormLabels?: FormLabels;
 }
 
 type DataPathSegment = string | number | { _key: string };
@@ -102,7 +117,7 @@ function isSectionList(value: unknown): value is ContactSection[] {
   return Array.isArray(value);
 }
 
-export default function ContactSections({ documentId, documentType, sections }: ContactSectionsProps) {
+export default function ContactSections({ documentId, documentType, sections, guideFormLabels, inquiryFormLabels }: ContactSectionsProps) {
   const dataAttribute = createDataAttribute({ id: documentId, type: documentType });
   const optimisticSections = useOptimistic(sections, (current, action) => {
     if (action.id !== documentId || action.type !== documentType) return current;
@@ -245,7 +260,7 @@ export default function ContactSections({ documentId, documentType, sections }: 
                       padding: '36px',
                     }}
                   >
-                    <GuideForm />
+                    <GuideForm {...guideFormLabels} />
                   </div>
                 </div>
               </div>
@@ -358,7 +373,7 @@ export default function ContactSections({ documentId, documentType, sections }: 
                       padding: '36px',
                     }}
                   >
-                    <InquiryForm />
+                    <InquiryForm {...inquiryFormLabels} />
                   </div>
                 </div>
               </div>

@@ -1,6 +1,10 @@
 import { MetadataRoute } from 'next';
+import { getSiteSettings } from '@/sanity/cms';
 
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const settings = await getSiteSettings();
+  const siteUrl = (settings?.siteUrl || 'https://plenor.ai').replace(/\/$/, '');
+
   return {
     rules: [
       {
@@ -9,6 +13,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/studio/'],
       },
     ],
-    sitemap: 'https://plenor.ai/sitemap.xml',
+    sitemap: `${siteUrl}/sitemap.xml`,
   };
 }

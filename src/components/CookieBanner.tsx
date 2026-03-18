@@ -3,7 +3,21 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-export default function CookieBanner() {
+interface CookieBannerProps {
+  message?: string;
+  acceptLabel?: string;
+  declineLabel?: string;
+  privacyLabel?: string;
+  privacyHref?: string;
+}
+
+export default function CookieBanner({
+  message = 'We use analytics cookies to understand how visitors use this site. No cookies are set before you consent.',
+  acceptLabel = 'Accept',
+  declineLabel = 'Decline',
+  privacyLabel = 'Privacy Policy',
+  privacyHref = '/privacy',
+}: CookieBannerProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -46,10 +60,9 @@ export default function CookieBanner() {
       }}
     >
       <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.5, flex: '1 1 300px' }}>
-        We use analytics cookies to understand how visitors use this site. No cookies are set before
-        you consent.{' '}
-        <Link href="/privacy" style={{ color: '#93C5FD', textDecoration: 'underline' }}>
-          Privacy Policy
+        {message}{' '}
+        <Link href={privacyHref} style={{ color: '#93C5FD', textDecoration: 'underline' }}>
+          {privacyLabel}
         </Link>
       </p>
       <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
@@ -66,9 +79,9 @@ export default function CookieBanner() {
             fontWeight: 600,
             transition: 'border-color 0.2s ease',
           }}
-          aria-label="Decline analytics cookies"
+          aria-label={`${declineLabel} analytics cookies`}
         >
-          Decline
+          {declineLabel}
         </button>
         <button
           onClick={accept}
@@ -83,9 +96,9 @@ export default function CookieBanner() {
             fontWeight: 700,
             transition: 'opacity 0.2s ease',
           }}
-          aria-label="Accept analytics cookies"
+          aria-label={`${acceptLabel} analytics cookies`}
         >
-          Accept
+          {acceptLabel}
         </button>
       </div>
     </div>

@@ -92,7 +92,7 @@ export default function Navbar({
         <Link
           href="/"
           onClick={closeMenu}
-          aria-label="Plenor Systems – home"
+          aria-label={`${siteName} – home`}
           style={{
             fontFamily: 'var(--font-display), Georgia, serif',
             fontWeight: 700,

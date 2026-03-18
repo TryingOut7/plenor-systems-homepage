@@ -1,13 +1,17 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { draftMode } from 'next/headers';
-import { getCollectionData } from '@/sanity/cms';
+import { getCollectionData, getSiteSettings } from '@/sanity/cms';
 
-export const metadata: Metadata = {
-  title: 'Blog',
-  description: 'Latest insights, announcements, and framework updates.',
-  alternates: { canonical: 'https://plenor.ai/blog' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  return {
+    title: 'Blog',
+    description: 'Latest insights, announcements, and framework updates.',
+    alternates: { canonical: `${siteUrl}/blog` },
+  };
+}
 
 export default async function BlogIndexPage() {
   const { isEnabled: preview } = await draftMode();

@@ -3,22 +3,30 @@ import { draftMode } from 'next/headers';
 import HomeSections, { type HomeSection } from '@/components/HomeSections';
 import { sanityFetch } from '@/sanity/client';
 import UniversalSections from '@/components/cms/UniversalSections';
-import { getCollectionData, getSitePageBySlug } from '@/sanity/cms';
+import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/sanity/cms';
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: 'Plenor Systems — Testing & QA and Launch & Go-to-Market Framework',
-  description:
-    'Plenor Systems brings structure to the two most failure-prone stages of product development: Testing & QA and Launch & Go-to-Market.',
-  alternates: { canonical: 'https://plenor.ai/' },
-  openGraph: {
-    title: 'Plenor Systems — Testing & QA and Launch & Go-to-Market Framework',
-    description:
-      'Plenor Systems brings structure to the two most failure-prone stages of product development: Testing & QA and Launch & Go-to-Market.',
-    url: 'https://plenor.ai/',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const siteName = settings?.siteName || 'Plenor Systems';
+  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  const title = settings?.defaultSeo?.metaTitle || `${siteName} — Testing & QA and Launch & Go-to-Market Framework`;
+  const description =
+    settings?.defaultMetaDescription ||
+    'Plenor Systems brings structure to the two most failure-prone stages of product development: Testing & QA and Launch & Go-to-Market.';
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `${siteUrl}/` },
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}/`,
+    },
+  };
+}
 
 interface LegacyHomeFields {
   heroHeading?: string;
@@ -131,11 +139,12 @@ function buildLegacySections(cms?: LegacyHomeFields): HomeSection[] {
 
 export default async function HomePage() {
   const { isEnabled: preview } = await draftMode();
-  const [sitePage, cms] = await Promise.all([
+  const [sitePage, cms, siteSettings] = await Promise.all([
     getSitePageBySlug('home', preview),
     sanityFetch<HomePageData>(`*[_type == "homePage"][0]{..., sections[]{...}}`, {
       preview,
     }),
+    getSiteSettings(preview),
   ]);
 
   const renderCmsSections =
@@ -147,35 +156,6 @@ export default async function HomePage() {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'Organization',
-            name: 'Plenor Systems',
-            url: 'https://plenor.ai',
-            sameAs: ['https://www.linkedin.com/company/plenor-ai'],
-            contactPoint: {
-              '@type': 'ContactPoint',
-              email: 'hello@plenor.ai',
-              contactType: 'customer service',
-            },
-          }),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'WebSite',
-            name: 'Plenor Systems',
-            url: 'https://plenor.ai',
-          }),
-        }}
-      />
-
       {renderCmsSections && collectionData ? (
         <UniversalSections
           documentId={sitePage._id || 'sitePage.home'}
@@ -188,6 +168,7 @@ export default async function HomePage() {
           documentId={cms?._id || 'homePage'}
           documentType={cms?._type || 'homePage'}
           sections={sections}
+          guideFormLabels={siteSettings?.guideForm}
         />
       )}
     </>

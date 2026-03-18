@@ -20,11 +20,13 @@ export type SeoFields = {
 export type SiteSettings = {
   siteName?: string;
   brandTagline?: string;
+  siteUrl?: string;
   contactEmail?: string;
   primaryCtaLabel?: string;
   primaryCtaHref?: string;
-  cookieNotice?: string;
+  twitterHandle?: string;
   defaultSeo?: SeoFields;
+  defaultMetaDescription?: string;
   navigationLinks?: Array<{
     _key?: string;
     label?: string;
@@ -37,6 +39,51 @@ export type SiteSettings = {
     links?: Array<{ _key?: string; label?: string; href?: string }>;
   }>;
   socialLinks?: Array<{ _key?: string; label?: string; url?: string }>;
+  copyrightText?: string;
+  footerLegalLabel?: string;
+  footerLegalHref?: string;
+  jsonLd?: {
+    organizationName?: string;
+    organizationUrl?: string;
+    organizationEmail?: string;
+    sameAs?: string[];
+  };
+  guideForm?: {
+    submitLabel?: string;
+    submittingLabel?: string;
+    successHeading?: string;
+    successBody?: string;
+    footerText?: string;
+    namePlaceholder?: string;
+    emailPlaceholder?: string;
+  };
+  inquiryForm?: {
+    submitLabel?: string;
+    submittingLabel?: string;
+    successHeading?: string;
+    successBody?: string;
+    consentText?: string;
+    namePlaceholder?: string;
+    emailPlaceholder?: string;
+    companyPlaceholder?: string;
+    challengePlaceholder?: string;
+  };
+  cookieBanner?: {
+    message?: string;
+    acceptLabel?: string;
+    declineLabel?: string;
+    privacyLabel?: string;
+    privacyHref?: string;
+  };
+  privacyPolicy?: unknown[];
+  privacyLastUpdated?: string;
+  notFoundPage?: {
+    heading?: string;
+    body?: string;
+    buttonLabel?: string;
+    buttonHref?: string;
+  };
+  analyticsId?: string;
 };
 
 export type DynamicListConfig = {
@@ -147,10 +194,18 @@ const SITE_SETTINGS_QUERY = `
 *[_type == "siteSettings"][0]{
   siteName,
   brandTagline,
+  siteUrl,
   contactEmail,
   primaryCtaLabel,
   primaryCtaHref,
-  cookieNotice,
+  twitterHandle,
+  defaultMetaDescription,
+  copyrightText,
+  footerLegalLabel,
+  footerLegalHref,
+  analyticsId,
+  privacyLastUpdated,
+  privacyPolicy,
   defaultSeo{
     metaTitle,
     metaDescription,
@@ -168,7 +223,46 @@ const SITE_SETTINGS_QUERY = `
     title,
     links[]{_key, label, href}
   },
-  socialLinks[]{_key, label, url}
+  socialLinks[]{_key, label, url},
+  jsonLd{
+    organizationName,
+    organizationUrl,
+    organizationEmail,
+    sameAs
+  },
+  guideForm{
+    submitLabel,
+    submittingLabel,
+    successHeading,
+    successBody,
+    footerText,
+    namePlaceholder,
+    emailPlaceholder
+  },
+  inquiryForm{
+    submitLabel,
+    submittingLabel,
+    successHeading,
+    successBody,
+    consentText,
+    namePlaceholder,
+    emailPlaceholder,
+    companyPlaceholder,
+    challengePlaceholder
+  },
+  cookieBanner{
+    message,
+    acceptLabel,
+    declineLabel,
+    privacyLabel,
+    privacyHref
+  },
+  notFoundPage{
+    heading,
+    body,
+    buttonLabel,
+    buttonHref
+  }
 }`;
 
 const SITE_PAGE_BY_SLUG_QUERY = `

@@ -35,6 +35,9 @@ interface FooterProps {
   contactEmail?: string;
   footerColumns?: FooterColumn[];
   socialLinks?: SocialLink[];
+  copyrightText?: string;
+  footerLegalLabel?: string;
+  footerLegalHref?: string;
 }
 
 export default function Footer({
@@ -43,6 +46,9 @@ export default function Footer({
   contactEmail = 'hello@plenor.ai',
   footerColumns,
   socialLinks,
+  copyrightText,
+  footerLegalLabel,
+  footerLegalHref,
 }: FooterProps) {
   const fallbackColumns: FooterColumn[] = [
     { title: 'Pages', links: FALLBACK_PAGE_LINKS },
@@ -97,7 +103,7 @@ export default function Footer({
                 alignItems: 'center',
                 gap: '8px',
               }}
-              aria-label="Plenor Systems – home"
+              aria-label={`${siteName} – home`}
             >
               <span
                 style={{
@@ -260,10 +266,12 @@ export default function Footer({
           }}
         >
           <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '13px', margin: 0 }}>
-            © 2026 Plenor Systems. All rights reserved.
+            {(copyrightText || '© {year} {siteName}. All rights reserved.')
+              .replace('{year}', String(new Date().getFullYear()))
+              .replace('{siteName}', siteName)}
           </p>
           <Link
-            href="/privacy"
+            href={footerLegalHref || '/privacy'}
             style={{
               color: 'rgba(255,255,255,0.35)',
               fontSize: '13px',
@@ -272,7 +280,7 @@ export default function Footer({
             }}
             className="footer-link"
           >
-            Cookie Notice & Privacy Policy
+            {footerLegalLabel || 'Cookie Notice & Privacy Policy'}
           </Link>
         </div>
       </div>

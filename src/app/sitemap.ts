@@ -1,10 +1,11 @@
 import { MetadataRoute } from 'next';
-import { getSitemapSlugs } from '@/sanity/cms';
+import { getSitemapSlugs, getSiteSettings } from '@/sanity/cms';
 
 export const revalidate = 60;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = 'https://plenor.ai';
+  const [settings, cms] = await Promise.all([getSiteSettings(), getSitemapSlugs()]);
+  const base = (settings?.siteUrl || 'https://plenor.ai').replace(/\/$/, '');
   const lastModified = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -17,8 +18,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/contact`, lastModified, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/privacy`, lastModified, changeFrequency: 'yearly', priority: 0.3 },
   ];
-
-  const cms = await getSitemapSlugs();
 
   const dynamicRoutes: MetadataRoute.Sitemap = [
     ...cms.sitePages

@@ -3,7 +3,7 @@ import { draftMode } from 'next/headers';
 import AboutSections, { type AboutSection } from '@/components/AboutSections';
 import { sanityFetch } from '@/sanity/client';
 import UniversalSections from '@/components/cms/UniversalSections';
-import { getCollectionData, getSitePageBySlug } from '@/sanity/cms';
+import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/sanity/cms';
 
 export const revalidate = 60;
 
@@ -116,18 +116,21 @@ function buildLegacySections(cms?: LegacyAboutFields): AboutSection[] {
   ];
 }
 
-export const metadata: Metadata = {
-  title: 'About - Who We Are and Why We Built This',
-  description:
-    'Plenor Systems was built to address the two stages of product development most likely to cause failure: Testing & QA and Launch & Go-to-Market.',
-  alternates: { canonical: 'https://plenor.ai/about' },
-  openGraph: {
-    title: 'About Plenor Systems',
-    description:
-      'Plenor Systems was built to address the two stages of product development most likely to cause failure: Testing & QA and Launch & Go-to-Market.',
-    url: 'https://plenor.ai/about',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const siteName = settings?.siteName || 'Plenor Systems';
+  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  return {
+    title: 'About - Who We Are and Why We Built This',
+    description: `${siteName} was built to address the two stages of product development most likely to cause failure: Testing & QA and Launch & Go-to-Market.`,
+    alternates: { canonical: `${siteUrl}/about` },
+    openGraph: {
+      title: `About ${siteName}`,
+      description: `${siteName} was built to address the two stages of product development most likely to cause failure: Testing & QA and Launch & Go-to-Market.`,
+      url: `${siteUrl}/about`,
+    },
+  };
+}
 
 export default async function AboutPage() {
   const { isEnabled: preview } = await draftMode();

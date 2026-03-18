@@ -1,13 +1,18 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { draftMode } from 'next/headers';
-import { getCollectionData } from '@/sanity/cms';
+import { getCollectionData, getSiteSettings } from '@/sanity/cms';
 
-export const metadata: Metadata = {
-  title: 'Testimonials',
-  description: 'Read what teams say about working with Plenor Systems.',
-  alternates: { canonical: 'https://plenor.ai/testimonials' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const siteName = settings?.siteName || 'Plenor Systems';
+  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  return {
+    title: 'Testimonials',
+    description: `Read what teams say about working with ${siteName}.`,
+    alternates: { canonical: `${siteUrl}/testimonials` },
+  };
+}
 
 export default async function TestimonialsIndexPage() {
   const { isEnabled: preview } = await draftMode();

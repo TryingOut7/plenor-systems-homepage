@@ -3,7 +3,7 @@ import { draftMode } from 'next/headers';
 import PricingSections, { type PricingSection } from '@/components/PricingSections';
 import { sanityFetch } from '@/sanity/client';
 import UniversalSections from '@/components/cms/UniversalSections';
-import { getCollectionData, getSitePageBySlug } from '@/sanity/cms';
+import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/sanity/cms';
 
 export const revalidate = 60;
 
@@ -65,18 +65,21 @@ const defaults: Required<LegacyPricingFields> = {
 const includedHeading = 'Everything you need to ship with confidence.';
 const audienceHeading = 'No minimum team size. Any stage.';
 
-export const metadata: Metadata = {
-  title: "Pricing — Let's find the right fit for your team",
-  description:
-    'Plenor Systems pricing is tailored to your team size and scope. Get in touch to discuss your product and receive a proposal.',
-  alternates: { canonical: 'https://plenor.ai/pricing' },
-  openGraph: {
-    title: 'Pricing | Plenor Systems',
-    description:
-      'Plenor Systems pricing is tailored to your team size and scope. Get in touch to discuss your product and receive a proposal.',
-    url: 'https://plenor.ai/pricing',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const siteName = settings?.siteName || 'Plenor Systems';
+  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  return {
+    title: "Pricing — Let's find the right fit for your team",
+    description: `${siteName} pricing is tailored to your team size and scope. Get in touch to discuss your product and receive a proposal.`,
+    alternates: { canonical: `${siteUrl}/pricing` },
+    openGraph: {
+      title: `Pricing | ${siteName}`,
+      description: `${siteName} pricing is tailored to your team size and scope. Get in touch to discuss your product and receive a proposal.`,
+      url: `${siteUrl}/pricing`,
+    },
+  };
+}
 
 function isPricingSection(value: unknown): value is PricingSection {
   if (!value || typeof value !== 'object') return false;

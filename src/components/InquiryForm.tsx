@@ -12,7 +12,29 @@ interface FieldErrors {
   challenge?: string;
 }
 
-export default function InquiryForm() {
+interface InquiryFormProps {
+  submitLabel?: string;
+  submittingLabel?: string;
+  successHeading?: string;
+  successBody?: string;
+  consentText?: string;
+  namePlaceholder?: string;
+  emailPlaceholder?: string;
+  companyPlaceholder?: string;
+  challengePlaceholder?: string;
+}
+
+export default function InquiryForm({
+  submitLabel = 'Send inquiry',
+  submittingLabel = 'Sending\u2026',
+  successHeading = 'Inquiry received',
+  successBody = 'We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.',
+  consentText = 'By submitting, you agree to our',
+  namePlaceholder = 'Your name',
+  emailPlaceholder = 'you@company.com',
+  companyPlaceholder = 'Your company',
+  challengePlaceholder = 'Tell us about your product stage, team size, and what you\u2019re trying to solve.',
+}: InquiryFormProps) {
   const [state, setState] = useState<FormState>('idle');
   const [errors, setErrors] = useState<FieldErrors>({});
   const [errorMessage, setErrorMessage] = useState('');
@@ -118,10 +140,10 @@ export default function InquiryForm() {
           </svg>
         </div>
         <p style={{ color: '#16A34A', fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>
-          Inquiry received
+          {successHeading}
         </p>
         <p style={{ color: '#6B7280', fontSize: '15px' }}>
-          We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.
+          {successBody}
         </p>
       </div>
     );
@@ -158,7 +180,7 @@ export default function InquiryForm() {
           type="text"
           name="name"
           autoComplete="name"
-          placeholder="Your name"
+          placeholder={namePlaceholder}
           required
           aria-required="true"
           aria-describedby={errors.name ? 'inquiry-name-error' : undefined}
@@ -182,7 +204,7 @@ export default function InquiryForm() {
           type="email"
           name="email"
           autoComplete="email"
-          placeholder="you@company.com"
+          placeholder={emailPlaceholder}
           required
           aria-required="true"
           aria-describedby={errors.email ? 'inquiry-email-error' : undefined}
@@ -206,7 +228,7 @@ export default function InquiryForm() {
           type="text"
           name="company"
           autoComplete="organization"
-          placeholder="Your company"
+          placeholder={companyPlaceholder}
           required
           aria-required="true"
           aria-describedby={errors.company ? 'inquiry-company-error' : undefined}
@@ -229,7 +251,7 @@ export default function InquiryForm() {
           ref={challengeRef}
           name="challenge"
           rows={5}
-          placeholder="Tell us about your product stage, team size, and what you're trying to solve."
+          placeholder={challengePlaceholder}
           required
           aria-required="true"
           aria-describedby={errors.challenge ? 'inquiry-challenge-error' : undefined}
@@ -285,11 +307,11 @@ export default function InquiryForm() {
         style={{ width: '100%', opacity: state === 'submitting' ? 0.7 : 1 }}
         aria-disabled={state === 'submitting'}
       >
-        {state === 'submitting' ? 'Sending…' : 'Send inquiry'}
+        {state === 'submitting' ? submittingLabel : submitLabel}
       </button>
 
       <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '12px', textAlign: 'center' }}>
-        By submitting, you agree to our{' '}
+        {consentText}{' '}
         <Link href="/privacy" style={{ color: '#6B7280', textDecoration: 'underline' }}>
           Privacy Policy
         </Link>

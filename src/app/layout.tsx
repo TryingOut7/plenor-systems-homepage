@@ -24,28 +24,40 @@ const dmSans = DM_Sans({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL('https://plenor.ai'),
-  title: {
-    default: 'Plenor Systems — Testing & QA and Launch & Go-to-Market Framework',
-    template: '%s | Plenor Systems',
-  },
-  description:
-    'Plenor Systems provides a structured product development framework for Testing & QA and Launch & Go-to-Market — the two stages most likely to cause rework or failed launches.',
-  openGraph: {
-    siteName: 'Plenor Systems',
-    locale: 'en_US',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    site: '@plenor_ai',
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const siteName = settings?.siteName || 'Plenor Systems';
+  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  const description =
+    settings?.defaultMetaDescription ||
+    settings?.defaultSeo?.metaDescription ||
+    'Plenor Systems provides a structured product development framework for Testing & QA and Launch & Go-to-Market — the two stages most likely to cause rework or failed launches.';
+  const defaultTitle =
+    settings?.defaultSeo?.metaTitle ||
+    `${siteName} — Testing & QA and Launch & Go-to-Market Framework`;
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: {
+      default: defaultTitle,
+      template: `%s | ${siteName}`,
+    },
+    description,
+    openGraph: {
+      siteName,
+      locale: 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: settings?.twitterHandle || '@plenor_ai',
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -54,6 +66,32 @@ export default async function RootLayout({
 }>) {
   const { isEnabled: isDraftMode } = await draftMode();
   const siteSettings = await getSiteSettings(isDraftMode);
+
+  const siteName = siteSettings?.siteName || 'Plenor Systems';
+  const siteUrl = siteSettings?.siteUrl || 'https://plenor.ai';
+  const contactEmail = siteSettings?.contactEmail || 'hello@plenor.ai';
+  const analyticsId = siteSettings?.analyticsId;
+
+  const jsonLd = siteSettings?.jsonLd;
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: jsonLd?.organizationName || siteName,
+    url: jsonLd?.organizationUrl || siteUrl,
+    ...(jsonLd?.sameAs?.length ? { sameAs: jsonLd.sameAs } : {}),
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: jsonLd?.organizationEmail || contactEmail,
+      contactType: 'customer service',
+    },
+  };
+
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: siteName,
+    url: siteUrl,
+  };
 
   return (
     <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
@@ -74,17 +112,36 @@ export default async function RootLayout({
           contactEmail={siteSettings?.contactEmail}
           footerColumns={siteSettings?.footerColumns}
           socialLinks={siteSettings?.socialLinks}
+          copyrightText={siteSettings?.copyrightText}
+          footerLegalLabel={siteSettings?.footerLegalLabel}
+          footerLegalHref={siteSettings?.footerLegalHref}
         />
-        <CookieBanner />
-        <Script
-          defer
-          src="https://static.cloudflareinsights.com/beacon.min.js"
-          data-cf-beacon='{"token": "d31767bc50f0482fbad1a4719599b494"}'
-          strategy="afterInteractive"
+        <CookieBanner
+          message={siteSettings?.cookieBanner?.message}
+          acceptLabel={siteSettings?.cookieBanner?.acceptLabel}
+          declineLabel={siteSettings?.cookieBanner?.declineLabel}
+          privacyLabel={siteSettings?.cookieBanner?.privacyLabel}
+          privacyHref={siteSettings?.cookieBanner?.privacyHref}
         />
+        {analyticsId && (
+          <Script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={`{"token": "${analyticsId}"}`}
+            strategy="afterInteractive"
+          />
+        )}
         <SpeedInsights />
         {isDraftMode && <VisualEditing />}
         {isDraftMode && <DraftModeBanner />}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
       </body>
     </html>
   );

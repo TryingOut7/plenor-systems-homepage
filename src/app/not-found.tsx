@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { getSiteSettings } from '@/sanity/cms';
 
 export const metadata: Metadata = {
   title: 'Page Not Found',
@@ -7,7 +8,17 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function NotFound() {
+export default async function NotFound() {
+  const settings = await getSiteSettings();
+  const nf = settings?.notFoundPage;
+
+  const heading = nf?.heading || 'Page not found';
+  const body =
+    nf?.body ||
+    "The page you\u2019re looking for doesn\u2019t exist or has moved. Head back to the homepage to find what you need.";
+  const buttonLabel = nf?.buttonLabel || 'Back to Home';
+  const buttonHref = nf?.buttonHref || '/';
+
   return (
     <section
       aria-labelledby="not-found-heading"
@@ -32,14 +43,13 @@ export default function NotFound() {
         id="not-found-heading"
         style={{ fontSize: '28px', fontWeight: 700, color: '#1B2D4F', marginBottom: '12px' }}
       >
-        Page not found
+        {heading}
       </h1>
       <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.6, marginBottom: '36px', maxWidth: '400px' }}>
-        The page you&apos;re looking for doesn&apos;t exist or has moved. Head back to the homepage
-        to find what you need.
+        {body}
       </p>
-      <Link href="/" className="btn-primary">
-        Back to Home
+      <Link href={buttonHref} className="btn-primary">
+        {buttonLabel}
       </Link>
     </section>
   );

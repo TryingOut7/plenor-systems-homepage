@@ -3,7 +3,7 @@ import { draftMode } from 'next/headers';
 import ServicesSections, { type ServicesSection } from '@/components/ServicesSections';
 import { sanityFetch } from '@/sanity/client';
 import UniversalSections from '@/components/cms/UniversalSections';
-import { getCollectionData, getSitePageBySlug } from '@/sanity/cms';
+import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/sanity/cms';
 
 export const revalidate = 60;
 
@@ -65,18 +65,21 @@ const defaults: Required<LegacyServicesFields> = {
   ctaBody: 'Start with the guide — see the kinds of mistakes the framework is designed to prevent.',
 };
 
-export const metadata: Metadata = {
-  title: 'Services — Testing & QA and Launch & Go-to-Market',
-  description:
-    'Plenor Systems covers two framework stages: Testing & QA and Launch & Go-to-Market. Learn what each stage covers, who it helps, and why a structured framework matters.',
-  alternates: { canonical: 'https://plenor.ai/services' },
-  openGraph: {
-    title: 'Services — Testing & QA and Launch & Go-to-Market | Plenor Systems',
-    description:
-      'Plenor Systems covers two framework stages: Testing & QA and Launch & Go-to-Market. Learn what each stage covers, who it helps, and why a structured framework matters.',
-    url: 'https://plenor.ai/services',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const siteName = settings?.siteName || 'Plenor Systems';
+  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  return {
+    title: 'Services — Testing & QA and Launch & Go-to-Market',
+    description: `${siteName} covers two framework stages: Testing & QA and Launch & Go-to-Market. Learn what each stage covers, who it helps, and why a structured framework matters.`,
+    alternates: { canonical: `${siteUrl}/services` },
+    openGraph: {
+      title: `Services — Testing & QA and Launch & Go-to-Market | ${siteName}`,
+      description: `${siteName} covers two framework stages: Testing & QA and Launch & Go-to-Market. Learn what each stage covers, who it helps, and why a structured framework matters.`,
+      url: `${siteUrl}/services`,
+    },
+  };
+}
 
 function isServicesSection(value: unknown): value is ServicesSection {
   if (!value || typeof value !== 'object') return false;
@@ -136,12 +139,15 @@ function buildLegacySections(cms?: LegacyServicesFields): ServicesSection[] {
 
 export default async function ServicesPage() {
   const { isEnabled: preview } = await draftMode();
-  const [sitePage, cms] = await Promise.all([
+  const [sitePage, cms, siteSettings] = await Promise.all([
     getSitePageBySlug('services', preview),
     sanityFetch<ServicesPageData>(`*[_type == "servicesPage"][0]{..., sections[]{...}}`, {
       preview,
     }),
+    getSiteSettings(),
   ]);
+  const siteName = siteSettings?.siteName || 'Plenor Systems';
+  const siteUrl = siteSettings?.siteUrl || 'https://plenor.ai';
 
   if (sitePage && Array.isArray(sitePage.sections) && sitePage.sections.length > 0) {
     const collectionData = await getCollectionData(preview);
@@ -166,11 +172,11 @@ export default async function ServicesPage() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Service',
-            name: 'Plenor Systems Product Development Framework',
+            name: `${siteName} Product Development Framework`,
             provider: {
               '@type': 'Organization',
-              name: 'Plenor Systems',
-              url: 'https://plenor.ai',
+              name: siteName,
+              url: siteUrl,
             },
             description:
               'A structured framework covering Testing & QA and Launch & Go-to-Market stages of product development.',

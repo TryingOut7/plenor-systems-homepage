@@ -88,10 +88,21 @@ export type HomeSection =
   | HomeAudienceSection
   | HomeGuideSection;
 
+interface GuideFormLabels {
+  submitLabel?: string;
+  submittingLabel?: string;
+  successHeading?: string;
+  successBody?: string;
+  footerText?: string;
+  namePlaceholder?: string;
+  emailPlaceholder?: string;
+}
+
 interface HomeSectionsProps {
   documentId: string;
   documentType: string;
   sections: HomeSection[];
+  guideFormLabels?: GuideFormLabels;
 }
 
 type DataPathSegment = string | number | { _key: string };
@@ -126,7 +137,7 @@ function isSectionList(value: unknown): value is HomeSection[] {
   return Array.isArray(value);
 }
 
-export default function HomeSections({ documentId, documentType, sections }: HomeSectionsProps) {
+export default function HomeSections({ documentId, documentType, sections, guideFormLabels }: HomeSectionsProps) {
   const dataAttribute = createDataAttribute({ id: documentId, type: documentType });
   const optimisticSections = useOptimistic(sections, (current, action) => {
     if (action.id !== documentId || action.type !== documentType) return current;
@@ -631,7 +642,7 @@ export default function HomeSections({ documentId, documentType, sections }: Hom
                     padding: '40px',
                   }}
                 >
-                  <GuideForm />
+                  <GuideForm {...guideFormLabels} />
                 </div>
               </div>
             </section>
