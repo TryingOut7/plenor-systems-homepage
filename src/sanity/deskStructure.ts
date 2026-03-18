@@ -5,7 +5,7 @@ import {
   ComponentIcon,
   ComposeIcon,
   BookIcon,
-  BulkEditIcon,
+  EditIcon,
   UsersIcon,
   LinkIcon,
   ArchiveIcon,
@@ -43,7 +43,7 @@ export const deskStructure: StructureResolver = (S) =>
         .child(S.documentTypeList('blogPost').title('Blog Posts')),
       S.listItem()
         .title('Services')
-        .icon(BulkEditIcon)
+        .icon(EditIcon)
         .child(S.documentTypeList('serviceItem').title('Services')),
       S.listItem()
         .title('Testimonials')

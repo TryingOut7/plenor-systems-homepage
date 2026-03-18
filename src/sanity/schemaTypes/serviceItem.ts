@@ -1,11 +1,11 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
-import { BulkEditIcon } from '@sanity/icons';
+import { EditIcon } from '@sanity/icons';
 
 export const serviceItem = defineType({
   name: 'serviceItem',
   title: 'Service',
   type: 'document',
-  icon: BulkEditIcon,
+  icon: EditIcon,
   description: 'Services and products offered by Plenor Systems.',
   groups: [
     { name: 'content', title: 'Content', default: true },
