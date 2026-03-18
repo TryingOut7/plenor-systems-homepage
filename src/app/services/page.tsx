@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { draftMode } from 'next/headers';
 import ServicesSections, { type ServicesSection } from '@/components/ServicesSections';
-import { sanityFetch } from '@/sanity/client';
+import { getPayload } from '@/payload/client';
 import UniversalSections from '@/components/cms/UniversalSections';
-import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/sanity/cms';
+import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 
 export const revalidate = 60;
 
@@ -141,8 +141,9 @@ export default async function ServicesPage() {
   const { isEnabled: preview } = await draftMode();
   const [sitePage, cms, siteSettings] = await Promise.all([
     getSitePageBySlug('services', preview),
-    sanityFetch<ServicesPageData>(`*[_type == "servicesPage"][0]{..., sections[]{...}}`, {
-      preview,
+    getPayload().then(async (payload) => {
+      const result = await payload.find({ collection: 'services-pages', limit: 1 });
+      return (result.docs[0] as ServicesPageData | undefined) ?? null;
     }),
     getSiteSettings(),
   ]);

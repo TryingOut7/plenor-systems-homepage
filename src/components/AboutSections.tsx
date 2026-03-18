@@ -2,9 +2,6 @@
 
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
-import { createDataAttribute } from '@sanity/visual-editing';
-import { useOptimistic } from '@sanity/visual-editing/react';
-
 type AboutSectionBase = {
   _key?: string;
   _type:
@@ -82,8 +79,6 @@ interface AboutSectionsProps {
   sections: AboutSection[];
   legacyMode?: boolean;
 }
-
-type DataPathSegment = string | number | { _key: string };
 
 const inner: CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 const narrow: CSSProperties = { maxWidth: '760px', margin: '0 auto' };

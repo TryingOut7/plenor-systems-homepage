@@ -2,9 +2,6 @@
 
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
-import { createDataAttribute } from '@sanity/visual-editing';
-import { useOptimistic } from '@sanity/visual-editing/react';
-
 type ServicesSectionBase = {
   _key?: string;
   _type:

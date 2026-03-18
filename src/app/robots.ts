@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getSiteSettings } from '@/sanity/cms';
+import { getSiteSettings } from '@/payload/cms';
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
   const settings = await getSiteSettings();

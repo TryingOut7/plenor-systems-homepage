@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-import { draftMode } from 'next/headers';
 import { notFound } from 'next/navigation';
 import UniversalSections from '@/components/cms/UniversalSections';
-import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/sanity/cms';
+import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 
 type RouteParams = {
   slug?: string[];
@@ -23,14 +22,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const resolvedParams = await params;
   const slug = buildSlug(resolvedParams);
-  if (!slug) {
-    return {};
-  }
+  if (!slug) return {};
 
-  const { isEnabled: preview } = await draftMode();
   const [page, settings] = await Promise.all([
-    getSitePageBySlug(slug, preview),
-    getSiteSettings(preview),
+    getSitePageBySlug(slug),
+    getSiteSettings(),
   ]);
 
   if (!page) return {};
@@ -40,7 +36,7 @@ export async function generateMetadata({
   const title = seo.metaTitle || page.title || defaultSeo.metaTitle || settings?.siteName || 'Page';
   const description = seo.metaDescription || defaultSeo.metaDescription || settings?.brandTagline || '';
   const canonical = seo.canonicalUrl || canonicalForSlug(slug);
-  const ogImage = seo.ogImage?.asset?.url || defaultSeo.ogImage?.asset?.url;
+  const ogImage = seo.ogImage?.url || defaultSeo.ogImage?.url;
 
   return {
     title,
@@ -68,10 +64,9 @@ export default async function CmsDynamicPage({
   const slug = buildSlug(resolvedParams);
   if (!slug) notFound();
 
-  const { isEnabled: preview } = await draftMode();
   const [page, collectionData] = await Promise.all([
-    getSitePageBySlug(slug, preview),
-    getCollectionData(preview),
+    getSitePageBySlug(slug),
+    getCollectionData(),
   ]);
 
   if (!page || !Array.isArray(page.sections) || page.sections.length === 0) {
@@ -80,8 +75,8 @@ export default async function CmsDynamicPage({
 
   return (
     <UniversalSections
-      documentId={page._id || 'sitePage'}
-      documentType={page._type || 'sitePage'}
+      documentId={page.id || 'sitePage'}
+      documentType="site-pages"
       sections={page.sections}
       collections={collectionData}
     />

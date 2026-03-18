@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { draftMode } from 'next/headers';
-import { PortableText } from '@portabletext/react';
-import type { PortableTextBlock } from '@portabletext/types';
-import { getSiteSettings } from '@/sanity/cms';
+import RichText from '@/components/cms/RichText';
+import { getSiteSettings } from '@/payload/cms';
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -25,15 +23,12 @@ const bodyText: React.CSSProperties = { fontSize: '16px', color: '#6B7280', line
 const h2Style: React.CSSProperties = { fontSize: '20px', fontWeight: 700, color: '#1B2D4F', marginBottom: '12px', marginTop: '40px' };
 
 export default async function PrivacyPage() {
-  const { isEnabled: preview } = await draftMode();
-  const settings = await getSiteSettings(preview);
+  const settings = await getSiteSettings();
 
   const siteName = settings?.siteName || 'Plenor Systems';
   const contactEmail = settings?.contactEmail || 'hello@plenor.ai';
   const lastUpdated = settings?.privacyLastUpdated || 'March 2026';
-  const cmsContent = Array.isArray(settings?.privacyPolicy) && settings.privacyPolicy.length > 0
-    ? settings.privacyPolicy
-    : null;
+  const cmsContent = settings?.privacyPolicy ?? null;
 
   return (
     <section aria-labelledby="privacy-heading" style={{ padding: '80px 24px', backgroundColor: '#ffffff' }}>
@@ -52,9 +47,7 @@ export default async function PrivacyPage() {
         </p>
 
         {cmsContent ? (
-          <div style={{ color: '#6B7280', lineHeight: 1.7 }}>
-            <PortableText value={cmsContent as PortableTextBlock[]} />
-          </div>
+          <RichText data={cmsContent as any} style={{ color: '#6B7280', lineHeight: 1.7 }} />
         ) : (
           <>
             <p style={bodyText}>

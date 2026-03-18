@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getSiteSettings } from '@/sanity/cms';
+import { getSiteSettings } from '@/payload/cms';
 
 export const metadata: Metadata = {
   title: 'Page Not Found',

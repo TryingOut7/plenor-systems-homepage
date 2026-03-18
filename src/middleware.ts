@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const COOKIE = 'staging_auth';
-const SANITY_API_VERSION = '2024-01-01';
 
 type RedirectRule = {
   fromPath?: string;
@@ -23,26 +22,13 @@ async function loadRedirectRules(): Promise<RedirectRule[]> {
   const now = Date.now();
   if (now < cacheExpiresAt) return cachedRedirects;
 
-  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-  const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
-  const token = process.env.SANITY_API_READ_TOKEN;
-
-  if (!projectId) {
-    cachedRedirects = [];
-    cacheExpiresAt = now + 30_000;
-    return cachedRedirects;
-  }
-
-  const query =
-    '*[_type == "redirectRule" && enabled == true]{fromPath, toPath, isPermanent}';
-  const url = `https://${projectId}.api.sanity.io/v${SANITY_API_VERSION}/data/query/${dataset}?query=${encodeURIComponent(query)}`;
-  const headers: Record<string, string> = {};
-  if (token) headers.Authorization = `Bearer ${token}`;
+  // Use Payload's REST API to load redirect rules
+  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
 
   try {
+    const url = `${baseUrl}/api/redirect-rules?where[enabled][equals]=true&limit=500`;
     const response = await fetch(url, {
       method: 'GET',
-      headers,
       cache: 'no-store',
     });
     if (!response.ok) {
@@ -50,8 +36,8 @@ async function loadRedirectRules(): Promise<RedirectRule[]> {
       cacheExpiresAt = now + 30_000;
       return cachedRedirects;
     }
-    const data = (await response.json()) as { result?: RedirectRule[] };
-    cachedRedirects = Array.isArray(data.result) ? data.result : [];
+    const data = (await response.json()) as { docs?: RedirectRule[] };
+    cachedRedirects = Array.isArray(data.docs) ? data.docs : [];
     cacheExpiresAt = now + 60_000;
     return cachedRedirects;
   } catch {
@@ -110,12 +96,11 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (password) {
-    // Always allow the login page, its auth API route, the Sanity Studio, and draft mode routes
+    // Always allow the login page, its auth API route, the Payload admin panel, and API routes
     if (
       pathname === '/staging-login' ||
       pathname.startsWith('/api/staging-auth') ||
-      pathname.startsWith('/api/draft-mode') ||
-      pathname.startsWith('/studio')
+      pathname.startsWith('/admin')
     ) {
       return NextResponse.next();
     }
@@ -139,8 +124,6 @@ export async function middleware(request: NextRequest) {
     if (toPath !== normalizedPath) {
       const url = request.nextUrl.clone();
       url.pathname = toPath;
-      // Preserve query string from the original request
-      // (url.search is already carried over from request.nextUrl.clone())
       return NextResponse.redirect(url, match.isPermanent ? 308 : 307);
     }
   }

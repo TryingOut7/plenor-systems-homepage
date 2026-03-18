@@ -2,9 +2,6 @@
 
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
-import { createDataAttribute } from '@sanity/visual-editing';
-import { useOptimistic } from '@sanity/visual-editing/react';
-
 type PricingSectionBase = {
   _key?: string;
   _type:
@@ -85,8 +82,6 @@ interface PricingSectionsProps {
   sections: PricingSection[];
 }
 
-type DataPathSegment = string | number | { _key: string };
-
 const inner: CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
 const sectionPadding: Record<SectionSize, string> = {
@@ -113,27 +108,11 @@ function getLightBackgroundColor(theme: SectionTheme | undefined, fallback: 'whi
   return fallback === 'light' ? '#F8F9FA' : '#ffffff';
 }
 
-function isSectionList(value: unknown): value is PricingSection[] {
-  return Array.isArray(value);
-}
-
 export default function PricingSections({ documentId, documentType, sections }: PricingSectionsProps) {
-  const dataAttribute = createDataAttribute({ id: documentId, type: documentType });
-  const optimisticSections = useOptimistic(sections, (current, action) => {
-    if (action.id !== documentId || action.type !== documentType) return current;
-    const maybeSections = (action.document as { sections?: unknown })?.sections;
-    return isSectionList(maybeSections) ? maybeSections : current;
-  });
-
-  const dataFor = (path: DataPathSegment[]) => dataAttribute(path);
-
   return (
     <>
-      {optimisticSections.map((section, index) => {
+      {sections.map((section, index) => {
         const key = section._key ?? `${section._type}-${index}`;
-        const sectionPath: DataPathSegment[] = section._key
-          ? ['sections', { _key: section._key }]
-          : ['sections', index];
 
         if (section._type === 'pricingHeroSection') {
           const heroTheme = getDarkBackgroundColor(section.theme);

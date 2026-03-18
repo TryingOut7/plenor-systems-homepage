@@ -2,8 +2,6 @@
 
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
-import { createDataAttribute } from '@sanity/visual-editing';
-import { useOptimistic } from '@sanity/visual-editing/react';
 import GuideForm from '@/components/GuideForm';
 import InquiryForm from '@/components/InquiryForm';
 
@@ -85,8 +83,6 @@ interface ContactSectionsProps {
   inquiryFormLabels?: FormLabels;
 }
 
-type DataPathSegment = string | number | { _key: string };
-
 const inner: CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
 const sectionPadding: Record<SectionSize, string> = {
@@ -113,27 +109,11 @@ function getLightBackgroundColor(theme: SectionTheme | undefined, fallback: 'whi
   return fallback === 'light' ? '#F8F9FA' : '#ffffff';
 }
 
-function isSectionList(value: unknown): value is ContactSection[] {
-  return Array.isArray(value);
-}
-
 export default function ContactSections({ documentId, documentType, sections, guideFormLabels, inquiryFormLabels }: ContactSectionsProps) {
-  const dataAttribute = createDataAttribute({ id: documentId, type: documentType });
-  const optimisticSections = useOptimistic(sections, (current, action) => {
-    if (action.id !== documentId || action.type !== documentType) return current;
-    const maybeSections = (action.document as { sections?: unknown })?.sections;
-    return isSectionList(maybeSections) ? maybeSections : current;
-  });
-
-  const dataFor = (path: DataPathSegment[]) => dataAttribute(path);
-
   return (
     <>
-      {optimisticSections.map((section, index) => {
+      {sections.map((section, index) => {
         const key = section._key ?? `${section._type}-${index}`;
-        const sectionPath: DataPathSegment[] = section._key
-          ? ['sections', { _key: section._key }]
-          : ['sections', index];
 
         if (section._type === 'contactHeroSection') {
           const heroTheme = getDarkBackgroundColor(section.theme);
@@ -143,7 +123,6 @@ export default function ContactSections({ documentId, documentType, sections, gu
             <section
               key={key}
               aria-labelledby="contact-hero-heading"
-              data-sanity={dataFor(sectionPath)}
               style={{
                 backgroundColor: heroTheme,
                 padding: heroPadding[heroSize],
@@ -167,7 +146,6 @@ export default function ContactSections({ documentId, documentType, sections, gu
               <div style={{ maxWidth: '680px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
                 <p
                   className="section-label animate-fade-in"
-                  data-sanity={dataFor([...sectionPath, 'label'])}
                   style={{ color: 'rgba(255,255,255,0.45)', marginBottom: '24px' }}
                 >
                   {section.label || 'Contact'}
@@ -175,7 +153,6 @@ export default function ContactSections({ documentId, documentType, sections, gu
                 <h1
                   id="contact-hero-heading"
                   className="animate-fade-up"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(40px, 6vw, 72px)',
@@ -190,7 +167,6 @@ export default function ContactSections({ documentId, documentType, sections, gu
                 </h1>
                 <p
                   className="animate-fade-up-delay-1"
-                  data-sanity={dataFor([...sectionPath, 'subtext'])}
                   style={{ fontSize: '18px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}
                 >
                   {section.subtext}
@@ -209,7 +185,6 @@ export default function ContactSections({ documentId, documentType, sections, gu
               key={key}
               id="guide"
               aria-labelledby="guide-form-heading"
-              data-sanity={dataFor(sectionPath)}
               style={{ padding: sectionPadding[guideSize], backgroundColor: guideBackground }}
             >
               <div style={{ ...inner, maxWidth: '860px' }}>
@@ -222,12 +197,11 @@ export default function ContactSections({ documentId, documentType, sections, gu
                   }}
                 >
                   <div>
-                    <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '16px' }}>
+                    <p className="section-label" style={{ marginBottom: '16px' }}>
                       {section.label || 'Free resource'}
                     </p>
                     <h2
                       id="guide-form-heading"
-                      data-sanity={dataFor([...sectionPath, 'heading'])}
                       style={{
                         fontFamily: 'var(--font-display), Georgia, serif',
                         fontSize: 'clamp(24px, 3vw, 34px)',
@@ -242,11 +216,11 @@ export default function ContactSections({ documentId, documentType, sections, gu
                     </h2>
                     <div style={{ width: '32px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '24px', borderRadius: '2px' }} aria-hidden="true" />
                     <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.7, marginBottom: '16px' }}>
-                      <strong data-sanity={dataFor([...sectionPath, 'highlightText'])} style={{ color: '#1A1A1A', fontWeight: 600 }}>
+                      <strong style={{ color: '#1A1A1A', fontWeight: 600 }}>
                         {section.highlightText || 'The 7 Most Common Product Development Mistakes — and How to Avoid Them.'}
                       </strong>
                     </p>
-                    <p data-sanity={dataFor([...sectionPath, 'body'])} style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65 }}>
+                    <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65 }}>
                       {section.body}
                     </p>
                   </div>
@@ -277,7 +251,6 @@ export default function ContactSections({ documentId, documentType, sections, gu
             <section
               key={key}
               aria-labelledby="inquiry-form-heading"
-              data-sanity={dataFor(sectionPath)}
               style={{ padding: sectionPadding[inquirySize], backgroundColor: inquiryBackground }}
             >
               <div style={{ ...inner, maxWidth: '860px' }}>

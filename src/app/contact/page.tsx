@@ -1,32 +1,16 @@
 import type { Metadata } from 'next';
-import { draftMode } from 'next/headers';
 import ContactSections, { type ContactSection } from '@/components/ContactSections';
-import { sanityFetch } from '@/sanity/client';
 import UniversalSections from '@/components/cms/UniversalSections';
-import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/sanity/cms';
+import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 
 export const revalidate = 60;
 
-interface LegacyContactFields {
-  heroHeading?: string;
-  heroSubtext?: string;
-  inquiryHeading?: string;
-  inquirySubtext?: string;
-  privacyLabel?: string;
-}
-
-interface ContactPageData extends LegacyContactFields {
-  _id?: string;
-  _type?: string;
-  sections?: ContactSection[];
-}
-
-const defaults: Required<LegacyContactFields> = {
-  heroHeading: 'Let’s talk.',
-  heroSubtext: 'Tell us about your product and team and we’ll get back to you within 2 business days.',
+const defaults = {
+  heroHeading: 'Let\u2019s talk.',
+  heroSubtext: 'Tell us about your product and team and we\u2019ll get back to you within 2 business days.',
   inquiryHeading: 'Send a direct inquiry',
   inquirySubtext:
-    'Tell us about your product, your team, and the challenge you’re working through. We’ll respond within 2 business days.',
+    'Tell us about your product, your team, and the challenge you\u2019re working through. We\u2019ll respond within 2 business days.',
   privacyLabel: 'By submitting this form, you agree to our',
 };
 
@@ -39,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteName = settings?.siteName || 'Plenor Systems';
   const siteUrl = settings?.siteUrl || 'https://plenor.ai';
   return {
-    title: 'Contact — Send an Inquiry',
+    title: 'Contact \u2014 Send an Inquiry',
     description: `Send a direct inquiry to ${siteName}. Tell us about your product and team.`,
     alternates: { canonical: `${siteUrl}/contact` },
     openGraph: {
@@ -50,74 +34,38 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-function isContactSection(value: unknown): value is ContactSection {
-  if (!value || typeof value !== 'object') return false;
-  const sectionType = (value as { _type?: string })._type;
-  return (
-    sectionType === 'contactHeroSection' ||
-    sectionType === 'contactGuideSection' ||
-    sectionType === 'contactInquirySection' ||
-    sectionType === 'contactPrivacySection'
-  );
-}
-
-function buildLegacySections(cms?: LegacyContactFields): ContactSection[] {
+function buildLegacySections(): ContactSection[] {
   return [
-    {
-      _key: 'hero',
-      _type: 'contactHeroSection',
-      heading: cms?.heroHeading ?? defaults.heroHeading,
-      subtext: cms?.heroSubtext ?? defaults.heroSubtext,
-    },
-    {
-      _key: 'guide',
-      _type: 'contactGuideSection',
-      heading: guideHeading,
-      body: guideBody,
-    },
-    {
-      _key: 'inquiry',
-      _type: 'contactInquirySection',
-      heading: cms?.inquiryHeading ?? defaults.inquiryHeading,
-      subtext: cms?.inquirySubtext ?? defaults.inquirySubtext,
-    },
-    {
-      _key: 'privacy',
-      _type: 'contactPrivacySection',
-      label: cms?.privacyLabel ?? defaults.privacyLabel,
-    },
+    { _key: 'hero', _type: 'contactHeroSection', heading: defaults.heroHeading, subtext: defaults.heroSubtext },
+    { _key: 'guide', _type: 'contactGuideSection', heading: guideHeading, body: guideBody },
+    { _key: 'inquiry', _type: 'contactInquirySection', heading: defaults.inquiryHeading, subtext: defaults.inquirySubtext },
+    { _key: 'privacy', _type: 'contactPrivacySection', label: defaults.privacyLabel },
   ];
 }
 
 export default async function ContactPage() {
-  const { isEnabled: preview } = await draftMode();
-  const [sitePage, cms, siteSettings] = await Promise.all([
-    getSitePageBySlug('contact', preview),
-    sanityFetch<ContactPageData>(`*[_type == "contactPage"][0]{..., sections[]{...}}`, {
-      preview,
-    }),
-    getSiteSettings(preview),
+  const [sitePage, siteSettings] = await Promise.all([
+    getSitePageBySlug('contact'),
+    getSiteSettings(),
   ]);
 
   if (sitePage && Array.isArray(sitePage.sections) && sitePage.sections.length > 0) {
-    const collectionData = await getCollectionData(preview);
+    const collectionData = await getCollectionData();
     return (
       <UniversalSections
-        documentId={sitePage._id || 'sitePage.contact'}
-        documentType={sitePage._type || 'sitePage'}
+        documentId={sitePage.id || 'sitePage.contact'}
+        documentType="site-pages"
         sections={sitePage.sections}
         collections={collectionData}
       />
     );
   }
 
-  const sectionList = Array.isArray(cms?.sections) ? cms.sections.filter(isContactSection) : [];
-  const sections = sectionList.length ? sectionList : buildLegacySections(cms ?? undefined);
-
+  const sections = buildLegacySections();
   return (
     <ContactSections
-      documentId={cms?._id || 'contactPage'}
-      documentType={cms?._type || 'contactPage'}
+      documentId="contactPage"
+      documentType="contactPage"
       sections={sections}
       guideFormLabels={siteSettings?.guideForm}
       inquiryFormLabels={siteSettings?.inquiryForm}

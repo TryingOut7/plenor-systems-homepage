@@ -1,17 +1,12 @@
 import type { NextConfig } from "next";
-import path from "path";
+import { withPayload } from "@payloadcms/next/withPayload";
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: path.resolve(__dirname),
-  },
   async headers() {
     return [
-      // Security headers for all routes except the Sanity Studio.
-      // The Studio uses iframes internally (e.g. media library), so it needs
-      // SAMEORIGIN instead of DENY for X-Frame-Options.
+      // Security headers for all routes except the Payload admin panel.
       {
-        source: "/((?!studio).*)",
+        source: "/((?!admin).*)",
         headers: [
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-Content-Type-Options", value: "nosniff" },
@@ -26,9 +21,9 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // Sanity Studio path — allow same-origin framing required by the Studio UI
+      // Payload admin panel — allow same-origin framing
       {
-        source: "/studio/:path*",
+        source: "/admin/:path*",
         headers: [
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-Content-Type-Options", value: "nosniff" },
@@ -43,4 +38,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withPayload(nextConfig);

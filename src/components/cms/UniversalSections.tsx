@@ -2,23 +2,17 @@
 
 import { useState, type CSSProperties } from 'react';
 import Link from 'next/link';
-import { PortableText } from '@portabletext/react';
-import type { PortableTextBlock } from '@portabletext/types';
-import { createDataAttribute } from '@sanity/visual-editing';
-import { useOptimistic } from '@sanity/visual-editing/react';
+import RichText from './RichText';
 import type {
   BlogPost,
   CollectionData,
   PageSection,
   ServiceItem,
   Testimonial,
-} from '@/sanity/cms';
+} from '@/payload/cms';
 
 type SectionTheme = 'navy' | 'charcoal' | 'black' | 'white' | 'light';
 type SectionSize = 'compact' | 'regular' | 'spacious';
-
-type DataPathSegment = string | number | { _key: string };
-type DataAttributeResolver = (path: DataPathSegment[]) => string;
 
 interface UniversalSectionsProps {
   documentId: string;
@@ -40,10 +34,6 @@ const heroPadding: Record<SectionSize, string> = {
   regular: '112px 24px 120px',
   spacious: '140px 24px 148px',
 };
-
-function isSectionList(value: unknown): value is PageSection[] {
-  return Array.isArray(value);
-}
 
 function getDarkBackgroundColor(theme?: string): string {
   if (theme === 'charcoal') return '#1F2937';
@@ -90,17 +80,25 @@ function normalizePath(path: string): string {
   return path.startsWith('/') ? path : `/${path}`;
 }
 
-function getImageUrl(image: unknown): string | undefined {
-  if (!image || typeof image !== 'object') return undefined;
-  const candidate = image as { asset?: { url?: string } };
-  return candidate.asset?.url;
+function getImageUrl(media: unknown): string | undefined {
+  if (!media || typeof media !== 'object') return undefined;
+  const m = media as Record<string, unknown>;
+  return typeof m.url === 'string' ? m.url : undefined;
+}
+
+function getImageAlt(media: unknown): string {
+  if (!media || typeof media !== 'object') return '';
+  return String((media as Record<string, unknown>).alt || '');
 }
 
 function matchesFilter(item: Record<string, unknown>, filterField?: string, filterValue?: string): boolean {
   if (!filterField || !filterValue) return true;
   const field = item[filterField];
   if (Array.isArray(field)) {
-    return field.some((entry) => String(entry).toLowerCase() === filterValue.toLowerCase());
+    return field.some((entry) => {
+      const val = typeof entry === 'object' && entry !== null ? (entry as Record<string, unknown>).tag : entry;
+      return String(val).toLowerCase() === filterValue.toLowerCase();
+    });
   }
   if (typeof field === 'boolean') {
     return String(field) === filterValue.toLowerCase();
@@ -126,61 +124,52 @@ function sortItems<T extends Record<string, unknown>>(
   return sortDirection === 'asc' ? sorted : sorted.reverse();
 }
 
-function renderDynamicListItem(item: BlogPost | ServiceItem | Testimonial) {
-  if ((item as BlogPost)._type === 'blogPost') {
+function getTags(item: BlogPost | ServiceItem | Testimonial): string[] {
+  const tags = item.tags;
+  if (!Array.isArray(tags)) return [];
+  return tags.map((t) => (typeof t === 'object' && t !== null ? String((t as { tag?: string }).tag || '') : String(t))).filter(Boolean);
+}
+
+function renderDynamicListItem(item: BlogPost | ServiceItem | Testimonial, collectionType: string) {
+  if (collectionType === 'blogPost') {
     const blog = item as BlogPost;
-    const href = `/blog/${blog.slug?.current || ''}`;
     return {
       title: blog.title || 'Untitled Post',
       description: blog.excerpt || '',
-      href,
+      href: `/blog/${blog.slug || ''}`,
       meta: blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString() : '',
     };
   }
-  if ((item as ServiceItem)._type === 'serviceItem') {
+  if (collectionType === 'serviceItem') {
     const service = item as ServiceItem;
-    const href = `/services/${service.slug?.current || ''}`;
     return {
       title: service.title || 'Untitled Service',
       description: service.summary || '',
-      href,
+      href: `/services/${service.slug || ''}`,
       meta: service.priceFrom ? `${service.currency || 'USD'} ${service.priceFrom}` : '',
     };
   }
   const testimonial = item as Testimonial;
-  const href = `/testimonials/${testimonial.slug?.current || ''}`;
   return {
     title: testimonial.personName || 'Untitled Testimonial',
     description: testimonial.quote || '',
-    href,
+    href: `/testimonials/${testimonial.slug || ''}`,
     meta: [testimonial.role, testimonial.company].filter(Boolean).join(' · '),
   };
 }
 
 export default function UniversalSections({
-  documentId,
-  documentType,
   sections,
   collections,
 }: UniversalSectionsProps) {
-  const dataAttribute = createDataAttribute({ id: documentId, type: documentType });
   const [listPages, setListPages] = useState<Record<string, number>>({});
-
-  const optimisticSections = useOptimistic(sections, (current, action) => {
-    if (action.id !== documentId || action.type !== documentType) return current;
-    const maybeSections = (action.document as { sections?: unknown })?.sections;
-    return isSectionList(maybeSections) ? maybeSections : current;
-  });
-
-  const dataFor: DataAttributeResolver = (path) => dataAttribute(path);
 
   const renderSection = (
     section: PageSection,
-    sectionPath?: DataPathSegment[],
+    index: number,
     keyPrefix = '',
-    sectionDataFor: DataAttributeResolver = dataFor
   ): React.ReactNode => {
-    const key = `${keyPrefix}${section._key || section._type}`;
+    const key = `${keyPrefix}${section.id || index}`;
     const size = normalizeSize(section.size);
     const theme = normalizeTheme(section.theme);
     const padding = sectionPadding[size];
@@ -189,12 +178,11 @@ export default function UniversalSections({
       backgroundColor: theme === 'white' || theme === 'light' ? getLightBackgroundColor(theme) : getDarkBackgroundColor(theme),
     };
 
-    if (section._type === 'heroSection') {
+    if (section.blockType === 'heroSection') {
       return (
         <section
           key={key}
           id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
-          data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined}
           style={{
             ...sectionStyle,
             padding: heroPadding[size],
@@ -206,11 +194,7 @@ export default function UniversalSections({
         >
           <div style={{ ...inner, maxWidth: '760px' }}>
             {typeof section.eyebrow === 'string' ? (
-              <p
-                className="section-label"
-                style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '20px' }}
-                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'eyebrow']) : undefined}
-              >
+              <p className="section-label" style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '20px' }}>
                 {section.eyebrow}
               </p>
             ) : null}
@@ -221,24 +205,16 @@ export default function UniversalSections({
                 lineHeight: 1.1,
                 marginBottom: '20px',
               }}
-              data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}
             >
               {String(section.heading || '')}
             </h1>
             {section.subheading ? (
-              <p
-                style={{ color: 'rgba(255,255,255,0.72)', fontSize: '18px', marginBottom: section.primaryCtaLabel ? '28px' : 0 }}
-                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'subheading']) : undefined}
-              >
+              <p style={{ color: 'rgba(255,255,255,0.72)', fontSize: '18px', marginBottom: section.primaryCtaLabel ? '28px' : 0 }}>
                 {String(section.subheading)}
               </p>
             ) : null}
             {section.primaryCtaLabel ? (
-              <Link
-                className="btn-ghost"
-                href={normalizePath(String(section.primaryCtaHref || '#'))}
-                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'primaryCtaLabel']) : undefined}
-              >
+              <Link className="btn-ghost" href={normalizePath(String(section.primaryCtaHref || '#'))}>
                 {String(section.primaryCtaLabel)}
               </Link>
             ) : null}
@@ -247,19 +223,17 @@ export default function UniversalSections({
       );
     }
 
-    if (section._type === 'richTextSection') {
+    if (section.blockType === 'richTextSection') {
       return (
         <section
           key={key}
           id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
-          data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined}
           style={sectionStyle}
           className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
         >
           <div style={{ ...inner, maxWidth: '800px' }}>
             {section.heading ? (
               <h2
-                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}
                 style={{
                   fontFamily: 'var(--font-display), Georgia, serif',
                   fontSize: 'clamp(28px, 4vw, 42px)',
@@ -270,27 +244,23 @@ export default function UniversalSections({
                 {String(section.heading)}
               </h2>
             ) : null}
-            <div data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'content']) : undefined} style={{ color: bodyColor(theme) }}>
-              <PortableText value={Array.isArray(section.content) ? (section.content as PortableTextBlock[]) : []} />
-            </div>
+            <RichText data={section.content} style={{ color: bodyColor(theme) }} />
           </div>
         </section>
       );
     }
 
-    if (section._type === 'ctaSection') {
+    if (section.blockType === 'ctaSection') {
       return (
         <section
           key={key}
           id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
-          data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined}
           style={sectionStyle}
           className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
         >
           <div style={{ ...inner, maxWidth: '700px', textAlign: 'center' }}>
             {section.heading ? (
               <h2
-                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}
                 style={{
                   fontFamily: 'var(--font-display), Georgia, serif',
                   fontSize: 'clamp(26px, 4vw, 40px)',
@@ -302,10 +272,7 @@ export default function UniversalSections({
               </h2>
             ) : null}
             {section.body ? (
-              <p
-                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'body']) : undefined}
-                style={{ color: theme === 'white' || theme === 'light' ? '#6B7280' : 'rgba(255,255,255,0.72)', marginBottom: section.buttonLabel ? '24px' : 0 }}
-              >
+              <p style={{ color: theme === 'white' || theme === 'light' ? '#6B7280' : 'rgba(255,255,255,0.72)', marginBottom: section.buttonLabel ? '24px' : 0 }}>
                 {String(section.body)}
               </p>
             ) : null}
@@ -313,7 +280,6 @@ export default function UniversalSections({
               <Link
                 className={theme === 'white' || theme === 'light' ? 'btn-primary' : 'btn-ghost'}
                 href={normalizePath(String(section.buttonHref || '#'))}
-                data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'buttonLabel']) : undefined}
               >
                 {String(section.buttonLabel)}
               </Link>
@@ -323,63 +289,57 @@ export default function UniversalSections({
       );
     }
 
-    if (section._type === 'imageSection') {
+    if (section.blockType === 'imageSection') {
       const images = Array.isArray(section.images) ? section.images : [];
       return (
         <section
           key={key}
           id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
-          data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined}
           style={sectionStyle}
           className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
         >
           <div style={inner}>
             {section.heading ? (
-              <h2 style={{ marginBottom: '24px', color: headingColor(theme) }} data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}>
-                {String(section.heading)}
-              </h2>
+              <h2 style={{ marginBottom: '24px', color: headingColor(theme) }}>{String(section.heading)}</h2>
             ) : null}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-              {images.map((image, imageIndex) => {
-                const url = getImageUrl(image);
-                const alt = image && typeof image === 'object' && 'alt' in image ? String((image as { alt?: string }).alt || '') : '';
+              {images.map((imageEntry: unknown, imageIndex: number) => {
+                const img = typeof imageEntry === 'object' && imageEntry !== null
+                  ? (imageEntry as Record<string, unknown>).image
+                  : imageEntry;
+                const url = getImageUrl(img);
+                const alt = getImageAlt(img);
                 return url ? (
                   <img
                     key={`${key}-img-${imageIndex}`}
                     src={url}
                     alt={alt}
-                    data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'images', imageIndex]) : undefined}
                     style={{ width: '100%', height: 'auto', borderRadius: '8px', border: '1px solid #E5E7EB' }}
                   />
                 ) : null;
               })}
             </div>
             {section.caption ? (
-              <p style={{ marginTop: '12px', color: '#6B7280' }} data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'caption']) : undefined}>
-                {String(section.caption)}
-              </p>
+              <p style={{ marginTop: '12px', color: '#6B7280' }}>{String(section.caption)}</p>
             ) : null}
           </div>
         </section>
       );
     }
 
-    if (section._type === 'videoSection') {
+    if (section.blockType === 'videoSection') {
       const embedUrl = typeof section.embedUrl === 'string' ? section.embedUrl : '';
       const posterUrl = getImageUrl(section.posterImage);
       return (
         <section
           key={key}
           id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
-          data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined}
           style={sectionStyle}
           className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
         >
           <div style={{ ...inner, maxWidth: '900px' }}>
             {section.heading ? (
-              <h2 style={{ marginBottom: '18px', color: headingColor(theme) }} data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}>
-                {String(section.heading)}
-              </h2>
+              <h2 style={{ marginBottom: '18px', color: headingColor(theme) }}>{String(section.heading)}</h2>
             ) : null}
             <div style={{ aspectRatio: '16 / 9', backgroundColor: '#111827', borderRadius: '8px', overflow: 'hidden' }}>
               {embedUrl ? (
@@ -389,13 +349,12 @@ export default function UniversalSections({
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   style={{ width: '100%', height: '100%', border: 0 }}
-                  data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'embedUrl']) : undefined}
                 />
               ) : posterUrl ? (
                 <img src={posterUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
                 <div style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF' }}>
-                  Add an embed URL or poster image in Studio
+                  Add an embed URL or poster image
                 </div>
               )}
             </div>
@@ -404,36 +363,42 @@ export default function UniversalSections({
       );
     }
 
-    if (section._type === 'simpleTableSection') {
+    if (section.blockType === 'simpleTableSection') {
       const columns = Array.isArray(section.columns) ? section.columns : [];
       const rows = Array.isArray(section.rows) ? section.rows : [];
       return (
-        <section key={key} data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined} style={sectionStyle}>
+        <section key={key} style={sectionStyle}>
           <div style={inner}>
             {section.heading ? <h2 style={{ marginBottom: '20px', color: headingColor(theme) }}>{String(section.heading)}</h2> : null}
             <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
                 <thead>
                   <tr>
-                    {columns.map((column, colIndex) => (
-                      <th key={`${key}-col-${colIndex}`} style={{ textAlign: 'left', padding: '12px', borderBottom: '1px solid #E5E7EB', backgroundColor: '#F8F9FA' }}>
-                        {String(column)}
-                      </th>
-                    ))}
+                    {columns.map((column: unknown, colIndex: number) => {
+                      const label = typeof column === 'object' && column !== null ? (column as Record<string, unknown>).label : column;
+                      return (
+                        <th key={`${key}-col-${colIndex}`} style={{ textAlign: 'left', padding: '12px', borderBottom: '1px solid #E5E7EB', backgroundColor: '#F8F9FA' }}>
+                          {String(label || '')}
+                        </th>
+                      );
+                    })}
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((row, rowIndex) => {
-                    const cells = row && typeof row === 'object' && Array.isArray((row as { cells?: unknown[] }).cells)
+                  {rows.map((row: unknown, rowIndex: number) => {
+                    const cells = row && typeof row === 'object' && Array.isArray((row as Record<string, unknown>).cells)
                       ? (row as { cells: unknown[] }).cells
                       : [];
                     return (
                       <tr key={`${key}-row-${rowIndex}`}>
-                        {cells.map((cell, cellIndex) => (
-                          <td key={`${key}-row-${rowIndex}-cell-${cellIndex}`} style={{ padding: '12px', borderBottom: '1px solid #F3F4F6' }}>
-                            {String(cell || '')}
-                          </td>
-                        ))}
+                        {cells.map((cell: unknown, cellIndex: number) => {
+                          const value = typeof cell === 'object' && cell !== null ? (cell as Record<string, unknown>).value : cell;
+                          return (
+                            <td key={`${key}-row-${rowIndex}-cell-${cellIndex}`} style={{ padding: '12px', borderBottom: '1px solid #F3F4F6' }}>
+                              {String(value || '')}
+                            </td>
+                          );
+                        })}
                       </tr>
                     );
                   })}
@@ -445,11 +410,11 @@ export default function UniversalSections({
       );
     }
 
-    if (section._type === 'comparisonTableSection') {
+    if (section.blockType === 'comparisonTableSection') {
       const columns = Array.isArray(section.planColumns) ? section.planColumns : [];
       const features = Array.isArray(section.features) ? section.features : [];
       return (
-        <section key={key} data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined} style={sectionStyle}>
+        <section key={key} style={sectionStyle}>
           <div style={inner}>
             {section.heading ? <h2 style={{ marginBottom: '20px', color: headingColor(theme) }}>{String(section.heading)}</h2> : null}
             <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
@@ -457,15 +422,18 @@ export default function UniversalSections({
                 <thead>
                   <tr>
                     <th style={{ padding: '12px', textAlign: 'left', backgroundColor: '#F8F9FA' }}>Feature</th>
-                    {columns.map((column, idx) => (
-                      <th key={`${key}-plan-col-${idx}`} style={{ padding: '12px', textAlign: 'left', backgroundColor: '#F8F9FA' }}>
-                        {String(column)}
-                      </th>
-                    ))}
+                    {columns.map((column: unknown, idx: number) => {
+                      const label = typeof column === 'object' && column !== null ? (column as Record<string, unknown>).label : column;
+                      return (
+                        <th key={`${key}-plan-col-${idx}`} style={{ padding: '12px', textAlign: 'left', backgroundColor: '#F8F9FA' }}>
+                          {String(label || '')}
+                        </th>
+                      );
+                    })}
                   </tr>
                 </thead>
                 <tbody>
-                  {features.map((feature, rowIndex) => {
+                  {features.map((feature: unknown, rowIndex: number) => {
                     const label = feature && typeof feature === 'object' ? String((feature as { label?: string }).label || '') : '';
                     const values =
                       feature && typeof feature === 'object' && Array.isArray((feature as { values?: unknown[] }).values)
@@ -474,11 +442,14 @@ export default function UniversalSections({
                     return (
                       <tr key={`${key}-feature-${rowIndex}`}>
                         <td style={{ padding: '12px', borderBottom: '1px solid #F3F4F6', fontWeight: 600 }}>{label}</td>
-                        {values.map((value, valueIndex) => (
-                          <td key={`${key}-feature-${rowIndex}-value-${valueIndex}`} style={{ padding: '12px', borderBottom: '1px solid #F3F4F6' }}>
-                            {String(value || '')}
-                          </td>
-                        ))}
+                        {values.map((value: unknown, valueIndex: number) => {
+                          const v = typeof value === 'object' && value !== null ? (value as Record<string, unknown>).value : value;
+                          return (
+                            <td key={`${key}-feature-${rowIndex}-value-${valueIndex}`} style={{ padding: '12px', borderBottom: '1px solid #F3F4F6' }}>
+                              {String(v || '')}
+                            </td>
+                          );
+                        })}
                       </tr>
                     );
                   })}
@@ -490,7 +461,7 @@ export default function UniversalSections({
       );
     }
 
-    if (section._type === 'dynamicListSection') {
+    if (section.blockType === 'dynamicListSection') {
       const config = section as PageSection & {
         source?: 'blogPost' | 'serviceItem' | 'testimonial';
         viewMode?: 'cards' | 'list' | 'table';
@@ -511,13 +482,13 @@ export default function UniversalSections({
             : collections.blogPosts;
 
       const filtered = sourceItems.filter((item) =>
-        matchesFilter(item as Record<string, unknown>, config.filterField, config.filterValue)
+        matchesFilter(item as unknown as Record<string, unknown>, config.filterField, config.filterValue)
       );
       const filteredAndSorted = sortItems(
-        filtered as Array<Record<string, unknown>>,
+        filtered as unknown as Array<Record<string, unknown>>,
         config.sortField || 'publishedAt',
         config.sortDirection || 'desc'
-      ) as Array<BlogPost | ServiceItem | Testimonial>;
+      ) as unknown as Array<BlogPost | ServiceItem | Testimonial>;
 
       const limit = typeof config.limit === 'number' && config.limit > 0 ? config.limit : 6;
       const totalPages = Math.max(1, Math.ceil(filteredAndSorted.length / limit));
@@ -526,7 +497,7 @@ export default function UniversalSections({
       const pageItems = filteredAndSorted.slice(start, start + limit);
 
       return (
-        <section key={key} data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined} style={sectionStyle}>
+        <section key={key} style={sectionStyle}>
           <div style={inner}>
             {config.heading ? <h2 style={{ marginBottom: '20px', color: headingColor(theme) }}>{config.heading}</h2> : null}
             {config.viewMode === 'table' ? (
@@ -541,7 +512,7 @@ export default function UniversalSections({
                   </thead>
                   <tbody>
                     {pageItems.map((item, itemIndex) => {
-                      const normalized = renderDynamicListItem(item);
+                      const normalized = renderDynamicListItem(item, config.source || 'blogPost');
                       return (
                         <tr key={`${key}-table-row-${itemIndex}`}>
                           <td style={{ padding: '12px', borderBottom: '1px solid #F3F4F6' }}>
@@ -560,7 +531,7 @@ export default function UniversalSections({
             ) : config.viewMode === 'list' ? (
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {pageItems.map((item, itemIndex) => {
-                  const normalized = renderDynamicListItem(item);
+                  const normalized = renderDynamicListItem(item, config.source || 'blogPost');
                   return (
                     <li key={`${key}-list-${itemIndex}`} style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px' }}>
                       <Link href={normalized.href} style={{ color: headingColor(theme), fontWeight: 600, textDecoration: 'none' }}>
@@ -574,7 +545,7 @@ export default function UniversalSections({
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                 {pageItems.map((item, itemIndex) => {
-                  const normalized = renderDynamicListItem(item);
+                  const normalized = renderDynamicListItem(item, config.source || 'blogPost');
                   return (
                     <article key={`${key}-card-${itemIndex}`} className="feature-card">
                       <h3 style={{ marginBottom: '8px', color: headingColor(theme), fontSize: '22px' }}>{normalized.title}</h3>
@@ -622,65 +593,33 @@ export default function UniversalSections({
       );
     }
 
-    if (section._type === 'reusableSectionReference') {
+    if (section.blockType === 'reusableSectionReference') {
       const reusableSection = section.reusableSection as {
-        _id?: string;
-        _type?: string;
+        id?: string;
         title?: string;
         sections?: PageSection[];
       } | undefined;
-      const nestedSections = Array.isArray(reusableSection?.sections) ? reusableSection?.sections : [];
-      const reusableDataFor = reusableSection?._id
-        ? createDataAttribute({
-            id: reusableSection._id,
-            type: reusableSection._type || 'reusableSection',
-          })
-        : null;
+      const nestedSections = Array.isArray(reusableSection?.sections) ? reusableSection.sections : [];
       return (
-        <section
-          key={key}
-          data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined}
-          style={sectionStyle}
-        >
+        <section key={key} style={sectionStyle}>
           <div style={inner}>
-            <h2
-              style={{ marginBottom: '16px', color: headingColor(theme) }}
-              data-sanity={
-                sectionPath
-                  ? sectionDataFor([
-                      ...sectionPath,
-                      typeof section.overrideHeading === 'string' ? 'overrideHeading' : 'reusableSection',
-                    ])
-                  : undefined
-              }
-            >
+            <h2 style={{ marginBottom: '16px', color: headingColor(theme) }}>
               {typeof section.overrideHeading === 'string' ? section.overrideHeading : reusableSection?.title || 'Reusable Section'}
             </h2>
-            {nestedSections.map((nestedSection, nestedIndex) => {
-              const nestedPath: DataPathSegment[] = nestedSection._key
-                ? ['sections', { _key: nestedSection._key }]
-                : ['sections', nestedIndex];
-              const nestedResolver: DataAttributeResolver = reusableDataFor
-                ? (path) => reusableDataFor(path)
-                : sectionDataFor;
-              return renderSection(
-                nestedSection,
-                reusableDataFor ? nestedPath : undefined,
-                `${key}-nested-${nestedIndex}-`,
-                nestedResolver
-              );
-            })}
+            {nestedSections.map((nestedSection, nestedIndex) =>
+              renderSection(nestedSection, nestedIndex, `${key}-nested-${nestedIndex}-`)
+            )}
           </div>
         </section>
       );
     }
 
-    if (section._type === 'spacerSection') {
+    if (section.blockType === 'spacerSection') {
       const height = typeof section.height === 'number' ? section.height : 40;
       return <div key={key} style={{ height: `${height}px` }} />;
     }
 
-    if (section._type === 'dividerSection') {
+    if (section.blockType === 'dividerSection') {
       return (
         <div key={key} style={{ padding: '20px 24px', backgroundColor: getLightBackgroundColor(theme) }}>
           <div style={{ ...inner, borderTop: '1px solid #E5E7EB', paddingTop: '14px' }}>
@@ -690,30 +629,12 @@ export default function UniversalSections({
       );
     }
 
-    if (section._type === 'advancedDataSection') {
-      return (
-        <section key={key} style={sectionStyle}>
-          <div style={inner}>
-            <h3 style={{ marginBottom: '10px', color: headingColor(theme) }}>{String(section.title || 'Advanced Data Block')}</h3>
-            <p style={{ color: mutedColor(theme), margin: 0 }}>
-              This block stores advanced Sanity types (reference, cross-dataset reference, global document reference, geopoint, file, date, datetime).
-            </p>
-          </div>
-        </section>
-      );
-    }
-
     return null;
   };
 
   return (
     <>
-      {optimisticSections.map((section, index) => {
-        const sectionPath: DataPathSegment[] = section._key
-          ? ['sections', { _key: section._key }]
-          : ['sections', index];
-        return renderSection(section, sectionPath, `${index}-`);
-      })}
+      {sections.map((section, index) => renderSection(section, index, `${index}-`))}
     </>
   );
 }

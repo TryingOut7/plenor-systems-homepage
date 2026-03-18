@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
-import { draftMode } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { PortableText } from '@portabletext/react';
-import type { PortableTextBlock } from '@portabletext/types';
-import { getSiteSettings, getTestimonialBySlug } from '@/sanity/cms';
+import RichText from '@/components/cms/RichText';
+import { getSiteSettings, getTestimonialBySlug } from '@/payload/cms';
 
 type RouteParams = {
   slug: string;
@@ -15,24 +13,19 @@ export async function generateMetadata({
   params: Promise<RouteParams>;
 }): Promise<Metadata> {
   const resolvedParams = await params;
-  const { isEnabled: preview } = await draftMode();
   const [item, settings] = await Promise.all([
-    getTestimonialBySlug(resolvedParams.slug, preview),
-    getSiteSettings(preview),
+    getTestimonialBySlug(resolvedParams.slug),
+    getSiteSettings(),
   ]);
 
   if (!item) return {};
 
   const seo = item.seo || {};
   const defaultSeo = settings?.defaultSeo || {};
-  const title =
-    seo.metaTitle ||
-    item.personName ||
-    defaultSeo.metaTitle ||
-    'Testimonial';
+  const title = seo.metaTitle || item.personName || defaultSeo.metaTitle || 'Testimonial';
   const description = seo.metaDescription || item.quote || defaultSeo.metaDescription || '';
   const canonical = seo.canonicalUrl || `https://plenor.ai/testimonials/${resolvedParams.slug}`;
-  const ogImage = seo.ogImage?.asset?.url || item.avatar?.asset?.url || defaultSeo.ogImage?.asset?.url;
+  const ogImage = seo.ogImage?.url || item.avatar?.url || defaultSeo.ogImage?.url;
 
   return {
     title,
@@ -54,9 +47,10 @@ export default async function TestimonialPage({
   params: Promise<RouteParams>;
 }) {
   const resolvedParams = await params;
-  const { isEnabled: preview } = await draftMode();
-  const item = await getTestimonialBySlug(resolvedParams.slug, preview);
+  const item = await getTestimonialBySlug(resolvedParams.slug);
   if (!item) notFound();
+
+  const tags = item.tags?.map((t) => t.tag).filter(Boolean) as string[] || [];
 
   return (
     <article style={{ maxWidth: '840px', margin: '0 auto', padding: '84px 24px 96px' }}>
@@ -77,9 +71,9 @@ export default async function TestimonialPage({
       <p style={{ color: '#6B7280', marginBottom: '24px' }}>
         {[item.role, item.company].filter(Boolean).join(' · ')}
       </p>
-      {item.avatar?.asset?.url ? (
+      {item.avatar?.url ? (
         <img
-          src={item.avatar.asset.url}
+          src={item.avatar.url}
           alt={item.avatar.alt || item.personName || ''}
           style={{
             width: '120px',
@@ -111,9 +105,9 @@ export default async function TestimonialPage({
         </blockquote>
       ) : null}
 
-      {Array.isArray(item.tags) && item.tags.length > 0 ? (
+      {tags.length > 0 ? (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
-          {item.tags.map((tag) => (
+          {tags.map((tag) => (
             <span
               key={tag}
               style={{
@@ -133,9 +127,7 @@ export default async function TestimonialPage({
         </div>
       ) : null}
 
-      <div style={{ color: '#1F2937' }}>
-        <PortableText value={Array.isArray(item.details) ? (item.details as PortableTextBlock[]) : []} />
-      </div>
+      <RichText data={item.details as any} style={{ color: '#1F2937' }} />
     </article>
   );
 }

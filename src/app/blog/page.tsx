@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { draftMode } from 'next/headers';
-import { getCollectionData, getSiteSettings } from '@/sanity/cms';
+import { getCollectionData, getSiteSettings } from '@/payload/cms';
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();

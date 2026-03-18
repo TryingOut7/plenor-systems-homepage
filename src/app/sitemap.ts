@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getSitemapSlugs, getSiteSettings } from '@/sanity/cms';
+import { getSitemapSlugs, getSiteSettings } from '@/payload/cms';
 
 export const revalidate = 60;
 

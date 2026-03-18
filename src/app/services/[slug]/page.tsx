@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
-import { draftMode } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { PortableText } from '@portabletext/react';
-import type { PortableTextBlock } from '@portabletext/types';
-import { getServiceItemBySlug, getSiteSettings } from '@/sanity/cms';
+import RichText from '@/components/cms/RichText';
+import { getServiceItemBySlug, getSiteSettings } from '@/payload/cms';
 
 type RouteParams = {
   slug: string;
@@ -15,10 +13,9 @@ export async function generateMetadata({
   params: Promise<RouteParams>;
 }): Promise<Metadata> {
   const resolvedParams = await params;
-  const { isEnabled: preview } = await draftMode();
   const [item, settings] = await Promise.all([
-    getServiceItemBySlug(resolvedParams.slug, preview),
-    getSiteSettings(preview),
+    getServiceItemBySlug(resolvedParams.slug),
+    getSiteSettings(),
   ]);
 
   if (!item) return {};
@@ -28,7 +25,7 @@ export async function generateMetadata({
   const title = seo.metaTitle || item.title || defaultSeo.metaTitle || 'Service';
   const description = seo.metaDescription || item.summary || defaultSeo.metaDescription || '';
   const canonical = seo.canonicalUrl || `https://plenor.ai/services/${resolvedParams.slug}`;
-  const ogImage = seo.ogImage?.asset?.url || item.heroImage?.asset?.url || defaultSeo.ogImage?.asset?.url;
+  const ogImage = seo.ogImage?.url || item.heroImage?.url || defaultSeo.ogImage?.url;
 
   return {
     title,
@@ -50,9 +47,10 @@ export default async function ServiceItemPage({
   params: Promise<RouteParams>;
 }) {
   const resolvedParams = await params;
-  const { isEnabled: preview } = await draftMode();
-  const item = await getServiceItemBySlug(resolvedParams.slug, preview);
+  const item = await getServiceItemBySlug(resolvedParams.slug);
   if (!item) notFound();
+
+  const tags = item.tags?.map((t) => t.tag).filter(Boolean) as string[] || [];
 
   return (
     <article style={{ maxWidth: '840px', margin: '0 auto', padding: '84px 24px 96px' }}>
@@ -81,9 +79,9 @@ export default async function ServiceItemPage({
         </p>
       ) : null}
 
-      {Array.isArray(item.tags) && item.tags.length > 0 ? (
+      {tags.length > 0 ? (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
-          {item.tags.map((tag) => (
+          {tags.map((tag) => (
             <span
               key={tag}
               style={{
@@ -103,9 +101,9 @@ export default async function ServiceItemPage({
         </div>
       ) : null}
 
-      {item.heroImage?.asset?.url ? (
+      {item.heroImage?.url ? (
         <img
-          src={item.heroImage.asset.url}
+          src={item.heroImage.url}
           alt={item.heroImage.alt || item.title || ''}
           style={{
             width: '100%',
@@ -117,9 +115,7 @@ export default async function ServiceItemPage({
         />
       ) : null}
 
-      <div style={{ color: '#1F2937' }}>
-        <PortableText value={Array.isArray(item.body) ? (item.body as PortableTextBlock[]) : []} />
-      </div>
+      <RichText data={item.body as any} style={{ color: '#1F2937' }} />
     </article>
   );
 }

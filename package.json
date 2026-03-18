@@ -7,25 +7,22 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "migrate:sanity:pages": "node scripts/sanity/migrate-pages.mjs --dry-run",
-    "migrate:sanity:pages:apply": "node scripts/sanity/migrate-pages.mjs --apply",
-    "bootstrap:sanity:cms": "node scripts/sanity/bootstrap-cms.mjs",
-    "bootstrap:sanity:cms:apply": "node scripts/sanity/bootstrap-cms.mjs --apply"
+    "payload": "payload",
+    "generate:types": "payload generate:types"
   },
   "dependencies": {
-    "@portabletext/react": "^6.0.3",
-    "@sanity/client": "^7.17.0",
-    "@sanity/image-url": "^2.0.3",
-    "@sanity/vision": "^5.14.1",
-    "@sanity/icons": "^3.5.0",
-    "@sanity/visual-editing": "^5.3.0",
+    "@payloadcms/db-sqlite": "^3.79.1",
+    "@payloadcms/next": "^3.79.1",
+    "@payloadcms/richtext-lexical": "^3.79.1",
     "@supabase/supabase-js": "^2.99.0",
     "@vercel/speed-insights": "^2.0.0",
+    "graphql": "^16.13.1",
     "next": "16.1.6",
-    "next-sanity": "^12.1.2",
+    "payload": "^3.79.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "resend": "^6.9.3"
+    "resend": "^6.9.3",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -2,8 +2,6 @@
 
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
-import { createDataAttribute } from '@sanity/visual-editing';
-import { useOptimistic } from '@sanity/visual-editing/react';
 import GuideForm from '@/components/GuideForm';
 
 type HomeSectionBase = {
@@ -105,8 +103,6 @@ interface HomeSectionsProps {
   guideFormLabels?: GuideFormLabels;
 }
 
-type DataPathSegment = string | number | { _key: string };
-
 const inner: CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
 const sectionPadding: Record<SectionSize, string> = {
@@ -133,27 +129,11 @@ function getLightBackgroundColor(theme: SectionTheme | undefined, fallback: 'whi
   return fallback === 'light' ? '#F8F9FA' : '#ffffff';
 }
 
-function isSectionList(value: unknown): value is HomeSection[] {
-  return Array.isArray(value);
-}
-
 export default function HomeSections({ documentId, documentType, sections, guideFormLabels }: HomeSectionsProps) {
-  const dataAttribute = createDataAttribute({ id: documentId, type: documentType });
-  const optimisticSections = useOptimistic(sections, (current, action) => {
-    if (action.id !== documentId || action.type !== documentType) return current;
-    const maybeSections = (action.document as { sections?: unknown })?.sections;
-    return isSectionList(maybeSections) ? maybeSections : current;
-  });
-
-  const dataFor = (path: DataPathSegment[]) => dataAttribute(path);
-
   return (
     <>
-      {optimisticSections.map((section, index) => {
+      {sections.map((section, index) => {
         const key = section._key ?? `${section._type}-${index}`;
-        const sectionPath: DataPathSegment[] = section._key
-          ? ['sections', { _key: section._key }]
-          : ['sections', index];
 
         if (section._type === 'homeHeroSection') {
           const heroTheme = getHeroBackgroundColor(section.theme);
@@ -163,7 +143,7 @@ export default function HomeSections({ documentId, documentType, sections, guide
             <section
               key={key}
               aria-labelledby="hero-heading"
-              data-sanity={dataFor(sectionPath)}
+             
               style={{
                 backgroundColor: heroTheme,
                 padding: heroPadding[heroSize],
@@ -188,7 +168,7 @@ export default function HomeSections({ documentId, documentType, sections, guide
               <div style={{ ...inner, position: 'relative', zIndex: 1 }}>
                 <p
                   className="section-label animate-fade-in"
-                  data-sanity={dataFor([...sectionPath, 'eyebrow'])}
+                 
                   style={{
                     color: 'rgba(255,255,255,0.45)',
                     marginBottom: '28px',
@@ -201,7 +181,7 @@ export default function HomeSections({ documentId, documentType, sections, guide
                 <h1
                   id="hero-heading"
                   className="animate-fade-up"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
+                 
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(40px, 6vw, 72px)',
@@ -218,7 +198,7 @@ export default function HomeSections({ documentId, documentType, sections, guide
 
                 <p
                   className="animate-fade-up-delay-1"
-                  data-sanity={dataFor([...sectionPath, 'subtext'])}
+                 
                   style={{
                     fontSize: '20px',
                     color: 'rgba(255,255,255,0.65)',
@@ -231,7 +211,7 @@ export default function HomeSections({ documentId, documentType, sections, guide
                 </p>
 
                 <div className="animate-fade-up-delay-2">
-                  <Link href={section.ctaHref || '/contact#guide'} className="btn-ghost" data-sanity={dataFor([...sectionPath, 'ctaLabel'])}>
+                  <Link href={section.ctaHref || '/contact#guide'} className="btn-ghost">
                     {section.ctaLabel || 'Get the Free Guide'}
                   </Link>
                 </div>
@@ -248,16 +228,16 @@ export default function HomeSections({ documentId, documentType, sections, guide
             <section
               key={key}
               aria-labelledby="problem-heading"
-              data-sanity={dataFor(sectionPath)}
+             
               style={{ padding: sectionPadding[problemSize], backgroundColor: problemBackground }}
             >
               <div style={{ ...inner, maxWidth: '760px' }}>
-                <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '24px' }}>
+                <p className="section-label" style={{ marginBottom: '24px' }}>
                   {section.label || 'The Problem'}
                 </p>
                 <h2
                   id="problem-heading"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
+                 
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(30px, 4vw, 44px)',
@@ -283,13 +263,13 @@ export default function HomeSections({ documentId, documentType, sections, guide
                 />
 
                 <p
-                  data-sanity={dataFor([...sectionPath, 'body1'])}
+                 
                   style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '20px' }}
                 >
                   {section.body1}
                 </p>
                 <p
-                  data-sanity={dataFor([...sectionPath, 'body2'])}
+                 
                   style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7 }}
                 >
                   {section.body2}
@@ -309,17 +289,17 @@ export default function HomeSections({ documentId, documentType, sections, guide
             <section
               key={key}
               aria-labelledby="what-we-do-heading"
-              data-sanity={dataFor(sectionPath)}
+             
               style={{ padding: sectionPadding[whatWeDoSize], backgroundColor: whatWeDoBackground }}
             >
               <div style={inner}>
                 <div style={{ marginBottom: '56px' }}>
-                  <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '12px' }}>
+                  <p className="section-label" style={{ marginBottom: '12px' }}>
                     {section.label || 'What We Do'}
                   </p>
                   <h2
                     id="what-we-do-heading"
-                    data-sanity={dataFor([...sectionPath, 'heading'])}
+                   
                     style={{
                       fontFamily: 'var(--font-display), Georgia, serif',
                       fontSize: 'clamp(28px, 4vw, 40px)',
@@ -362,11 +342,11 @@ export default function HomeSections({ documentId, documentType, sections, guide
                     >
                       01
                     </span>
-                    <p id="card-testing-label" className="section-label" data-sanity={dataFor([...sectionPath, 'stage1Label'])} style={{ marginBottom: '16px' }}>
+                    <p id="card-testing-label" className="section-label" style={{ marginBottom: '16px' }}>
                       {section.stage1Label || 'Stage 1'}
                     </p>
                     <h3
-                      data-sanity={dataFor([...sectionPath, 'testingCardTitle'])}
+                     
                       style={{
                         fontFamily: 'var(--font-display), Georgia, serif',
                         fontSize: '22px',
@@ -380,7 +360,7 @@ export default function HomeSections({ documentId, documentType, sections, guide
                       {section.testingCardTitle}
                     </h3>
                     <p
-                      data-sanity={dataFor([...sectionPath, 'testingCardBody'])}
+                     
                       style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '24px' }}
                     >
                       {section.testingCardBody}
@@ -398,7 +378,7 @@ export default function HomeSections({ documentId, documentType, sections, guide
                         letterSpacing: '0.01em',
                       }}
                       className="card-link"
-                      data-sanity={dataFor([...sectionPath, 'cardLinkLabel'])}
+                     
                     >
                       {cardLinkLabel}
                       <span aria-hidden="true">→</span>
@@ -427,11 +407,11 @@ export default function HomeSections({ documentId, documentType, sections, guide
                     >
                       02
                     </span>
-                    <p id="card-launch-label" className="section-label" data-sanity={dataFor([...sectionPath, 'stage2Label'])} style={{ marginBottom: '16px' }}>
+                    <p id="card-launch-label" className="section-label" style={{ marginBottom: '16px' }}>
                       {section.stage2Label || 'Stage 2'}
                     </p>
                     <h3
-                      data-sanity={dataFor([...sectionPath, 'launchCardTitle'])}
+                     
                       style={{
                         fontFamily: 'var(--font-display), Georgia, serif',
                         fontSize: '22px',
@@ -445,7 +425,7 @@ export default function HomeSections({ documentId, documentType, sections, guide
                       {section.launchCardTitle}
                     </h3>
                     <p
-                      data-sanity={dataFor([...sectionPath, 'launchCardBody'])}
+                     
                       style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '24px' }}
                     >
                       {section.launchCardBody}
@@ -463,7 +443,7 @@ export default function HomeSections({ documentId, documentType, sections, guide
                         letterSpacing: '0.01em',
                       }}
                       className="card-link"
-                      data-sanity={dataFor([...sectionPath, 'cardLinkLabel'])}
+                     
                     >
                       {cardLinkLabel}
                       <span aria-hidden="true">→</span>
@@ -489,17 +469,17 @@ export default function HomeSections({ documentId, documentType, sections, guide
             <section
               key={key}
               aria-labelledby="who-heading"
-              data-sanity={dataFor(sectionPath)}
+             
               style={{ padding: sectionPadding[audienceSize], backgroundColor: audienceBackground }}
             >
               <div style={inner}>
                 <div style={{ marginBottom: '56px' }}>
-                  <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ marginBottom: '12px' }}>
+                  <p className="section-label" style={{ marginBottom: '12px' }}>
                     {section.label || "Who It's For"}
                   </p>
                   <h2
                     id="who-heading"
-                    data-sanity={dataFor([...sectionPath, 'heading'])}
+                   
                     style={{
                       fontFamily: 'var(--font-display), Georgia, serif',
                       fontSize: 'clamp(28px, 4vw, 40px)',
@@ -521,14 +501,10 @@ export default function HomeSections({ documentId, documentType, sections, guide
                   }}
                 >
                   {audiences.map((audience, audienceIndex) => {
-                    const audiencePath: DataPathSegment[] = audience._key
-                      ? [...sectionPath, 'audiences', { _key: audience._key }]
-                      : [...sectionPath, 'audiences', audienceIndex];
-
                     return (
                       <div
                         key={audience._key ?? `${audience.label}-${audienceIndex}`}
-                        data-sanity={dataFor(audiencePath)}
+                       
                         style={{
                           padding: '40px 36px',
                           borderLeft: audienceIndex === 0 ? '1px solid #E5E7EB' : 'none',
@@ -539,7 +515,7 @@ export default function HomeSections({ documentId, documentType, sections, guide
                         className="who-card"
                       >
                         <h3
-                          data-sanity={dataFor([...audiencePath, 'label'])}
+                         
                           style={{
                             fontFamily: 'var(--font-display), Georgia, serif',
                             fontSize: '22px',
@@ -552,7 +528,7 @@ export default function HomeSections({ documentId, documentType, sections, guide
                           {audience.label}
                         </h3>
                         <p
-                          data-sanity={dataFor([...audiencePath, 'copy'])}
+                         
                           style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65 }}
                         >
                           {audience.copy}
@@ -579,7 +555,7 @@ export default function HomeSections({ documentId, documentType, sections, guide
               key={key}
               aria-labelledby="guide-cta-heading"
               id="guide"
-              data-sanity={dataFor(sectionPath)}
+             
               style={{
                 padding: sectionPadding[guideSize],
                 backgroundColor: guideBackground,
@@ -607,12 +583,12 @@ export default function HomeSections({ documentId, documentType, sections, guide
               </div>
 
               <div style={{ ...inner, maxWidth: '640px', position: 'relative', zIndex: 1 }}>
-                <p className="section-label" data-sanity={dataFor([...sectionPath, 'label'])} style={{ color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>
+                <p className="section-label" style={{ color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>
                   {section.label || 'Free Resource'}
                 </p>
                 <h2
                   id="guide-cta-heading"
-                  data-sanity={dataFor([...sectionPath, 'heading'])}
+                 
                   style={{
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: 'clamp(28px, 4vw, 40px)',
@@ -626,10 +602,10 @@ export default function HomeSections({ documentId, documentType, sections, guide
                   {section.heading}
                 </h2>
                 <p
-                  data-sanity={dataFor([...sectionPath, 'body'])}
+                 
                   style={{ fontSize: '17px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.65, marginBottom: '48px' }}
                 >
-                  <strong data-sanity={dataFor([...sectionPath, 'highlightText'])} style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>
+                  <strong style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>
                     {section.highlightText || 'The 7 Most Common Product Development Mistakes — and How to Avoid Them.'}
                   </strong>{' '}
                   {section.body}

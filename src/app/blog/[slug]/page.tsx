@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
-import { draftMode } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { PortableText } from '@portabletext/react';
-import type { PortableTextBlock } from '@portabletext/types';
-import { getBlogPostBySlug, getSiteSettings } from '@/sanity/cms';
+import RichText from '@/components/cms/RichText';
+import { getBlogPostBySlug, getSiteSettings } from '@/payload/cms';
 
 type RouteParams = {
   slug: string;
@@ -15,10 +13,9 @@ export async function generateMetadata({
   params: Promise<RouteParams>;
 }): Promise<Metadata> {
   const resolvedParams = await params;
-  const { isEnabled: preview } = await draftMode();
   const [post, settings] = await Promise.all([
-    getBlogPostBySlug(resolvedParams.slug, preview),
-    getSiteSettings(preview),
+    getBlogPostBySlug(resolvedParams.slug),
+    getSiteSettings(),
   ]);
 
   if (!post) return {};
@@ -28,7 +25,7 @@ export async function generateMetadata({
   const title = seo.metaTitle || post.title || defaultSeo.metaTitle || 'Blog Post';
   const description = seo.metaDescription || post.excerpt || defaultSeo.metaDescription || '';
   const canonical = seo.canonicalUrl || `https://plenor.ai/blog/${resolvedParams.slug}`;
-  const ogImage = seo.ogImage?.asset?.url || post.coverImage?.asset?.url || defaultSeo.ogImage?.asset?.url;
+  const ogImage = seo.ogImage?.url || post.coverImage?.url || defaultSeo.ogImage?.url;
 
   return {
     title,
@@ -53,10 +50,11 @@ export default async function BlogPostPage({
   params: Promise<RouteParams>;
 }) {
   const resolvedParams = await params;
-  const { isEnabled: preview } = await draftMode();
-  const post = await getBlogPostBySlug(resolvedParams.slug, preview);
+  const post = await getBlogPostBySlug(resolvedParams.slug);
 
   if (!post) notFound();
+
+  const tags = post.tags?.map((t) => t.tag).filter(Boolean) as string[] || [];
 
   return (
     <article style={{ maxWidth: '840px', margin: '0 auto', padding: '84px 24px 96px' }}>
@@ -79,9 +77,9 @@ export default async function BlogPostPage({
         {post.readingTimeMinutes ? `· ${post.readingTimeMinutes} min read` : ''}
       </p>
 
-      {post.coverImage?.asset?.url ? (
+      {post.coverImage?.url ? (
         <img
-          src={post.coverImage.asset.url}
+          src={post.coverImage.url}
           alt={post.coverImage.alt || post.title || ''}
           style={{
             width: '100%',
@@ -93,9 +91,9 @@ export default async function BlogPostPage({
         />
       ) : null}
 
-      {Array.isArray(post.tags) && post.tags.length > 0 ? (
+      {tags.length > 0 ? (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '28px' }}>
-          {post.tags.map((tag) => (
+          {tags.map((tag) => (
             <span
               key={tag}
               style={{
@@ -121,11 +119,9 @@ export default async function BlogPostPage({
         </p>
       ) : null}
 
-      <div style={{ color: '#1F2937' }}>
-        <PortableText value={Array.isArray(post.body) ? (post.body as PortableTextBlock[]) : []} />
-      </div>
+      <RichText data={post.body as any} style={{ color: '#1F2937' }} />
 
-      {(post.resourceUrl || post.resourceFile?.asset?.url) ? (
+      {(post.resourceUrl || post.resourceFile?.url) ? (
         <div style={{ marginTop: '32px', padding: '20px', backgroundColor: '#F8F9FA', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
           <h3 style={{ fontSize: '18px', color: '#1B2D4F', marginBottom: '12px' }}>Resources</h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
@@ -139,9 +135,9 @@ export default async function BlogPostPage({
                 External Resource &rarr;
               </a>
             ) : null}
-            {post.resourceFile?.asset?.url ? (
+            {post.resourceFile?.url ? (
               <a
-                href={post.resourceFile.asset.url}
+                href={post.resourceFile.url}
                 download
                 style={{ color: '#2563EB', fontWeight: 600, textDecoration: 'none' }}
               >

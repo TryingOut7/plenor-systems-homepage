@@ -2,15 +2,12 @@ import type { Metadata } from 'next';
 import { Playfair_Display, DM_Sans } from 'next/font/google';
 import Script from 'next/script';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { VisualEditing } from 'next-sanity/visual-editing';
-import { draftMode } from 'next/headers';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CookieBanner from '@/components/CookieBanner';
 import SkipLink from '@/components/SkipLink';
-import DraftModeBanner from '@/components/DraftModeBanner';
-import { getSiteSettings } from '@/sanity/cms';
+import { getSiteSettings } from '@/payload/cms';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -64,8 +61,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { isEnabled: isDraftMode } = await draftMode();
-  const siteSettings = await getSiteSettings(isDraftMode);
+  const siteSettings = await getSiteSettings();
 
   const siteName = siteSettings?.siteName || 'Plenor Systems';
   const siteUrl = siteSettings?.siteUrl || 'https://plenor.ai';
@@ -73,12 +69,13 @@ export default async function RootLayout({
   const analyticsId = siteSettings?.analyticsId;
 
   const jsonLd = siteSettings?.jsonLd;
+  const sameAsUrls = jsonLd?.sameAs?.map((s) => s.url).filter(Boolean) as string[] | undefined;
   const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: jsonLd?.organizationName || siteName,
     url: jsonLd?.organizationUrl || siteUrl,
-    ...(jsonLd?.sameAs?.length ? { sameAs: jsonLd.sameAs } : {}),
+    ...(sameAsUrls?.length ? { sameAs: sameAsUrls } : {}),
     contactPoint: {
       '@type': 'ContactPoint',
       email: jsonLd?.organizationEmail || contactEmail,
@@ -132,8 +129,6 @@ export default async function RootLayout({
           />
         )}
         <SpeedInsights />
-        {isDraftMode && <VisualEditing />}
-        {isDraftMode && <DraftModeBanner />}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
