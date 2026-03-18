@@ -40,6 +40,11 @@ export default async function TestimonialsIndexPage() {
               <p style={{ color: '#6B7280', marginBottom: '8px' }}>
                 {[entry.role, entry.company].filter(Boolean).join(' · ')}
               </p>
+              {typeof entry.rating === 'number' && entry.rating > 0 ? (
+                <p style={{ fontSize: '14px', marginBottom: '8px', letterSpacing: '2px', color: '#D97706' }} aria-label={`Rating: ${entry.rating} out of 5`}>
+                  {'★'.repeat(entry.rating)}{'☆'.repeat(5 - entry.rating)}
+                </p>
+              ) : null}
               <p style={{ color: '#374151', margin: 0 }}>
                 {entry.quote}
               </p>

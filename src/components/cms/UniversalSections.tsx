@@ -56,6 +56,22 @@ function getLightBackgroundColor(theme?: string): string {
   return '#ffffff';
 }
 
+function isDarkTheme(theme: SectionTheme): boolean {
+  return theme === 'navy' || theme === 'charcoal' || theme === 'black';
+}
+
+function headingColor(theme: SectionTheme): string {
+  return isDarkTheme(theme) ? '#ffffff' : '#1B2D4F';
+}
+
+function bodyColor(theme: SectionTheme): string {
+  return isDarkTheme(theme) ? 'rgba(255,255,255,0.82)' : '#374151';
+}
+
+function mutedColor(theme: SectionTheme): string {
+  return isDarkTheme(theme) ? 'rgba(255,255,255,0.6)' : '#6B7280';
+}
+
 function normalizeTheme(theme: unknown): SectionTheme {
   if (theme === 'navy' || theme === 'charcoal' || theme === 'black' || theme === 'white' || theme === 'light') {
     return theme;
@@ -248,13 +264,13 @@ export default function UniversalSections({
                   fontFamily: 'var(--font-display), Georgia, serif',
                   fontSize: 'clamp(28px, 4vw, 42px)',
                   marginBottom: '24px',
-                  color: '#1B2D4F',
+                  color: headingColor(theme),
                 }}
               >
                 {String(section.heading)}
               </h2>
             ) : null}
-            <div data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'content']) : undefined} style={{ color: '#374151' }}>
+            <div data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'content']) : undefined} style={{ color: bodyColor(theme) }}>
               <PortableText value={Array.isArray(section.content) ? (section.content as PortableTextBlock[]) : []} />
             </div>
           </div>
@@ -319,7 +335,7 @@ export default function UniversalSections({
         >
           <div style={inner}>
             {section.heading ? (
-              <h2 style={{ marginBottom: '24px', color: '#1B2D4F' }} data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}>
+              <h2 style={{ marginBottom: '24px', color: headingColor(theme) }} data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}>
                 {String(section.heading)}
               </h2>
             ) : null}
@@ -361,7 +377,7 @@ export default function UniversalSections({
         >
           <div style={{ ...inner, maxWidth: '900px' }}>
             {section.heading ? (
-              <h2 style={{ marginBottom: '18px', color: '#1B2D4F' }} data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}>
+              <h2 style={{ marginBottom: '18px', color: headingColor(theme) }} data-sanity={sectionPath ? sectionDataFor([...sectionPath, 'heading']) : undefined}>
                 {String(section.heading)}
               </h2>
             ) : null}
@@ -394,7 +410,7 @@ export default function UniversalSections({
       return (
         <section key={key} data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined} style={sectionStyle}>
           <div style={inner}>
-            {section.heading ? <h2 style={{ marginBottom: '20px', color: '#1B2D4F' }}>{String(section.heading)}</h2> : null}
+            {section.heading ? <h2 style={{ marginBottom: '20px', color: headingColor(theme) }}>{String(section.heading)}</h2> : null}
             <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
                 <thead>
@@ -435,7 +451,7 @@ export default function UniversalSections({
       return (
         <section key={key} data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined} style={sectionStyle}>
           <div style={inner}>
-            {section.heading ? <h2 style={{ marginBottom: '20px', color: '#1B2D4F' }}>{String(section.heading)}</h2> : null}
+            {section.heading ? <h2 style={{ marginBottom: '20px', color: headingColor(theme) }}>{String(section.heading)}</h2> : null}
             <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '640px' }}>
                 <thead>
@@ -512,7 +528,7 @@ export default function UniversalSections({
       return (
         <section key={key} data-sanity={sectionPath ? sectionDataFor(sectionPath) : undefined} style={sectionStyle}>
           <div style={inner}>
-            {config.heading ? <h2 style={{ marginBottom: '20px', color: '#1B2D4F' }}>{config.heading}</h2> : null}
+            {config.heading ? <h2 style={{ marginBottom: '20px', color: headingColor(theme) }}>{config.heading}</h2> : null}
             {config.viewMode === 'table' ? (
               <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
@@ -529,7 +545,7 @@ export default function UniversalSections({
                       return (
                         <tr key={`${key}-table-row-${itemIndex}`}>
                           <td style={{ padding: '12px', borderBottom: '1px solid #F3F4F6' }}>
-                            <Link href={normalized.href} style={{ color: '#1B2D4F', textDecoration: 'none' }}>
+                            <Link href={normalized.href} style={{ color: headingColor(theme), textDecoration: 'none' }}>
                               {normalized.title}
                             </Link>
                           </td>
@@ -547,7 +563,7 @@ export default function UniversalSections({
                   const normalized = renderDynamicListItem(item);
                   return (
                     <li key={`${key}-list-${itemIndex}`} style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px' }}>
-                      <Link href={normalized.href} style={{ color: '#1B2D4F', fontWeight: 600, textDecoration: 'none' }}>
+                      <Link href={normalized.href} style={{ color: headingColor(theme), fontWeight: 600, textDecoration: 'none' }}>
                         {normalized.title}
                       </Link>
                       {normalized.description ? <p style={{ margin: '8px 0 0', color: '#6B7280' }}>{normalized.description}</p> : null}
@@ -561,9 +577,9 @@ export default function UniversalSections({
                   const normalized = renderDynamicListItem(item);
                   return (
                     <article key={`${key}-card-${itemIndex}`} className="feature-card">
-                      <h3 style={{ marginBottom: '8px', color: '#1B2D4F', fontSize: '22px' }}>{normalized.title}</h3>
-                      <p style={{ color: '#6B7280', marginBottom: '14px' }}>{normalized.description}</p>
-                      <Link href={normalized.href} style={{ color: '#1B2D4F', fontWeight: 600, textDecoration: 'none' }}>
+                      <h3 style={{ marginBottom: '8px', color: headingColor(theme), fontSize: '22px' }}>{normalized.title}</h3>
+                      <p style={{ color: mutedColor(theme), marginBottom: '14px' }}>{normalized.description}</p>
+                      <Link href={normalized.href} style={{ color: headingColor(theme), fontWeight: 600, textDecoration: 'none' }}>
                         Read more →
                       </Link>
                     </article>
@@ -628,7 +644,7 @@ export default function UniversalSections({
         >
           <div style={inner}>
             <h2
-              style={{ marginBottom: '16px', color: '#1B2D4F' }}
+              style={{ marginBottom: '16px', color: headingColor(theme) }}
               data-sanity={
                 sectionPath
                   ? sectionDataFor([
@@ -678,8 +694,8 @@ export default function UniversalSections({
       return (
         <section key={key} style={sectionStyle}>
           <div style={inner}>
-            <h3 style={{ marginBottom: '10px', color: '#1B2D4F' }}>{String(section.title || 'Advanced Data Block')}</h3>
-            <p style={{ color: '#6B7280', margin: 0 }}>
+            <h3 style={{ marginBottom: '10px', color: headingColor(theme) }}>{String(section.title || 'Advanced Data Block')}</h3>
+            <p style={{ color: mutedColor(theme), margin: 0 }}>
               This block stores advanced Sanity types (reference, cross-dataset reference, global document reference, geopoint, file, date, datetime).
             </p>
           </div>

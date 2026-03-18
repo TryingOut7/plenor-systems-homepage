@@ -85,6 +85,10 @@ export type BlogPost = {
     asset?: { url?: string };
     alt?: string;
   };
+  resourceUrl?: string;
+  resourceFile?: {
+    asset?: { url?: string };
+  };
 };
 
 export type ServiceItem = {
@@ -271,7 +275,9 @@ const BLOG_POST_BY_SLUG_QUERY = `
     includeInSitemap,
     ogImage{alt, asset->{url}}
   },
-  coverImage{alt, asset->{url}}
+  coverImage{alt, asset->{url}},
+  resourceUrl,
+  resourceFile{asset->{url}}
 }`;
 
 const SERVICE_ITEM_BY_SLUG_QUERY = `

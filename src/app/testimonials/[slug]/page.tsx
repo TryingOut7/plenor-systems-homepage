@@ -91,6 +91,12 @@ export default async function TestimonialPage({
           }}
         />
       ) : null}
+      {typeof item.rating === 'number' && item.rating > 0 ? (
+        <p style={{ fontSize: '20px', marginBottom: '20px', letterSpacing: '2px' }} aria-label={`Rating: ${item.rating} out of 5 stars`}>
+          {'★'.repeat(item.rating)}{'☆'.repeat(5 - item.rating)}
+        </p>
+      ) : null}
+
       {item.quote ? (
         <blockquote
           style={{
@@ -101,9 +107,32 @@ export default async function TestimonialPage({
             fontFamily: 'var(--font-display), Georgia, serif',
           }}
         >
-          “{item.quote}”
+          &ldquo;{item.quote}&rdquo;
         </blockquote>
       ) : null}
+
+      {Array.isArray(item.tags) && item.tags.length > 0 ? (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
+          {item.tags.map((tag) => (
+            <span
+              key={tag}
+              style={{
+                display: 'inline-block',
+                padding: '4px 12px',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: '#1B2D4F',
+                backgroundColor: '#F3F4F6',
+                borderRadius: '4px',
+                letterSpacing: '0.02em',
+              }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
       <div style={{ color: '#1F2937' }}>
         <PortableText value={Array.isArray(item.details) ? (item.details as PortableTextBlock[]) : []} />
       </div>

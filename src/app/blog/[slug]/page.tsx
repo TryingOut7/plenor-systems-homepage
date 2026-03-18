@@ -93,6 +93,28 @@ export default async function BlogPostPage({
         />
       ) : null}
 
+      {Array.isArray(post.tags) && post.tags.length > 0 ? (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '28px' }}>
+          {post.tags.map((tag) => (
+            <span
+              key={tag}
+              style={{
+                display: 'inline-block',
+                padding: '4px 12px',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: '#1B2D4F',
+                backgroundColor: '#F3F4F6',
+                borderRadius: '4px',
+                letterSpacing: '0.02em',
+              }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
       {post.excerpt ? (
         <p style={{ color: '#374151', fontSize: '18px', lineHeight: 1.7, marginBottom: '28px' }}>
           {post.excerpt}
@@ -102,6 +124,33 @@ export default async function BlogPostPage({
       <div style={{ color: '#1F2937' }}>
         <PortableText value={Array.isArray(post.body) ? (post.body as PortableTextBlock[]) : []} />
       </div>
+
+      {(post.resourceUrl || post.resourceFile?.asset?.url) ? (
+        <div style={{ marginTop: '32px', padding: '20px', backgroundColor: '#F8F9FA', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+          <h3 style={{ fontSize: '18px', color: '#1B2D4F', marginBottom: '12px' }}>Resources</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+            {post.resourceUrl ? (
+              <a
+                href={post.resourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#2563EB', fontWeight: 600, textDecoration: 'none' }}
+              >
+                External Resource &rarr;
+              </a>
+            ) : null}
+            {post.resourceFile?.asset?.url ? (
+              <a
+                href={post.resourceFile.asset.url}
+                download
+                style={{ color: '#2563EB', fontWeight: 600, textDecoration: 'none' }}
+              >
+                Download File &darr;
+              </a>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
     </article>
   );
 }

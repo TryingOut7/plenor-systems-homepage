@@ -38,9 +38,32 @@ export default async function BlogIndexPage() {
                 </Link>
               </h2>
               <p style={{ color: '#6B7280', marginBottom: '8px' }}>{post.excerpt}</p>
-              <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
-                {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Draft'}
-              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
+                <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
+                  {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Draft'}
+                  {post.readingTimeMinutes ? ` · ${post.readingTimeMinutes} min read` : ''}
+                </p>
+                {Array.isArray(post.tags) && post.tags.length > 0 ? (
+                  <>
+                    {post.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        style={{
+                          display: 'inline-block',
+                          padding: '2px 8px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          color: '#6B7280',
+                          backgroundColor: '#F3F4F6',
+                          borderRadius: '4px',
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </>
+                ) : null}
+              </div>
             </article>
           ))}
           {blogPosts.length === 0 ? (

@@ -7,7 +7,7 @@ export default function DraftModeBanner() {
     <div
       style={{
         position: 'fixed',
-        bottom: '24px',
+        bottom: '80px',
         right: '24px',
         zIndex: 9999,
         backgroundColor: '#1B2D4F',

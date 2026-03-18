@@ -81,6 +81,28 @@ export default async function ServiceItemPage({
         </p>
       ) : null}
 
+      {Array.isArray(item.tags) && item.tags.length > 0 ? (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
+          {item.tags.map((tag) => (
+            <span
+              key={tag}
+              style={{
+                display: 'inline-block',
+                padding: '4px 12px',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: '#1B2D4F',
+                backgroundColor: '#F3F4F6',
+                borderRadius: '4px',
+                letterSpacing: '0.02em',
+              }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
       {item.heroImage?.asset?.url ? (
         <img
           src={item.heroImage.asset.url}
