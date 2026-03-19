@@ -26,6 +26,8 @@ import { ServiceItems } from './payload/collections/ServiceItems';
 import { SitePages } from './payload/collections/SitePages';
 import { ReusableSections } from './payload/collections/ReusableSections';
 import { RedirectRules } from './payload/collections/RedirectRules';
+import { BlogPosts } from './payload/collections/BlogPosts';
+import { Testimonials } from './payload/collections/Testimonials';
 import { SiteSettings } from './payload/globals/SiteSettings';
 import { UISettings } from './payload/globals/UISettings';
 
@@ -276,7 +278,7 @@ export default buildConfig({
     },
     livePreview: {
       url: serverURL,
-      collections: ['site-pages', 'service-items'],
+      collections: ['site-pages', 'service-items', 'blog-posts', 'testimonials'],
       globals: ['site-settings', 'ui-settings'],
       breakpoints: [
         { label: 'Mobile', name: 'mobile', width: 375, height: 667 },
@@ -358,6 +360,8 @@ export default buildConfig({
     SitePages,
     ReusableSections,
     RedirectRules,
+    BlogPosts,
+    Testimonials,
   ],
   globals: [SiteSettings, UISettings],
   editor: lexicalEditor(),
@@ -395,7 +399,7 @@ export default buildConfig({
     // ── SEO Plugin ────────────────────────────────────────────────────────────
     // Adds meta title, description, and image fields to content collections
     seoPlugin({
-      collections: ['service-items', 'site-pages'],
+      collections: ['service-items', 'site-pages', 'blog-posts', 'testimonials'],
       globals: ['site-settings'],
       uploadsCollection: 'media',
       generateTitle: ({ doc }) =>
@@ -414,7 +418,7 @@ export default buildConfig({
     // ── Redirects Plugin ──────────────────────────────────────────────────────
     // Manages URL redirects from the admin panel
     redirectsPlugin({
-      collections: ['site-pages', 'service-items'],
+      collections: ['site-pages', 'service-items', 'blog-posts', 'testimonials'],
       overrides: {
         slug: 'payload-redirects',
       },
@@ -439,10 +443,12 @@ export default buildConfig({
     // ── Search Plugin ─────────────────────────────────────────────────────────
     // Indexes content for fast full-text search
     searchPlugin({
-      collections: ['service-items', 'site-pages'],
+      collections: ['service-items', 'site-pages', 'blog-posts', 'testimonials'],
       defaultPriorities: {
         'service-items': 20,
         'site-pages': 15,
+        'blog-posts': 10,
+        'testimonials': 5,
       },
     }),
 
@@ -477,6 +483,8 @@ export default buildConfig({
         { slug: 'site-pages' },
         { slug: 'reusable-sections' },
         { slug: 'redirect-rules' },
+        { slug: 'blog-posts' },
+        { slug: 'testimonials' },
         { slug: 'media' },
       ],
     }),

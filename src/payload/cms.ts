@@ -192,6 +192,43 @@ export type ServiceItem = {
   };
 };
 
+export type BlogPost = {
+  id?: string;
+  title?: string;
+  slug?: string;
+  excerpt?: string;
+  coverImage?: {
+    url?: string;
+    alt?: string;
+  };
+  body?: unknown;
+  publishedAt?: string;
+  isFeatured?: boolean;
+  readingTimeMinutes?: number;
+  tags?: Array<{ tag?: string }>;
+  resourceUrl?: string;
+  seo?: SeoFields;
+};
+
+export type Testimonial = {
+  id?: string;
+  personName?: string;
+  slug?: string;
+  role?: string;
+  company?: string;
+  quote?: string;
+  avatar?: {
+    url?: string;
+    alt?: string;
+  };
+  rating?: number;
+  details?: unknown;
+  isFeatured?: boolean;
+  publishedAt?: string;
+  tags?: Array<{ tag?: string }>;
+  seo?: SeoFields;
+};
+
 export type RedirectRule = {
   fromPath?: string;
   toPath?: string;
@@ -201,6 +238,8 @@ export type RedirectRule = {
 
 export type CollectionData = {
   serviceItems: ServiceItem[];
+  blogPosts: BlogPost[];
+  testimonials: Testimonial[];
 };
 
 export type SitemapQueryResult = {
@@ -630,26 +669,78 @@ function normalizeServiceItem(doc: Record<string, unknown>): ServiceItem {
   };
 }
 
+function normalizeBlogPost(doc: Record<string, unknown>): BlogPost {
+  return {
+    id: String(doc.id),
+    title: doc.title as string | undefined,
+    slug: doc.slug as string | undefined,
+    excerpt: doc.excerpt as string | undefined,
+    coverImage: normalizeMedia(doc.coverImage),
+    body: doc.body,
+    publishedAt: doc.publishedAt as string | undefined,
+    isFeatured: doc.isFeatured as boolean | undefined,
+    readingTimeMinutes: doc.readingTimeMinutes as number | undefined,
+    tags: doc.tags as BlogPost['tags'],
+    resourceUrl: doc.resourceUrl as string | undefined,
+    seo: normalizeSeo(doc.seo),
+  };
+}
+
+function normalizeTestimonial(doc: Record<string, unknown>): Testimonial {
+  return {
+    id: String(doc.id),
+    personName: doc.personName as string | undefined,
+    slug: doc.slug as string | undefined,
+    role: doc.role as string | undefined,
+    company: doc.company as string | undefined,
+    quote: doc.quote as string | undefined,
+    avatar: normalizeMedia(doc.avatar),
+    rating: doc.rating as number | undefined,
+    details: doc.details,
+    isFeatured: doc.isFeatured as boolean | undefined,
+    publishedAt: doc.publishedAt as string | undefined,
+    tags: doc.tags as Testimonial['tags'],
+    seo: normalizeSeo(doc.seo),
+  };
+}
+
 export const getCollectionData = cache(async function getCollectionData(): Promise<CollectionData> {
   const cached = getFromCache(collectionDataCache.entry);
   if (cached !== undefined) return cached;
-  if (shouldSkipPayload()) return setCache(collectionDataCache, { serviceItems: [] }, 10_000);
+  const emptyData: CollectionData = { serviceItems: [], blogPosts: [], testimonials: [] };
+  if (shouldSkipPayload()) return setCache(collectionDataCache, emptyData, 10_000);
 
   try {
     const payload = await getPayload();
-    const serviceResult = await payload.find({
-      collection: 'service-items',
-      sort: '-updatedAt',
-      limit: 100,
-      depth: 1,
-    });
+    const [serviceResult, blogResult, testimonialResult] = await Promise.all([
+      payload.find({
+        collection: 'service-items',
+        sort: '-updatedAt',
+        limit: 100,
+        depth: 1,
+      }),
+      payload.find({
+        collection: 'blog-posts',
+        sort: '-publishedAt',
+        limit: 100,
+        depth: 1,
+      }),
+      payload.find({
+        collection: 'testimonials',
+        sort: '-publishedAt',
+        limit: 100,
+        depth: 1,
+      }),
+    ]);
 
     return setCache(collectionDataCache, {
       serviceItems: serviceResult.docs.map((d) => normalizeServiceItem(d as unknown as Record<string, unknown>)),
+      blogPosts: blogResult.docs.map((d) => normalizeBlogPost(d as unknown as Record<string, unknown>)),
+      testimonials: testimonialResult.docs.map((d) => normalizeTestimonial(d as unknown as Record<string, unknown>)),
     });
   } catch {
     markPayloadFailure();
-    return setCache(collectionDataCache, { serviceItems: [] }, 10_000);
+    return setCache(collectionDataCache, emptyData, 10_000);
   }
 });
 
