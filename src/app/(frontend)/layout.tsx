@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
-import { Playfair_Display, DM_Sans } from 'next/font/google';
+import localFont from 'next/font/local';
 import Script from 'next/script';
 import { draftMode } from 'next/headers';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -12,16 +12,18 @@ import DraftModeBanner from '@/components/DraftModeBanner';
 import SkipLink from '@/components/SkipLink';
 import { getSiteSettings, getUISettings, type UISettings } from '@/payload/cms';
 
-const playfair = Playfair_Display({
-  subsets: ['latin'],
+const playfair = localFont({
+  src: '../../fonts/PlayfairDisplay-VariableFont_wght.ttf',
   variable: '--font-display',
   display: 'swap',
+  weight: '400 900',
 });
 
-const dmSans = DM_Sans({
-  subsets: ['latin'],
+const dmSans = localFont({
+  src: '../../fonts/DMSans-VariableFont_opsz,wght.ttf',
   variable: '--font-sans',
   display: 'swap',
+  weight: '100 1000',
 });
 
 export async function generateMetadata(): Promise<Metadata> {
