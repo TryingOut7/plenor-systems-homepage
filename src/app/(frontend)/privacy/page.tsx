@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import RichText from '@/components/cms/RichText';
+import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
 import { getSiteSettings } from '@/payload/cms';
+
+export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -47,7 +50,7 @@ export default async function PrivacyPage() {
         </p>
 
         {cmsContent ? (
-          <RichText data={cmsContent as any} style={{ color: '#6B7280', lineHeight: 1.7 }} />
+          <RichText data={cmsContent as SerializedEditorState} style={{ color: '#6B7280', lineHeight: 1.7 }} />
         ) : (
           <>
             <p style={bodyText}>

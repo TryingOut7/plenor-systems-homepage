@@ -12,17 +12,17 @@ export async function POST(req: NextRequest) {
       challenge?: string;
     };
 
-    if (!name || typeof name !== 'string' || name.trim().length === 0) {
-      return NextResponse.json({ message: 'Name is required.' }, { status: 400 });
+    if (!name || typeof name !== 'string' || name.trim().length === 0 || name.length > 200) {
+      return NextResponse.json({ message: 'Name is required (max 200 characters).' }, { status: 400 });
     }
-    if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!email || typeof email !== 'string' || email.length > 320 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ message: 'A valid email address is required.' }, { status: 400 });
     }
-    if (!company || typeof company !== 'string' || company.trim().length === 0) {
-      return NextResponse.json({ message: 'Company name is required.' }, { status: 400 });
+    if (!company || typeof company !== 'string' || company.trim().length === 0 || company.length > 300) {
+      return NextResponse.json({ message: 'Company name is required (max 300 characters).' }, { status: 400 });
     }
-    if (!challenge || typeof challenge !== 'string' || challenge.trim().length === 0) {
-      return NextResponse.json({ message: 'Please describe your product and challenge.' }, { status: 400 });
+    if (!challenge || typeof challenge !== 'string' || challenge.trim().length === 0 || challenge.length > 5000) {
+      return NextResponse.json({ message: 'Please describe your product and challenge (max 5000 characters).' }, { status: 400 });
     }
 
     const entry = {

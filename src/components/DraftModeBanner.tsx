@@ -10,8 +10,8 @@ export default function DraftModeBanner() {
         bottom: '80px',
         right: '24px',
         zIndex: 9999,
-        backgroundColor: '#1B2D4F',
-        color: '#ffffff',
+        backgroundColor: 'var(--ui-color-primary)',
+        color: 'var(--ui-color-surface)',
         padding: '12px 20px',
         borderRadius: '8px',
         fontSize: '14px',
@@ -27,7 +27,7 @@ export default function DraftModeBanner() {
       <Link
         href="/api/draft-mode/disable"
         style={{
-          color: '#ffffff',
+          color: 'var(--ui-color-surface)',
           textDecoration: 'underline',
           fontWeight: 400,
           whiteSpace: 'nowrap',

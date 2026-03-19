@@ -11,10 +11,8 @@ type NavLink = {
 
 const FALLBACK_NAV_LINKS: NavLink[] = [
   { label: 'Home', href: '/' },
-  { label: 'Blog', href: '/blog' },
   { label: 'Services', href: '/services' },
   { label: 'Pricing', href: '/pricing' },
-  { label: 'Testimonials', href: '/testimonials' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ];
@@ -26,18 +24,34 @@ type NavigationLink = {
   isVisible?: boolean;
 };
 
+type HeaderButtonConfig = {
+  _key?: string;
+  label?: string;
+  href?: string;
+  variant?: 'primary' | 'ghost';
+  isVisible?: boolean;
+};
+
+type HeaderButton = {
+  label: string;
+  href: string;
+  variant: 'primary' | 'ghost';
+};
+
 interface NavbarProps {
   siteName?: string;
   primaryCtaLabel?: string;
   primaryCtaHref?: string;
   navigationLinks?: NavigationLink[];
+  headerButtons?: HeaderButtonConfig[];
 }
 
 export default function Navbar({
   siteName = 'Plenor Systems',
-  primaryCtaLabel = 'Get the Free Guide',
-  primaryCtaHref = '/contact#guide',
+  primaryCtaLabel,
+  primaryCtaHref,
   navigationLinks,
+  headerButtons,
 }: NavbarProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -56,6 +70,30 @@ export default function Navbar({
     return normalized.length ? normalized : FALLBACK_NAV_LINKS;
   })();
 
+  const ctaButtons: HeaderButton[] = (() => {
+    const hasHeaderButtonsField = Array.isArray(headerButtons);
+    const normalized: HeaderButton[] =
+      headerButtons
+        ?.filter((button) => button?.isVisible !== false)
+        .map((button) => ({
+          label: button.label?.trim() || '',
+          href: button.href?.trim() || '',
+          variant: button.variant === 'ghost' ? 'ghost' : 'primary',
+        }))
+        .filter((button): button is HeaderButton => Boolean(button.label && button.href)) || [];
+
+    if (normalized.length) return normalized;
+    if (hasHeaderButtonsField) return [];
+
+    const legacyLabel = primaryCtaLabel?.trim();
+    const legacyHref = primaryCtaHref?.trim();
+    if (legacyLabel && legacyHref) {
+      return [{ label: legacyLabel, href: legacyHref, variant: 'primary' }];
+    }
+
+    return [];
+  })();
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -69,9 +107,9 @@ export default function Navbar({
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--ui-color-surface)',
         height: '68px',
-        borderBottom: scrolled ? '1px solid #E5E7EB' : '1px solid transparent',
+        borderBottom: scrolled ? '1px solid var(--ui-color-border)' : '1px solid transparent',
         boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.06)' : 'none',
         transition: 'box-shadow 0.3s ease, border-color 0.3s ease',
       }}
@@ -94,10 +132,10 @@ export default function Navbar({
           onClick={closeMenu}
           aria-label={`${siteName} – home`}
           style={{
-            fontFamily: 'var(--font-display), Georgia, serif',
+            fontFamily: 'var(--ui-font-display)',
             fontWeight: 700,
             fontSize: '20px',
-            color: '#1B2D4F',
+            color: 'var(--ui-color-primary)',
             textDecoration: 'none',
             letterSpacing: '-0.03em',
             flexShrink: 0,
@@ -112,7 +150,7 @@ export default function Navbar({
               width: '8px',
               height: '8px',
               borderRadius: '50%',
-              backgroundColor: '#1B2D4F',
+              backgroundColor: 'var(--ui-color-primary)',
               flexShrink: 0,
             }}
             aria-hidden="true"
@@ -145,7 +183,7 @@ export default function Navbar({
                     padding: '6px 12px',
                     fontSize: '14px',
                     fontWeight: isActive ? 600 : 400,
-                    color: isActive ? '#1B2D4F' : '#6B7280',
+                    color: isActive ? 'var(--ui-color-primary)' : 'var(--ui-color-text-muted)',
                     textDecoration: 'none',
                     transition: 'color 0.2s ease',
                     position: 'relative',
@@ -158,11 +196,20 @@ export default function Navbar({
               </li>
             );
           })}
-          <li style={{ marginLeft: '12px' }}>
-            <Link href={primaryCtaHref} onClick={closeMenu} className="btn-nav">
-              {primaryCtaLabel}
-            </Link>
-          </li>
+          {ctaButtons.map((button, index) => (
+            <li
+              key={`${button.href}-${index}`}
+              style={index === 0 ? { marginLeft: '12px' } : undefined}
+            >
+              <Link
+                href={button.href}
+                onClick={closeMenu}
+                className={button.variant === 'ghost' ? 'btn-ghost' : 'btn-nav'}
+              >
+                {button.label}
+              </Link>
+            </li>
+          ))}
         </ul>
 
         {/* Mobile hamburger */}
@@ -176,7 +223,7 @@ export default function Navbar({
             border: 'none',
             cursor: 'pointer',
             padding: '8px',
-            color: '#1B2D4F',
+            color: 'var(--ui-color-primary)',
             display: 'none',
           }}
           className="navbar-hamburger"
@@ -207,8 +254,8 @@ export default function Navbar({
             top: '68px',
             left: 0,
             right: 0,
-            backgroundColor: '#ffffff',
-            borderBottom: '1px solid #E5E7EB',
+            backgroundColor: 'var(--ui-color-surface)',
+            borderBottom: '1px solid var(--ui-color-border)',
             padding: '8px 32px 24px',
             boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
             zIndex: 50,
@@ -220,7 +267,7 @@ export default function Navbar({
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
-                <li key={link.href} style={{ borderBottom: '1px solid #F3F4F6' }}>
+                <li key={link.href} style={{ borderBottom: '1px solid var(--ui-color-border)' }}>
                   <Link
                     href={link.href}
                     onClick={closeMenu}
@@ -229,7 +276,7 @@ export default function Navbar({
                       padding: '14px 0',
                       fontSize: '16px',
                       fontWeight: isActive ? 600 : 400,
-                      color: isActive ? '#1B2D4F' : '#1A1A1A',
+                      color: isActive ? 'var(--ui-color-primary)' : 'var(--ui-color-text)',
                       textDecoration: 'none',
                     }}
                     aria-current={isActive ? 'page' : undefined}
@@ -239,11 +286,18 @@ export default function Navbar({
                 </li>
               );
             })}
-            <li style={{ marginTop: '20px' }}>
-              <Link href={primaryCtaHref} onClick={closeMenu} className="btn-primary" style={{ display: 'block', textAlign: 'center' }}>
-                {primaryCtaLabel}
-              </Link>
-            </li>
+            {ctaButtons.map((button, index) => (
+              <li key={`${button.href}-mobile-${index}`} style={index === 0 ? { marginTop: '20px' } : { marginTop: '10px' }}>
+                <Link
+                  href={button.href}
+                  onClick={closeMenu}
+                  className={button.variant === 'ghost' ? 'btn-ghost' : 'btn-primary'}
+                  style={{ display: 'block', textAlign: 'center' }}
+                >
+                  {button.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       )}
@@ -258,7 +312,7 @@ export default function Navbar({
           .navbar-desktop { display: none !important; }
           .navbar-hamburger { display: flex !important; }
         }
-        .nav-link:hover { color: #1B2D4F !important; }
+        .nav-link:hover { color: var(--ui-color-primary) !important; }
         .nav-link::after {
           content: '';
           position: absolute;
@@ -266,7 +320,7 @@ export default function Navbar({
           left: 12px;
           right: 12px;
           height: 1.5px;
-          background-color: #1B2D4F;
+          background-color: var(--ui-color-primary);
           transform: scaleX(0);
           transform-origin: left;
           transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);

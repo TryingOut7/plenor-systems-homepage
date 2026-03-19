@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+
+export const revalidate = 60;
 import UniversalSections from '@/components/cms/UniversalSections';
 import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 
@@ -64,9 +66,10 @@ export default async function CmsDynamicPage({
   const slug = buildSlug(resolvedParams);
   if (!slug) notFound();
 
-  const [page, collectionData] = await Promise.all([
+  const [page, collectionData, siteSettings] = await Promise.all([
     getSitePageBySlug(slug),
     getCollectionData(),
+    getSiteSettings(),
   ]);
 
   if (!page || !Array.isArray(page.sections) || page.sections.length === 0) {
@@ -79,6 +82,8 @@ export default async function CmsDynamicPage({
       documentType="site-pages"
       sections={page.sections}
       collections={collectionData}
+      guideFormLabels={siteSettings?.guideForm}
+      inquiryFormLabels={siteSettings?.inquiryForm}
     />
   );
 }

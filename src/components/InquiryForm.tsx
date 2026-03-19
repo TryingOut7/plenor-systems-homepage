@@ -114,9 +114,9 @@ export default function InquiryForm({
         aria-live="polite"
         style={{
           padding: '32px',
-          border: '1px solid #E5E7EB',
+          border: '1px solid var(--ui-color-border)',
           borderRadius: '8px',
-          backgroundColor: '#ffffff',
+          backgroundColor: 'var(--ui-color-surface)',
           textAlign: 'center',
           maxWidth: '480px',
           margin: '0 auto',
@@ -142,7 +142,7 @@ export default function InquiryForm({
         <p style={{ color: '#16A34A', fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>
           {successHeading}
         </p>
-        <p style={{ color: '#6B7280', fontSize: '15px' }}>
+        <p style={{ color: 'var(--ui-color-text-muted)', fontSize: '15px' }}>
           {successBody}
         </p>
       </div>
@@ -310,9 +310,9 @@ export default function InquiryForm({
         {state === 'submitting' ? submittingLabel : submitLabel}
       </button>
 
-      <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '12px', textAlign: 'center' }}>
+      <p style={{ fontSize: '12px', color: 'var(--ui-color-text-muted)', marginTop: '12px', textAlign: 'center' }}>
         {consentText}{' '}
-        <Link href="/privacy" style={{ color: '#6B7280', textDecoration: 'underline' }}>
+        <Link href="/privacy" style={{ color: 'var(--ui-color-text-muted)', textDecoration: 'underline' }}>
           Privacy Policy
         </Link>
         .

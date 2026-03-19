@@ -1,13 +1,16 @@
+import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
 import { Playfair_Display, DM_Sans } from 'next/font/google';
 import Script from 'next/script';
+import { draftMode } from 'next/headers';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CookieBanner from '@/components/CookieBanner';
+import DraftModeBanner from '@/components/DraftModeBanner';
 import SkipLink from '@/components/SkipLink';
-import { getSiteSettings } from '@/payload/cms';
+import { getSiteSettings, getUISettings, type UISettings } from '@/payload/cms';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -56,12 +59,96 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+function buildUIVariableStyles(uiSettings: UISettings | null): CSSProperties {
+  const variables: Record<string, string> = {};
+
+  const setVar = (name: string, value: unknown) => {
+    if (typeof value !== 'string') return;
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    variables[name] = trimmed;
+  };
+
+  const setPixelVar = (name: string, value: unknown) => {
+    if (typeof value !== 'number' || !Number.isFinite(value)) return;
+    variables[name] = `${value}px`;
+  };
+
+  const setNumericVar = (name: string, value: unknown) => {
+    if (typeof value !== 'number' || !Number.isFinite(value)) return;
+    variables[name] = String(value);
+  };
+
+  const colors = uiSettings?.colors;
+  setVar('--ui-color-primary', colors?.primary);
+  setVar('--ui-color-primary-hover', colors?.primaryHover);
+  setVar('--ui-color-background', colors?.background);
+  setVar('--ui-color-surface', colors?.surface);
+  setVar('--ui-color-section-alt', colors?.sectionAlt);
+  setVar('--ui-color-text', colors?.text);
+  setVar('--ui-color-text-muted', colors?.textMuted);
+  setVar('--ui-color-border', colors?.border);
+  setVar('--ui-color-link', colors?.link);
+  setVar('--ui-color-focus', colors?.focusRing);
+  setVar('--ui-color-dark-bg', colors?.navyBackground);
+  setVar('--ui-color-charcoal-bg', colors?.charcoalBackground);
+  setVar('--ui-color-black-bg', colors?.blackBackground);
+  setVar('--ui-color-dark-text', colors?.darkText);
+  setVar('--ui-color-dark-text-muted', colors?.darkTextMuted);
+  setVar('--ui-color-hero-bg', colors?.heroBackground);
+  setVar('--ui-color-hero-text', colors?.heroText);
+  setVar('--ui-color-hero-muted', colors?.heroMutedText);
+  setVar('--ui-color-footer-bg', colors?.footerBackground);
+  setVar('--ui-color-footer-text', colors?.footerText);
+  setVar('--ui-color-footer-muted', colors?.footerMutedText);
+  setVar('--ui-color-cookie-bg', colors?.cookieBackground);
+  setVar('--ui-color-cookie-text', colors?.cookieText);
+  setVar('--ui-color-cookie-link', colors?.cookieLink);
+
+  const typography = uiSettings?.typography;
+  setVar('--ui-font-body', typography?.bodyFontFamily);
+  setVar('--ui-font-display', typography?.displayFontFamily);
+  setPixelVar('--ui-font-size-base', typography?.baseFontSize);
+  setNumericVar('--ui-line-height-base', typography?.baseLineHeight);
+  setVar('--ui-heading-letter-spacing', typography?.headingLetterSpacing);
+  setVar('--ui-section-label-letter-spacing', typography?.sectionLabelLetterSpacing);
+
+  const layout = uiSettings?.layout;
+  setVar('--ui-layout-container-max-width', layout?.containerMaxWidth);
+  setVar('--ui-spacing-section-compact', layout?.sectionPaddingCompact);
+  setVar('--ui-spacing-section-regular', layout?.sectionPaddingRegular);
+  setVar('--ui-spacing-section-spacious', layout?.sectionPaddingSpacious);
+  setVar('--ui-spacing-hero-compact', layout?.heroPaddingCompact);
+  setVar('--ui-spacing-hero-regular', layout?.heroPaddingRegular);
+  setVar('--ui-spacing-hero-spacious', layout?.heroPaddingSpacious);
+  setVar('--ui-spacing-mobile-section', layout?.mobileSectionPadding);
+
+  const buttons = uiSettings?.buttons;
+  setPixelVar('--ui-button-radius', buttons?.radius);
+  setVar('--ui-button-primary-bg', buttons?.primaryBackground);
+  setVar('--ui-button-primary-bg-hover', buttons?.primaryBackgroundHover);
+  setVar('--ui-button-primary-text', buttons?.primaryText);
+  setVar('--ui-button-secondary-bg', buttons?.secondaryBackground);
+  setVar('--ui-button-secondary-bg-hover', buttons?.secondaryBackgroundHover);
+  setVar('--ui-button-secondary-text', buttons?.secondaryText);
+  setVar('--ui-button-secondary-text-hover', buttons?.secondaryTextHover);
+  setVar('--ui-button-ghost-bg', buttons?.ghostBackground);
+  setVar('--ui-button-ghost-bg-hover', buttons?.ghostBackgroundHover);
+  setVar('--ui-button-ghost-text', buttons?.ghostText);
+  setVar('--ui-button-nav-bg', buttons?.navBackground);
+  setVar('--ui-button-nav-bg-hover', buttons?.navBackgroundHover);
+  setVar('--ui-button-nav-text', buttons?.navText);
+
+  return variables as CSSProperties;
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const siteSettings = await getSiteSettings();
+  const { isEnabled: isDraftMode } = await draftMode();
+  const [siteSettings, uiSettings] = await Promise.all([getSiteSettings(), getUISettings()]);
 
   const siteName = siteSettings?.siteName || 'Plenor Systems';
   const siteUrl = siteSettings?.siteUrl || 'https://plenor.ai';
@@ -89,16 +176,18 @@ export default async function RootLayout({
     name: siteName,
     url: siteUrl,
   };
+  const uiVariableStyles = buildUIVariableStyles(uiSettings);
 
   return (
     <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
-      <body>
+      <body style={uiVariableStyles}>
         <SkipLink />
         <Navbar
           siteName={siteSettings?.siteName}
           navigationLinks={siteSettings?.navigationLinks}
           primaryCtaLabel={siteSettings?.primaryCtaLabel}
           primaryCtaHref={siteSettings?.primaryCtaHref}
+          headerButtons={siteSettings?.headerButtons}
         />
         <main id="main-content" tabIndex={-1} style={{ outline: 'none' }}>
           {children}
@@ -128,6 +217,7 @@ export default async function RootLayout({
             strategy="afterInteractive"
           />
         )}
+        {isDraftMode && <DraftModeBanner />}
         <SpeedInsights />
         <script
           type="application/ld+json"

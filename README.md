@@ -15,7 +15,7 @@ Next.js 16 marketing site for [plenor.ai](https://plenor.ai).
 Copy the environment template and fill in your values:
 
 ```bash
-cp .env.local .env.local
+cp .env.example .env.local
 ```
 
 Then run the dev server:
@@ -48,9 +48,9 @@ See `.env.local` for all required variables:
 | Route | Description |
 |---|---|
 | `/` | Home — hero, problem, services overview, guide CTA |
+| `/about` | About — team, mission, focus |
 | `/services` | Services — Testing & QA and Launch & GTM detail |
 | `/pricing` | Pricing — engagement model |
-| `/about` | About — team, mission, focus |
 | `/contact` | Contact — guide form + inquiry form |
 | `/privacy` | Privacy policy |
 
@@ -59,6 +59,21 @@ See `.env.local` for all required variables:
 ```bash
 npm run build
 ```
+
+## Seed Payload Site Pages
+
+Create the default Payload `site-pages` documents (`home`, `about`, `services`, `pricing`, `contact`):
+
+```bash
+npm run seed:site-pages
+```
+
+Notes:
+- Run this while the local dev server is running.
+- The command is safe to re-run.
+- It creates missing docs and auto-fills starter sections for any existing page that has no sections yet.
+- Auth uses `PAYLOAD_SEED_SECRET` (or falls back to `PAYLOAD_SECRET`).
+- Core marketing routes (`/`, `/about`, `/services`, `/pricing`, `/contact`) are CMS-first and read from Payload `site-pages`.
 
 ## Sanity Migrations
 

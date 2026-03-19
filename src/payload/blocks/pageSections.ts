@@ -39,6 +39,72 @@ const CtaSection: Block = {
   ],
 };
 
+const GuideFormSection: Block = {
+  slug: 'guideFormSection',
+  dbName: 'guide_form',
+  labels: { singular: 'Guide Form Section', plural: 'Guide Form Sections' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'label', type: 'text', defaultValue: 'Free resource' },
+    { name: 'heading', type: 'text', defaultValue: 'Get the free guide' },
+    {
+      name: 'highlightText',
+      type: 'textarea',
+      defaultValue: 'The 7 Most Common Product Development Mistakes — and How to Avoid Them.',
+    },
+    {
+      name: 'body',
+      type: 'textarea',
+      defaultValue:
+        'The guide covers common mistakes teams make in Testing & QA and Launch & Go-to-Market, and what to do instead.',
+    },
+  ],
+};
+
+const InquiryFormSection: Block = {
+  slug: 'inquiryFormSection',
+  dbName: 'inquiry_form',
+  labels: { singular: 'Inquiry Form Section', plural: 'Inquiry Form Sections' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'label', type: 'text', defaultValue: 'Send an inquiry' },
+    { name: 'heading', type: 'text', defaultValue: 'Send a direct inquiry' },
+    {
+      name: 'subtext',
+      type: 'textarea',
+      defaultValue:
+        'Tell us about your product, your team, and the challenge you are working through.',
+    },
+    { name: 'nextStepsLabel', type: 'text', defaultValue: 'What happens next' },
+    {
+      name: 'nextStepsBody',
+      type: 'textarea',
+      defaultValue:
+        'We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.',
+    },
+    { name: 'directEmailLabel', type: 'text', defaultValue: 'Prefer email directly?' },
+    { name: 'emailAddress', type: 'email', defaultValue: 'hello@plenor.ai' },
+    { name: 'linkedinLabel', type: 'text', defaultValue: 'Connect on LinkedIn' },
+    {
+      name: 'linkedinHref',
+      type: 'text',
+      defaultValue: 'https://www.linkedin.com/company/plenor-ai',
+    },
+  ],
+};
+
+const PrivacyNoteSection: Block = {
+  slug: 'privacyNoteSection',
+  dbName: 'privacy_note',
+  labels: { singular: 'Privacy Note Section', plural: 'Privacy Note Sections' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'label', type: 'text', defaultValue: 'By submitting this form, you agree to our' },
+    { name: 'policyLinkLabel', type: 'text', defaultValue: 'Privacy Policy' },
+    { name: 'policyLinkHref', type: 'text', defaultValue: '/privacy' },
+  ],
+};
+
 const ImageSection: Block = {
   slug: 'imageSection',
   dbName: 'img_sec',
@@ -46,6 +112,15 @@ const ImageSection: Block = {
   fields: [
     ...sectionCommonFields,
     { name: 'heading', type: 'text' },
+    {
+      name: 'displayMode',
+      type: 'select',
+      defaultValue: 'grid',
+      options: [
+        { label: 'Grid', value: 'grid' },
+        { label: 'Slideshow', value: 'slideshow' },
+      ],
+    },
     {
       name: 'images',
       type: 'array',
@@ -149,9 +224,7 @@ const DynamicListSection: Block = {
       dbName: 'dl_source',
       required: true,
       options: [
-        { label: 'Blog Posts', value: 'blogPost' },
         { label: 'Services', value: 'serviceItem' },
-        { label: 'Testimonials', value: 'testimonial' },
       ],
     },
     {
@@ -226,6 +299,9 @@ export const pageSectionBlocks: Block[] = [
   HeroSection,
   RichTextSection,
   CtaSection,
+  GuideFormSection,
+  InquiryFormSection,
+  PrivacyNoteSection,
   ImageSection,
   VideoSection,
   SimpleTableSection,

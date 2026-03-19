@@ -109,7 +109,7 @@ function getLightBackgroundColor(theme: SectionTheme | undefined, fallback: 'whi
   return fallback === 'light' ? '#F8F9FA' : '#ffffff';
 }
 
-export default function ContactSections({ documentId, documentType, sections, guideFormLabels, inquiryFormLabels }: ContactSectionsProps) {
+export default function ContactSections({ sections, guideFormLabels, inquiryFormLabels }: ContactSectionsProps) {
   return (
     <>
       {sections.map((section, index) => {

@@ -4,6 +4,7 @@ export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
   access: {
     read: () => true,
+    update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   versions: {
     max: 25,
@@ -32,14 +33,53 @@ export const SiteSettings: GlobalConfig = {
     {
       name: 'contactEmail',
       type: 'email',
+      defaultValue: 'hello@plenor.ai',
     },
     {
       name: 'primaryCtaLabel',
       type: 'text',
+      defaultValue: 'Get the Free Guide',
+      admin: {
+        description: 'Legacy single CTA label. Use Header Buttons below for flexible add/remove controls.',
+      },
     },
     {
       name: 'primaryCtaHref',
       type: 'text',
+      defaultValue: '/contact#guide',
+      admin: {
+        description: 'Legacy single CTA link. Use Header Buttons below for flexible add/remove controls.',
+      },
+    },
+    {
+      name: 'headerButtons',
+      type: 'array',
+      defaultValue: [
+        {
+          label: 'Get the Free Guide',
+          href: '/contact#guide',
+          variant: 'primary',
+          isVisible: true,
+        },
+      ],
+      admin: {
+        description:
+          'Add, remove, and hide top-right navbar buttons directly from the dashboard.',
+      },
+      fields: [
+        { name: 'label', type: 'text', required: true },
+        { name: 'href', type: 'text', required: true },
+        {
+          name: 'variant',
+          type: 'select',
+          defaultValue: 'primary',
+          options: [
+            { label: 'Primary', value: 'primary' },
+            { label: 'Ghost', value: 'ghost' },
+          ],
+        },
+        { name: 'isVisible', type: 'checkbox', defaultValue: true },
+      ],
     },
     {
       name: 'twitterHandle',
@@ -50,6 +90,13 @@ export const SiteSettings: GlobalConfig = {
     {
       name: 'navigationLinks',
       type: 'array',
+      defaultValue: [
+        { label: 'Home', href: '/', isVisible: true },
+        { label: 'Services', href: '/services', isVisible: true },
+        { label: 'Pricing', href: '/pricing', isVisible: true },
+        { label: 'About', href: '/about', isVisible: true },
+        { label: 'Contact', href: '/contact', isVisible: true },
+      ],
       fields: [
         { name: 'label', type: 'text', required: true },
         { name: 'href', type: 'text', required: true },
@@ -61,6 +108,19 @@ export const SiteSettings: GlobalConfig = {
     {
       name: 'footerColumns',
       type: 'array',
+      defaultValue: [
+        {
+          title: 'Pages',
+          links: [
+            { label: 'Home', href: '/' },
+            { label: 'Services', href: '/services' },
+            { label: 'Pricing', href: '/pricing' },
+            { label: 'About', href: '/about' },
+            { label: 'Contact', href: '/contact' },
+            { label: 'Privacy Policy', href: '/privacy' },
+          ],
+        },
+      ],
       fields: [
         { name: 'title', type: 'text', required: true },
         {
@@ -76,6 +136,9 @@ export const SiteSettings: GlobalConfig = {
     {
       name: 'socialLinks',
       type: 'array',
+      defaultValue: [
+        { label: 'LinkedIn', url: 'https://www.linkedin.com/company/plenor-ai' },
+      ],
       fields: [
         { name: 'label', type: 'text', required: true },
         { name: 'url', type: 'text', required: true },
@@ -84,14 +147,17 @@ export const SiteSettings: GlobalConfig = {
     {
       name: 'copyrightText',
       type: 'text',
+      defaultValue: '© {year} {siteName}. All rights reserved.',
     },
     {
       name: 'footerLegalLabel',
       type: 'text',
+      defaultValue: 'Cookie Notice & Privacy Policy',
     },
     {
       name: 'footerLegalHref',
       type: 'text',
+      defaultValue: '/privacy',
     },
 
     // ─── Default SEO ──────────────────────────────────────────────────────
@@ -166,11 +232,16 @@ export const SiteSettings: GlobalConfig = {
       name: 'cookieBanner',
       type: 'group',
       fields: [
-        { name: 'message', type: 'textarea' },
-        { name: 'acceptLabel', type: 'text' },
-        { name: 'declineLabel', type: 'text' },
-        { name: 'privacyLabel', type: 'text' },
-        { name: 'privacyHref', type: 'text' },
+        {
+          name: 'message',
+          type: 'textarea',
+          defaultValue:
+            'We use privacy-friendly analytics to improve this website. You can accept or decline analytics cookies.',
+        },
+        { name: 'acceptLabel', type: 'text', defaultValue: 'Accept' },
+        { name: 'declineLabel', type: 'text', defaultValue: 'Decline' },
+        { name: 'privacyLabel', type: 'text', defaultValue: 'Privacy Policy' },
+        { name: 'privacyHref', type: 'text', defaultValue: '/privacy' },
       ],
     },
 

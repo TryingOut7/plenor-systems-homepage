@@ -10,9 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${base}/`, lastModified, changeFrequency: 'monthly', priority: 1.0 },
-    { url: `${base}/blog`, lastModified, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${base}/services`, lastModified, changeFrequency: 'monthly', priority: 0.9 },
-    { url: `${base}/testimonials`, lastModified, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/pricing`, lastModified, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/about`, lastModified, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/contact`, lastModified, changeFrequency: 'monthly', priority: 0.8 },
@@ -28,14 +26,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'weekly' as const,
         priority: 0.7,
       })),
-    ...cms.blogPosts
-      .filter((post) => post.includeInSitemap !== false && post.slug)
-      .map((post) => ({
-        url: `${base}/blog/${post.slug}`,
-        lastModified: post.updatedAt ? new Date(post.updatedAt) : lastModified,
-        changeFrequency: 'weekly' as const,
-        priority: 0.7,
-      })),
     ...cms.serviceItems
       .filter((service) => service.includeInSitemap !== false && service.slug)
       .map((service) => ({
@@ -43,14 +33,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: service.updatedAt ? new Date(service.updatedAt) : lastModified,
         changeFrequency: 'monthly' as const,
         priority: 0.8,
-      })),
-    ...cms.testimonials
-      .filter((testimonial) => testimonial.includeInSitemap !== false && testimonial.slug)
-      .map((testimonial) => ({
-        url: `${base}/testimonials/${testimonial.slug}`,
-        lastModified: testimonial.updatedAt ? new Date(testimonial.updatedAt) : lastModified,
-        changeFrequency: 'monthly' as const,
-        priority: 0.6,
       })),
   ];
 

@@ -2,10 +2,8 @@ import Link from 'next/link';
 
 const FALLBACK_PAGE_LINKS = [
   { label: 'Home', href: '/' },
-  { label: 'Blog', href: '/blog' },
   { label: 'Services', href: '/services' },
   { label: 'Pricing', href: '/pricing' },
-  { label: 'Testimonials', href: '/testimonials' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
   { label: 'Privacy Policy', href: '/privacy' },
@@ -71,11 +69,11 @@ export default function Footer({
     <footer
       role="contentinfo"
       style={{
-        backgroundColor: '#1B2D4F',
+        backgroundColor: 'var(--ui-color-footer-bg)',
         padding: '64px 32px 40px',
       }}
     >
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ maxWidth: 'var(--ui-layout-container-max-width)', margin: '0 auto' }}>
 
         {/* Top row */}
         <div
@@ -93,11 +91,11 @@ export default function Footer({
             <Link
               href="/"
               style={{
-                fontFamily: 'var(--font-display), Georgia, serif',
+                fontFamily: 'var(--ui-font-display)',
                 fontWeight: 700,
                 fontSize: '20px',
                 letterSpacing: '-0.03em',
-                color: '#ffffff',
+                color: 'var(--ui-color-footer-text)',
                 textDecoration: 'none',
                 display: 'flex',
                 alignItems: 'center',
@@ -111,7 +109,7 @@ export default function Footer({
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
-                  backgroundColor: 'rgba(255,255,255,0.5)',
+                  backgroundColor: 'var(--ui-color-footer-muted)',
                   flexShrink: 0,
                 }}
                 aria-hidden="true"
@@ -120,7 +118,7 @@ export default function Footer({
             </Link>
             <p
               style={{
-                color: 'rgba(255,255,255,0.5)',
+                color: 'var(--ui-color-footer-muted)',
                 fontSize: '14px',
                 marginTop: '12px',
                 lineHeight: 1.6,
@@ -135,12 +133,12 @@ export default function Footer({
             <nav aria-label={`${column.title || 'Footer'} navigation`} key={column._key || `${column.title}-${index}`}>
               <p
                 style={{
-                  fontFamily: 'var(--font-sans), system-ui, sans-serif',
+                  fontFamily: 'var(--ui-font-body)',
                   fontSize: '10px',
                   fontWeight: 700,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.35)',
+                  color: 'var(--ui-color-footer-muted)',
                   marginBottom: '16px',
                 }}
               >
@@ -163,7 +161,7 @@ export default function Footer({
                       href={link.href || '/'}
                       style={{
                         fontSize: '14px',
-                        color: 'rgba(255,255,255,0.6)',
+                        color: 'var(--ui-color-footer-muted)',
                         textDecoration: 'none',
                         transition: 'color 0.2s ease',
                       }}
@@ -181,12 +179,12 @@ export default function Footer({
           <div>
             <p
               style={{
-                fontFamily: 'var(--font-sans), system-ui, sans-serif',
+                fontFamily: 'var(--ui-font-body)',
                 fontSize: '10px',
                 fontWeight: 700,
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.35)',
+                color: 'var(--ui-color-footer-muted)',
                 marginBottom: '16px',
               }}
             >
@@ -197,7 +195,7 @@ export default function Footer({
               style={{
                 display: 'block',
                 fontSize: '14px',
-                color: 'rgba(255,255,255,0.6)',
+                color: 'var(--ui-color-footer-muted)',
                 textDecoration: 'none',
                 marginBottom: '12px',
                 transition: 'color 0.2s ease',
@@ -219,7 +217,7 @@ export default function Footer({
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '8px',
-                      color: 'rgba(255,255,255,0.6)',
+                      color: 'var(--ui-color-footer-muted)',
                       fontSize: '14px',
                       textDecoration: 'none',
                       transition: 'color 0.2s ease',
@@ -240,7 +238,7 @@ export default function Footer({
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '8px',
-                  color: 'rgba(255,255,255,0.6)',
+                  color: 'var(--ui-color-footer-muted)',
                   fontSize: '14px',
                   textDecoration: 'none',
                   transition: 'color 0.2s ease',
@@ -256,7 +254,7 @@ export default function Footer({
         {/* Bottom bar */}
         <div
           style={{
-            borderTop: '1px solid rgba(255,255,255,0.1)',
+            borderTop: '1px solid var(--ui-color-footer-muted)',
             paddingTop: '24px',
             display: 'flex',
             flexWrap: 'wrap',
@@ -265,7 +263,7 @@ export default function Footer({
             alignItems: 'center',
           }}
         >
-          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '13px', margin: 0 }}>
+          <p style={{ color: 'var(--ui-color-footer-muted)', fontSize: '13px', margin: 0 }}>
             {(copyrightText || '© {year} {siteName}. All rights reserved.')
               .replace('{year}', String(new Date().getFullYear()))
               .replace('{siteName}', siteName)}
@@ -273,7 +271,7 @@ export default function Footer({
           <Link
             href={footerLegalHref || '/privacy'}
             style={{
-              color: 'rgba(255,255,255,0.35)',
+              color: 'var(--ui-color-footer-muted)',
               fontSize: '13px',
               textDecoration: 'underline',
               transition: 'color 0.2s ease',
@@ -286,7 +284,7 @@ export default function Footer({
       </div>
 
       <style>{`
-        .footer-link:hover { color: rgba(255,255,255,0.9) !important; }
+        .footer-link:hover { color: var(--ui-color-footer-text) !important; }
       `}</style>
     </footer>
   );

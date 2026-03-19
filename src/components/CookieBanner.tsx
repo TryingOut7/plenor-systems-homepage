@@ -21,7 +21,9 @@ export default function CookieBanner({
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(!window.localStorage.getItem('plenor_cookie_consent'));
+    const consent = window.localStorage.getItem('plenor_cookie_consent');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!consent) setVisible(true);
   }, []);
 
   function accept() {
@@ -47,8 +49,8 @@ export default function CookieBanner({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#1B2D4F',
-        color: '#ffffff',
+        backgroundColor: 'var(--ui-color-cookie-bg)',
+        color: 'var(--ui-color-cookie-text)',
         padding: '16px 24px',
         zIndex: 100,
         display: 'flex',
@@ -61,7 +63,7 @@ export default function CookieBanner({
     >
       <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.5, flex: '1 1 300px' }}>
         {message}{' '}
-        <Link href={privacyHref} style={{ color: '#93C5FD', textDecoration: 'underline' }}>
+        <Link href={privacyHref} style={{ color: 'var(--ui-color-cookie-link)', textDecoration: 'underline' }}>
           {privacyLabel}
         </Link>
       </p>
@@ -71,9 +73,9 @@ export default function CookieBanner({
           style={{
             background: 'transparent',
             border: '1.5px solid rgba(255,255,255,0.5)',
-            color: '#ffffff',
+            color: 'var(--ui-color-cookie-text)',
             padding: '8px 18px',
-            borderRadius: '6px',
+            borderRadius: 'var(--ui-button-radius)',
             cursor: 'pointer',
             fontSize: '14px',
             fontWeight: 600,
@@ -86,11 +88,11 @@ export default function CookieBanner({
         <button
           onClick={accept}
           style={{
-            background: '#ffffff',
+            background: 'var(--ui-color-surface)',
             border: 'none',
-            color: '#1B2D4F',
+            color: 'var(--ui-color-primary)',
             padding: '8px 18px',
-            borderRadius: '6px',
+            borderRadius: 'var(--ui-button-radius)',
             cursor: 'pointer',
             fontSize: '14px',
             fontWeight: 700,

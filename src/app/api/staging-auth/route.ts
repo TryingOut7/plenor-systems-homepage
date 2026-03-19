@@ -13,8 +13,10 @@ export async function POST(request: NextRequest) {
   const response = NextResponse.json({ ok: true, next: next || '/' });
   response.cookies.set('staging_auth', password, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
+    maxAge: 86400, // 24 hours
   });
 
   return response;

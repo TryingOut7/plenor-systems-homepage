@@ -129,7 +129,7 @@ function getLightBackgroundColor(theme: SectionTheme | undefined, fallback: 'whi
   return fallback === 'light' ? '#F8F9FA' : '#ffffff';
 }
 
-export default function HomeSections({ documentId, documentType, sections, guideFormLabels }: HomeSectionsProps) {
+export default function HomeSections({ sections, guideFormLabels }: HomeSectionsProps) {
   return (
     <>
       {sections.map((section, index) => {

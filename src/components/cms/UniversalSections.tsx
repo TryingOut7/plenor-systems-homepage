@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, type CSSProperties } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import RichText from './RichText';
+import GuideForm from '@/components/GuideForm';
+import InquiryForm from '@/components/InquiryForm';
 import type {
-  BlogPost,
   CollectionData,
   PageSection,
   ServiceItem,
-  Testimonial,
 } from '@/payload/cms';
 
 type SectionTheme = 'navy' | 'charcoal' | 'black' | 'white' | 'light';
@@ -19,31 +20,51 @@ interface UniversalSectionsProps {
   documentType: string;
   sections: PageSection[];
   collections: CollectionData;
+  guideFormLabels?: {
+    submitLabel?: string;
+    submittingLabel?: string;
+    successHeading?: string;
+    successBody?: string;
+    footerText?: string;
+    namePlaceholder?: string;
+    emailPlaceholder?: string;
+  };
+  inquiryFormLabels?: {
+    submitLabel?: string;
+    submittingLabel?: string;
+    successHeading?: string;
+    successBody?: string;
+    consentText?: string;
+    namePlaceholder?: string;
+    emailPlaceholder?: string;
+    companyPlaceholder?: string;
+    challengePlaceholder?: string;
+  };
 }
 
-const inner: CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
+const inner: CSSProperties = { maxWidth: 'var(--ui-layout-container-max-width)', margin: '0 auto' };
 
 const sectionPadding: Record<SectionSize, string> = {
-  compact: '72px 24px',
-  regular: '96px 24px',
-  spacious: '124px 24px',
+  compact: 'var(--ui-spacing-section-compact)',
+  regular: 'var(--ui-spacing-section-regular)',
+  spacious: 'var(--ui-spacing-section-spacious)',
 };
 
 const heroPadding: Record<SectionSize, string> = {
-  compact: '88px 24px 96px',
-  regular: '112px 24px 120px',
-  spacious: '140px 24px 148px',
+  compact: 'var(--ui-spacing-hero-compact)',
+  regular: 'var(--ui-spacing-hero-regular)',
+  spacious: 'var(--ui-spacing-hero-spacious)',
 };
 
 function getDarkBackgroundColor(theme?: string): string {
-  if (theme === 'charcoal') return '#1F2937';
-  if (theme === 'black') return '#111827';
-  return '#1B2D4F';
+  if (theme === 'charcoal') return 'var(--ui-color-charcoal-bg)';
+  if (theme === 'black') return 'var(--ui-color-black-bg)';
+  return 'var(--ui-color-dark-bg)';
 }
 
 function getLightBackgroundColor(theme?: string): string {
-  if (theme === 'light') return '#F8F9FA';
-  return '#ffffff';
+  if (theme === 'light') return 'var(--ui-color-section-alt)';
+  return 'var(--ui-color-surface)';
 }
 
 function isDarkTheme(theme: SectionTheme): boolean {
@@ -51,15 +72,15 @@ function isDarkTheme(theme: SectionTheme): boolean {
 }
 
 function headingColor(theme: SectionTheme): string {
-  return isDarkTheme(theme) ? '#ffffff' : '#1B2D4F';
+  return isDarkTheme(theme) ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)';
 }
 
 function bodyColor(theme: SectionTheme): string {
-  return isDarkTheme(theme) ? 'rgba(255,255,255,0.82)' : '#374151';
+  return isDarkTheme(theme) ? 'var(--ui-color-dark-text-muted)' : 'var(--ui-color-text-muted)';
 }
 
 function mutedColor(theme: SectionTheme): string {
-  return isDarkTheme(theme) ? 'rgba(255,255,255,0.6)' : '#6B7280';
+  return isDarkTheme(theme) ? 'var(--ui-color-dark-text-muted)' : 'var(--ui-color-text-muted)';
 }
 
 function normalizeTheme(theme: unknown): SectionTheme {
@@ -124,45 +145,24 @@ function sortItems<T extends Record<string, unknown>>(
   return sortDirection === 'asc' ? sorted : sorted.reverse();
 }
 
-function getTags(item: BlogPost | ServiceItem | Testimonial): string[] {
-  const tags = item.tags;
-  if (!Array.isArray(tags)) return [];
-  return tags.map((t) => (typeof t === 'object' && t !== null ? String((t as { tag?: string }).tag || '') : String(t))).filter(Boolean);
-}
-
-function renderDynamicListItem(item: BlogPost | ServiceItem | Testimonial, collectionType: string) {
-  if (collectionType === 'blogPost') {
-    const blog = item as BlogPost;
-    return {
-      title: blog.title || 'Untitled Post',
-      description: blog.excerpt || '',
-      href: `/blog/${blog.slug || ''}`,
-      meta: blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString() : '',
-    };
-  }
-  if (collectionType === 'serviceItem') {
-    const service = item as ServiceItem;
-    return {
-      title: service.title || 'Untitled Service',
-      description: service.summary || '',
-      href: `/services/${service.slug || ''}`,
-      meta: service.priceFrom ? `${service.currency || 'USD'} ${service.priceFrom}` : '',
-    };
-  }
-  const testimonial = item as Testimonial;
+function renderDynamicListItem(item: ServiceItem) {
+  const service = item as ServiceItem;
   return {
-    title: testimonial.personName || 'Untitled Testimonial',
-    description: testimonial.quote || '',
-    href: `/testimonials/${testimonial.slug || ''}`,
-    meta: [testimonial.role, testimonial.company].filter(Boolean).join(' · '),
+    title: service.title || 'Untitled Service',
+    description: service.summary || '',
+    href: `/services/${service.slug || ''}`,
+    meta: service.priceFrom ? `${service.currency || 'USD'} ${service.priceFrom}` : '',
   };
 }
 
 export default function UniversalSections({
   sections,
   collections,
+  guideFormLabels,
+  inquiryFormLabels,
 }: UniversalSectionsProps) {
   const [listPages, setListPages] = useState<Record<string, number>>({});
+  const [slideIndexes, setSlideIndexes] = useState<Record<string, number>>({});
 
   const renderSection = (
     section: PageSection,
@@ -186,21 +186,21 @@ export default function UniversalSections({
           style={{
             ...sectionStyle,
             padding: heroPadding[size],
-            color: '#ffffff',
+            color: 'var(--ui-color-hero-text)',
             position: 'relative',
             overflow: 'hidden',
           }}
           className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
         >
-          <div style={{ ...inner, maxWidth: '760px' }}>
+          <div style={{ ...inner, maxWidth: 'min(760px, var(--ui-layout-container-max-width))' }}>
             {typeof section.eyebrow === 'string' ? (
-              <p className="section-label" style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '20px' }}>
+              <p className="section-label" style={{ color: 'var(--ui-color-hero-muted)', marginBottom: '20px' }}>
                 {section.eyebrow}
               </p>
             ) : null}
             <h1
               style={{
-                fontFamily: 'var(--font-display), Georgia, serif',
+                fontFamily: 'var(--ui-font-display)',
                 fontSize: 'clamp(36px, 5vw, 60px)',
                 lineHeight: 1.1,
                 marginBottom: '20px',
@@ -209,7 +209,7 @@ export default function UniversalSections({
               {String(section.heading || '')}
             </h1>
             {section.subheading ? (
-              <p style={{ color: 'rgba(255,255,255,0.72)', fontSize: '18px', marginBottom: section.primaryCtaLabel ? '28px' : 0 }}>
+              <p style={{ color: 'var(--ui-color-hero-muted)', fontSize: '18px', marginBottom: section.primaryCtaLabel ? '28px' : 0 }}>
                 {String(section.subheading)}
               </p>
             ) : null}
@@ -235,7 +235,7 @@ export default function UniversalSections({
             {section.heading ? (
               <h2
                 style={{
-                  fontFamily: 'var(--font-display), Georgia, serif',
+                  fontFamily: 'var(--ui-font-display)',
                   fontSize: 'clamp(28px, 4vw, 42px)',
                   marginBottom: '24px',
                   color: headingColor(theme),
@@ -262,9 +262,9 @@ export default function UniversalSections({
             {section.heading ? (
               <h2
                 style={{
-                  fontFamily: 'var(--font-display), Georgia, serif',
+                  fontFamily: 'var(--ui-font-display)',
                   fontSize: 'clamp(26px, 4vw, 40px)',
-                  color: theme === 'white' || theme === 'light' ? '#1B2D4F' : '#ffffff',
+                  color: theme === 'white' || theme === 'light' ? 'var(--ui-color-primary)' : 'var(--ui-color-dark-text)',
                   marginBottom: '16px',
                 }}
               >
@@ -272,7 +272,7 @@ export default function UniversalSections({
               </h2>
             ) : null}
             {section.body ? (
-              <p style={{ color: theme === 'white' || theme === 'light' ? '#6B7280' : 'rgba(255,255,255,0.72)', marginBottom: section.buttonLabel ? '24px' : 0 }}>
+              <p style={{ color: theme === 'white' || theme === 'light' ? 'var(--ui-color-text-muted)' : 'var(--ui-color-dark-text-muted)', marginBottom: section.buttonLabel ? '24px' : 0 }}>
                 {String(section.body)}
               </p>
             ) : null}
@@ -289,8 +289,237 @@ export default function UniversalSections({
       );
     }
 
+    if (section.blockType === 'guideFormSection') {
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={{ ...inner, maxWidth: '860px' }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '64px',
+                alignItems: 'start',
+              }}
+            >
+              <div>
+                <p className="section-label" style={{ marginBottom: '16px' }}>
+                  {String(section.label || 'Free resource')}
+                </p>
+                <h2
+                  style={{
+                    fontFamily: 'var(--ui-font-display)',
+                    fontSize: 'clamp(24px, 3vw, 34px)',
+                    fontWeight: 700,
+                    color: headingColor(theme),
+                    letterSpacing: '-0.02em',
+                    lineHeight: 1.2,
+                    marginBottom: '20px',
+                  }}
+                >
+                  {String(section.heading || 'Get the free guide')}
+                </h2>
+                <div style={{ width: '32px', height: '3px', backgroundColor: headingColor(theme), marginBottom: '24px', borderRadius: '2px' }} aria-hidden="true" />
+                {section.highlightText ? (
+                  <p style={{ fontSize: '16px', color: bodyColor(theme), lineHeight: 1.7, marginBottom: '16px' }}>
+                    <strong style={{ color: headingColor(theme), fontWeight: 600 }}>
+                      {String(section.highlightText)}
+                    </strong>
+                  </p>
+                ) : null}
+                {section.body ? (
+                  <p style={{ fontSize: '15px', color: bodyColor(theme), lineHeight: 1.65 }}>
+                    {String(section.body)}
+                  </p>
+                ) : null}
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: 'var(--ui-color-surface)',
+                  border: '1px solid var(--ui-color-border)',
+                  borderTop: '3px solid var(--ui-color-primary)',
+                  borderRadius: 'var(--ui-button-radius)',
+                  padding: '36px',
+                }}
+              >
+                <GuideForm {...guideFormLabels} />
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'inquiryFormSection') {
+      const emailAddress = typeof section.emailAddress === 'string' && section.emailAddress.trim()
+        ? section.emailAddress.trim()
+        : 'hello@plenor.ai';
+      const linkedinHref = typeof section.linkedinHref === 'string' && section.linkedinHref.trim()
+        ? section.linkedinHref.trim()
+        : 'https://www.linkedin.com/company/plenor-ai';
+      const linkedinLabel = typeof section.linkedinLabel === 'string' && section.linkedinLabel.trim()
+        ? section.linkedinLabel.trim()
+        : 'Connect on LinkedIn';
+
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={{ ...inner, maxWidth: '860px' }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '64px',
+                alignItems: 'start',
+              }}
+            >
+              <div>
+                <p className="section-label" style={{ marginBottom: '16px' }}>
+                  {String(section.label || 'Send an inquiry')}
+                </p>
+                <h2
+                  style={{
+                    fontFamily: 'var(--ui-font-display)',
+                    fontSize: 'clamp(24px, 3vw, 34px)',
+                    fontWeight: 700,
+                    color: headingColor(theme),
+                    letterSpacing: '-0.02em',
+                    lineHeight: 1.2,
+                    marginBottom: '20px',
+                  }}
+                >
+                  {String(section.heading || 'Send a direct inquiry')}
+                </h2>
+                {section.subtext ? (
+                  <p style={{ fontSize: '15px', color: bodyColor(theme), lineHeight: 1.65, marginBottom: '32px' }}>
+                    {String(section.subtext)}
+                  </p>
+                ) : null}
+
+                <div
+                  style={{
+                    padding: '20px 24px',
+                    backgroundColor: theme === 'white' || theme === 'light' ? 'var(--ui-color-section-alt)' : 'rgba(255,255,255,0.08)',
+                    borderLeft: '3px solid var(--ui-color-primary)',
+                    borderRadius: '0 var(--ui-button-radius) var(--ui-button-radius) 0',
+                    marginBottom: '28px',
+                  }}
+                >
+                  <p
+                    style={{
+                      fontWeight: 600,
+                      fontSize: '14px',
+                      color: headingColor(theme),
+                      marginBottom: '6px',
+                    }}
+                  >
+                    {String(section.nextStepsLabel || 'What happens next')}
+                  </p>
+                  <p style={{ fontSize: '14px', color: bodyColor(theme), lineHeight: 1.6 }}>
+                    {String(
+                      section.nextStepsBody ||
+                        'We review every inquiry and respond within 2 business days.',
+                    )}
+                  </p>
+                </div>
+
+                <div>
+                  <p style={{ fontWeight: 600, fontSize: '14px', color: headingColor(theme), marginBottom: '8px' }}>
+                    {String(section.directEmailLabel || 'Prefer email directly?')}
+                  </p>
+                  <a
+                    href={`mailto:${emailAddress}`}
+                    style={{ color: headingColor(theme), fontWeight: 600, fontSize: '14px', textDecoration: 'none' }}
+                    className="text-link"
+                  >
+                    {emailAddress}
+                  </a>
+                  <span style={{ color: mutedColor(theme), margin: '0 10px' }}>|</span>
+                  <a
+                    href={linkedinHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: headingColor(theme), fontWeight: 600, fontSize: '14px', textDecoration: 'none' }}
+                    className="text-link"
+                  >
+                    {linkedinLabel}
+                  </a>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: 'var(--ui-color-surface)',
+                  border: '1px solid var(--ui-color-border)',
+                  borderTop: '3px solid var(--ui-color-primary)',
+                  borderRadius: 'var(--ui-button-radius)',
+                  padding: '36px',
+                }}
+              >
+                <InquiryForm {...inquiryFormLabels} />
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'privacyNoteSection') {
+      const policyHref = typeof section.policyLinkHref === 'string' && section.policyLinkHref.trim()
+        ? normalizePath(section.policyLinkHref.trim())
+        : '/privacy';
+
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={{ ...inner, maxWidth: '860px' }}>
+            <p style={{ color: mutedColor(theme), fontSize: '13px', margin: 0, textAlign: 'center' }}>
+              {String(section.label || 'By submitting this form, you agree to our')}{' '}
+              <Link
+                href={policyHref}
+                style={{ color: mutedColor(theme), textDecoration: 'underline' }}
+              >
+                {String(section.policyLinkLabel || 'Privacy Policy')}
+              </Link>
+              .
+            </p>
+          </div>
+        </section>
+      );
+    }
+
     if (section.blockType === 'imageSection') {
       const images = Array.isArray(section.images) ? section.images : [];
+      const displayMode = section.displayMode === 'slideshow' ? 'slideshow' : 'grid';
+      const normalizedImages = images
+        .map((imageEntry: unknown) => {
+          const img = typeof imageEntry === 'object' && imageEntry !== null
+            ? (imageEntry as Record<string, unknown>).image
+            : imageEntry;
+          const url = getImageUrl(img);
+          if (!url) return null;
+          return { url, alt: getImageAlt(img) };
+        })
+        .filter((entry): entry is { url: string; alt: string } => !!entry);
+
+      const currentIndexRaw = slideIndexes[key] ?? 0;
+      const currentIndex = normalizedImages.length
+        ? Math.max(0, Math.min(normalizedImages.length - 1, currentIndexRaw))
+        : 0;
+
       return (
         <section
           key={key}
@@ -302,25 +531,84 @@ export default function UniversalSections({
             {section.heading ? (
               <h2 style={{ marginBottom: '24px', color: headingColor(theme) }}>{String(section.heading)}</h2>
             ) : null}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-              {images.map((imageEntry: unknown, imageIndex: number) => {
-                const img = typeof imageEntry === 'object' && imageEntry !== null
-                  ? (imageEntry as Record<string, unknown>).image
-                  : imageEntry;
-                const url = getImageUrl(img);
-                const alt = getImageAlt(img);
-                return url ? (
-                  <img
+            {displayMode === 'slideshow' ? (
+              normalizedImages.length > 0 ? (
+                <div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <Image
+                      src={normalizedImages[currentIndex].url}
+                      alt={normalizedImages[currentIndex].alt}
+                      width={0}
+                      height={0}
+                      sizes="100vw"
+                      style={{ width: '100%', height: 'auto', borderRadius: '8px', border: '1px solid var(--ui-color-border)' }}
+                    />
+                  </div>
+                  {normalizedImages.length > 1 ? (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSlideIndexes((prev) => ({
+                            ...prev,
+                            [key]:
+                              (currentIndex - 1 + normalizedImages.length) % normalizedImages.length,
+                          }))
+                        }
+                        style={{
+                          border: '1px solid var(--ui-color-border)',
+                          backgroundColor: 'var(--ui-color-surface)',
+                          color: 'var(--ui-color-primary)',
+                          borderRadius: '6px',
+                          padding: '8px 12px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Previous
+                      </button>
+                      <span style={{ color: 'var(--ui-color-text-muted)', fontSize: '14px' }}>
+                        {currentIndex + 1} / {normalizedImages.length}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSlideIndexes((prev) => ({
+                            ...prev,
+                            [key]: (currentIndex + 1) % normalizedImages.length,
+                          }))
+                        }
+                        style={{
+                          border: '1px solid var(--ui-color-border)',
+                          backgroundColor: 'var(--ui-color-surface)',
+                          color: 'var(--ui-color-primary)',
+                          borderRadius: '6px',
+                          padding: '8px 12px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+                {normalizedImages.map((img, imageIndex: number) => (
+                  <Image
                     key={`${key}-img-${imageIndex}`}
-                    src={url}
-                    alt={alt}
-                    style={{ width: '100%', height: 'auto', borderRadius: '8px', border: '1px solid #E5E7EB' }}
+                    src={img.url}
+                    alt={img.alt}
+                    width={0}
+                    height={0}
+                    sizes="100vw"
+                    style={{ width: '100%', height: 'auto', borderRadius: '8px', border: '1px solid var(--ui-color-border)' }}
                   />
-                ) : null;
-              })}
-            </div>
+                ))}
+              </div>
+            )}
             {section.caption ? (
-              <p style={{ marginTop: '12px', color: '#6B7280' }}>{String(section.caption)}</p>
+              <p style={{ marginTop: '12px', color: 'var(--ui-color-text-muted)' }}>{String(section.caption)}</p>
             ) : null}
           </div>
         </section>
@@ -341,7 +629,7 @@ export default function UniversalSections({
             {section.heading ? (
               <h2 style={{ marginBottom: '18px', color: headingColor(theme) }}>{String(section.heading)}</h2>
             ) : null}
-            <div style={{ aspectRatio: '16 / 9', backgroundColor: '#111827', borderRadius: '8px', overflow: 'hidden' }}>
+            <div style={{ aspectRatio: '16 / 9', backgroundColor: 'var(--ui-color-black-bg)', borderRadius: '8px', overflow: 'hidden' }}>
               {embedUrl ? (
                 <iframe
                   src={embedUrl}
@@ -351,9 +639,9 @@ export default function UniversalSections({
                   style={{ width: '100%', height: '100%', border: 0 }}
                 />
               ) : posterUrl ? (
-                <img src={posterUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <Image src={posterUrl} alt="" width={0} height={0} sizes="100vw" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
-                <div style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF' }}>
+                <div style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--ui-color-text-muted)' }}>
                   Add an embed URL or poster image
                 </div>
               )}
@@ -370,14 +658,14 @@ export default function UniversalSections({
         <section key={key} style={sectionStyle}>
           <div style={inner}>
             {section.heading ? <h2 style={{ marginBottom: '20px', color: headingColor(theme) }}>{String(section.heading)}</h2> : null}
-            <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+            <div style={{ overflowX: 'auto', border: '1px solid var(--ui-color-border)', borderRadius: '8px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
                 <thead>
                   <tr>
                     {columns.map((column: unknown, colIndex: number) => {
                       const label = typeof column === 'object' && column !== null ? (column as Record<string, unknown>).label : column;
                       return (
-                        <th key={`${key}-col-${colIndex}`} style={{ textAlign: 'left', padding: '12px', borderBottom: '1px solid #E5E7EB', backgroundColor: '#F8F9FA' }}>
+                        <th key={`${key}-col-${colIndex}`} style={{ textAlign: 'left', padding: '12px', borderBottom: '1px solid var(--ui-color-border)', backgroundColor: 'var(--ui-color-section-alt)' }}>
                           {String(label || '')}
                         </th>
                       );
@@ -394,7 +682,7 @@ export default function UniversalSections({
                         {cells.map((cell: unknown, cellIndex: number) => {
                           const value = typeof cell === 'object' && cell !== null ? (cell as Record<string, unknown>).value : cell;
                           return (
-                            <td key={`${key}-row-${rowIndex}-cell-${cellIndex}`} style={{ padding: '12px', borderBottom: '1px solid #F3F4F6' }}>
+                            <td key={`${key}-row-${rowIndex}-cell-${cellIndex}`} style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)' }}>
                               {String(value || '')}
                             </td>
                           );
@@ -417,15 +705,15 @@ export default function UniversalSections({
         <section key={key} style={sectionStyle}>
           <div style={inner}>
             {section.heading ? <h2 style={{ marginBottom: '20px', color: headingColor(theme) }}>{String(section.heading)}</h2> : null}
-            <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+            <div style={{ overflowX: 'auto', border: '1px solid var(--ui-color-border)', borderRadius: '8px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '640px' }}>
                 <thead>
                   <tr>
-                    <th style={{ padding: '12px', textAlign: 'left', backgroundColor: '#F8F9FA' }}>Feature</th>
+                    <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)' }}>Feature</th>
                     {columns.map((column: unknown, idx: number) => {
                       const label = typeof column === 'object' && column !== null ? (column as Record<string, unknown>).label : column;
                       return (
-                        <th key={`${key}-plan-col-${idx}`} style={{ padding: '12px', textAlign: 'left', backgroundColor: '#F8F9FA' }}>
+                        <th key={`${key}-plan-col-${idx}`} style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)' }}>
                           {String(label || '')}
                         </th>
                       );
@@ -441,11 +729,11 @@ export default function UniversalSections({
                         : [];
                     return (
                       <tr key={`${key}-feature-${rowIndex}`}>
-                        <td style={{ padding: '12px', borderBottom: '1px solid #F3F4F6', fontWeight: 600 }}>{label}</td>
+                        <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)', fontWeight: 600 }}>{label}</td>
                         {values.map((value: unknown, valueIndex: number) => {
                           const v = typeof value === 'object' && value !== null ? (value as Record<string, unknown>).value : value;
                           return (
-                            <td key={`${key}-feature-${rowIndex}-value-${valueIndex}`} style={{ padding: '12px', borderBottom: '1px solid #F3F4F6' }}>
+                            <td key={`${key}-feature-${rowIndex}-value-${valueIndex}`} style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)' }}>
                               {String(v || '')}
                             </td>
                           );
@@ -463,7 +751,7 @@ export default function UniversalSections({
 
     if (section.blockType === 'dynamicListSection') {
       const config = section as PageSection & {
-        source?: 'blogPost' | 'serviceItem' | 'testimonial';
+        source?: 'serviceItem';
         viewMode?: 'cards' | 'list' | 'table';
         filterField?: string;
         filterValue?: string;
@@ -474,12 +762,7 @@ export default function UniversalSections({
         heading?: string;
       };
 
-      const sourceItems =
-        config.source === 'serviceItem'
-          ? collections.serviceItems
-          : config.source === 'testimonial'
-            ? collections.testimonials
-            : collections.blogPosts;
+      const sourceItems = collections.serviceItems;
 
       const filtered = sourceItems.filter((item) =>
         matchesFilter(item as unknown as Record<string, unknown>, config.filterField, config.filterValue)
@@ -488,7 +771,7 @@ export default function UniversalSections({
         filtered as unknown as Array<Record<string, unknown>>,
         config.sortField || 'publishedAt',
         config.sortDirection || 'desc'
-      ) as unknown as Array<BlogPost | ServiceItem | Testimonial>;
+      ) as unknown as ServiceItem[];
 
       const limit = typeof config.limit === 'number' && config.limit > 0 ? config.limit : 6;
       const totalPages = Math.max(1, Math.ceil(filteredAndSorted.length / limit));
@@ -501,27 +784,27 @@ export default function UniversalSections({
           <div style={inner}>
             {config.heading ? <h2 style={{ marginBottom: '20px', color: headingColor(theme) }}>{config.heading}</h2> : null}
             {config.viewMode === 'table' ? (
-              <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+              <div style={{ overflowX: 'auto', border: '1px solid var(--ui-color-border)', borderRadius: '8px' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
                   <thead>
                     <tr>
-                      <th style={{ padding: '12px', textAlign: 'left', backgroundColor: '#F8F9FA' }}>Title</th>
-                      <th style={{ padding: '12px', textAlign: 'left', backgroundColor: '#F8F9FA' }}>Summary</th>
-                      <th style={{ padding: '12px', textAlign: 'left', backgroundColor: '#F8F9FA' }}>Meta</th>
+                      <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)' }}>Title</th>
+                      <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)' }}>Summary</th>
+                      <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)' }}>Meta</th>
                     </tr>
                   </thead>
                   <tbody>
                     {pageItems.map((item, itemIndex) => {
-                      const normalized = renderDynamicListItem(item, config.source || 'blogPost');
+                      const normalized = renderDynamicListItem(item);
                       return (
                         <tr key={`${key}-table-row-${itemIndex}`}>
-                          <td style={{ padding: '12px', borderBottom: '1px solid #F3F4F6' }}>
+                          <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)' }}>
                             <Link href={normalized.href} style={{ color: headingColor(theme), textDecoration: 'none' }}>
                               {normalized.title}
                             </Link>
                           </td>
-                          <td style={{ padding: '12px', borderBottom: '1px solid #F3F4F6' }}>{normalized.description}</td>
-                          <td style={{ padding: '12px', borderBottom: '1px solid #F3F4F6', color: '#6B7280' }}>{normalized.meta}</td>
+                          <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)' }}>{normalized.description}</td>
+                          <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)', color: 'var(--ui-color-text-muted)' }}>{normalized.meta}</td>
                         </tr>
                       );
                     })}
@@ -531,13 +814,13 @@ export default function UniversalSections({
             ) : config.viewMode === 'list' ? (
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {pageItems.map((item, itemIndex) => {
-                  const normalized = renderDynamicListItem(item, config.source || 'blogPost');
+                  const normalized = renderDynamicListItem(item);
                   return (
-                    <li key={`${key}-list-${itemIndex}`} style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px' }}>
+                    <li key={`${key}-list-${itemIndex}`} style={{ border: '1px solid var(--ui-color-border)', borderRadius: '8px', padding: '16px' }}>
                       <Link href={normalized.href} style={{ color: headingColor(theme), fontWeight: 600, textDecoration: 'none' }}>
                         {normalized.title}
                       </Link>
-                      {normalized.description ? <p style={{ margin: '8px 0 0', color: '#6B7280' }}>{normalized.description}</p> : null}
+                      {normalized.description ? <p style={{ margin: '8px 0 0', color: 'var(--ui-color-text-muted)' }}>{normalized.description}</p> : null}
                     </li>
                   );
                 })}
@@ -545,7 +828,7 @@ export default function UniversalSections({
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                 {pageItems.map((item, itemIndex) => {
-                  const normalized = renderDynamicListItem(item, config.source || 'blogPost');
+                  const normalized = renderDynamicListItem(item);
                   return (
                     <article key={`${key}-card-${itemIndex}`} className="feature-card">
                       <h3 style={{ marginBottom: '8px', color: headingColor(theme), fontSize: '22px' }}>{normalized.title}</h3>
@@ -572,7 +855,7 @@ export default function UniversalSections({
                 >
                   Previous
                 </button>
-                <span style={{ color: '#6B7280', fontSize: '14px' }}>
+                <span style={{ color: 'var(--ui-color-text-muted)', fontSize: '14px' }}>
                   Page {currentPage} of {totalPages}
                 </span>
                 <button
@@ -622,8 +905,8 @@ export default function UniversalSections({
     if (section.blockType === 'dividerSection') {
       return (
         <div key={key} style={{ padding: '20px 24px', backgroundColor: getLightBackgroundColor(theme) }}>
-          <div style={{ ...inner, borderTop: '1px solid #E5E7EB', paddingTop: '14px' }}>
-            {section.label ? <p style={{ margin: 0, fontSize: '12px', color: '#9CA3AF' }}>{String(section.label)}</p> : null}
+          <div style={{ ...inner, borderTop: '1px solid var(--ui-color-border)', paddingTop: '14px' }}>
+            {section.label ? <p style={{ margin: 0, fontSize: '12px', color: 'var(--ui-color-text-muted)' }}>{String(section.label)}</p> : null}
           </div>
         </div>
       );

@@ -19,6 +19,11 @@ function normalizePath(path: string): string {
 }
 
 async function loadRedirectRules(): Promise<RedirectRule[]> {
+  const enableDevRedirects = process.env.ENABLE_DEV_REDIRECT_RULES === 'true';
+  if (process.env.NODE_ENV !== 'production' && !enableDevRedirects) {
+    return [];
+  }
+
   const now = Date.now();
   if (now < cacheExpiresAt) return cachedRedirects;
 
@@ -95,11 +100,11 @@ function resolveRedirectTarget(
   return toPath;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const password = process.env.STAGING_PASSWORD;
   const { pathname } = request.nextUrl;
 
-  // Skip middleware for Payload API routes to avoid self-referential fetch deadlock
+  // Skip proxy for Payload API routes to avoid self-referential fetch deadlock
   if (pathname.startsWith('/api/') && !pathname.startsWith('/api/staging-auth')) {
     return NextResponse.next();
   }

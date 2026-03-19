@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getSiteSettings } from '@/payload/cms';
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'Page Not Found',
   description: 'The page you requested could not be found.',

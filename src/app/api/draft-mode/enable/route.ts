@@ -6,6 +6,10 @@ export async function GET(request: Request) {
   const secret = searchParams.get('secret');
   const slug = searchParams.get('slug') || '/';
 
+  if (!slug.startsWith('/') || slug.startsWith('//')) {
+    return new Response('Invalid slug', { status: 400 });
+  }
+
   // Simple secret-based draft mode activation
   const expectedSecret = process.env.PAYLOAD_SECRET;
   if (!expectedSecret || secret !== expectedSecret) {

@@ -9,14 +9,9 @@ export const ReusableSections: CollectionConfig = {
   },
   access: {
     read: () => true,
-  },
-  versions: {
-    maxPerDoc: 10,
-    drafts: {
-      autosave: {
-        interval: 800,
-      },
-    },
+    create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
+    update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
+    delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   trash: true,
   enableQueryPresets: true,

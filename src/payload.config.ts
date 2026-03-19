@@ -1,6 +1,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { buildConfig } from 'payload';
+import { acceptedLanguages, type AcceptedLanguages } from '@payloadcms/translations';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,35 +16,268 @@ import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs';
 import { searchPlugin } from '@payloadcms/plugin-search';
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder';
 import { importExportPlugin } from '@payloadcms/plugin-import-export';
-import { mcpPlugin } from '@payloadcms/plugin-mcp';
 
 // ─── Email Adapters ───────────────────────────────────────────────────────────
 import { resendAdapter } from '@payloadcms/email-resend';
-import { nodemailerAdapter } from '@payloadcms/email-nodemailer';
 
 // ─── Collections & Globals ────────────────────────────────────────────────────
 import { Media } from './payload/collections/Media';
-import { BlogPosts } from './payload/collections/BlogPosts';
 import { ServiceItems } from './payload/collections/ServiceItems';
-import { Testimonials } from './payload/collections/Testimonials';
 import { SitePages } from './payload/collections/SitePages';
 import { ReusableSections } from './payload/collections/ReusableSections';
 import { RedirectRules } from './payload/collections/RedirectRules';
 import { SiteSettings } from './payload/globals/SiteSettings';
+import { UISettings } from './payload/globals/UISettings';
 
 const serverURL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
+const dbRejectUnauthorized = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true';
+const dbPushSchema = process.env.PAYLOAD_DB_PUSH === 'true';
+const enableNestedDocsPlugin = process.env.PAYLOAD_ENABLE_NESTED_DOCS === 'true';
+const adminThemeValues = ['all', 'dark', 'light'] as const;
+const adminAvatarValues = ['default', 'gravatar'] as const;
+const adminMetaOGImageValues = ['dynamic', 'off', 'static'] as const;
+const adminToastPositionValues = [
+  'bottom-center',
+  'bottom-left',
+  'bottom-right',
+  'top-center',
+  'top-left',
+  'top-right',
+] as const;
+const defaultAdminDateFormat = 'MMM d, yyyy h:mm a';
+const defaultAdminLanguage: AcceptedLanguages = 'en';
+const adminRoles = ['admin', 'editor', 'viewer'] as const;
+const contentManagerRoles = ['admin', 'editor'] as const;
+
+type AdminRole = (typeof adminRoles)[number];
+type RoutePath = `/${string}`;
+
+function parseBooleanEnv(value?: string): boolean | undefined {
+  if (!value) return undefined;
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return undefined;
+}
+
+function parseNumberEnv(value?: string): number | undefined {
+  if (!value) return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function parseEnumEnv<TValues extends readonly string[]>(
+  value: string | undefined,
+  allowedValues: TValues,
+): TValues[number] | undefined {
+  if (!value) return undefined;
+  return (allowedValues as readonly string[]).includes(value) ? (value as TValues[number]) : undefined;
+}
+
+function normalizeRoutePath(value: string | undefined, fallbackRoute: RoutePath): RoutePath {
+  if (!value) return fallbackRoute;
+  return (value.startsWith('/') ? value : `/${value}`) as RoutePath;
+}
+
+function parseCsvList(value?: string): string[] {
+  if (!value) return [];
+  return value
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+function resolveAdminFallbackLanguage(): AcceptedLanguages {
+  const envLanguage = process.env.PAYLOAD_ADMIN_FALLBACK_LANGUAGE;
+  if (!envLanguage) return defaultAdminLanguage;
+  return acceptedLanguages.includes(envLanguage as AcceptedLanguages)
+    ? (envLanguage as AcceptedLanguages)
+    : defaultAdminLanguage;
+}
+
+function resolveRole(user: unknown): AdminRole | null {
+  if (!user || typeof user !== 'object') return null;
+  const candidate = (user as Record<string, unknown>).role;
+  if (typeof candidate !== 'string') return null;
+  return adminRoles.includes(candidate as AdminRole) ? (candidate as AdminRole) : null;
+}
+
+function userHasAnyRole(req: { user?: unknown } | undefined, allowedRoles: readonly AdminRole[]): boolean {
+  const userRole = resolveRole(req?.user);
+  return !!userRole && allowedRoles.includes(userRole);
+}
+
+function withUndefinedToDefault<T>(value: T | undefined, fallback: T): T {
+  return value === undefined ? fallback : value;
+}
+
+function normalizeDatabaseConnectionString(uri?: string): string | undefined {
+  if (!uri) return uri;
+
+  try {
+    const parsed = new URL(uri);
+    const sslMode = parsed.searchParams.get('sslmode')?.toLowerCase();
+
+    // node-postgres gives URI `sslmode` precedence over `pool.ssl`.
+    // `sslmode=require` can still fail on self-signed chains in local environments.
+    // `no-verify` keeps TLS enabled while honoring rejectUnauthorized: false.
+    // Only apply this relaxation in development to avoid weakening TLS in production.
+    if (sslMode === 'require' && process.env.NODE_ENV !== 'production') {
+      parsed.searchParams.set('sslmode', 'no-verify');
+    }
+
+    return parsed.toString();
+  } catch {
+    return uri;
+  }
+}
+
+const databaseConnectionString = normalizeDatabaseConnectionString(process.env.DATABASE_URI);
+const adminTheme = parseEnumEnv(process.env.PAYLOAD_ADMIN_THEME, adminThemeValues) || 'all';
+const adminAvatar = parseEnumEnv(process.env.PAYLOAD_ADMIN_AVATAR, adminAvatarValues) || 'default';
+const adminToastDuration = parseNumberEnv(process.env.PAYLOAD_ADMIN_TOAST_DURATION_MS);
+const adminToastLimit = parseNumberEnv(process.env.PAYLOAD_ADMIN_TOAST_LIMIT);
+const adminToastExpand = parseBooleanEnv(process.env.PAYLOAD_ADMIN_TOAST_EXPAND);
+const adminToastPosition = parseEnumEnv(process.env.PAYLOAD_ADMIN_TOAST_POSITION, adminToastPositionValues);
+const adminMetaOGImageType = parseEnumEnv(
+  process.env.PAYLOAD_ADMIN_META_DEFAULT_OG_IMAGE_TYPE,
+  adminMetaOGImageValues,
+);
+const adminDateFormat = process.env.PAYLOAD_ADMIN_DATE_FORMAT || defaultAdminDateFormat;
+const adminFallbackLanguage = resolveAdminFallbackLanguage();
+const enableAutoRefresh = withUndefinedToDefault(parseBooleanEnv(process.env.PAYLOAD_ADMIN_AUTO_REFRESH), true);
+const suppressHydrationWarning = withUndefinedToDefault(
+  parseBooleanEnv(process.env.PAYLOAD_ADMIN_SUPPRESS_HYDRATION_WARNING),
+  false,
+);
+
+const shouldEnableAutoLogin =
+  process.env.NODE_ENV !== 'production' && parseBooleanEnv(process.env.PAYLOAD_ADMIN_AUTO_LOGIN) === true;
+
+const adminAutoLogin = shouldEnableAutoLogin
+  ? {
+      email: process.env.PAYLOAD_ADMIN_AUTO_LOGIN_EMAIL,
+      password: process.env.PAYLOAD_ADMIN_AUTO_LOGIN_PASSWORD,
+      username: process.env.PAYLOAD_ADMIN_AUTO_LOGIN_USERNAME,
+      prefillOnly: withUndefinedToDefault(
+        parseBooleanEnv(process.env.PAYLOAD_ADMIN_AUTO_LOGIN_PREFILL_ONLY),
+        false,
+      ),
+    }
+  : false;
+
+const timezoneEnvList = parseCsvList(process.env.PAYLOAD_ADMIN_TIMEZONES);
+const includeUTCByDefault = withUndefinedToDefault(
+  parseBooleanEnv(process.env.PAYLOAD_ADMIN_INCLUDE_UTC_TIMEZONE),
+  true,
+);
+const timezoneOverrides = new Set<string>(timezoneEnvList);
+
+if (includeUTCByDefault) {
+  timezoneOverrides.add('UTC');
+}
+
+const defaultTimezone =
+  process.env.PAYLOAD_ADMIN_DEFAULT_TIMEZONE ||
+  (timezoneOverrides.has('UTC') ? 'UTC' : undefined);
+
+const adminTimezones =
+  timezoneOverrides.size > 0 || defaultTimezone
+    ? {
+        supportedTimezones: ({
+          defaultTimezones,
+        }: {
+          defaultTimezones: Array<{ label: string; value: string }>;
+        }) => {
+          const merged = [...defaultTimezones];
+          for (const timezone of timezoneOverrides) {
+            if (!merged.some((entry) => entry.value === timezone)) {
+              merged.push({ label: timezone, value: timezone });
+            }
+          }
+          return merged;
+        },
+        ...(defaultTimezone ? { defaultTimezone } : {}),
+      }
+    : undefined;
+
+const rootRoutes = {
+  admin: normalizeRoutePath(process.env.PAYLOAD_ROUTE_ADMIN, '/admin'),
+  api: normalizeRoutePath(process.env.PAYLOAD_ROUTE_API, '/api'),
+  graphQL: normalizeRoutePath(process.env.PAYLOAD_ROUTE_GRAPHQL, '/graphql'),
+  graphQLPlayground: normalizeRoutePath(
+    process.env.PAYLOAD_ROUTE_GRAPHQL_PLAYGROUND,
+    '/graphql-playground',
+  ),
+};
+
+const adminRoutes = {
+  account: normalizeRoutePath(process.env.PAYLOAD_ADMIN_ROUTE_ACCOUNT, '/account'),
+  browseByFolder: normalizeRoutePath(
+    process.env.PAYLOAD_ADMIN_ROUTE_BROWSE_BY_FOLDER,
+    '/browse-by-folder',
+  ),
+  createFirstUser: normalizeRoutePath(
+    process.env.PAYLOAD_ADMIN_ROUTE_CREATE_FIRST_USER,
+    '/create-first-user',
+  ),
+  forgot: normalizeRoutePath(process.env.PAYLOAD_ADMIN_ROUTE_FORGOT, '/forgot'),
+  inactivity: normalizeRoutePath(process.env.PAYLOAD_ADMIN_ROUTE_INACTIVITY, '/logout-inactivity'),
+  login: normalizeRoutePath(process.env.PAYLOAD_ADMIN_ROUTE_LOGIN, '/login'),
+  logout: normalizeRoutePath(process.env.PAYLOAD_ADMIN_ROUTE_LOGOUT, '/logout'),
+  reset: normalizeRoutePath(process.env.PAYLOAD_ADMIN_ROUTE_RESET, '/reset'),
+  unauthorized: normalizeRoutePath(process.env.PAYLOAD_ADMIN_ROUTE_UNAUTHORIZED, '/unauthorized'),
+};
+
+const adminMeta = {
+  titleSuffix: process.env.PAYLOAD_ADMIN_META_TITLE_SUFFIX || ' | Plenor CMS',
+  ...(adminMetaOGImageType ? { defaultOGImageType: adminMetaOGImageType } : {}),
+};
+
+const adminCustom = {
+  projectName: process.env.PAYLOAD_ADMIN_PROJECT_NAME || 'Plenor Systems',
+  environmentLabel:
+    process.env.PAYLOAD_ADMIN_ENV_LABEL || process.env.VERCEL_ENV || process.env.NODE_ENV || 'development',
+};
+
+const adminToast =
+  adminToastDuration !== undefined ||
+  adminToastLimit !== undefined ||
+  adminToastExpand !== undefined ||
+  adminToastPosition !== undefined
+    ? {
+        ...(adminToastDuration !== undefined ? { duration: adminToastDuration } : {}),
+        ...(adminToastLimit !== undefined ? { limit: adminToastLimit } : {}),
+        ...(adminToastExpand !== undefined ? { expand: adminToastExpand } : {}),
+        ...(adminToastPosition !== undefined ? { position: adminToastPosition } : {}),
+      }
+    : undefined;
 
 export default buildConfig({
   serverURL,
+  routes: rootRoutes,
+  i18n: {
+    fallbackLanguage: adminFallbackLanguage,
+  },
   admin: {
     user: 'users',
+    avatar: adminAvatar,
+    autoLogin: adminAutoLogin,
+    autoRefresh: enableAutoRefresh,
+    custom: adminCustom,
+    dateFormat: adminDateFormat,
+    meta: adminMeta,
+    routes: adminRoutes,
+    suppressHydrationWarning,
+    theme: adminTheme,
+    timezones: adminTimezones,
+    ...(adminToast ? { toast: adminToast } : {}),
     importMap: {
       baseDir: path.resolve(__dirname),
     },
     livePreview: {
       url: serverURL,
-      collections: ['site-pages', 'blog-posts', 'service-items', 'testimonials'],
-      globals: ['site-settings'],
+      collections: ['site-pages', 'service-items'],
+      globals: ['site-settings', 'ui-settings'],
       breakpoints: [
         { label: 'Mobile', name: 'mobile', width: 375, height: 667 },
         { label: 'Tablet', name: 'tablet', width: 768, height: 1024 },
@@ -61,22 +295,20 @@ export default buildConfig({
   queryPresets: {
     access: {
       read: () => true,
-      create: ({ req }) => !!req.user,
-      update: ({ req }) => !!req.user,
-      delete: ({ req }) => !!req.user,
+      create: ({ req }) => userHasAnyRole(req, contentManagerRoles),
+      update: ({ req }) => userHasAnyRole(req, contentManagerRoles),
+      delete: ({ req }) => userHasAnyRole(req, contentManagerRoles),
     },
     constraints: {
-      read: [
-        { label: 'Everyone', value: 'everyone', access: () => true },
-      ],
+      read: [],
     },
   },
 
   // ─── Jobs Queue ───────────────────────────────────────────────────────────
   jobs: {
     access: {
-      queue: ({ req }) => !!req.user,
-      run: ({ req }) => !!req.user,
+      queue: ({ req }) => userHasAnyRole(req, contentManagerRoles),
+      run: ({ req }) => userHasAnyRole(req, contentManagerRoles),
     },
     tasks: [],
     workflows: [],
@@ -94,7 +326,8 @@ export default buildConfig({
         verify: false,
       },
       access: {
-        read: () => true,
+        admin: ({ req }) => userHasAnyRole(req, adminRoles),
+        read: ({ req }) => !!req.user,
       },
       admin: {
         useAsTitle: 'email',
@@ -121,20 +354,18 @@ export default buildConfig({
       ],
     },
     Media,
-    BlogPosts,
     ServiceItems,
-    Testimonials,
     SitePages,
     ReusableSections,
     RedirectRules,
   ],
-  globals: [SiteSettings],
+  globals: [SiteSettings, UISettings],
   editor: lexicalEditor(),
   db: postgresAdapter({
-    push: true,
+    push: dbPushSchema,
     pool: {
-      connectionString: process.env.DATABASE_URI,
-      ssl: { rejectUnauthorized: false },
+      connectionString: databaseConnectionString,
+      ssl: { rejectUnauthorized: dbRejectUnauthorized },
     },
   }),
   secret: process.env.PAYLOAD_SECRET || 'payload-dev-secret-change-in-production',
@@ -164,21 +395,17 @@ export default buildConfig({
     // ── SEO Plugin ────────────────────────────────────────────────────────────
     // Adds meta title, description, and image fields to content collections
     seoPlugin({
-      collections: ['blog-posts', 'service-items', 'testimonials', 'site-pages'],
+      collections: ['service-items', 'site-pages'],
       globals: ['site-settings'],
       uploadsCollection: 'media',
       generateTitle: ({ doc }) =>
         `${(doc as Record<string, unknown>)?.title || 'Untitled'} | Plenor Systems`,
       generateDescription: ({ doc }) =>
-        (doc as Record<string, unknown>)?.excerpt as string ||
         (doc as Record<string, unknown>)?.summary as string ||
-        (doc as Record<string, unknown>)?.quote as string ||
         '',
       generateURL: ({ doc, collectionSlug }) => {
         const slug = (doc as Record<string, unknown>)?.slug as string || '';
-        if (collectionSlug === 'blog-posts') return `${serverURL}/blog/${slug}`;
         if (collectionSlug === 'service-items') return `${serverURL}/services/${slug}`;
-        if (collectionSlug === 'testimonials') return `${serverURL}/testimonials/${slug}`;
         if (collectionSlug === 'site-pages') return `${serverURL}/${slug}`;
         return `${serverURL}`;
       },
@@ -187,32 +414,34 @@ export default buildConfig({
     // ── Redirects Plugin ──────────────────────────────────────────────────────
     // Manages URL redirects from the admin panel
     redirectsPlugin({
-      collections: ['site-pages', 'blog-posts', 'service-items'],
+      collections: ['site-pages', 'service-items'],
       overrides: {
         slug: 'payload-redirects',
       },
     }),
 
-    // ── Nested Docs Plugin ────────────────────────────────────────────────────
-    // Enables parent/child hierarchical relationships and breadcrumbs
-    nestedDocsPlugin({
-      collections: ['site-pages'],
-      generateLabel: (_, doc) => (doc as Record<string, unknown>)?.title as string || 'Untitled',
-      generateURL: (docs) =>
-        docs.reduce(
-          (url, doc) => `${url}/${(doc as Record<string, unknown>)?.slug || ''}`,
-          '',
-        ),
-    }),
+    ...(enableNestedDocsPlugin
+      ? [
+          // ── Nested Docs Plugin ──────────────────────────────────────────────────
+          // Enables parent/child hierarchical relationships and breadcrumbs
+          nestedDocsPlugin({
+            collections: ['site-pages'],
+            generateLabel: (_, doc) => (doc as Record<string, unknown>)?.title as string || 'Untitled',
+            generateURL: (docs) =>
+              docs.reduce(
+                (url, doc) => `${url}/${(doc as Record<string, unknown>)?.slug || ''}`,
+                '',
+              ),
+          }),
+        ]
+      : []),
 
     // ── Search Plugin ─────────────────────────────────────────────────────────
     // Indexes content for fast full-text search
     searchPlugin({
-      collections: ['blog-posts', 'service-items', 'testimonials', 'site-pages'],
+      collections: ['service-items', 'site-pages'],
       defaultPriorities: {
-        'blog-posts': 10,
         'service-items': 20,
-        'testimonials': 5,
         'site-pages': 15,
       },
     }),
@@ -244,9 +473,7 @@ export default buildConfig({
     // Import and export collection data as CSV or JSON
     importExportPlugin({
       collections: [
-        { slug: 'blog-posts' },
         { slug: 'service-items' },
-        { slug: 'testimonials' },
         { slug: 'site-pages' },
         { slug: 'reusable-sections' },
         { slug: 'redirect-rules' },
@@ -254,8 +481,5 @@ export default buildConfig({
       ],
     }),
 
-    // ── MCP Plugin (AI Integration) ───────────────────────────────────────────
-    // Model Context Protocol for AI assistant integration
-    mcpPlugin({}),
   ],
 });

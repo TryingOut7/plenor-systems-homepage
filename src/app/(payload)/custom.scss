@@ -1,1 +1,18 @@
+@import url('@payloadcms/next/css');
+
 /* Add custom admin panel styles here */
+
+.admin-environment-badge {
+  align-items: center;
+  background: linear-gradient(135deg, #0b3a63, #0f5a95);
+  border-radius: 999px;
+  color: #f4fbff;
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  margin-right: 0.5rem;
+  padding: 0.4rem 0.7rem;
+  text-transform: uppercase;
+}

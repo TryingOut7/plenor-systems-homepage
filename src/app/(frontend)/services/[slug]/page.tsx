@@ -1,7 +1,11 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import Image from 'next/image';
 import RichText from '@/components/cms/RichText';
+import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
 import { getServiceItemBySlug, getSiteSettings } from '@/payload/cms';
+
+export const revalidate = 60;
 
 type RouteParams = {
   slug: string;
@@ -102,9 +106,12 @@ export default async function ServiceItemPage({
       ) : null}
 
       {item.heroImage?.url ? (
-        <img
+        <Image
           src={item.heroImage.url}
           alt={item.heroImage.alt || item.title || ''}
+          width={0}
+          height={0}
+          sizes="100vw"
           style={{
             width: '100%',
             height: 'auto',
@@ -115,7 +122,7 @@ export default async function ServiceItemPage({
         />
       ) : null}
 
-      <RichText data={item.body as any} style={{ color: '#1F2937' }} />
+      <RichText data={item.body as SerializedEditorState} style={{ color: '#1F2937' }} />
     </article>
   );
 }
