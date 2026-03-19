@@ -7,9 +7,11 @@ import RichText from './RichText';
 import GuideForm from '@/components/GuideForm';
 import InquiryForm from '@/components/InquiryForm';
 import type {
+  BlogPost,
   CollectionData,
   PageSection,
   ServiceItem,
+  Testimonial,
 } from '@/payload/cms';
 
 type SectionTheme = 'navy' | 'charcoal' | 'black' | 'white' | 'light';
@@ -145,7 +147,25 @@ function sortItems<T extends Record<string, unknown>>(
   return sortDirection === 'asc' ? sorted : sorted.reverse();
 }
 
-function renderDynamicListItem(item: ServiceItem) {
+function renderDynamicListItem(item: ServiceItem | BlogPost | Testimonial, source: string) {
+  if (source === 'blogPost') {
+    const post = item as BlogPost;
+    return {
+      title: post.title || 'Untitled Post',
+      description: post.excerpt || '',
+      href: `/blog/${post.slug || ''}`,
+      meta: post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : '',
+    };
+  }
+  if (source === 'testimonial') {
+    const testimonial = item as Testimonial;
+    return {
+      title: testimonial.personName || 'Anonymous',
+      description: testimonial.quote || '',
+      href: '#',
+      meta: [testimonial.role, testimonial.company].filter(Boolean).join(', '),
+    };
+  }
   const service = item as ServiceItem;
   return {
     title: service.title || 'Untitled Service',
@@ -751,7 +771,7 @@ export default function UniversalSections({
 
     if (section.blockType === 'dynamicListSection') {
       const config = section as PageSection & {
-        source?: 'serviceItem';
+        source?: 'serviceItem' | 'blogPost' | 'testimonial';
         viewMode?: 'cards' | 'list' | 'table';
         filterField?: string;
         filterValue?: string;
@@ -762,7 +782,12 @@ export default function UniversalSections({
         heading?: string;
       };
 
-      const sourceItems = collections.serviceItems;
+      const sourceItems: Array<ServiceItem | BlogPost | Testimonial> =
+        config.source === 'blogPost'
+          ? collections.blogPosts
+          : config.source === 'testimonial'
+            ? collections.testimonials
+            : collections.serviceItems;
 
       const filtered = sourceItems.filter((item) =>
         matchesFilter(item as unknown as Record<string, unknown>, config.filterField, config.filterValue)
@@ -771,7 +796,7 @@ export default function UniversalSections({
         filtered as unknown as Array<Record<string, unknown>>,
         config.sortField || 'publishedAt',
         config.sortDirection || 'desc'
-      ) as unknown as ServiceItem[];
+      ) as unknown as Array<ServiceItem | BlogPost | Testimonial>;
 
       const limit = typeof config.limit === 'number' && config.limit > 0 ? config.limit : 6;
       const totalPages = Math.max(1, Math.ceil(filteredAndSorted.length / limit));
@@ -795,7 +820,7 @@ export default function UniversalSections({
                   </thead>
                   <tbody>
                     {pageItems.map((item, itemIndex) => {
-                      const normalized = renderDynamicListItem(item);
+                      const normalized = renderDynamicListItem(item, config.source || 'serviceItem');
                       return (
                         <tr key={`${key}-table-row-${itemIndex}`}>
                           <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)' }}>
@@ -814,7 +839,7 @@ export default function UniversalSections({
             ) : config.viewMode === 'list' ? (
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {pageItems.map((item, itemIndex) => {
-                  const normalized = renderDynamicListItem(item);
+                  const normalized = renderDynamicListItem(item, config.source || 'serviceItem');
                   return (
                     <li key={`${key}-list-${itemIndex}`} style={{ border: '1px solid var(--ui-color-border)', borderRadius: '8px', padding: '16px' }}>
                       <Link href={normalized.href} style={{ color: headingColor(theme), fontWeight: 600, textDecoration: 'none' }}>
@@ -828,7 +853,7 @@ export default function UniversalSections({
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                 {pageItems.map((item, itemIndex) => {
-                  const normalized = renderDynamicListItem(item);
+                  const normalized = renderDynamicListItem(item, config.source || 'serviceItem');
                   return (
                     <article key={`${key}-card-${itemIndex}`} className="feature-card">
                       <h3 style={{ marginBottom: '8px', color: headingColor(theme), fontSize: '22px' }}>{normalized.title}</h3>

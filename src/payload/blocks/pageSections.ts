@@ -225,6 +225,8 @@ const DynamicListSection: Block = {
       required: true,
       options: [
         { label: 'Services', value: 'serviceItem' },
+        { label: 'Blog Posts', value: 'blogPost' },
+        { label: 'Testimonials', value: 'testimonial' },
       ],
     },
     {
