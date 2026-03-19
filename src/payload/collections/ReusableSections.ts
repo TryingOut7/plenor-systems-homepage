@@ -3,6 +3,7 @@ import { pageSectionBlocks } from '../blocks/pageSections';
 
 export const ReusableSections: CollectionConfig = {
   slug: 'reusable-sections',
+  dbName: 'reuse_sec',
   admin: {
     useAsTitle: 'title',
   },

@@ -27,10 +27,14 @@ async function loadRedirectRules(): Promise<RedirectRule[]> {
 
   try {
     const url = `${baseUrl}/api/redirect-rules?where[enabled][equals]=true&limit=500`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
     const response = await fetch(url, {
       method: 'GET',
       cache: 'no-store',
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
     if (!response.ok) {
       cachedRedirects = [];
       cacheExpiresAt = now + 30_000;
@@ -94,6 +98,11 @@ function resolveRedirectTarget(
 export async function middleware(request: NextRequest) {
   const password = process.env.STAGING_PASSWORD;
   const { pathname } = request.nextUrl;
+
+  // Skip middleware for Payload API routes to avoid self-referential fetch deadlock
+  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/staging-auth')) {
+    return NextResponse.next();
+  }
 
   if (password) {
     // Always allow the login page, its auth API route, the Payload admin panel, and API routes

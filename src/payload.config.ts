@@ -15,15 +15,7 @@ import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs';
 import { searchPlugin } from '@payloadcms/plugin-search';
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder';
 import { importExportPlugin } from '@payloadcms/plugin-import-export';
-import { stripePlugin } from '@payloadcms/plugin-stripe';
-import { sentryPlugin } from '@payloadcms/plugin-sentry';
-import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant';
 import { mcpPlugin } from '@payloadcms/plugin-mcp';
-import { ecommercePlugin } from '@payloadcms/plugin-ecommerce';
-
-// ─── Storage Adapters ─────────────────────────────────────────────────────────
-import { s3Storage } from '@payloadcms/storage-s3';
-import { uploadthingStorage } from '@payloadcms/storage-uploadthing';
 
 // ─── Email Adapters ───────────────────────────────────────────────────────────
 import { resendAdapter } from '@payloadcms/email-resend';
@@ -139,8 +131,10 @@ export default buildConfig({
   globals: [SiteSettings],
   editor: lexicalEditor(),
   db: postgresAdapter({
+    push: true,
     pool: {
       connectionString: process.env.DATABASE_URI,
+      ssl: { rejectUnauthorized: false },
     },
   }),
   secret: process.env.PAYLOAD_SECRET || 'payload-dev-secret-change-in-production',
@@ -260,85 +254,8 @@ export default buildConfig({
       ],
     }),
 
-    // ── Stripe Plugin ─────────────────────────────────────────────────────────
-    // Stripe integration with webhook support and two-way data syncing
-    stripePlugin({
-      stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
-      stripeWebhooksEndpointSecret: process.env.STRIPE_WEBHOOKS_ENDPOINT_SECRET || '',
-      isTestKey: !process.env.STRIPE_SECRET_KEY?.startsWith('sk_live'),
-      logs: true,
-      sync: [
-        {
-          collection: 'service-items',
-          stripeResourceType: 'products',
-          stripeResourceTypeSingular: 'product',
-          fields: [
-            { fieldPath: 'title', stripeProperty: 'name' },
-            { fieldPath: 'summary', stripeProperty: 'description' },
-          ],
-        },
-      ],
-    }),
-
-    // ── Sentry Plugin ─────────────────────────────────────────────────────────
-    // Error tracking and performance monitoring via Sentry
-    sentryPlugin({
-      Sentry: undefined as any, // Provide Sentry SDK instance at runtime
-      enabled: !!process.env.SENTRY_DSN,
-      options: {
-        captureErrors: [400, 403, 404, 500],
-        context: ({ defaultContext }) => defaultContext,
-      },
-    }),
-
-    // ── Multi-Tenant Plugin ───────────────────────────────────────────────────
-    // Multi-tenancy support across collections
-    multiTenantPlugin({
-      collections: {
-        'blog-posts': {},
-        'service-items': {},
-        'testimonials': {},
-        'site-pages': {},
-      },
-    }),
-
     // ── MCP Plugin (AI Integration) ───────────────────────────────────────────
     // Model Context Protocol for AI assistant integration
     mcpPlugin({}),
-
-// ── Ecommerce Plugin ──────────────────────────────────────────────────────
-    // Full ecommerce with products, orders, carts, and payment gateway support
-    ecommercePlugin(),
-
-    // ── S3 Storage Adapter ────────────────────────────────────────────────────
-    // Store media uploads in AWS S3 (or S3-compatible services)
-    s3Storage({
-      collections: {
-        media: {
-          prefix: 'media',
-        },
-      },
-      bucket: process.env.S3_BUCKET || 'plenor-media',
-      config: {
-        credentials: {
-          accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
-          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
-        },
-        region: process.env.S3_REGION || 'us-east-1',
-        ...(process.env.S3_ENDPOINT ? { endpoint: process.env.S3_ENDPOINT, forcePathStyle: true } : {}),
-      },
-    }),
-
-    // ── UploadThing Storage Adapter ───────────────────────────────────────────
-    // Cloud file storage via UploadThing
-    uploadthingStorage({
-      collections: {
-        media: true,
-      },
-      options: {
-        token: process.env.UPLOADTHING_TOKEN || '',
-        acl: 'public-read',
-      },
-    }),
   ],
 });
