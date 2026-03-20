@@ -9,6 +9,7 @@ const store = new Map<string, RateLimitEntry>();
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 5;
+const MAX_STORE_SIZE = 10_000;
 
 function cleanupStore() {
   const now = Date.now();
@@ -35,6 +36,7 @@ export function rateLimit(req: NextRequest): NextResponse | null {
   const entry = store.get(key);
 
   if (!entry || entry.resetAt <= now) {
+    if (store.size >= MAX_STORE_SIZE) cleanupStore();
     store.set(key, { count: 1, resetAt: now + WINDOW_MS });
     return null;
   }
