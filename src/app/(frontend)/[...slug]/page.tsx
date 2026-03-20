@@ -10,7 +10,7 @@ type RouteParams = {
 };
 
 /** Paths handled by other route groups (e.g. Payload admin). */
-const RESERVED_PREFIXES = ['admin'];
+const RESERVED_PREFIXES = ['admin', 'admin-diagnostics'];
 
 function buildSlug(params: RouteParams): string {
   return params.slug?.join('/') || '';
