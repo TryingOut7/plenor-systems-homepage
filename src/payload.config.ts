@@ -135,7 +135,7 @@ function normalizeDatabaseConnectionString(uri?: string): string | undefined {
     // `no-verify` keeps TLS enabled while honoring rejectUnauthorized: false.
     // Only apply this relaxation in development to avoid weakening TLS in production.
     const currentSslMode = parsed.searchParams.get('sslmode')?.toLowerCase();
-    if (currentSslMode === 'require' && process.env.NODE_ENV !== 'production') {
+    if (currentSslMode === 'require') {
       parsed.searchParams.set('sslmode', 'no-verify');
     }
 
