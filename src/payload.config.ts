@@ -31,13 +31,23 @@ import { Testimonials } from './payload/collections/Testimonials';
 import { SiteSettings } from './payload/globals/SiteSettings';
 import { UISettings } from './payload/globals/UISettings';
 
-const serverURL =
-  process.env.NEXT_PUBLIC_SERVER_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : undefined) ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
-  'http://localhost:3000';
+function resolveServerURL(): string {
+  const raw =
+    process.env.NEXT_PUBLIC_SERVER_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : undefined) ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+    'http://localhost:3000';
+
+  // Auto-add https:// if the value has no protocol (e.g. "staging.plenor.ai")
+  if (raw && !/^https?:\/\//i.test(raw)) {
+    return `https://${raw}`;
+  }
+  return raw;
+}
+
+const serverURL = resolveServerURL();
 const dbRejectUnauthorized = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true';
 const dbPushSchema = process.env.PAYLOAD_DB_PUSH === 'true';
 const enableNestedDocsPlugin = process.env.PAYLOAD_ENABLE_NESTED_DOCS === 'true';

@@ -3,6 +3,7 @@ import path from "path";
 import { withPayload } from "@payloadcms/next/withPayload";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ['sharp'],
   turbopack: {
     root: path.resolve(__dirname),
   },
