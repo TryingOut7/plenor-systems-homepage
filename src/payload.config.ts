@@ -336,6 +336,7 @@ export default buildConfig({
       slug: 'users',
       auth: {
         tokenExpiration: 28800, // 8 hours
+        useSessions: false,
         useAPIKey: true,
         maxLoginAttempts: 5,
         lockTime: 600000, // 10 minutes
