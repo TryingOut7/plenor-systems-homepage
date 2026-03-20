@@ -119,11 +119,17 @@ function normalizeDatabaseConnectionString(uri?: string): string | undefined {
     const parsed = new URL(uri);
     const sslMode = parsed.searchParams.get('sslmode')?.toLowerCase();
 
+    // Ensure sslmode is present — Supabase and most managed Postgres providers require it.
+    if (!sslMode) {
+      parsed.searchParams.set('sslmode', 'require');
+    }
+
     // node-postgres gives URI `sslmode` precedence over `pool.ssl`.
     // `sslmode=require` can still fail on self-signed chains in local environments.
     // `no-verify` keeps TLS enabled while honoring rejectUnauthorized: false.
     // Only apply this relaxation in development to avoid weakening TLS in production.
-    if (sslMode === 'require' && process.env.NODE_ENV !== 'production') {
+    const currentSslMode = parsed.searchParams.get('sslmode')?.toLowerCase();
+    if (currentSslMode === 'require' && process.env.NODE_ENV !== 'production') {
       parsed.searchParams.set('sslmode', 'no-verify');
     }
 
@@ -133,7 +139,7 @@ function normalizeDatabaseConnectionString(uri?: string): string | undefined {
   }
 }
 
-const databaseConnectionString = normalizeDatabaseConnectionString(process.env.DATABASE_URI);
+const databaseConnectionString = normalizeDatabaseConnectionString(process.env.DATABASE_URI || process.env.DATABASE_URL);
 const adminTheme = parseEnumEnv(process.env.PAYLOAD_ADMIN_THEME, adminThemeValues) || 'all';
 const adminAvatar = parseEnumEnv(process.env.PAYLOAD_ADMIN_AVATAR, adminAvatarValues) || 'default';
 const adminToastDuration = parseNumberEnv(process.env.PAYLOAD_ADMIN_TOAST_DURATION_MS);
@@ -370,6 +376,9 @@ export default buildConfig({
     pool: {
       connectionString: databaseConnectionString,
       ssl: { rejectUnauthorized: dbRejectUnauthorized },
+      max: process.env.VERCEL ? 5 : 10,
+      idleTimeoutMillis: process.env.VERCEL ? 10000 : 30000,
+      connectionTimeoutMillis: 10000,
     },
   }),
   secret: process.env.PAYLOAD_SECRET || 'payload-dev-secret-change-in-production',
