@@ -131,20 +131,15 @@ function withUndefinedToDefault<T>(value: T | undefined, fallback: T): T {
 function normalizeDatabaseConnectionString(uri?: string): string | undefined {
   if (!uri) return uri;
 
-  try {
-    const parsed = new URL(uri);
-
-    // Remove sslmode from the connection string so it doesn't conflict with
-    // the explicit `pool.ssl` option.  pg v8 treats sslmode=require as
-    // verify-full which rejects Supabase's certificate chain.  The pool-level
-    // `ssl: { rejectUnauthorized: false }` is the correct place to configure
-    // TLS behaviour.
-    parsed.searchParams.delete('sslmode');
-
-    return parsed.toString();
-  } catch {
-    return uri;
-  }
+  // Strip sslmode parameter using a regex so we avoid URL re-encoding that
+  // can mangle passwords containing special characters.  pg v8 treats
+  // sslmode=require as verify-full which rejects Supabase's certificate
+  // chain.  The pool-level `ssl: { rejectUnauthorized: false }` is the
+  // correct place to configure TLS behaviour.
+  return uri
+    .replace(/[?&]sslmode=[^&]*/gi, (match) => (match.startsWith('?') ? '?' : ''))
+    .replace(/\?&/, '?')
+    .replace(/\?$/, '');
 }
 
 const databaseConnectionString = normalizeDatabaseConnectionString(process.env.DATABASE_URI || process.env.DATABASE_URL);
