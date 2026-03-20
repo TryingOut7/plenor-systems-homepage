@@ -9,6 +9,9 @@ type RouteParams = {
   slug?: string[];
 };
 
+/** Paths handled by other route groups (e.g. Payload admin). */
+const RESERVED_PREFIXES = ['admin'];
+
 function buildSlug(params: RouteParams): string {
   return params.slug?.join('/') || '';
 }
@@ -24,7 +27,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const resolvedParams = await params;
   const slug = buildSlug(resolvedParams);
-  if (!slug) return {};
+  if (!slug || RESERVED_PREFIXES.includes(resolvedParams.slug?.[0] ?? '')) return {};
 
   const [page, settings] = await Promise.all([
     getSitePageBySlug(slug),
@@ -64,7 +67,7 @@ export default async function CmsDynamicPage({
 }) {
   const resolvedParams = await params;
   const slug = buildSlug(resolvedParams);
-  if (!slug) notFound();
+  if (!slug || RESERVED_PREFIXES.includes(resolvedParams.slug?.[0] ?? '')) notFound();
 
   const [page, collectionData, siteSettings] = await Promise.all([
     getSitePageBySlug(slug),
