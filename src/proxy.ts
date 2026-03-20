@@ -28,7 +28,13 @@ async function loadRedirectRules(): Promise<RedirectRule[]> {
   if (now < cacheExpiresAt) return cachedRedirects;
 
   // Use Payload's REST API to load redirect rules
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SERVER_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : undefined) ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+    'http://localhost:3000';
 
   try {
     const url = `${baseUrl}/api/redirect-rules?where[enabled][equals]=true&limit=500`;
