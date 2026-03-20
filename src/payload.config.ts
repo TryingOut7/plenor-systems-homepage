@@ -133,22 +133,13 @@ function normalizeDatabaseConnectionString(uri?: string): string | undefined {
 
   try {
     const parsed = new URL(uri);
-    const sslMode = parsed.searchParams.get('sslmode')?.toLowerCase();
 
-    // Ensure sslmode is present — Supabase and most managed Postgres providers require it.
-    if (!sslMode) {
-      parsed.searchParams.set('sslmode', 'require');
-    }
-
-    // In development, relax `sslmode=require` to `no-verify` so self-signed
-    // certs don't block local connections.  In production the explicit
-    // `pool.ssl.rejectUnauthorized` option handles cert verification instead.
-    if (process.env.NODE_ENV !== 'production') {
-      const currentSslMode = parsed.searchParams.get('sslmode')?.toLowerCase();
-      if (currentSslMode === 'require') {
-        parsed.searchParams.set('sslmode', 'no-verify');
-      }
-    }
+    // Remove sslmode from the connection string so it doesn't conflict with
+    // the explicit `pool.ssl` option.  pg v8 treats sslmode=require as
+    // verify-full which rejects Supabase's certificate chain.  The pool-level
+    // `ssl: { rejectUnauthorized: false }` is the correct place to configure
+    // TLS behaviour.
+    parsed.searchParams.delete('sslmode');
 
     return parsed.toString();
   } catch {
