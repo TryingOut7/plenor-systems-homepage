@@ -140,13 +140,14 @@ function normalizeDatabaseConnectionString(uri?: string): string | undefined {
       parsed.searchParams.set('sslmode', 'require');
     }
 
-    // node-postgres gives URI `sslmode` precedence over `pool.ssl`.
-    // `sslmode=require` can still fail on self-signed chains in local environments.
-    // `no-verify` keeps TLS enabled while honoring rejectUnauthorized: false.
-    // Only apply this relaxation in development to avoid weakening TLS in production.
-    const currentSslMode = parsed.searchParams.get('sslmode')?.toLowerCase();
-    if (currentSslMode === 'require') {
-      parsed.searchParams.set('sslmode', 'no-verify');
+    // In development, relax `sslmode=require` to `no-verify` so self-signed
+    // certs don't block local connections.  In production the explicit
+    // `pool.ssl.rejectUnauthorized` option handles cert verification instead.
+    if (process.env.NODE_ENV !== 'production') {
+      const currentSslMode = parsed.searchParams.get('sslmode')?.toLowerCase();
+      if (currentSslMode === 'require') {
+        parsed.searchParams.set('sslmode', 'no-verify');
+      }
     }
 
     return parsed.toString();
