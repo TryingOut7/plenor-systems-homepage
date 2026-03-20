@@ -1,0 +1,83 @@
+import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload';
+
+function getDocTitle(doc: Record<string, unknown>): string {
+  return (
+    (doc.title as string) ||
+    (doc.personName as string) ||
+    (doc.name as string) ||
+    (doc.fromPath as string) ||
+    (doc.slug as string) ||
+    String(doc.id || 'unknown')
+  );
+}
+
+export const auditAfterChange: CollectionAfterChangeHook = async ({
+  doc,
+  req,
+  operation,
+  collection,
+  context,
+}) => {
+  if (collection.slug === 'audit-logs') return doc;
+  if (!req.user) return doc;
+
+  // Skip autosave drafts to avoid flooding the audit log
+  const docRecord = doc as Record<string, unknown>;
+  if (docRecord._status === 'draft' && context?.autosave) return doc;
+
+  const userRecord = req.user as Record<string, unknown>;
+  const title = getDocTitle(doc as Record<string, unknown>);
+  const action = operation === 'create' ? 'create' : 'update';
+  const summary = `${userRecord.email || 'Unknown'} ${action}d ${collection.slug}: ${title}`;
+
+  try {
+    await req.payload.create({
+      collection: 'audit-logs',
+      data: {
+        action,
+        collection: collection.slug,
+        documentId: String(doc.id),
+        documentTitle: title,
+        user: typeof userRecord.id === 'string' || typeof userRecord.id === 'number' ? userRecord.id : undefined,
+        userEmail: (userRecord.email as string) || undefined,
+        summary,
+      },
+    });
+  } catch (err) {
+    req.payload.logger.error({ err, msg: 'Failed to write audit log' });
+  }
+
+  return doc;
+};
+
+export const auditAfterDelete: CollectionAfterDeleteHook = async ({
+  doc,
+  req,
+  collection,
+}) => {
+  if (collection.slug === 'audit-logs') return doc;
+  if (!req.user) return doc;
+
+  const userRecord = req.user as Record<string, unknown>;
+  const title = getDocTitle(doc as Record<string, unknown>);
+  const summary = `${userRecord.email || 'Unknown'} deleted ${collection.slug}: ${title}`;
+
+  try {
+    await req.payload.create({
+      collection: 'audit-logs',
+      data: {
+        action: 'delete' as const,
+        collection: collection.slug,
+        documentId: String(doc.id),
+        documentTitle: title,
+        user: typeof userRecord.id === 'string' || typeof userRecord.id === 'number' ? userRecord.id : undefined,
+        userEmail: (userRecord.email as string) || undefined,
+        summary,
+      },
+    });
+  } catch (err) {
+    req.payload.logger.error({ err, msg: 'Failed to write audit log' });
+  }
+
+  return doc;
+};

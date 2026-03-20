@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { seoFields } from '../fields/seo';
+import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog';
 
 export const ServiceItems: CollectionConfig = {
   slug: 'service-items',
@@ -9,8 +10,8 @@ export const ServiceItems: CollectionConfig = {
   },
   access: {
     read: () => true,
-    create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
-    update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
+    create: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
+    update: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   versions: {
@@ -22,6 +23,10 @@ export const ServiceItems: CollectionConfig = {
       schedulePublish: true,
       validate: false,
     },
+  },
+  hooks: {
+    afterChange: [auditAfterChange],
+    afterDelete: [auditAfterDelete],
   },
   trash: true,
   enableQueryPresets: true,
