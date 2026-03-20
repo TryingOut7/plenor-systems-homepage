@@ -31,13 +31,23 @@ import { Testimonials } from './payload/collections/Testimonials';
 import { SiteSettings } from './payload/globals/SiteSettings';
 import { UISettings } from './payload/globals/UISettings';
 
-const serverURL =
-  process.env.NEXT_PUBLIC_SERVER_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : undefined) ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
-  'http://localhost:3000';
+function resolveServerURL(): string {
+  const raw =
+    process.env.NEXT_PUBLIC_SERVER_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : undefined) ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+    'http://localhost:3000';
+
+  // Auto-add https:// if the value has no protocol (e.g. "staging.plenor.ai")
+  if (raw && !/^https?:\/\//i.test(raw)) {
+    return `https://${raw}`;
+  }
+  return raw;
+}
+
+const serverURL = resolveServerURL();
 const dbRejectUnauthorized = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true';
 const dbPushSchema = process.env.PAYLOAD_DB_PUSH === 'true';
 const enableNestedDocsPlugin = process.env.PAYLOAD_ENABLE_NESTED_DOCS === 'true';
@@ -130,13 +140,14 @@ function normalizeDatabaseConnectionString(uri?: string): string | undefined {
       parsed.searchParams.set('sslmode', 'require');
     }
 
-    // node-postgres gives URI `sslmode` precedence over `pool.ssl`.
-    // `sslmode=require` can still fail on self-signed chains in local environments.
-    // `no-verify` keeps TLS enabled while honoring rejectUnauthorized: false.
-    // Only apply this relaxation in development to avoid weakening TLS in production.
-    const currentSslMode = parsed.searchParams.get('sslmode')?.toLowerCase();
-    if (currentSslMode === 'require') {
-      parsed.searchParams.set('sslmode', 'no-verify');
+    // In development, relax `sslmode=require` to `no-verify` so self-signed
+    // certs don't block local connections.  In production the explicit
+    // `pool.ssl.rejectUnauthorized` option handles cert verification instead.
+    if (process.env.NODE_ENV !== 'production') {
+      const currentSslMode = parsed.searchParams.get('sslmode')?.toLowerCase();
+      if (currentSslMode === 'require') {
+        parsed.searchParams.set('sslmode', 'no-verify');
+      }
     }
 
     return parsed.toString();
