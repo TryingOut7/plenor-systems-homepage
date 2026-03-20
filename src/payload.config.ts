@@ -28,6 +28,7 @@ import { ReusableSections } from './payload/collections/ReusableSections';
 import { RedirectRules } from './payload/collections/RedirectRules';
 import { BlogPosts } from './payload/collections/BlogPosts';
 import { Testimonials } from './payload/collections/Testimonials';
+import { AuditLogs } from './payload/collections/AuditLogs';
 import { SiteSettings } from './payload/globals/SiteSettings';
 import { UISettings } from './payload/globals/UISettings';
 
@@ -64,7 +65,7 @@ const adminToastPositionValues = [
 ] as const;
 const defaultAdminDateFormat = 'MMM d, yyyy h:mm a';
 const defaultAdminLanguage: AcceptedLanguages = 'en';
-const adminRoles = ['admin', 'editor', 'viewer'] as const;
+const adminRoles = ['admin', 'editor', 'author'] as const;
 const contentManagerRoles = ['admin', 'editor'] as const;
 
 type AdminRole = (typeof adminRoles)[number];
@@ -356,7 +357,7 @@ export default buildConfig({
           options: [
             { label: 'Admin', value: 'admin' },
             { label: 'Editor', value: 'editor' },
-            { label: 'Viewer', value: 'viewer' },
+            { label: 'Author', value: 'author' },
           ],
           admin: {
             position: 'sidebar',
@@ -371,6 +372,7 @@ export default buildConfig({
     RedirectRules,
     BlogPosts,
     Testimonials,
+    AuditLogs,
   ],
   globals: [SiteSettings, UISettings],
   editor: lexicalEditor(),
