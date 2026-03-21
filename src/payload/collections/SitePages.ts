@@ -1,7 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { seoFields } from '../fields/seo';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow';
-import { localeFields } from '../fields/locale';
 import { pageSectionBlocks } from '../blocks/pageSections';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow';
@@ -91,7 +90,6 @@ export const SitePages: CollectionConfig = {
     },
     workflowStatusField,
     ...workflowApprovalFields,
-    ...localeFields,
     ...seoFields,
   ],
 };

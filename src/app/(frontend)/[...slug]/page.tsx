@@ -44,27 +44,10 @@ export async function generateMetadata({
   const canonical = seo.canonicalUrl || canonicalForSlug(slug);
   const ogImage = seo.ogImage?.url || defaultSeo.ogImage?.url;
 
-  // Build hreflang alternates from CMS locale data
-  const languages: Record<string, string> = {};
-  if (page.alternateLocales?.length) {
-    for (const alt of page.alternateLocales) {
-      if (alt.locale && alt.url) {
-        languages[alt.locale] = alt.url;
-      }
-    }
-  }
-  // Add x-default pointing to canonical
-  if (Object.keys(languages).length > 0) {
-    languages['x-default'] = canonical;
-  }
-
   return {
     title,
     description,
-    alternates: {
-      canonical,
-      ...(Object.keys(languages).length > 0 ? { languages } : {}),
-    },
+    alternates: { canonical },
     robots: {
       index: !seo.noindex,
       follow: !seo.nofollow,

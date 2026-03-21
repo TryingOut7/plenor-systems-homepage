@@ -171,8 +171,6 @@ export type SitePage = {
   pageMode?: 'builder' | 'template';
   templateKey?: 'default' | 'landing' | 'article' | 'product';
   isActive?: boolean;
-  locale?: string;
-  alternateLocales?: Array<{ locale?: string; url?: string }>;
   seo?: SeoFields;
   sections?: PageSection[];
 };
