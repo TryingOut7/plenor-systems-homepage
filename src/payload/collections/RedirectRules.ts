@@ -1,5 +1,4 @@
 import type { CollectionConfig } from 'payload';
-import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog';
 
 export const RedirectRules: CollectionConfig = {
   slug: 'redirect-rules',
@@ -12,10 +11,6 @@ export const RedirectRules: CollectionConfig = {
     create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
-  },
-  hooks: {
-    afterChange: [auditAfterChange],
-    afterDelete: [auditAfterDelete],
   },
   trash: true,
   enableQueryPresets: true,
