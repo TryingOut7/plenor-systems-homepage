@@ -712,21 +712,25 @@ export const getCollectionData = cache(async function getCollectionData(): Promi
 
   try {
     const payload = await getPayload();
+    const publishedFilter = { workflowStatus: { equals: 'published' } };
     const [serviceResult, blogResult, testimonialResult] = await Promise.all([
       payload.find({
         collection: 'service-items',
+        where: publishedFilter,
         sort: '-updatedAt',
         limit: 100,
         depth: 1,
       }),
       payload.find({
         collection: 'blog-posts',
+        where: publishedFilter,
         sort: '-publishedAt',
         limit: 100,
         depth: 1,
       }),
       payload.find({
         collection: 'testimonials',
+        where: publishedFilter,
         sort: '-publishedAt',
         limit: 100,
         depth: 1,
@@ -785,8 +789,8 @@ export const getSitemapSlugs = cache(async function getSitemapSlugs(): Promise<S
   try {
     const payload = await getPayload();
     const [pages, services] = await Promise.all([
-      payload.find({ collection: 'site-pages', where: { isActive: { equals: true } }, limit: 500 }),
-      payload.find({ collection: 'service-items', limit: 500 }),
+      payload.find({ collection: 'site-pages', where: { isActive: { equals: true }, workflowStatus: { equals: 'published' } }, limit: 500 }),
+      payload.find({ collection: 'service-items', where: { workflowStatus: { equals: 'published' } }, limit: 500 }),
     ]);
 
     const mapDoc = (d: Record<string, unknown>) => ({

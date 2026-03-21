@@ -21,9 +21,8 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
   if (collection.slug === 'audit-logs') return doc;
   if (!req.user) return doc;
 
-  // Skip autosave drafts to avoid flooding
-  const docRecord = doc as Record<string, unknown>;
-  if (docRecord._status === 'draft' && context?.autosave) return doc;
+  // Skip autosave to avoid flooding audit logs
+  if (context?.autosave) return doc;
 
   const userRecord = req.user as Record<string, unknown>;
   const title = getDocTitle(docRecord);
