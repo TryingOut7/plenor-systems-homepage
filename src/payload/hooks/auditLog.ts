@@ -25,7 +25,7 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
   if (context?.autosave) return doc;
 
   const userRecord = req.user as Record<string, unknown>;
-  const title = getDocTitle(docRecord);
+  const title = getDocTitle(doc as Record<string, unknown>);
   const action = operation === 'create' ? 'create' : 'update';
   const summary = `${userRecord.email || 'Unknown'} ${action}d ${collection.slug}: ${title}`;
 
