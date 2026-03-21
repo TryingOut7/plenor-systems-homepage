@@ -68,10 +68,10 @@ const adminToastPositionValues = [
 ] as const;
 const defaultAdminDateFormat = 'MMM d, yyyy h:mm a';
 const defaultAdminLanguage: AcceptedLanguages = 'en';
-const adminRoles = ['admin', 'editor', 'author'] as const;
+const allRoles = ['admin', 'editor', 'author'] as const;
 const contentManagerRoles = ['admin', 'editor'] as const;
 
-type AdminRole = (typeof adminRoles)[number];
+type Role = (typeof allRoles)[number];
 type RoutePath = `/${string}`;
 
 function parseBooleanEnv(value?: string): boolean | undefined {
@@ -116,14 +116,14 @@ function resolveAdminFallbackLanguage(): AcceptedLanguages {
     : defaultAdminLanguage;
 }
 
-function resolveRole(user: unknown): AdminRole | null {
+function resolveRole(user: unknown): Role | null {
   if (!user || typeof user !== 'object') return null;
   const candidate = (user as Record<string, unknown>).role;
   if (typeof candidate !== 'string') return null;
-  return adminRoles.includes(candidate as AdminRole) ? (candidate as AdminRole) : null;
+  return allRoles.includes(candidate as Role) ? (candidate as Role) : null;
 }
 
-function userHasAnyRole(req: { user?: unknown } | undefined, allowedRoles: readonly AdminRole[]): boolean {
+function userHasAnyRole(req: { user?: unknown } | undefined, allowedRoles: readonly Role[]): boolean {
   const userRole = resolveRole(req?.user);
   return !!userRole && allowedRoles.includes(userRole);
 }
@@ -341,7 +341,7 @@ export default buildConfig({
         verify: false,
       },
       access: {
-        admin: ({ req }) => userHasAnyRole(req, adminRoles),
+        admin: ({ req }) => userHasAnyRole(req, allRoles),
         read: ({ req }) => !!req.user,
         create: ({ req }) => userHasAnyRole(req, ['admin']),
         update: ({ req }) => userHasAnyRole(req, ['admin']),
