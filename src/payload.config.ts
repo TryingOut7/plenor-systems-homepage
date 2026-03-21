@@ -342,7 +342,12 @@ export default buildConfig({
       },
       access: {
         admin: ({ req }) => userHasAnyRole(req, allRoles),
-        read: ({ req }) => !!req.user,
+        read: ({ req }) => {
+          if (!req.user) return false;
+          const role = (req.user as Record<string, unknown>).role;
+          if (role === 'admin') return true;
+          return { id: { equals: (req.user as Record<string, unknown>).id } };
+        },
         create: ({ req }) => userHasAnyRole(req, ['admin']),
         update: ({ req }) => userHasAnyRole(req, ['admin']),
         delete: ({ req }) => userHasAnyRole(req, ['admin']),
@@ -395,7 +400,13 @@ export default buildConfig({
       connectionTimeoutMillis: 10000,
     },
   }),
-  secret: process.env.PAYLOAD_SECRET || 'payload-dev-secret-change-in-production',
+  secret: (() => {
+    const secret = process.env.PAYLOAD_SECRET;
+    if (!secret && process.env.NODE_ENV === 'production') {
+      throw new Error('PAYLOAD_SECRET environment variable is required in production');
+    }
+    return secret || 'payload-dev-secret-change-in-development';
+  })(),
   sharp,
   typescript: {
     outputFile: path.resolve(__dirname, 'payload-types.ts'),

@@ -12,7 +12,10 @@ export const SitePages: CollectionConfig = {
     defaultColumns: ['title', 'slug', 'workflowStatus', 'isActive'],
   },
   access: {
-    read: () => true,
+    read: ({ req }) => {
+      if (req.user) return true;
+      return { workflowStatus: { equals: 'published' }, isActive: { equals: true } };
+    },
     create: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),

@@ -929,7 +929,7 @@ export default function UniversalSections({
 
     if (section.blockType === 'dividerSection') {
       return (
-        <div key={key} style={{ padding: '20px 24px', backgroundColor: getLightBackgroundColor(theme) }}>
+        <div key={key} style={{ padding: '20px 24px', backgroundColor: isDarkTheme(theme) ? getDarkBackgroundColor(theme) : getLightBackgroundColor(theme) }}>
           <div style={{ ...inner, borderTop: '1px solid var(--ui-color-border)', paddingTop: '14px' }}>
             {section.label ? <p style={{ margin: 0, fontSize: '12px', color: 'var(--ui-color-text-muted)' }}>{String(section.label)}</p> : null}
           </div>

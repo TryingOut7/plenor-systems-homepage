@@ -75,7 +75,7 @@ The home page (`src/app/page.tsx`) illustrates the transition: it checks for a `
 
 `UniversalSections` is a `'use client'` component. It renders these `blockType` values from a `sections[]` array:
 
-`heroSection`, `richTextSection`, `ctaSection`, `imageSection`, `videoSection`, `simpleTableSection`, `comparisonTableSection`, `dynamicListSection`, `reusableSectionReference`, `spacerSection`, `dividerSection`, `advancedDataSection`
+`heroSection`, `richTextSection`, `ctaSection`, `imageSection`, `videoSection`, `simpleTableSection`, `comparisonTableSection`, `dynamicListSection`, `reusableSectionReference`, `spacerSection`, `dividerSection`
 
 All sections accept `theme` (`navy` | `charcoal` | `black` | `white` | `light`) and `size` (`compact` | `regular` | `spacious`). Dark themes are navy/charcoal/black; light themes are white/light.
 

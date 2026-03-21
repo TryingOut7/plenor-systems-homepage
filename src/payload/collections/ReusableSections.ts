@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload';
 import { pageSectionBlocks } from '../blocks/pageSections';
+import { workflowStatusField, workflowApprovalFields } from '../fields/workflow';
+import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog';
 
 export const ReusableSections: CollectionConfig = {
@@ -9,13 +11,14 @@ export const ReusableSections: CollectionConfig = {
     useAsTitle: 'title',
   },
   access: {
-    read: () => true,
+    read: ({ req }) => !!req.user,
     create: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   hooks: {
-    afterChange: [auditAfterChange],
+    beforeChange: [workflowBeforeChange],
+    afterChange: [workflowAfterChange, auditAfterChange],
     afterDelete: [auditAfterDelete],
   },
   trash: true,
@@ -37,5 +40,7 @@ export const ReusableSections: CollectionConfig = {
       type: 'blocks',
       blocks: pageSectionBlocks,
     },
+    workflowStatusField,
+    ...workflowApprovalFields,
   ],
 };

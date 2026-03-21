@@ -33,7 +33,7 @@ export default async function HomePage() {
     getCollectionData(),
   ]);
 
-  if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {
+  if (!sitePage) {
     notFound();
   }
 
@@ -41,7 +41,7 @@ export default async function HomePage() {
     <UniversalSections
       documentId={sitePage.id || 'sitePage.home'}
       documentType="site-pages"
-      sections={sitePage.sections}
+      sections={sitePage.sections ?? []}
       collections={collectionData}
       guideFormLabels={siteSettings?.guideForm}
       inquiryFormLabels={siteSettings?.inquiryForm}

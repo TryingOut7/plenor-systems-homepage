@@ -18,9 +18,11 @@ function cleanup() {
 }
 
 function getIp(req: NextRequest): string {
+  // Prefer x-real-ip (set by Vercel/trusted proxies, not client-spoofable).
+  // Fall back to x-forwarded-for only if x-real-ip is unavailable.
   return (
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     req.headers.get('x-real-ip') ||
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     'unknown'
   );
 }

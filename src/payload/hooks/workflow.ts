@@ -55,8 +55,14 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
   const newStatus = data.workflowStatus as WorkflowStatus | undefined;
   if (!newStatus) return data;
 
-  // On create, any starting status is fine (defaults to draft)
-  if (operation === 'create') return data;
+  // On create, authors must start as draft; editors/admins may choose a status
+  if (operation === 'create') {
+    const role = getUserRole(req);
+    if (role === 'author' && newStatus !== 'draft') {
+      data.workflowStatus = 'draft';
+    }
+    return data;
+  }
 
   const oldStatus = (originalDoc?.workflowStatus as WorkflowStatus) || 'draft';
   if (newStatus === oldStatus) return data;

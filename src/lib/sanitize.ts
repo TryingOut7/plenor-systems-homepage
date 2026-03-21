@@ -15,7 +15,14 @@ export function escapeHtml(value: string): string {
 const STRIP_TAGS_RE = /<[^>]*>/g;
 
 export function stripTags(value: string): string {
-  return value.replace(STRIP_TAGS_RE, '');
+  // Run iteratively to handle nested tags like <scr<script>ipt>
+  let result = value;
+  let prev: string;
+  do {
+    prev = result;
+    result = result.replace(STRIP_TAGS_RE, '');
+  } while (result !== prev);
+  return result;
 }
 
 export function sanitizeTextField(value: string): string {

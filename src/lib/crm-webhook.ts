@@ -16,9 +16,36 @@ type CrmPayload = {
   data: Record<string, unknown>;
 };
 
+function isAllowedWebhookUrl(urlStr: string): boolean {
+  try {
+    const parsed = new URL(urlStr);
+    if (parsed.protocol !== 'https:') return false;
+    const host = parsed.hostname;
+    if (
+      host === 'localhost' ||
+      host.startsWith('127.') ||
+      host.startsWith('10.') ||
+      host.startsWith('192.168.') ||
+      host.startsWith('169.254.') ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
+      host === '[::1]'
+    ) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function fireCrmWebhook(payload: CrmPayload): Promise<void> {
   const url = process.env.CRM_WEBHOOK_URL;
   if (!url) return;
+
+  if (!isAllowedWebhookUrl(url)) {
+    console.error('CRM webhook URL rejected: must be HTTPS and non-private.');
+    return;
+  }
 
   const secret = process.env.CRM_WEBHOOK_SECRET;
   const headers: Record<string, string> = {

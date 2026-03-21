@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const COOKIE = 'staging_auth';
 
+/** Edge-compatible constant-time string comparison. */
+function constantTimeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  const encoder = new TextEncoder();
+  const bufA = encoder.encode(a);
+  const bufB = encoder.encode(b);
+  let result = 0;
+  for (let i = 0; i < bufA.length; i++) {
+    result |= bufA[i] ^ bufB[i];
+  }
+  return result === 0;
+}
+
 type RedirectRule = {
   fromPath?: string;
   toPath?: string;
@@ -126,7 +139,7 @@ export async function proxy(request: NextRequest) {
     }
 
     // Password protected staging: enforce session cookie.
-    if (request.cookies.get(COOKIE)?.value !== password) {
+    if (!constantTimeEqual(request.cookies.get(COOKIE)?.value ?? '', password)) {
       const url = request.nextUrl.clone();
       url.pathname = '/staging-login';
       url.searchParams.set('next', pathname);
