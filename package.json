@@ -9,8 +9,7 @@
     "lint": "eslint",
     "payload": "payload",
     "generate:types": "payload generate:types",
-    "seed:site-pages": "node scripts/seed-site-pages.mjs",
-    "backup": "bash scripts/backup.sh"
+    "seed:site-pages": "node scripts/seed-site-pages.mjs"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.79.1",
@@ -36,7 +35,6 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "resend": "^6.9.3",
-    "sanitize-html": "^2.17.2",
     "sharp": "^0.34.5"
   },
   "devDependencies": {
@@ -44,7 +42,6 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/sanitize-html": "^2.16.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.0",
     "tailwindcss": "^4",

@@ -1,16 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendInquiryEmails } from '@/lib/email';
 import { logInquirySubmission } from '@/lib/db';
-import { verifyCsrf } from '@/lib/csrf';
-import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(req: NextRequest) {
-  const rateLimitError = rateLimit(req);
-  if (rateLimitError) return rateLimitError;
-
-  const csrfError = verifyCsrf(req);
-  if (csrfError) return csrfError;
-
   try {
     const body = await req.json();
     const { name, email, company, challenge } = body as {
