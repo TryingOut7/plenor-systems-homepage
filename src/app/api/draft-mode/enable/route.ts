@@ -1,21 +1,23 @@
 import { draftMode } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { NextRequest, NextResponse } from 'next/server';
+import { safeCompare } from '@/lib/timing-safe-equal';
+import { rateLimit } from '@/lib/rate-limit';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const secret = searchParams.get('secret');
-  const slug = searchParams.get('slug') || '/';
+export async function POST(request: NextRequest) {
+  const rlError = rateLimit(request);
+  if (rlError) return rlError;
 
-  if (!slug.startsWith('/') || slug.startsWith('//')) {
-    return new Response('Invalid slug', { status: 400 });
+  const { secret, slug = '/' } = await request.json();
+
+  if (typeof slug !== 'string' || !slug.startsWith('/') || slug.startsWith('//')) {
+    return NextResponse.json({ error: 'Invalid slug' }, { status: 400 });
   }
 
-  // Simple secret-based draft mode activation
   const expectedSecret = process.env.PAYLOAD_SECRET;
-  if (!expectedSecret || secret !== expectedSecret) {
-    return new Response('Invalid secret', { status: 401 });
+  if (!expectedSecret || !safeCompare(String(secret ?? ''), expectedSecret)) {
+    return NextResponse.json({ error: 'Invalid secret' }, { status: 401 });
   }
 
   (await draftMode()).enable();
-  redirect(slug);
+  return NextResponse.json({ ok: true, slug });
 }

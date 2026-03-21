@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { seedSitePages } from '@/payload/seed/seedSitePages';
+import { safeCompare } from '@/lib/timing-safe-equal';
+import { verifyOrigin } from '@/lib/verify-origin';
 
 function readBearerToken(request: NextRequest): string | null {
   const authHeader = request.headers.get('authorization');
@@ -15,6 +17,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
+  const originError = verifyOrigin(request);
+  if (originError) return originError;
+
   const expectedSecret = process.env.PAYLOAD_SEED_SECRET || process.env.PAYLOAD_SECRET;
   if (!expectedSecret) {
     return NextResponse.json(
@@ -24,7 +29,7 @@ export async function POST(request: NextRequest) {
   }
 
   const providedToken = readBearerToken(request);
-  if (!providedToken || providedToken !== expectedSecret) {
+  if (!providedToken || !safeCompare(providedToken, expectedSecret)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

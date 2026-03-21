@@ -47,6 +47,9 @@ export const workflowApprovalFields: Field[] = [
     name: 'approvedBy',
     type: 'relationship',
     relationTo: 'users',
+    access: {
+      update: () => false,
+    },
     admin: {
       position: 'sidebar',
       readOnly: true,
@@ -56,6 +59,9 @@ export const workflowApprovalFields: Field[] = [
   {
     name: 'approvedAt',
     type: 'date',
+    access: {
+      update: () => false,
+    },
     admin: {
       position: 'sidebar',
       readOnly: true,
@@ -65,6 +71,12 @@ export const workflowApprovalFields: Field[] = [
   {
     name: 'rejectionReason',
     type: 'textarea',
+    access: {
+      update: ({ req }) => {
+        const role = (req.user as Record<string, unknown> | undefined)?.role as string | undefined;
+        return role === 'admin' || role === 'editor';
+      },
+    },
     admin: {
       position: 'sidebar',
       condition: (data) => data?.workflowStatus === 'rejected',

@@ -8,7 +8,10 @@ export const RedirectRules: CollectionConfig = {
     defaultColumns: ['fromPath', 'toPath', 'isPermanent', 'enabled'],
   },
   access: {
-    read: () => true,
+    read: ({ req }) => {
+      if (req.user) return true;
+      return { enabled: { equals: true } };
+    },
     create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),

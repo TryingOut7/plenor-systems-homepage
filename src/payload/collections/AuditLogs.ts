@@ -11,7 +11,7 @@ export const AuditLogs: CollectionConfig = {
     read: ({ req }) => !!req.user && (req.user as Record<string, unknown>).role === 'admin',
     create: () => false,
     update: () => false,
-    delete: ({ req }) => !!req.user && (req.user as Record<string, unknown>).role === 'admin',
+    delete: () => false,
   },
   fields: [
     {

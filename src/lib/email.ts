@@ -12,6 +12,11 @@ const REPLY_TO = process.env.CONTACT_EMAIL ?? 'hello@plenor.ai';
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? 'hello@plenor.ai';
 const GUIDE_PDF_URL = process.env.GUIDE_PDF_URL ?? '';
 
+/** Strip CR/LF to prevent email header injection. */
+function sanitizeHeaderValue(value: string): string {
+  return value.replace(/[\r\n]/g, '');
+}
+
 // ── Guide delivery email ──────────────────────────────────────────────────────
 
 export async function sendGuideEmail({
@@ -121,8 +126,8 @@ export async function sendInquiryEmails({
   await resend.emails.send({
     from: FROM,
     to: CONTACT_EMAIL,
-    replyTo: email,
-    subject: `New inquiry from ${name} (${company})`,
+    replyTo: sanitizeHeaderValue(email),
+    subject: sanitizeHeaderValue(`New inquiry from ${name} (${company})`),
     html: inquiryNotificationHtml({ name, email, company, challenge }),
   });
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { Where } from 'payload';
 import { getPayload } from '@/payload/client';
+import { rateLimit } from '@/lib/rate-limit';
 
 /**
  * GET /api/search?q=keyword&collection=blog-posts&tag=launch&page=1&limit=10
@@ -24,6 +25,9 @@ function isSearchableCollection(value: string): value is SearchableCollection {
 }
 
 export async function GET(req: NextRequest) {
+  const rlError = rateLimit(req);
+  if (rlError) return rlError;
+
   const { searchParams } = new URL(req.url);
   const query = searchParams.get('q')?.trim() || '';
   const collectionFilter = searchParams.get('collection');
