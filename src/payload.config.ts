@@ -342,12 +342,9 @@ export default buildConfig({
       },
       access: {
         admin: ({ req }) => userHasAnyRole(req, allRoles),
-        read: ({ req }) => {
-          if (!req.user) return false;
-          const role = (req.user as Record<string, unknown>).role;
-          if (role === 'admin') return true;
-          return { id: { equals: (req.user as Record<string, unknown>).id } };
-        },
+        // Relationship fields (e.g. workflow approvedBy) in non-admin collections
+        // need to resolve user documents for all authenticated CMS users.
+        read: ({ req }) => !!req.user,
         create: ({ req }) => userHasAnyRole(req, ['admin']),
         update: ({ req }) => userHasAnyRole(req, ['admin']),
         delete: ({ req }) => userHasAnyRole(req, ['admin']),
