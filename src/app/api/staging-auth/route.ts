@@ -15,8 +15,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Incorrect password' }, { status: 401 });
   }
 
+  const cookieValue = encodeURIComponent(password);
   const response = NextResponse.json({ ok: true, next: next || '/' });
-  response.cookies.set('staging_auth', password, {
+  response.cookies.set('staging_auth', cookieValue, {
     httpOnly: true,
     secure: true,
     sameSite: 'strict',

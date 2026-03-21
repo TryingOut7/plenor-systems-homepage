@@ -15,6 +15,12 @@ function constantTimeEqual(a: string, b: string): boolean {
   return result === 0;
 }
 
+function getExpectedStagingCookieValue(password: string): string {
+  // Keep the cookie value URL-safe so browsers do not reject it for invalid
+  // characters when the staging password contains symbols.
+  return encodeURIComponent(password);
+}
+
 type RedirectRule = {
   fromPath?: string;
   toPath?: string;
@@ -139,7 +145,14 @@ export async function proxy(request: NextRequest) {
     }
 
     // Password protected staging: enforce session cookie.
-    if (!constantTimeEqual(request.cookies.get(COOKIE)?.value ?? '', password)) {
+    // Accept both legacy raw-password cookie and new URL-encoded format.
+    const currentCookie = request.cookies.get(COOKIE)?.value ?? '';
+    const expectedCookie = getExpectedStagingCookieValue(password);
+    const isAuthenticated =
+      constantTimeEqual(currentCookie, password) ||
+      constantTimeEqual(currentCookie, expectedCookie);
+
+    if (!isAuthenticated) {
       const url = request.nextUrl.clone();
       url.pathname = '/staging-login';
       url.searchParams.set('next', pathname);
