@@ -4,6 +4,7 @@ import Image from 'next/image';
 import RichText from '@/components/cms/RichText';
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
 import { getServiceItemBySlug, getSiteSettings } from '@/payload/cms';
+import { buildBreadcrumbJsonLd } from '@/lib/breadcrumbs';
 
 export const revalidate = 60;
 
@@ -51,13 +52,27 @@ export default async function ServiceItemPage({
   params: Promise<RouteParams>;
 }) {
   const resolvedParams = await params;
-  const item = await getServiceItemBySlug(resolvedParams.slug);
+  const [item, settings] = await Promise.all([
+    getServiceItemBySlug(resolvedParams.slug),
+    getSiteSettings(),
+  ]);
   if (!item) notFound();
+
+  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  const breadcrumbs = buildBreadcrumbJsonLd([
+    { name: 'Home', url: siteUrl },
+    { name: 'Services', url: `${siteUrl}/services` },
+    { name: item.title || 'Service', url: `${siteUrl}/services/${resolvedParams.slug}` },
+  ]);
 
   const tags = item.tags?.map((t) => t.tag).filter(Boolean) as string[] || [];
 
   return (
     <article style={{ maxWidth: '840px', margin: '0 auto', padding: '84px 24px 96px' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
       <p className="section-label" style={{ marginBottom: '16px' }}>
         Service
       </p>

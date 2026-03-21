@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import UniversalSections from '@/components/cms/UniversalSections';
 import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import { buildBreadcrumbJsonLd } from '@/lib/breadcrumbs';
 
 export const revalidate = 60;
 
@@ -32,14 +33,26 @@ export default async function PricingPage() {
     notFound();
   }
 
+  const siteUrl = siteSettings?.siteUrl || 'https://plenor.ai';
+  const breadcrumbs = buildBreadcrumbJsonLd([
+    { name: 'Home', url: siteUrl },
+    { name: 'Pricing', url: `${siteUrl}/pricing` },
+  ]);
+
   return (
-    <UniversalSections
-      documentId={sitePage.id || 'sitePage.pricing'}
-      documentType="site-pages"
-      sections={sitePage.sections}
-      collections={collectionData}
-      guideFormLabels={siteSettings?.guideForm}
-      inquiryFormLabels={siteSettings?.inquiryForm}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <UniversalSections
+        documentId={sitePage.id || 'sitePage.pricing'}
+        documentType="site-pages"
+        sections={sitePage.sections}
+        collections={collectionData}
+        guideFormLabels={siteSettings?.guideForm}
+        inquiryFormLabels={siteSettings?.inquiryForm}
+      />
+    </>
   );
 }
