@@ -25,7 +25,7 @@ export const Testimonials: CollectionConfig = {
     afterDelete: [auditAfterDelete],
   },
   trash: true,
-  enableQueryPresets: false,
+  enableQueryPresets: true,
   fields: [
     {
       name: 'personName',

@@ -25,7 +25,7 @@ export const BlogPosts: CollectionConfig = {
     afterDelete: [auditAfterDelete],
   },
   trash: true,
-  enableQueryPresets: false,
+  enableQueryPresets: true,
   fields: [
     {
       name: 'title',

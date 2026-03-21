@@ -25,7 +25,7 @@ export const ServiceItems: CollectionConfig = {
     afterDelete: [auditAfterDelete],
   },
   trash: true,
-  enableQueryPresets: false,
+  enableQueryPresets: true,
   fields: [
     {
       name: 'title',
