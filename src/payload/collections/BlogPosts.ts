@@ -16,16 +16,6 @@ export const BlogPosts: CollectionConfig = {
     update: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
-  versions: {
-    maxPerDoc: 25,
-    drafts: {
-      autosave: {
-        interval: 800,
-      },
-      schedulePublish: true,
-      validate: false,
-    },
-  },
   hooks: {
     beforeChange: [workflowBeforeChange],
     afterChange: [workflowAfterChange, auditAfterChange],
