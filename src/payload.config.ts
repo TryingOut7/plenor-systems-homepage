@@ -343,6 +343,9 @@ export default buildConfig({
       access: {
         admin: ({ req }) => userHasAnyRole(req, adminRoles),
         read: ({ req }) => !!req.user,
+        create: ({ req }) => userHasAnyRole(req, adminRoles),
+        update: ({ req }) => userHasAnyRole(req, adminRoles),
+        delete: ({ req }) => userHasAnyRole(req, adminRoles),
       },
       admin: {
         useAsTitle: 'email',
