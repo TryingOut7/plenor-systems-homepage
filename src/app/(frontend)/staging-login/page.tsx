@@ -1,24 +1,25 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
 
-function LoginForm() {
+export default function StagingLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const searchParams = useSearchParams();
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
     setLoading(true);
+    const next =
+      typeof window === 'undefined'
+        ? '/'
+        : new URLSearchParams(window.location.search).get('next') || '/';
 
     const res = await fetch('/api/staging-auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password, next: searchParams.get('next') }),
+      body: JSON.stringify({ password, next }),
     });
 
     const data = await res.json();
@@ -84,13 +85,5 @@ function LoginForm() {
         </form>
       </div>
     </div>
-  );
-}
-
-export default function StagingLoginPage() {
-  return (
-    <Suspense>
-      <LoginForm />
-    </Suspense>
   );
 }
