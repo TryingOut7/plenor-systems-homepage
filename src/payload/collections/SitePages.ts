@@ -1,7 +1,10 @@
 import type { CollectionConfig } from 'payload';
 import { seoFields } from '../fields/seo';
+import { workflowStatusField, workflowApprovalFields } from '../fields/workflow';
+import { localeFields } from '../fields/locale';
 import { pageSectionBlocks } from '../blocks/pageSections';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog';
+import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow';
 
 export const SitePages: CollectionConfig = {
   slug: 'site-pages',
@@ -26,7 +29,8 @@ export const SitePages: CollectionConfig = {
     },
   },
   hooks: {
-    afterChange: [auditAfterChange],
+    beforeChange: [workflowBeforeChange],
+    afterChange: [workflowAfterChange, auditAfterChange],
     afterDelete: [auditAfterDelete],
   },
   trash: true,
@@ -85,6 +89,9 @@ export const SitePages: CollectionConfig = {
       type: 'blocks',
       blocks: pageSectionBlocks,
     },
+    workflowStatusField,
+    ...workflowApprovalFields,
+    ...localeFields,
     ...seoFields,
   ],
 };
