@@ -14,7 +14,7 @@ export const SitePages: CollectionConfig = {
   access: {
     read: ({ req }) => {
       if (req.user) return true;
-      return { and: [{ workflowStatus: { equals: 'published' } }, { isActive: { equals: true } }] };
+      return { workflowStatus: { equals: 'published' }, isActive: { equals: true } };
     },
     create: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
