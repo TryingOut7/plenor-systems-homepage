@@ -22,7 +22,7 @@ export const ReusableSections: CollectionConfig = {
     afterDelete: [auditAfterDelete],
   },
   trash: true,
-  enableQueryPresets: true,
+  enableQueryPresets: false,
   fields: [
     {
       name: 'title',
