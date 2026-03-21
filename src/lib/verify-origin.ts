@@ -25,13 +25,40 @@ function getAllowedOrigins(): Set<string> {
   return allowedOrigins;
 }
 
+function getRequestOrigin(req: NextRequest): string | null {
+  const forwardedProto = req.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
+  const forwardedHost = req.headers.get('x-forwarded-host')?.split(',')[0]?.trim();
+  const host = forwardedHost || req.headers.get('host')?.trim();
+  const proto =
+    forwardedProto && /^(https?|wss?)$/i.test(forwardedProto)
+      ? forwardedProto.toLowerCase()
+      : host?.startsWith('localhost')
+        ? 'http'
+        : 'https';
+
+  if (!host) return null;
+  return `${proto}://${host}`;
+}
+
 export function verifyOrigin(req: NextRequest): NextResponse | null {
-  const origin = req.headers.get('origin');
-  if (!origin) {
+  const originHeader = req.headers.get('origin');
+  if (!originHeader) {
     return NextResponse.json({ message: 'Forbidden.' }, { status: 403 });
   }
 
-  if (!getAllowedOrigins().has(origin)) {
+  let normalizedOrigin: string;
+  try {
+    normalizedOrigin = new URL(originHeader).origin;
+  } catch {
+    return NextResponse.json({ message: 'Forbidden.' }, { status: 403 });
+  }
+
+  const requestOrigin = getRequestOrigin(req);
+  if (requestOrigin && normalizedOrigin === requestOrigin) {
+    return null;
+  }
+
+  if (!getAllowedOrigins().has(normalizedOrigin)) {
     return NextResponse.json({ message: 'Forbidden.' }, { status: 403 });
   }
 

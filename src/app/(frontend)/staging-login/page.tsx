@@ -15,22 +15,31 @@ export default function StagingLoginPage() {
       typeof window === 'undefined'
         ? '/'
         : new URLSearchParams(window.location.search).get('next') || '/';
+    try {
+      const res = await fetch('/api/staging-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password, next }),
+      });
 
-    const res = await fetch('/api/staging-auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password, next }),
-    });
+      let data: { error?: string; message?: string; next?: string } = {};
+      try {
+        data = await res.json();
+      } catch {
+        // Non-JSON error responses should still surface a useful message.
+      }
 
-    const data = await res.json();
-    setLoading(false);
+      if (!res.ok) {
+        setError(data.error || data.message || 'Unable to sign in.');
+        return;
+      }
 
-    if (!res.ok) {
-      setError('Incorrect password.');
-      return;
+      window.location.href = data.next || '/';
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
     }
-
-    window.location.href = data.next || '/';
   }
 
   return (
