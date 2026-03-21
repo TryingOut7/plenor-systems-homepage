@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendInquiryEmails } from '@/lib/email';
 import { logInquirySubmission } from '@/lib/db';
+import { verifyOrigin } from '@/lib/verify-origin';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(req: NextRequest) {
+  const rlError = rateLimit(req);
+  if (rlError) return rlError;
+
+  const originError = verifyOrigin(req);
+  if (originError) return originError;
+
   try {
     const body = await req.json();
     const { name, email, company, challenge } = body as {

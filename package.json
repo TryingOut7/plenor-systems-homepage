@@ -9,7 +9,8 @@
     "lint": "eslint",
     "payload": "payload",
     "generate:types": "payload generate:types",
-    "seed:site-pages": "node scripts/seed-site-pages.mjs"
+    "seed:site-pages": "node scripts/seed-site-pages.mjs",
+    "backup": "bash scripts/backup.sh"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.79.1",
