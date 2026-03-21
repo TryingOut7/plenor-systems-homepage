@@ -42,3 +42,13 @@ next-env.d.ts
 
 # backups
 /backups
+
+# local AI/dev tooling artifacts
+/.agent/
+/.agents/
+/.claude/
+/.code-review-graph/
+/.playwright-cli/
+/.playwright-mcp/
+/.mcp.json
+/skills-lock.json
