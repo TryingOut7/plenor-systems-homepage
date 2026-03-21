@@ -127,6 +127,7 @@ function resolveRedirectTarget(
 
 export async function proxy(request: NextRequest) {
   const password = process.env.STAGING_PASSWORD;
+  const stagingLockEnabled = process.env.STAGING_LOCK_ENABLED === 'true';
   const { pathname } = request.nextUrl;
 
   // Skip proxy for Payload API routes to avoid self-referential fetch deadlock
@@ -134,7 +135,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (password) {
+  if (stagingLockEnabled && password) {
     // Always allow the login page, its auth API route, the Payload admin panel, and API routes
     if (
       pathname === '/staging-login' ||
