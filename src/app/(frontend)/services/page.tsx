@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import UniversalSections from '@/components/cms/UniversalSections';
 import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import { buildBreadcrumbJsonLd } from '@/lib/breadcrumbs';
 
 export const revalidate = 60;
 
@@ -35,8 +36,17 @@ export default async function ServicesPage() {
   const siteName = siteSettings?.siteName || 'Plenor Systems';
   const siteUrl = siteSettings?.siteUrl || 'https://plenor.ai';
 
+  const breadcrumbs = buildBreadcrumbJsonLd([
+    { name: 'Home', url: siteUrl },
+    { name: 'Services', url: `${siteUrl}/services` },
+  ]);
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
