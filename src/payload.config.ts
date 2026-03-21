@@ -283,6 +283,9 @@ export default buildConfig({
     theme: adminTheme,
     timezones: adminTimezones,
     ...(adminToast ? { toast: adminToast } : {}),
+    components: {
+      afterLogin: ['src/payload/admin/components/OAuthLoginButton'],
+    },
     importMap: {
       baseDir: path.resolve(__dirname),
     },
