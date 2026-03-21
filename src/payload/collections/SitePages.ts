@@ -9,7 +9,7 @@ export const SitePages: CollectionConfig = {
   slug: 'site-pages',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'isActive'],
+    defaultColumns: ['title', 'slug', 'workflowStatus', 'isActive'],
   },
   access: {
     read: () => true,
