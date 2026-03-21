@@ -33,7 +33,7 @@ export default async function HomePage() {
     getCollectionData(),
   ]);
 
-  if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {
+  if (!sitePage) {
     notFound();
   }
 

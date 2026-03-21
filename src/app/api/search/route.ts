@@ -63,8 +63,8 @@ export async function GET(req: NextRequest) {
 
   for (const collSlug of collections) {
     try {
-      // Build where clause
-      const where: Where = {};
+      // Build where clause — only return published content
+      const where: Where = { workflowStatus: { equals: 'published' } };
 
       if (query) {
         const likeQuery = { like: `%${query}%` };

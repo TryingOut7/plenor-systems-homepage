@@ -42,7 +42,7 @@ export async function sendGuideEmail({
        </p>`
     : `<p style="margin:0 0 16px;color:#DC2626;font-size:14px;">
          <strong>Note:</strong> The guide PDF link has not been configured yet.
-         Please contact hello@plenor.ai to receive the guide.
+         Please contact ${CONTACT_EMAIL} to receive the guide.
        </p>`;
 
   await resend.emails.send({

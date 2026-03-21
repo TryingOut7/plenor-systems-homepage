@@ -611,6 +611,7 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(slug: st
       where: {
         slug: { equals: normalizedSlug },
         isActive: { equals: true },
+        workflowStatus: { equals: 'published' },
       },
       limit: 1,
       depth: 2,
@@ -758,7 +759,7 @@ export const getServiceItemBySlug = cache(async function getServiceItemBySlug(sl
     const payload = await getPayload();
     const result = await payload.find({
       collection: 'service-items',
-      where: { slug: { equals: normalizedSlug } },
+      where: { slug: { equals: normalizedSlug }, workflowStatus: { equals: 'published' } },
       limit: 1,
       depth: 1,
     });
