@@ -343,9 +343,9 @@ export default buildConfig({
       access: {
         admin: ({ req }) => userHasAnyRole(req, adminRoles),
         read: ({ req }) => !!req.user,
-        create: ({ req }) => userHasAnyRole(req, adminRoles),
-        update: ({ req }) => userHasAnyRole(req, adminRoles),
-        delete: ({ req }) => userHasAnyRole(req, adminRoles),
+        create: ({ req }) => userHasAnyRole(req, ['admin']),
+        update: ({ req }) => userHasAnyRole(req, ['admin']),
+        delete: ({ req }) => userHasAnyRole(req, ['admin']),
       },
       admin: {
         useAsTitle: 'email',
@@ -365,6 +365,9 @@ export default buildConfig({
             { label: 'Editor', value: 'editor' },
             { label: 'Author', value: 'author' },
           ],
+          access: {
+            update: ({ req }) => userHasAnyRole(req, ['admin']),
+          },
           admin: {
             position: 'sidebar',
           },
