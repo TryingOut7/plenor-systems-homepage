@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 export const revalidate = 60;
 import UniversalSections from '@/components/cms/UniversalSections';
 import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import { buildBreadcrumbJsonLd } from '@/lib/breadcrumbs';
 
 type RouteParams = {
   slug?: string[];
@@ -79,14 +80,35 @@ export default async function CmsDynamicPage({
     notFound();
   }
 
+  const siteUrl = siteSettings?.siteUrl || 'https://plenor.ai';
+  const segments = slug.split('/');
+  const breadcrumbItems = [{ name: 'Home', url: siteUrl }];
+  let path = '';
+  for (const segment of segments) {
+    path += `/${segment}`;
+    breadcrumbItems.push({
+      name: segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' '),
+      url: `${siteUrl}${path}`,
+    });
+  }
+  // Use the page title for the last breadcrumb
+  breadcrumbItems[breadcrumbItems.length - 1].name = page.title || breadcrumbItems[breadcrumbItems.length - 1].name;
+  const breadcrumbs = buildBreadcrumbJsonLd(breadcrumbItems);
+
   return (
-    <UniversalSections
-      documentId={page.id || 'sitePage'}
-      documentType="site-pages"
-      sections={page.sections}
-      collections={collectionData}
-      guideFormLabels={siteSettings?.guideForm}
-      inquiryFormLabels={siteSettings?.inquiryForm}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <UniversalSections
+        documentId={page.id || 'sitePage'}
+        documentType="site-pages"
+        sections={page.sections}
+        collections={collectionData}
+        guideFormLabels={siteSettings?.guideForm}
+        inquiryFormLabels={siteSettings?.inquiryForm}
+      />
+    </>
   );
 }
