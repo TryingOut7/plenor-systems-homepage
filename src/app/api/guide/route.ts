@@ -4,6 +4,7 @@ import { logGuideSubmission } from '@/lib/db';
 import { verifyOrigin } from '@/lib/verify-origin';
 import { rateLimit } from '@/lib/rate-limit';
 import { fireCrmWebhook } from '@/lib/crm-webhook';
+import { sanitizeTextField } from '@/lib/sanitize';
 
 export async function POST(req: NextRequest) {
   const rlError = rateLimit(req);
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     const entry = {
       type: 'guide',
-      name: name.trim(),
+      name: sanitizeTextField(name.trim()),
       email: email.trim().toLowerCase(),
       submittedAt: new Date().toISOString(),
     };

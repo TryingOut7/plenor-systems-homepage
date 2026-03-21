@@ -50,7 +50,10 @@ function resolveServerURL(): string {
 
 const serverURL = resolveServerURL();
 const dbRejectUnauthorized = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true';
-const dbPushSchema = process.env.PAYLOAD_DB_PUSH === 'true';
+const dbPushSchema =
+  process.env.PAYLOAD_DB_PUSH !== undefined
+    ? process.env.PAYLOAD_DB_PUSH === 'true'
+    : !!process.env.VERCEL;
 const enableNestedDocsPlugin = process.env.PAYLOAD_ENABLE_NESTED_DOCS === 'true';
 const adminThemeValues = ['all', 'dark', 'light'] as const;
 const adminAvatarValues = ['default', 'gravatar'] as const;
