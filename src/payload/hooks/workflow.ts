@@ -62,7 +62,9 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
   if (newStatus === oldStatus) return data;
 
   const role = getUserRole(req);
-  if (!role) return data;
+  if (!role) {
+    throw new Error('Workflow: cannot change status without an authenticated user role.');
+  }
 
   const allowed = transitions[oldStatus]?.[role] || [];
   if (!allowed.includes(newStatus)) {
@@ -129,7 +131,9 @@ export const workflowAfterChange: CollectionAfterChangeHook = async ({
     const adminEmail = process.env.WORKFLOW_NOTIFY_EMAIL || process.env.RESEND_FROM_EMAIL;
     if (!adminEmail) return doc;
 
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@example.com';
     await req.payload.sendEmail({
+      from: fromEmail,
       to: adminEmail,
       subject,
       text,

@@ -33,6 +33,7 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
   try {
     await req.payload.create({
       collection: 'audit-logs',
+      overrideAccess: true,
       data: {
         action,
         collection: collection.slug,
@@ -65,6 +66,7 @@ export const auditAfterDelete: CollectionAfterDeleteHook = async ({
   try {
     await req.payload.create({
       collection: 'audit-logs',
+      overrideAccess: true,
       data: {
         action: 'delete' as const,
         collection: collection.slug,
