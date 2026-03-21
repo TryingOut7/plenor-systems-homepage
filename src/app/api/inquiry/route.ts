@@ -3,6 +3,7 @@ import { sendInquiryEmails } from '@/lib/email';
 import { logInquirySubmission } from '@/lib/db';
 import { verifyOrigin } from '@/lib/verify-origin';
 import { rateLimit } from '@/lib/rate-limit';
+import { fireCrmWebhook } from '@/lib/crm-webhook';
 
 export async function POST(req: NextRequest) {
   const rlError = rateLimit(req);
@@ -48,6 +49,13 @@ export async function POST(req: NextRequest) {
     } catch {
       console.error('DB log failed for inquiry submission — entry:', JSON.stringify(entry));
     }
+
+    // Fire CRM webhook (non-blocking)
+    fireCrmWebhook({
+      event: 'inquiry',
+      timestamp: entry.submittedAt,
+      data: { name: entry.name, email: entry.email, company: entry.company, challenge: entry.challenge },
+    });
 
     // Route inquiry to Plenor Systems inbox + send acknowledgment to visitor
     await sendInquiryEmails({

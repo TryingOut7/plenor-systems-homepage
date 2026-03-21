@@ -3,6 +3,7 @@ import { sendGuideEmail } from '@/lib/email';
 import { logGuideSubmission } from '@/lib/db';
 import { verifyOrigin } from '@/lib/verify-origin';
 import { rateLimit } from '@/lib/rate-limit';
+import { fireCrmWebhook } from '@/lib/crm-webhook';
 
 export async function POST(req: NextRequest) {
   const rlError = rateLimit(req);
@@ -36,6 +37,13 @@ export async function POST(req: NextRequest) {
     } catch {
       console.error('DB log failed for guide submission — entry:', JSON.stringify(entry));
     }
+
+    // Fire CRM webhook (non-blocking)
+    fireCrmWebhook({
+      event: 'guide_download',
+      timestamp: entry.submittedAt,
+      data: { name: entry.name, email: entry.email },
+    });
 
     // Send guide delivery email via Resend
     await sendGuideEmail({ name: entry.name, email: entry.email });
