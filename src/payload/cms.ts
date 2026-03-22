@@ -170,6 +170,8 @@ export type SitePage = {
   slug?: string;
   pageMode?: 'builder' | 'template';
   templateKey?: 'default' | 'landing' | 'article' | 'product';
+  presetKey?: 'custom' | 'home' | 'services' | 'about' | 'pricing' | 'contact';
+  presetContent?: Record<string, unknown>;
   isActive?: boolean;
   seo?: SeoFields;
   sections?: PageSection[];
@@ -867,6 +869,8 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(slug: st
       slug: (d.slug as string | undefined) || fallback?.slug,
       pageMode: d.pageMode as SitePage['pageMode'],
       templateKey: d.templateKey as SitePage['templateKey'],
+      presetKey: d.presetKey as SitePage['presetKey'],
+      presetContent: d.presetContent as SitePage['presetContent'],
       isActive: d.isActive as boolean | undefined,
       seo: normalizeSeo(d.seo),
       sections: resolvedSections,

@@ -114,6 +114,43 @@ function getImageAlt(media: unknown): string {
   return String((media as Record<string, unknown>).alt || '');
 }
 
+function readArrayEntries(value: unknown): Array<Record<string, unknown>> {
+  if (!Array.isArray(value)) return [];
+  return value.filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object');
+}
+
+function readParagraphArray(value: unknown): string[] {
+  return readArrayEntries(value)
+    .map((entry) => (typeof entry.paragraph === 'string' ? entry.paragraph.trim() : ''))
+    .filter(Boolean);
+}
+
+function readItemArray(value: unknown): string[] {
+  return readArrayEntries(value)
+    .map((entry) => (typeof entry.item === 'string' ? entry.item.trim() : ''))
+    .filter(Boolean);
+}
+
+function readAudienceArray(value: unknown): Array<{ label: string; copy: string }> {
+  return readArrayEntries(value)
+    .map((entry) => {
+      const label = typeof entry.label === 'string' ? entry.label.trim() : '';
+      const copy = typeof entry.copy === 'string' ? entry.copy.trim() : '';
+      return { label, copy };
+    })
+    .filter((entry) => entry.label && entry.copy);
+}
+
+function readChecklistArray(value: unknown): Array<{ title: string; description: string }> {
+  return readArrayEntries(value)
+    .map((entry) => {
+      const title = typeof entry.title === 'string' ? entry.title.trim() : '';
+      const description = typeof entry.description === 'string' ? entry.description.trim() : '';
+      return { title, description };
+    })
+    .filter((entry) => entry.title && entry.description);
+}
+
 function matchesFilter(item: Record<string, unknown>, filterField?: string, filterValue?: string): boolean {
   if (!filterField || !filterValue) return true;
   const field = item[filterField];
@@ -303,6 +340,603 @@ export default function UniversalSections({
               >
                 {String(section.buttonLabel)}
               </Link>
+            ) : null}
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'legacyHeroSection') {
+      const dark = isDarkTheme(theme);
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={{
+            ...sectionStyle,
+            padding: heroPadding[size],
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          {dark ? (
+            <div
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                pointerEvents: 'none',
+                backgroundImage: `
+                  linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
+                `,
+                backgroundSize: '80px 80px',
+              }}
+            />
+          ) : null}
+
+          <div style={{ ...inner, maxWidth: '760px', position: 'relative', zIndex: 1 }}>
+            {typeof section.eyebrow === 'string' && section.eyebrow.trim() ? (
+              <p
+                className="section-label"
+                style={{
+                  color: dark ? 'var(--ui-color-dark-text-muted)' : 'var(--ui-color-text-muted)',
+                  marginBottom: '24px',
+                }}
+              >
+                {section.eyebrow}
+              </p>
+            ) : null}
+            <h1
+              style={{
+                fontFamily: 'var(--ui-font-display)',
+                fontSize: 'clamp(40px, 6vw, 72px)',
+                fontWeight: 700,
+                lineHeight: 1.08,
+                letterSpacing: '-0.03em',
+                marginBottom: section.subheading ? '20px' : '0',
+                color: dark ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)',
+              }}
+            >
+              {String(section.heading || '')}
+            </h1>
+            {section.subheading ? (
+              <p
+                style={{
+                  fontSize: '18px',
+                  lineHeight: 1.6,
+                  color: dark ? 'var(--ui-color-dark-text-muted)' : 'var(--ui-color-text-muted)',
+                  marginBottom:
+                    typeof section.primaryCtaLabel === 'string' && section.primaryCtaLabel.trim()
+                      ? '36px'
+                      : 0,
+                }}
+              >
+                {String(section.subheading)}
+              </p>
+            ) : null}
+
+            {typeof section.primaryCtaLabel === 'string' && section.primaryCtaLabel.trim() ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                <Link
+                  href={normalizePath(String(section.primaryCtaHref || '#'))}
+                  className={dark ? 'btn-ghost' : 'btn-primary'}
+                >
+                  {section.primaryCtaLabel}
+                </Link>
+                {typeof section.secondaryCtaLabel === 'string' && section.secondaryCtaLabel.trim() ? (
+                  <Link
+                    href={normalizePath(String(section.secondaryCtaHref || '#'))}
+                    className="btn-secondary"
+                  >
+                    {section.secondaryCtaLabel}
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'legacyNarrativeSection') {
+      const paragraphs = readParagraphArray(section.paragraphs);
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={{ ...inner, maxWidth: '760px' }}>
+            {typeof section.sectionLabel === 'string' && section.sectionLabel.trim() ? (
+              <p className="section-label" style={{ marginBottom: '16px', color: mutedColor(theme) }}>
+                {section.sectionLabel}
+              </p>
+            ) : null}
+            {section.heading ? (
+              <h2
+                style={{
+                  fontFamily: 'var(--ui-font-display)',
+                  fontSize: 'clamp(28px, 4vw, 44px)',
+                  fontWeight: 700,
+                  color: headingColor(theme),
+                  lineHeight: 1.15,
+                  letterSpacing: '-0.02em',
+                  marginBottom: '20px',
+                }}
+              >
+                {String(section.heading)}
+              </h2>
+            ) : null}
+            <div
+              style={{
+                width: '40px',
+                height: '3px',
+                backgroundColor: headingColor(theme),
+                marginBottom: paragraphs.length > 0 ? '28px' : '0',
+                borderRadius: '2px',
+              }}
+              aria-hidden="true"
+            />
+
+            {paragraphs.map((paragraph, paragraphIndex) => (
+              <p
+                key={`${key}-paragraph-${paragraphIndex}`}
+                style={{
+                  fontSize: '17px',
+                  lineHeight: 1.7,
+                  color: bodyColor(theme),
+                  marginBottom: paragraphIndex < paragraphs.length - 1 ? '20px' : '0',
+                }}
+              >
+                {paragraph}
+              </p>
+            ))}
+
+            {typeof section.linkLabel === 'string' && section.linkLabel.trim() ? (
+              <div style={{ marginTop: '28px' }}>
+                <Link
+                  href={normalizePath(String(section.linkHref || '#'))}
+                  style={{
+                    color: headingColor(theme),
+                    fontWeight: 600,
+                    fontSize: '15px',
+                    textDecoration: 'none',
+                  }}
+                  className="text-link"
+                >
+                  {section.linkLabel}
+                </Link>
+              </div>
+            ) : null}
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'legacyNumberedStageSection') {
+      const items = readItemArray(section.items);
+      const dark = isDarkTheme(theme);
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={{ ...inner, maxWidth: '760px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '40px' }}>
+              <span
+                aria-hidden="true"
+                style={{
+                  fontFamily: 'var(--ui-font-display)',
+                  fontSize: 'clamp(80px, 12vw, 140px)',
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  letterSpacing: '-0.04em',
+                  marginLeft: '-4px',
+                  userSelect: 'none',
+                  color: dark ? 'rgba(255,255,255,0.12)' : 'rgba(27,45,79,0.07)',
+                }}
+              >
+                {String(section.stageNumber || '01')}
+              </span>
+            </div>
+
+            <p className="section-label" style={{ marginBottom: '16px', color: mutedColor(theme) }}>
+              {String(section.stageLabel || 'Stage')}
+            </p>
+            <h2
+              style={{
+                fontFamily: 'var(--ui-font-display)',
+                fontSize: 'clamp(28px, 4vw, 42px)',
+                fontWeight: 700,
+                color: headingColor(theme),
+                lineHeight: 1.15,
+                letterSpacing: '-0.02em',
+                marginBottom: '20px',
+              }}
+            >
+              {String(section.heading || '')}
+            </h2>
+            <div
+              style={{
+                width: '40px',
+                height: '3px',
+                backgroundColor: headingColor(theme),
+                marginBottom: '28px',
+                borderRadius: '2px',
+              }}
+              aria-hidden="true"
+            />
+
+            {section.body ? (
+              <p style={{ fontSize: '17px', color: bodyColor(theme), lineHeight: 1.7, marginBottom: '36px' }}>
+                {String(section.body)}
+              </p>
+            ) : null}
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '32px',
+              }}
+            >
+              <div>
+                <h3
+                  style={{
+                    fontFamily: 'var(--ui-font-display)',
+                    fontSize: '18px',
+                    fontWeight: 700,
+                    color: headingColor(theme),
+                    marginBottom: '16px',
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  What it covers
+                </h3>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {items.map((item) => (
+                    <li
+                      key={`${key}-${item}`}
+                      style={{
+                        display: 'flex',
+                        gap: '16px',
+                        alignItems: 'flex-start',
+                        fontSize: '16px',
+                        color: bodyColor(theme),
+                        lineHeight: 1.65,
+                      }}
+                    >
+                      <span
+                        aria-hidden="true"
+                        style={{
+                          flexShrink: 0,
+                          marginTop: '8px',
+                          width: '6px',
+                          height: '6px',
+                          borderRadius: '50%',
+                          backgroundColor: dark ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)',
+                          display: 'inline-block',
+                        }}
+                      />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {section.whoForBody ? (
+                <div
+                  style={{
+                    backgroundColor:
+                      theme === 'white' || theme === 'light'
+                        ? 'var(--ui-color-section-alt)'
+                        : 'rgba(255,255,255,0.08)',
+                    borderLeft: `3px solid ${dark ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)'}`,
+                    borderRadius: '0 var(--ui-button-radius) var(--ui-button-radius) 0',
+                    padding: '20px 24px',
+                  }}
+                >
+                  <p style={{ fontWeight: 600, fontSize: '14px', color: headingColor(theme), marginBottom: '6px' }}>
+                    {String(section.whoForHeading || 'Who it is for')}
+                  </p>
+                  <p style={{ fontSize: '14px', color: bodyColor(theme), lineHeight: 1.6 }}>
+                    {String(section.whoForBody)}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'legacyAudienceGridSection') {
+      const audiences = readAudienceArray(section.audiences);
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={{ ...inner, maxWidth: '900px' }}>
+            {typeof section.sectionLabel === 'string' && section.sectionLabel.trim() ? (
+              <p className="section-label" style={{ marginBottom: '16px', color: mutedColor(theme) }}>
+                {section.sectionLabel}
+              </p>
+            ) : null}
+            {section.heading ? (
+              <h2
+                style={{
+                  fontFamily: 'var(--ui-font-display)',
+                  fontSize: 'clamp(26px, 3.5vw, 38px)',
+                  fontWeight: 700,
+                  color: headingColor(theme),
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1.15,
+                  marginBottom: '40px',
+                }}
+              >
+                {String(section.heading)}
+              </h2>
+            ) : null}
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                gap: '2px',
+                backgroundColor:
+                  theme === 'white' || theme === 'light'
+                    ? 'var(--ui-color-border)'
+                    : 'rgba(255,255,255,0.2)',
+                borderRadius: '6px',
+                overflow: 'hidden',
+              }}
+            >
+              {audiences.map((audience, audienceIndex) => (
+                <div
+                  key={`${key}-audience-${audienceIndex}`}
+                  style={{
+                    backgroundColor:
+                      theme === 'white' || theme === 'light'
+                        ? 'var(--ui-color-surface)'
+                        : 'rgba(0,0,0,0.1)',
+                    padding: '32px 28px',
+                  }}
+                >
+                  <p
+                    style={{
+                      fontFamily: 'var(--ui-font-display)',
+                      fontWeight: 700,
+                      fontSize: '20px',
+                      color: headingColor(theme),
+                      marginBottom: '10px',
+                      letterSpacing: '-0.01em',
+                    }}
+                  >
+                    {audience.label}
+                  </p>
+                  <p style={{ fontSize: '14px', color: bodyColor(theme), lineHeight: 1.65 }}>
+                    {audience.copy}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {typeof section.footerText === 'string' && section.footerText.trim() ? (
+              <p style={{ fontSize: '14px', color: bodyColor(theme), marginTop: '20px' }}>
+                {section.footerText}
+              </p>
+            ) : null}
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'legacyChecklistSection') {
+      const checklistItems = readChecklistArray(section.items);
+      const dark = isDarkTheme(theme);
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={{ ...inner, maxWidth: '860px' }}>
+            {typeof section.sectionLabel === 'string' && section.sectionLabel.trim() ? (
+              <p className="section-label" style={{ marginBottom: '16px', color: mutedColor(theme) }}>
+                {section.sectionLabel}
+              </p>
+            ) : null}
+            {section.heading ? (
+              <h2
+                style={{
+                  fontFamily: 'var(--ui-font-display)',
+                  fontSize: 'clamp(26px, 3.5vw, 38px)',
+                  fontWeight: 700,
+                  color: headingColor(theme),
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1.15,
+                  marginBottom: '20px',
+                }}
+              >
+                {String(section.heading)}
+              </h2>
+            ) : null}
+            <div
+              style={{
+                width: '40px',
+                height: '3px',
+                backgroundColor: headingColor(theme),
+                marginBottom: '40px',
+                borderRadius: '2px',
+              }}
+              aria-hidden="true"
+            />
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+              {checklistItems.map((item, itemIndex) => (
+                <div
+                  key={`${key}-check-${itemIndex}`}
+                  style={{
+                    display: 'flex',
+                    gap: '28px',
+                    alignItems: 'flex-start',
+                    padding: '28px 0',
+                    borderBottom:
+                      itemIndex < checklistItems.length - 1
+                        ? `1px solid ${theme === 'white' || theme === 'light' ? 'var(--ui-color-border)' : 'rgba(255,255,255,0.2)'}`
+                        : 'none',
+                  }}
+                >
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      flexShrink: 0,
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '50%',
+                      backgroundColor: dark ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginTop: '2px',
+                    }}
+                  >
+                    <svg width="14" height="14" fill="none" stroke={dark ? 'var(--ui-color-black-bg)' : 'var(--ui-color-dark-text)'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <polyline points="12 3 5.5 9.5 2.5 6.5" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: 600, fontSize: '16px', color: headingColor(theme), marginBottom: '4px' }}>
+                      {item.title}
+                    </p>
+                    <p style={{ fontSize: '15px', color: bodyColor(theme), lineHeight: 1.65 }}>
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {typeof section.footerBody === 'string' && section.footerBody.trim() ? (
+              <p style={{ fontSize: '15px', color: bodyColor(theme), lineHeight: 1.65, marginTop: '32px' }}>
+                {section.footerBody}
+              </p>
+            ) : null}
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'legacyQuoteSection') {
+      const dark = isDarkTheme(theme);
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={{
+            ...sectionStyle,
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              top: '-20px',
+              left: '20px',
+              fontFamily: 'var(--ui-font-display)',
+              fontSize: 'clamp(160px, 24vw, 320px)',
+              fontWeight: 700,
+              lineHeight: 1,
+              userSelect: 'none',
+              pointerEvents: 'none',
+              color: dark ? 'rgba(255,255,255,0.1)' : 'rgba(27,45,79,0.05)',
+            }}
+          >
+            &ldquo;
+          </div>
+          <div style={{ ...inner, maxWidth: '760px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+            {typeof section.sectionLabel === 'string' && section.sectionLabel.trim() ? (
+              <p className="section-label" style={{ marginBottom: '32px', color: mutedColor(theme) }}>
+                {section.sectionLabel}
+              </p>
+            ) : null}
+            <h2
+              style={{
+                fontFamily: 'var(--ui-font-display)',
+                fontSize: 'clamp(24px, 3.5vw, 36px)',
+                fontWeight: 700,
+                color: headingColor(theme),
+                lineHeight: 1.35,
+                letterSpacing: '-0.02em',
+                fontStyle: 'italic',
+                maxWidth: '640px',
+                margin: '0 auto',
+              }}
+            >
+              {String(section.quote || '')}
+            </h2>
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'legacyCenteredCtaSection') {
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={{ ...inner, maxWidth: '620px', textAlign: 'center' }}>
+            <h2
+              style={{
+                fontFamily: 'var(--ui-font-display)',
+                fontSize: 'clamp(26px, 4vw, 38px)',
+                fontWeight: 700,
+                color: headingColor(theme),
+                letterSpacing: '-0.02em',
+                lineHeight: 1.2,
+                marginBottom: section.body ? '16px' : '0',
+              }}
+            >
+              {String(section.heading || '')}
+            </h2>
+            {section.body ? (
+              <p style={{ fontSize: '17px', color: bodyColor(theme), lineHeight: 1.65, marginBottom: section.buttonLabel ? '32px' : 0 }}>
+                {String(section.body)}
+              </p>
+            ) : null}
+            {typeof section.buttonLabel === 'string' && section.buttonLabel.trim() ? (
+              <Link
+                href={normalizePath(String(section.buttonHref || '#'))}
+                className={isDarkTheme(theme) ? 'btn-ghost' : 'btn-secondary'}
+              >
+                {section.buttonLabel}
+              </Link>
+            ) : null}
+
+            {typeof section.secondaryLinkLabel === 'string' && section.secondaryLinkLabel.trim() ? (
+              <div style={{ marginTop: '18px' }}>
+                <Link
+                  href={normalizePath(String(section.secondaryLinkHref || '#'))}
+                  style={{ color: bodyColor(theme), fontSize: '14px', textDecoration: 'none', fontWeight: 500 }}
+                  className="text-link"
+                >
+                  {section.secondaryLinkLabel}
+                </Link>
+              </div>
             ) : null}
           </div>
         </section>

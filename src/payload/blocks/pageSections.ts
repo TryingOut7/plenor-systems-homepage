@@ -258,6 +258,126 @@ const DynamicListSection: Block = {
   ],
 };
 
+const LegacyHeroSection: Block = {
+  slug: 'legacyHeroSection',
+  dbName: 'legacy_hero',
+  labels: { singular: 'Legacy Hero', plural: 'Legacy Heroes' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'eyebrow', type: 'text' },
+    { name: 'heading', type: 'textarea', required: true },
+    { name: 'subheading', type: 'textarea' },
+    { name: 'primaryCtaLabel', type: 'text' },
+    { name: 'primaryCtaHref', type: 'text' },
+    { name: 'secondaryCtaLabel', type: 'text' },
+    { name: 'secondaryCtaHref', type: 'text' },
+  ],
+};
+
+const LegacyNarrativeSection: Block = {
+  slug: 'legacyNarrativeSection',
+  dbName: 'legacy_narrative',
+  labels: { singular: 'Legacy Narrative', plural: 'Legacy Narratives' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'sectionLabel', type: 'text' },
+    { name: 'heading', type: 'text' },
+    {
+      name: 'paragraphs',
+      type: 'array',
+      fields: [{ name: 'paragraph', type: 'textarea', required: true }],
+    },
+    { name: 'linkLabel', type: 'text' },
+    { name: 'linkHref', type: 'text' },
+  ],
+};
+
+const LegacyNumberedStageSection: Block = {
+  slug: 'legacyNumberedStageSection',
+  dbName: 'legacy_stage',
+  labels: { singular: 'Legacy Numbered Stage', plural: 'Legacy Numbered Stages' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'stageNumber', type: 'text', defaultValue: '01' },
+    { name: 'stageLabel', type: 'text', defaultValue: 'Stage' },
+    { name: 'heading', type: 'text', required: true },
+    { name: 'body', type: 'textarea' },
+    {
+      name: 'items',
+      type: 'array',
+      fields: [{ name: 'item', type: 'textarea', required: true }],
+    },
+    { name: 'whoForHeading', type: 'text', defaultValue: 'Who it is for' },
+    { name: 'whoForBody', type: 'textarea' },
+  ],
+};
+
+const LegacyAudienceGridSection: Block = {
+  slug: 'legacyAudienceGridSection',
+  dbName: 'legacy_audience',
+  labels: { singular: 'Legacy Audience Grid', plural: 'Legacy Audience Grids' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'sectionLabel', type: 'text' },
+    { name: 'heading', type: 'text' },
+    {
+      name: 'audiences',
+      type: 'array',
+      fields: [
+        { name: 'label', type: 'text', required: true },
+        { name: 'copy', type: 'textarea', required: true },
+      ],
+    },
+    { name: 'footerText', type: 'text' },
+  ],
+};
+
+const LegacyChecklistSection: Block = {
+  slug: 'legacyChecklistSection',
+  dbName: 'legacy_checklist',
+  labels: { singular: 'Legacy Checklist', plural: 'Legacy Checklists' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'sectionLabel', type: 'text' },
+    { name: 'heading', type: 'text' },
+    {
+      name: 'items',
+      type: 'array',
+      fields: [
+        { name: 'title', type: 'text', required: true },
+        { name: 'description', type: 'textarea', required: true },
+      ],
+    },
+    { name: 'footerBody', type: 'textarea' },
+  ],
+};
+
+const LegacyQuoteSection: Block = {
+  slug: 'legacyQuoteSection',
+  dbName: 'legacy_quote',
+  labels: { singular: 'Legacy Quote', plural: 'Legacy Quotes' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'sectionLabel', type: 'text' },
+    { name: 'quote', type: 'textarea', required: true },
+  ],
+};
+
+const LegacyCenteredCtaSection: Block = {
+  slug: 'legacyCenteredCtaSection',
+  dbName: 'legacy_cta',
+  labels: { singular: 'Legacy Centered CTA', plural: 'Legacy Centered CTAs' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'heading', type: 'text', required: true },
+    { name: 'body', type: 'textarea' },
+    { name: 'buttonLabel', type: 'text' },
+    { name: 'buttonHref', type: 'text' },
+    { name: 'secondaryLinkLabel', type: 'text' },
+    { name: 'secondaryLinkHref', type: 'text' },
+  ],
+};
+
 const ReusableSectionReference: Block = {
   slug: 'reusableSectionReference',
   dbName: 'reuse_sec_ref',
@@ -309,6 +429,13 @@ export const pageSectionBlocks: Block[] = [
   SimpleTableSection,
   ComparisonTableSection,
   DynamicListSection,
+  LegacyHeroSection,
+  LegacyNarrativeSection,
+  LegacyNumberedStageSection,
+  LegacyAudienceGridSection,
+  LegacyChecklistSection,
+  LegacyQuoteSection,
+  LegacyCenteredCtaSection,
   ReusableSectionReference,
   SpacerSection,
   DividerSection,
