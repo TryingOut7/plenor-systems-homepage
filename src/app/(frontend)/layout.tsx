@@ -7,6 +7,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import AnnouncementBanner from '@/components/AnnouncementBanner';
 import CookieBanner from '@/components/CookieBanner';
 import DraftModeBanner from '@/components/DraftModeBanner';
 import SkipLink from '@/components/SkipLink';
@@ -106,6 +107,9 @@ function buildUIVariableStyles(uiSettings: UISettings | null): CSSProperties {
   setVar('--ui-color-cookie-bg', colors?.cookieBackground);
   setVar('--ui-color-cookie-text', colors?.cookieText);
   setVar('--ui-color-cookie-link', colors?.cookieLink);
+  setVar('--ui-nav-background', colors?.navBackground);
+  setVar('--ui-nav-scrolled-background', colors?.navScrolledBackground);
+  setVar('--ui-nav-border', colors?.navBorder);
 
   const typography = uiSettings?.typography;
   setVar('--ui-font-body', typography?.bodyFontFamily);
@@ -116,6 +120,7 @@ function buildUIVariableStyles(uiSettings: UISettings | null): CSSProperties {
   setVar('--ui-section-label-letter-spacing', typography?.sectionLabelLetterSpacing);
 
   const layout = uiSettings?.layout;
+  setPixelVar('--ui-nav-height', layout?.navHeight);
   setVar('--ui-layout-container-max-width', layout?.containerMaxWidth);
   setVar('--ui-spacing-section-compact', layout?.sectionPaddingCompact);
   setVar('--ui-spacing-section-regular', layout?.sectionPaddingRegular);
@@ -140,6 +145,7 @@ function buildUIVariableStyles(uiSettings: UISettings | null): CSSProperties {
   setVar('--ui-button-nav-bg', buttons?.navBackground);
   setVar('--ui-button-nav-bg-hover', buttons?.navBackgroundHover);
   setVar('--ui-button-nav-text', buttons?.navText);
+  setPixelVar('--ui-card-radius', layout?.cardRadius);
 
   return variables as CSSProperties;
 }
@@ -179,17 +185,33 @@ export default async function RootLayout({
     url: siteUrl,
   };
   const uiVariableStyles = buildUIVariableStyles(uiSettings);
+  const headingFontUrl = uiSettings?.typography?.headingFontUrl;
+  const bodyFontUrl = uiSettings?.typography?.bodyFontUrl;
 
   return (
     <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
+      <head>
+        {headingFontUrl && <link rel="stylesheet" href={headingFontUrl} />}
+        {bodyFontUrl && <link rel="stylesheet" href={bodyFontUrl} />}
+      </head>
       <body style={uiVariableStyles}>
         <SkipLink />
+        <AnnouncementBanner
+          enabled={siteSettings?.announcementBanner?.enabled}
+          text={siteSettings?.announcementBanner?.text}
+          linkLabel={siteSettings?.announcementBanner?.linkLabel}
+          linkHref={siteSettings?.announcementBanner?.linkHref}
+          backgroundColor={siteSettings?.announcementBanner?.backgroundColor}
+          textColor={siteSettings?.announcementBanner?.textColor}
+        />
         <Navbar
           siteName={siteSettings?.siteName}
           navigationLinks={siteSettings?.navigationLinks}
           primaryCtaLabel={siteSettings?.primaryCtaLabel}
           primaryCtaHref={siteSettings?.primaryCtaHref}
           headerButtons={siteSettings?.headerButtons}
+          logoImage={siteSettings?.logoImage as { url?: string; alt?: string; width?: number; height?: number } | undefined}
+          logoWidth={siteSettings?.logoWidth}
         />
         <main id="main-content" tabIndex={-1} style={{ outline: 'none' }}>
           {children}

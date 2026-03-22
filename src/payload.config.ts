@@ -27,8 +27,11 @@ import { SitePages } from './payload/collections/SitePages';
 import { ReusableSections } from './payload/collections/ReusableSections';
 import { RedirectRules } from './payload/collections/RedirectRules';
 import { BlogPosts } from './payload/collections/BlogPosts';
+import { BlogCategories } from './payload/collections/BlogCategories';
 import { Testimonials } from './payload/collections/Testimonials';
 import { AuditLogs } from './payload/collections/AuditLogs';
+import { TeamMembers } from './payload/collections/TeamMembers';
+import { Logos } from './payload/collections/Logos';
 import { SiteSettings } from './payload/globals/SiteSettings';
 import { UISettings } from './payload/globals/UISettings';
 
@@ -382,8 +385,11 @@ export default buildConfig({
     ReusableSections,
     RedirectRules,
     BlogPosts,
+    BlogCategories,
     Testimonials,
     AuditLogs,
+    TeamMembers,
+    Logos,
   ],
   globals: [SiteSettings, UISettings],
   editor: lexicalEditor(),

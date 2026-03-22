@@ -6,6 +6,7 @@ import Link from 'next/link';
 import RichText from './RichText';
 import GuideForm from '@/components/GuideForm';
 import InquiryForm from '@/components/InquiryForm';
+import FormRenderer from './FormRenderer';
 import type {
   BlogPost,
   CollectionData,
@@ -280,6 +281,46 @@ function resolveColorDarkness(color: string): boolean | undefined {
   return luminance < 0.45;
 }
 
+type HeadingSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4';
+
+const HEADING_FONT_SIZE: Record<HeadingSize, string> = {
+  xs: 'clamp(16px, 2vw, 20px)',
+  sm: 'clamp(20px, 3vw, 28px)',
+  md: 'clamp(26px, 4vw, 40px)',
+  lg: 'clamp(32px, 5vw, 52px)',
+  xl: 'clamp(40px, 6vw, 64px)',
+};
+
+function normalizeHeadingSize(value: unknown): HeadingSize {
+  if (value === 'xs' || value === 'sm' || value === 'md' || value === 'lg' || value === 'xl') return value;
+  return 'md';
+}
+
+function normalizeHeadingTag(value: unknown): HeadingTag {
+  if (value === 'h1' || value === 'h2' || value === 'h3' || value === 'h4') return value;
+  return 'h2';
+}
+
+function normalizeTextAlign(value: unknown): 'left' | 'center' | 'right' | undefined {
+  if (value === 'left' || value === 'center' || value === 'right') return value;
+  return undefined;
+}
+
+function isSectionVisible(section: Record<string, unknown>): boolean {
+  if (section.isHidden === true) return false;
+  const now = Date.now();
+  if (typeof section.visibleFrom === 'string' && section.visibleFrom) {
+    const from = new Date(section.visibleFrom).getTime();
+    if (Number.isFinite(from) && now < from) return false;
+  }
+  if (typeof section.visibleUntil === 'string' && section.visibleUntil) {
+    const until = new Date(section.visibleUntil).getTime();
+    if (Number.isFinite(until) && now > until) return false;
+  }
+  return true;
+}
+
 function normalizePath(path: string): string {
   if (!path) return '/';
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
@@ -443,6 +484,208 @@ function ImageSlideshow({ images }: { images: NormalizedImage[] }) {
   );
 }
 
+function SectionHeading({
+  tag = 'h2',
+  fontSize,
+  style,
+  children,
+}: {
+  tag?: HeadingTag;
+  fontSize?: string;
+  style?: CSSProperties;
+  children: React.ReactNode;
+}) {
+  const Tag = tag;
+  const mergedStyle: CSSProperties = {
+    ...style,
+    ...(fontSize ? { fontSize } : {}),
+  };
+  return <Tag style={mergedStyle}>{children}</Tag>;
+}
+
+function FaqAccordion({ items, theme }: { items: Array<{ question: string; answer: string }>; theme: SectionTheme }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const dark = isDarkTheme(theme);
+  return (
+    <div>
+      {items.map((item, idx) => (
+        <div
+          key={idx}
+          style={{ borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.15)' : 'var(--ui-color-border)'}` }}
+        >
+          <button
+            type="button"
+            aria-expanded={openIndex === idx}
+            aria-controls={`faq-answer-${idx}`}
+            onClick={() => setOpenIndex((prev) => (prev === idx ? null : idx))}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: '100%',
+              padding: '20px 0',
+              background: 'none',
+              border: 0,
+              cursor: 'pointer',
+              textAlign: 'left',
+              fontFamily: 'var(--ui-font-body)',
+              fontWeight: 600,
+              fontSize: '16px',
+              color: dark ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)',
+            }}
+          >
+            {item.question}
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              style={{
+                flexShrink: 0,
+                marginLeft: '16px',
+                transform: openIndex === idx ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s',
+              }}
+            >
+              <polyline points="4 6 8 10 12 6" />
+            </svg>
+          </button>
+          <div id={`faq-answer-${idx}`} style={{ display: openIndex === idx ? 'block' : 'none', paddingBottom: '20px' }}>
+            <p style={{ fontSize: '15px', lineHeight: 1.7, color: dark ? 'var(--ui-color-dark-text-muted)' : 'var(--ui-color-text-muted)', margin: 0 }}>
+              {item.answer}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TabsSectionRenderer({
+  sectionKey, section, tabs, sectionStyle, inner, theme, headingColor, mutedColor, bodyColor, hTag = 'h2', hFontSize,
+}: {
+  sectionKey: string;
+  section: Record<string, unknown>;
+  tabs: unknown[];
+  sectionStyle: React.CSSProperties;
+  inner: React.CSSProperties;
+  theme: SectionTheme;
+  headingColor: string;
+  mutedColor: string;
+  bodyColor: string;
+  hTag?: HeadingTag;
+  hFontSize?: string;
+}) {
+  const [activeTab, setActiveTab] = useState(0);
+  const dark = isDarkTheme(theme);
+  const tabItems = tabs.map((t: unknown) => {
+    const tab = t && typeof t === 'object' ? (t as Record<string, unknown>) : {};
+    const imgObj = tab.image && typeof tab.image === 'object' ? (tab.image as Record<string, unknown>) : null;
+    const imageUrl = imgObj ? (typeof imgObj.url === 'string' ? imgObj.url : '') : '';
+    return {
+      label: typeof tab.label === 'string' ? tab.label : '',
+      heading: typeof tab.heading === 'string' ? tab.heading : '',
+      body: typeof tab.body === 'string' ? tab.body : '',
+      imageUrl,
+      linkLabel: typeof tab.linkLabel === 'string' ? tab.linkLabel : '',
+      linkHref: typeof tab.linkHref === 'string' ? tab.linkHref : '',
+    };
+  });
+  const safeActive = Math.min(activeTab, Math.max(tabItems.length - 1, 0));
+  const current = tabItems[safeActive];
+  return (
+    <section
+      id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+      style={sectionStyle}
+      className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+    >
+      <div style={inner}>
+        {section.heading ? (
+          <SectionHeading tag={hTag} style={{ textAlign: 'center', marginBottom: section.subheading ? '8px' : '32px', color: headingColor, fontSize: hFontSize }}>{String(section.heading)}</SectionHeading>
+        ) : null}
+        {section.subheading ? (
+          <p style={{ textAlign: 'center', marginBottom: '32px', color: mutedColor }}>{String(section.subheading)}</p>
+        ) : null}
+        <div
+          role="tablist"
+          style={{
+            display: 'flex',
+            gap: '4px',
+            borderBottom: `2px solid ${dark ? 'rgba(255,255,255,0.15)' : 'var(--ui-color-border)'}`,
+            marginBottom: '32px',
+            flexWrap: 'wrap',
+          }}
+        >
+          {tabItems.map((tab, idx) => (
+            <button
+              key={`${sectionKey}-tab-${idx}`}
+              role="tab"
+              aria-selected={idx === safeActive}
+              aria-controls={`${sectionKey}-tabpanel-${idx}`}
+              type="button"
+              onClick={() => setActiveTab(idx)}
+              style={{
+                padding: '10px 20px',
+                background: 'none',
+                border: 0,
+                borderBottom: idx === safeActive ? '2px solid var(--ui-color-primary)' : '2px solid transparent',
+                marginBottom: '-2px',
+                cursor: 'pointer',
+                fontWeight: idx === safeActive ? 600 : 400,
+                color: idx === safeActive ? (dark ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)') : mutedColor,
+                fontFamily: 'var(--ui-font-body)',
+                fontSize: '15px',
+                transition: 'color 0.15s',
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        {current ? (
+          <div
+            id={`${sectionKey}-tabpanel-${safeActive}`}
+            role="tabpanel"
+            style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', flexWrap: 'wrap' }}
+          >
+            <div style={{ flex: 1, minWidth: '240px' }}>
+              {current.heading ? <h3 style={{ marginBottom: '16px', color: headingColor }}>{current.heading}</h3> : null}
+              {current.body ? <p style={{ lineHeight: 1.7, color: bodyColor }}>{current.body}</p> : null}
+              {current.linkHref && current.linkLabel ? (
+                <a
+                  href={current.linkHref}
+                  style={{
+                    display: 'inline-block',
+                    marginTop: '20px',
+                    padding: '10px 20px',
+                    backgroundColor: 'var(--ui-btn-primary-bg)',
+                    color: 'var(--ui-btn-primary-text)',
+                    borderRadius: 'var(--ui-btn-radius)',
+                    textDecoration: 'none',
+                    fontWeight: 500,
+                  }}
+                >
+                  {current.linkLabel}
+                </a>
+              ) : null}
+            </div>
+            {current.imageUrl ? (
+              <div style={{ flex: 1, minWidth: '240px' }}>
+                <Image src={current.imageUrl} alt={current.heading || ''} width={0} height={0} sizes="600px" style={{ width: '100%', height: 'auto', borderRadius: '8px' }} />
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
 function matchesFilter(item: Record<string, unknown>, filterField?: string, filterValue?: string): boolean {
   if (!filterField || !filterValue) return true;
   const field = item[filterField];
@@ -518,6 +761,9 @@ export default function UniversalSections({
     keyPrefix = '',
   ): React.ReactNode => {
     const key = `${keyPrefix}${section.id || index}`;
+
+    if (!isSectionVisible(section)) return null;
+
     const size = normalizeSize(section.size);
     const baseTheme = normalizeTheme(section.theme);
     const padding = sectionPadding[size];
@@ -535,12 +781,23 @@ export default function UniversalSections({
       (baseTheme === 'white' || baseTheme === 'light'
         ? getLightBackgroundColor(baseTheme)
         : getDarkBackgroundColor(baseTheme));
+    const hSize = normalizeHeadingSize(section.headingSize);
+    const hTag = normalizeHeadingTag(section.headingTag);
+    const hFontSize = HEADING_FONT_SIZE[hSize];
+    const sectionTextAlign = normalizeTextAlign(section.textAlign);
     const sectionStyle: CSSProperties = {
       padding,
       backgroundColor: resolvedBackgroundColor,
+      ...(sectionTextAlign ? { textAlign: sectionTextAlign } : {}),
     };
 
     if (section.blockType === 'heroSection') {
+      const bgImageUrl = getImageUrl(section.backgroundImage);
+      const bgVideoUrl = typeof section.backgroundVideo === 'string' ? section.backgroundVideo.trim() : '';
+      const textAlign = (section.textAlignment as string | undefined) || 'center';
+      const minHeight = typeof section.minHeight === 'number' && section.minHeight > 0 ? `${section.minHeight}px` : undefined;
+      const alignItems = textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center';
+      const hasBgMedia = !!(bgImageUrl || bgVideoUrl);
       return (
         <section
           key={key}
@@ -551,34 +808,67 @@ export default function UniversalSections({
             color: headingColor(theme),
             position: 'relative',
             overflow: 'hidden',
+            ...(minHeight ? { minHeight } : {}),
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems,
           }}
           className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
         >
-          <div style={{ ...inner, maxWidth: 'min(760px, var(--ui-layout-container-max-width))' }}>
+          {bgVideoUrl ? (
+            <>
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                aria-hidden="true"
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
+              >
+                <source src={bgVideoUrl} type="video/mp4" />
+              </video>
+              <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} />
+            </>
+          ) : bgImageUrl ? (
+            <>
+              <Image src={bgImageUrl} alt="" fill style={{ objectFit: 'cover', zIndex: 0 }} aria-hidden="true" />
+              <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} />
+            </>
+          ) : null}
+          <div style={{ ...inner, maxWidth: 'min(760px, var(--ui-layout-container-max-width))', position: 'relative', zIndex: 2, textAlign: textAlign as CSSProperties['textAlign'], width: '100%' }}>
             {typeof section.eyebrow === 'string' ? (
-              <p className="section-label" style={{ color: mutedColor(theme), marginBottom: '20px' }}>
+              <p className="section-label" style={{ color: hasBgMedia ? 'rgba(255,255,255,0.75)' : mutedColor(theme), marginBottom: '20px' }}>
                 {section.eyebrow}
               </p>
             ) : null}
-            <h1
+            <SectionHeading
+              tag={hTag === 'h2' ? 'h1' : hTag}
               style={{
                 fontFamily: 'var(--ui-font-display)',
-                fontSize: 'clamp(36px, 5vw, 60px)',
+                fontSize: hSize === 'md' ? 'clamp(36px, 5vw, 60px)' : hFontSize,
                 lineHeight: 1.1,
                 marginBottom: '20px',
+                color: hasBgMedia ? '#ffffff' : headingColor(theme),
               }}
             >
               {String(section.heading || '')}
-            </h1>
+            </SectionHeading>
             {section.subheading ? (
-              <p style={{ color: bodyColor(theme), fontSize: '18px', marginBottom: section.primaryCtaLabel ? '28px' : 0 }}>
+              <p style={{ color: hasBgMedia ? 'rgba(255,255,255,0.85)' : bodyColor(theme), fontSize: '18px', marginBottom: section.primaryCtaLabel ? '28px' : 0 }}>
                 {String(section.subheading)}
               </p>
             ) : null}
             {section.primaryCtaLabel ? (
-              <Link className={isDarkTheme(theme) ? 'btn-ghost' : 'btn-primary'} href={normalizePath(String(section.primaryCtaHref || '#'))}>
-                {String(section.primaryCtaLabel)}
-              </Link>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center' }}>
+                <Link className={isDarkTheme(theme) || hasBgMedia ? 'btn-ghost' : 'btn-primary'} href={normalizePath(String(section.primaryCtaHref || '#'))}>
+                  {String(section.primaryCtaLabel)}
+                </Link>
+                {typeof section.secondaryCtaLabel === 'string' && section.secondaryCtaLabel.trim() ? (
+                  <Link className="btn-secondary" href={normalizePath(String(section.secondaryCtaHref || '#'))}>
+                    {section.secondaryCtaLabel}
+                  </Link>
+                ) : null}
+              </div>
             ) : null}
           </div>
         </section>
@@ -595,16 +885,17 @@ export default function UniversalSections({
         >
           <div style={{ ...inner, maxWidth: '800px' }}>
             {section.heading ? (
-              <h2
+              <SectionHeading
+                tag={hTag}
                 style={{
                   fontFamily: 'var(--ui-font-display)',
-                  fontSize: 'clamp(28px, 4vw, 42px)',
+                  fontSize: hSize === 'md' ? 'clamp(28px, 4vw, 42px)' : hFontSize,
                   marginBottom: '24px',
                   color: headingColor(theme),
                 }}
               >
                 {String(section.heading)}
-              </h2>
+              </SectionHeading>
             ) : null}
             <RichText data={section.content as import('@payloadcms/richtext-lexical/lexical').SerializedEditorState | null | undefined} style={{ color: bodyColor(theme) }} />
           </div>
@@ -622,16 +913,17 @@ export default function UniversalSections({
         >
           <div style={{ ...inner, maxWidth: '700px', textAlign: 'center' }}>
             {section.heading ? (
-              <h2
+              <SectionHeading
+                tag={hTag}
                 style={{
                   fontFamily: 'var(--ui-font-display)',
-                  fontSize: 'clamp(26px, 4vw, 40px)',
+                  fontSize: hSize === 'md' ? 'clamp(26px, 4vw, 40px)' : hFontSize,
                   color: theme === 'white' || theme === 'light' ? 'var(--ui-color-primary)' : 'var(--ui-color-dark-text)',
                   marginBottom: '16px',
                 }}
               >
                 {String(section.heading)}
-              </h2>
+              </SectionHeading>
             ) : null}
             {section.body ? (
               <p style={{ color: theme === 'white' || theme === 'light' ? 'var(--ui-color-text-muted)' : 'var(--ui-color-dark-text-muted)', marginBottom: section.buttonLabel ? '24px' : 0 }}>
@@ -693,10 +985,11 @@ export default function UniversalSections({
                 {section.eyebrow}
               </p>
             ) : null}
-            <h1
+            <SectionHeading
+              tag={hTag === 'h2' ? 'h1' : hTag}
               style={{
                 fontFamily: 'var(--ui-font-display)',
-                fontSize: 'clamp(40px, 6vw, 72px)',
+                fontSize: hSize === 'md' ? 'clamp(40px, 6vw, 72px)' : hFontSize,
                 fontWeight: 700,
                 lineHeight: 1.08,
                 letterSpacing: '-0.03em',
@@ -705,7 +998,7 @@ export default function UniversalSections({
               }}
             >
               {String(section.heading || '')}
-            </h1>
+            </SectionHeading>
             {section.subheading ? (
               <p
                 style={{
@@ -761,10 +1054,11 @@ export default function UniversalSections({
               </p>
             ) : null}
             {section.heading ? (
-              <h2
+              <SectionHeading
+                tag={hTag}
                 style={{
                   fontFamily: 'var(--ui-font-display)',
-                  fontSize: 'clamp(28px, 4vw, 44px)',
+                  fontSize: hSize === 'md' ? 'clamp(28px, 4vw, 44px)' : hFontSize,
                   fontWeight: 700,
                   color: headingColor(theme),
                   lineHeight: 1.15,
@@ -773,7 +1067,7 @@ export default function UniversalSections({
                 }}
               >
                 {String(section.heading)}
-              </h2>
+              </SectionHeading>
             ) : null}
             <div
               style={{
@@ -1463,7 +1757,25 @@ export default function UniversalSections({
     if (section.blockType === 'imageSection') {
       const images = Array.isArray(section.images) ? section.images : [];
       const displayMode = section.displayMode === 'slideshow' ? 'slideshow' : 'grid';
-      const normalizedImages = normalizeImageEntries(images);
+      const gridColsNum = typeof section.gridColumns === 'number' && section.gridColumns > 0 ? section.gridColumns : 0;
+      const gridTemplateColumns = gridColsNum
+        ? `repeat(${gridColsNum}, 1fr)`
+        : 'repeat(auto-fit, minmax(240px, 1fr))';
+      const aspectRatioMap: Record<string, string> = { square: '1 / 1', landscape: '16 / 9', portrait: '3 / 4' };
+      const aspectRatioCss = typeof section.aspectRatio === 'string' ? (aspectRatioMap[section.aspectRatio] ?? undefined) : undefined;
+
+      const imageEntries = images.map((img: unknown) => {
+        const entry = img && typeof img === 'object' ? (img as Record<string, unknown>) : {};
+        const imageObj = entry.image && typeof entry.image === 'object' ? (entry.image as Record<string, unknown>) : null;
+        const url = imageObj ? (typeof imageObj.url === 'string' ? imageObj.url : '') : (typeof entry.url === 'string' ? entry.url : '');
+        const defaultAlt = imageObj ? (typeof imageObj.alt === 'string' ? imageObj.alt : '') : (typeof entry.alt === 'string' ? entry.alt : '');
+        const alt = typeof entry.altOverride === 'string' && entry.altOverride ? entry.altOverride : defaultAlt;
+        const caption = typeof entry.caption === 'string' ? entry.caption : '';
+        const linkHref = typeof entry.linkHref === 'string' ? entry.linkHref : '';
+        return { url, alt, caption, linkHref };
+      }).filter(e => !!e.url);
+
+      const normalizedImages = imageEntries.length > 0 ? imageEntries : normalizeImageEntries(images);
 
       return (
         <section
@@ -1474,23 +1786,37 @@ export default function UniversalSections({
         >
           <div style={inner}>
             {section.heading ? (
-              <h2 style={{ marginBottom: '24px', color: headingColor(theme) }}>{String(section.heading)}</h2>
+              <SectionHeading tag={hTag} style={{ marginBottom: '24px', color: headingColor(theme), fontSize: hFontSize }}>{String(section.heading)}</SectionHeading>
             ) : null}
             {displayMode === 'slideshow' ? (
-              <ImageSlideshow images={normalizedImages} />
+              <ImageSlideshow images={normalizedImages.map(e => ({ url: e.url, alt: e.alt }))} />
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-                {normalizedImages.map((img, imageIndex: number) => (
-                  <Image
-                    key={`${key}-img-${imageIndex}`}
-                    src={img.url}
-                    alt={img.alt}
-                    width={0}
-                    height={0}
-                    sizes="100vw"
-                    style={{ width: '100%', height: 'auto', borderRadius: '8px', border: '1px solid var(--ui-color-border)' }}
-                  />
-                ))}
+              <div style={{ display: 'grid', gridTemplateColumns, gap: '16px' }}>
+                {normalizedImages.map((img, imageIndex: number) => {
+                  const imgEl = (
+                    <div key={`${key}-img-${imageIndex}`} style={{ display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ aspectRatio: aspectRatioCss, overflow: 'hidden', borderRadius: '8px', border: '1px solid var(--ui-color-border)' }}>
+                        <Image
+                          src={img.url}
+                          alt={img.alt}
+                          width={0}
+                          height={0}
+                          sizes="100vw"
+                          style={{ width: '100%', height: aspectRatioCss ? '100%' : 'auto', objectFit: aspectRatioCss ? 'cover' : 'initial' }}
+                        />
+                      </div>
+                      {'caption' in img && (img as Record<string, unknown>).caption ? (
+                        <p style={{ marginTop: '6px', fontSize: '13px', color: mutedColor(theme) }}>{String((img as Record<string, unknown>).caption)}</p>
+                      ) : null}
+                    </div>
+                  );
+                  const href = 'linkHref' in img ? String((img as Record<string, unknown>).linkHref || '') : '';
+                  return href ? (
+                    <a key={`${key}-img-link-${imageIndex}`} href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+                      {imgEl}
+                    </a>
+                  ) : imgEl;
+                })}
               </div>
             )}
             {section.caption ? (
@@ -1513,7 +1839,7 @@ export default function UniversalSections({
         >
           <div style={{ ...inner, maxWidth: '900px' }}>
             {section.heading ? (
-              <h2 style={{ marginBottom: '18px', color: headingColor(theme) }}>{String(section.heading)}</h2>
+              <SectionHeading tag={hTag} style={{ marginBottom: '18px', color: headingColor(theme), fontSize: hFontSize }}>{String(section.heading)}</SectionHeading>
             ) : null}
             <div style={{ aspectRatio: '16 / 9', backgroundColor: 'var(--ui-color-black-bg)', borderRadius: '8px', overflow: 'hidden' }}>
               {embedUrl ? (
@@ -1543,7 +1869,7 @@ export default function UniversalSections({
       return (
         <section key={key} style={sectionStyle}>
           <div style={inner}>
-            {section.heading ? <h2 style={{ marginBottom: '20px', color: headingColor(theme) }}>{String(section.heading)}</h2> : null}
+            {section.heading ? <SectionHeading tag={hTag} style={{ marginBottom: '20px', color: headingColor(theme), fontSize: hFontSize }}>{String(section.heading)}</SectionHeading> : null}
             <div style={{ overflowX: 'auto', border: '1px solid var(--ui-color-border)', borderRadius: '8px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
                 <thead>
@@ -1602,7 +1928,7 @@ export default function UniversalSections({
       return (
         <section key={key} style={sectionStyle}>
           <div style={inner}>
-            {section.heading ? <h2 style={{ marginBottom: '20px', color: headingColor(theme) }}>{String(section.heading)}</h2> : null}
+            {section.heading ? <SectionHeading tag={hTag} style={{ marginBottom: '20px', color: headingColor(theme), fontSize: hFontSize }}>{String(section.heading)}</SectionHeading> : null}
             <div style={{ overflowX: 'auto', border: '1px solid var(--ui-color-border)', borderRadius: '8px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '640px' }}>
                 <thead>
@@ -1685,7 +2011,7 @@ export default function UniversalSections({
       return (
         <section key={key} style={sectionStyle}>
           <div style={inner}>
-            {config.heading ? <h2 style={{ marginBottom: '20px', color: headingColor(theme) }}>{config.heading}</h2> : null}
+            {config.heading ? <SectionHeading tag={hTag} style={{ marginBottom: '20px', color: headingColor(theme), fontSize: hFontSize }}>{config.heading}</SectionHeading> : null}
             {config.viewMode === 'table' ? (
               <div style={{ overflowX: 'auto', border: '1px solid var(--ui-color-border)', borderRadius: '8px' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
@@ -1779,6 +2105,87 @@ export default function UniversalSections({
       );
     }
 
+    if (section.blockType === 'splitSection') {
+      const layout = typeof section.layout === 'string' ? section.layout : '50-50';
+      const leftFr = layout === '60-40' ? '3fr' : layout === '40-60' ? '2fr' : '1fr';
+      const rightFr = layout === '60-40' ? '2fr' : layout === '40-60' ? '3fr' : '1fr';
+      const vAlign = section.verticalAlign === 'top' ? 'flex-start' : section.verticalAlign === 'bottom' ? 'flex-end' : 'center';
+      const reverseOnMobile = section.reverseOnMobile === true;
+      const splitId = `split-${key}`.replace(/[^a-zA-Z0-9-_]/g, '');
+
+      const renderPanel = (side: 'left' | 'right') => {
+        const type = String(section[`${side}Type`] || 'richText');
+        const heading = typeof section[`${side}Heading`] === 'string' ? section[`${side}Heading`] as string : '';
+        const ctaLabel = typeof section[`${side}CtaLabel`] === 'string' ? section[`${side}CtaLabel`] as string : '';
+        const ctaHref = typeof section[`${side}CtaHref`] === 'string' ? section[`${side}CtaHref`] as string : '';
+
+        if (type === 'image') {
+          const imgUrl = getImageUrl(section[`${side}Image`]);
+          return imgUrl ? (
+            <div style={{ borderRadius: '8px', overflow: 'hidden' }}>
+              <Image src={imgUrl} alt={heading || ''} width={0} height={0} sizes="(max-width: 768px) 100vw, 50vw" style={{ width: '100%', height: 'auto', display: 'block' }} />
+            </div>
+          ) : null;
+        }
+
+        if (type === 'video') {
+          const videoUrl = typeof section[`${side}VideoUrl`] === 'string' ? section[`${side}VideoUrl`] as string : '';
+          return videoUrl ? (
+            <div style={{ aspectRatio: '16 / 9', borderRadius: '8px', overflow: 'hidden', backgroundColor: 'var(--ui-color-black-bg)' }}>
+              <iframe src={videoUrl} title={heading || 'Video'} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ width: '100%', height: '100%', border: 0 }} />
+            </div>
+          ) : null;
+        }
+
+        return (
+          <div>
+            {heading ? (
+              <SectionHeading tag={hTag} style={{ fontFamily: 'var(--ui-font-display)', fontSize: hSize === 'md' ? 'clamp(24px, 3.5vw, 36px)' : hFontSize, fontWeight: 700, color: headingColor(theme), marginBottom: '16px' }}>
+                {heading}
+              </SectionHeading>
+            ) : null}
+            <RichText data={section[`${side}Content`] as import('@payloadcms/richtext-lexical/lexical').SerializedEditorState | null | undefined} style={{ color: bodyColor(theme) }} />
+            {ctaLabel && ctaHref ? (
+              <div style={{ marginTop: '24px' }}>
+                <Link href={normalizePath(ctaHref)} className={isDarkTheme(theme) ? 'btn-ghost' : 'btn-primary'}>{ctaLabel}</Link>
+              </div>
+            ) : null}
+          </div>
+        );
+      };
+
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={inner}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: `${leftFr} ${rightFr}`,
+                gap: '48px',
+                alignItems: vAlign,
+              }}
+              className={`${splitId}-grid`}
+            >
+              <div style={{ order: reverseOnMobile ? 2 : undefined }} className={`${splitId}-left`}>{renderPanel('left')}</div>
+              <div style={{ order: reverseOnMobile ? 1 : undefined }} className={`${splitId}-right`}>{renderPanel('right')}</div>
+            </div>
+          </div>
+          <style>{`
+            @media (max-width: 767px) {
+              .${splitId}-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+              .${splitId}-left { order: ${reverseOnMobile ? 2 : 1} !important; }
+              .${splitId}-right { order: ${reverseOnMobile ? 1 : 2} !important; }
+            }
+          `}</style>
+        </section>
+      );
+    }
+
     if (section.blockType === 'reusableSectionReference') {
       const reusableSection = section.reusableSection as {
         id?: string;
@@ -1789,9 +2196,9 @@ export default function UniversalSections({
       return (
         <section key={key} style={sectionStyle}>
           <div style={inner}>
-            <h2 style={{ marginBottom: '16px', color: headingColor(theme) }}>
+            <SectionHeading tag={hTag} style={{ marginBottom: '16px', color: headingColor(theme), fontSize: hFontSize }}>
               {typeof section.overrideHeading === 'string' ? section.overrideHeading : reusableSection?.title || 'Reusable Section'}
-            </h2>
+            </SectionHeading>
             {nestedSections.map((nestedSection, nestedIndex) =>
               renderSection(nestedSection, nestedIndex, `${key}-nested-${nestedIndex}-`)
             )}
@@ -1812,6 +2219,364 @@ export default function UniversalSections({
             {section.label ? <p style={{ margin: 0, fontSize: '12px', color: mutedColor(theme) }}>{String(section.label)}</p> : null}
           </div>
         </div>
+      );
+    }
+
+    if (section.blockType === 'statsSection') {
+      const stats = Array.isArray(section.stats) ? section.stats : [];
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={inner}>
+            {section.heading ? (
+              <SectionHeading tag={hTag} style={{ fontFamily: 'var(--ui-font-display)', fontSize: hSize === 'md' ? 'clamp(26px, 3.5vw, 38px)' : hFontSize, fontWeight: 700, color: headingColor(theme), marginBottom: '12px' }}>
+                {String(section.heading)}
+              </SectionHeading>
+            ) : null}
+            {section.subheading ? (
+              <p style={{ color: bodyColor(theme), fontSize: '16px', marginBottom: '40px' }}>
+                {String(section.subheading)}
+              </p>
+            ) : null}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '32px' }}>
+              {stats.map((stat: unknown, statIndex: number) => {
+                const s = stat as { value?: string; label?: string; description?: string };
+                return (
+                  <div key={`${key}-stat-${statIndex}`} style={{ textAlign: 'center' }}>
+                    <p style={{ fontFamily: 'var(--ui-font-display)', fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 700, lineHeight: 1, color: headingColor(theme), marginBottom: '8px' }}>
+                      {String(s.value || '')}
+                    </p>
+                    <p style={{ fontWeight: 600, fontSize: '15px', color: headingColor(theme), marginBottom: s.description ? '6px' : 0 }}>
+                      {String(s.label || '')}
+                    </p>
+                    {s.description ? (
+                      <p style={{ fontSize: '13px', color: bodyColor(theme), lineHeight: 1.5, margin: 0 }}>
+                        {String(s.description)}
+                      </p>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'faqSection') {
+      const rawItems = Array.isArray(section.items) ? section.items : [];
+      const faqItems = rawItems.map((item: unknown) => {
+        const i = item as { question?: string; answer?: string };
+        return { question: String(i.question || ''), answer: String(i.answer || '') };
+      });
+      const faqJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqItems.map((item) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: { '@type': 'Answer', text: item.answer },
+        })),
+      };
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+          <div style={{ ...inner, maxWidth: '800px' }}>
+            {section.heading ? (
+              <SectionHeading tag={hTag} style={{ fontFamily: 'var(--ui-font-display)', fontSize: hSize === 'md' ? 'clamp(26px, 3.5vw, 38px)' : hFontSize, fontWeight: 700, color: headingColor(theme), marginBottom: '12px' }}>
+                {String(section.heading)}
+              </SectionHeading>
+            ) : null}
+            {section.subheading ? (
+              <p style={{ color: bodyColor(theme), fontSize: '16px', marginBottom: '32px' }}>
+                {String(section.subheading)}
+              </p>
+            ) : null}
+            <FaqAccordion items={faqItems} theme={theme} />
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'featureGridSection') {
+      const features = Array.isArray(section.features) ? section.features : [];
+      const cols = section.columns === '2' ? 2 : section.columns === '4' ? 4 : 3;
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={inner}>
+            {section.heading ? (
+              <SectionHeading tag={hTag} style={{ fontFamily: 'var(--ui-font-display)', fontSize: hSize === 'md' ? 'clamp(26px, 3.5vw, 38px)' : hFontSize, fontWeight: 700, color: headingColor(theme), marginBottom: '12px' }}>
+                {String(section.heading)}
+              </SectionHeading>
+            ) : null}
+            {section.subheading ? (
+              <p style={{ color: bodyColor(theme), fontSize: '16px', marginBottom: '40px' }}>
+                {String(section.subheading)}
+              </p>
+            ) : null}
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gap: '24px' }}>
+              {features.map((feature: unknown, featureIndex: number) => {
+                const f = feature as { icon?: string; title?: string; description?: string; linkLabel?: string; linkHref?: string };
+                return (
+                  <article
+                    key={`${key}-feature-${featureIndex}`}
+                    style={{
+                      backgroundColor: isDarkTheme(theme) ? 'rgba(255,255,255,0.06)' : 'var(--ui-color-surface)',
+                      border: `1px solid ${isDarkTheme(theme) ? 'rgba(255,255,255,0.12)' : 'var(--ui-color-border)'}`,
+                      borderRadius: 'var(--ui-card-radius, 8px)',
+                      padding: '28px 24px',
+                    }}
+                  >
+                    {f.icon ? (
+                      <div style={{ fontSize: '32px', marginBottom: '16px' }} aria-hidden="true">{f.icon}</div>
+                    ) : null}
+                    <h3 style={{ fontFamily: 'var(--ui-font-display)', fontSize: '18px', fontWeight: 700, color: headingColor(theme), marginBottom: '8px' }}>
+                      {String(f.title || '')}
+                    </h3>
+                    <p style={{ fontSize: '14px', color: bodyColor(theme), lineHeight: 1.65, margin: 0, marginBottom: f.linkLabel ? '16px' : 0 }}>
+                      {String(f.description || '')}
+                    </p>
+                    {typeof f.linkLabel === 'string' && f.linkLabel.trim() ? (
+                      <Link
+                        href={normalizePath(String(f.linkHref || '#'))}
+                        style={{ fontSize: '14px', fontWeight: 600, color: headingColor(theme), textDecoration: 'none' }}
+                        className="text-link"
+                      >
+                        {f.linkLabel} →
+                      </Link>
+                    ) : null}
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'formSection') {
+      const formId = section.form && typeof section.form === 'object'
+        ? String((section.form as { id?: string }).id || '')
+        : typeof section.form === 'string'
+          ? section.form
+          : '';
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={{ ...inner, maxWidth: '700px' }}>
+            {section.heading ? (
+              <SectionHeading tag={hTag} style={{ fontFamily: 'var(--ui-font-display)', fontSize: hSize === 'md' ? 'clamp(26px, 3.5vw, 38px)' : hFontSize, fontWeight: 700, color: headingColor(theme), marginBottom: '12px' }}>
+                {String(section.heading)}
+              </SectionHeading>
+            ) : null}
+            {section.subheading ? (
+              <p style={{ color: bodyColor(theme), fontSize: '16px', marginBottom: '32px' }}>
+                {String(section.subheading)}
+              </p>
+            ) : null}
+            {formId ? (
+              <FormRenderer
+                formId={formId}
+                successMessage={typeof section.successMessage === 'string' ? section.successMessage : undefined}
+                theme={theme}
+              />
+            ) : (
+              <p style={{ color: bodyColor(theme) }}>No form selected.</p>
+            )}
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'teamSection') {
+      const members = Array.isArray(section.members) ? section.members : [];
+      const rawCols = typeof section.columns === 'string' ? section.columns : '3';
+      const cols = ['2', '3', '4'].includes(rawCols) ? rawCols : '3';
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={inner}>
+            {section.heading ? (
+              <SectionHeading tag={hTag} style={{ textAlign: 'center', marginBottom: section.subheading ? '8px' : '40px', color: headingColor(theme), fontSize: hFontSize }}>{String(section.heading)}</SectionHeading>
+            ) : null}
+            {section.subheading ? (
+              <p style={{ textAlign: 'center', marginBottom: '40px', color: mutedColor(theme) }}>{String(section.subheading)}</p>
+            ) : null}
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '32px' }}>
+              {members.map((member: unknown, mIdx: number) => {
+                const m = member && typeof member === 'object' ? (member as Record<string, unknown>) : {};
+                const photo = m.photo && typeof m.photo === 'object' ? (m.photo as Record<string, unknown>) : null;
+                const photoUrl = photo ? (typeof photo.url === 'string' ? photo.url : '') : '';
+                return (
+                  <div key={`${key}-member-${mIdx}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                    {photoUrl ? (
+                      <div style={{ width: '96px', height: '96px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
+                        <Image src={photoUrl} alt={typeof m.name === 'string' ? m.name : ''} width={96} height={96} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                    ) : (
+                      <div style={{ width: '96px', height: '96px', borderRadius: '50%', backgroundColor: 'var(--ui-color-section-alt)', flexShrink: 0 }} />
+                    )}
+                    <div style={{ textAlign: 'center' }}>
+                      {m.name ? <p style={{ fontWeight: 600, color: headingColor(theme), margin: 0 }}>{String(m.name)}</p> : null}
+                      {m.role ? <p style={{ fontSize: '14px', color: mutedColor(theme), margin: '4px 0 0' }}>{String(m.role)}</p> : null}
+                      {m.bio ? <p style={{ fontSize: '14px', color: bodyColor(theme), marginTop: '8px' }}>{String(m.bio)}</p> : null}
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '8px' }}>
+                        {m.linkedinHref ? <a href={String(m.linkedinHref)} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ui-color-link)', fontSize: '13px' }}>LinkedIn</a> : null}
+                        {m.twitterHref ? <a href={String(m.twitterHref)} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ui-color-link)', fontSize: '13px' }}>Twitter</a> : null}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'logoBandSection') {
+      const logos = Array.isArray(section.logos) ? section.logos : [];
+      const displayMode = section.displayMode === 'marquee' ? 'marquee' : 'static';
+      const logoHeight = typeof section.logoHeight === 'number' && section.logoHeight > 0 ? section.logoHeight : 40;
+      const logoItems = logos.map((logo: unknown) => {
+        const l = logo && typeof logo === 'object' ? (logo as Record<string, unknown>) : {};
+        const img = l.image && typeof l.image === 'object' ? (l.image as Record<string, unknown>) : null;
+        const url = img ? (typeof img.url === 'string' ? img.url : '') : '';
+        const alt = img ? (typeof img.alt === 'string' ? img.alt : '') : (typeof l.name === 'string' ? l.name : '');
+        const href = typeof l.href === 'string' ? l.href : '';
+        return { url, alt, href };
+      }).filter(l => !!l.url);
+
+      const logoEl = (logo: { url: string; alt: string; href: string }, idx: number) => {
+        const img = (
+          <Image
+            key={`${key}-logo-${idx}`}
+            src={logo.url}
+            alt={logo.alt}
+            width={0}
+            height={0}
+            sizes="200px"
+            style={{ height: `${logoHeight}px`, width: 'auto', objectFit: 'contain', opacity: 0.7, filter: 'grayscale(1)', transition: 'opacity 0.2s, filter 0.2s' }}
+          />
+        );
+        return logo.href ? (
+          <a key={`${key}-logo-link-${idx}`} href={logo.href} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center' }}>{img}</a>
+        ) : <span key={`${key}-logo-span-${idx}`} style={{ display: 'flex', alignItems: 'center' }}>{img}</span>;
+      };
+
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={inner}>
+            {section.heading ? (
+              <p style={{ textAlign: 'center', marginBottom: '32px', fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase', color: mutedColor(theme) }}>{String(section.heading)}</p>
+            ) : null}
+            {displayMode === 'marquee' ? (
+              <div style={{ overflow: 'hidden', position: 'relative' }}>
+                <style>{`@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
+                <div style={{ display: 'flex', gap: '48px', animation: 'marquee 20s linear infinite', width: 'max-content', alignItems: 'center' }}>
+                  {[...logoItems, ...logoItems].map((logo, idx) => logoEl(logo, idx))}
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px', alignItems: 'center', justifyContent: 'center' }}>
+                {logoItems.map((logo, idx) => logoEl(logo, idx))}
+              </div>
+            )}
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'quoteSection') {
+      const style = typeof section.style === 'string' ? section.style : 'centered';
+      const photoObj = section.photo && typeof section.photo === 'object' ? (section.photo as Record<string, unknown>) : null;
+      const photoUrl = photoObj ? (typeof photoObj.url === 'string' ? photoObj.url : '') : '';
+      return (
+        <section
+          key={key}
+          id={typeof section.anchorId === 'string' ? section.anchorId : undefined}
+          style={sectionStyle}
+          className={typeof section.customClassName === 'string' ? section.customClassName : undefined}
+        >
+          <div style={{ ...inner, maxWidth: '800px' }}>
+            <blockquote
+              style={{
+                margin: 0,
+                padding: style === 'left-border' ? '0 0 0 24px' : style === 'pull' ? '24px 0' : '0',
+                borderLeft: style === 'left-border' ? `4px solid ${headingColor(theme)}` : 'none',
+                textAlign: style === 'centered' ? 'center' : 'left',
+              }}
+            >
+              <p style={{
+                fontSize: style === 'pull' ? 'clamp(20px, 3vw, 28px)' : '20px',
+                fontStyle: 'italic',
+                lineHeight: 1.6,
+                color: headingColor(theme),
+                margin: '0 0 20px',
+              }}>
+                &ldquo;{String(section.quote || '')}&rdquo;
+              </p>
+              {(section.attribution || section.attributionRole || photoUrl) ? (
+                <footer style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: style === 'centered' ? 'center' : 'flex-start' }}>
+                  {photoUrl ? (
+                    <Image src={photoUrl} alt={typeof section.attribution === 'string' ? section.attribution : ''} width={40} height={40} style={{ borderRadius: '50%', objectFit: 'cover' }} />
+                  ) : null}
+                  <div>
+                    {section.attribution ? <cite style={{ fontStyle: 'normal', fontWeight: 600, color: headingColor(theme) }}>{String(section.attribution)}</cite> : null}
+                    {section.attributionRole ? <p style={{ fontSize: '14px', color: mutedColor(theme), margin: '2px 0 0' }}>{String(section.attributionRole)}</p> : null}
+                  </div>
+                </footer>
+              ) : null}
+            </blockquote>
+          </div>
+        </section>
+      );
+    }
+
+    if (section.blockType === 'tabsSection') {
+      const tabs = Array.isArray(section.tabs) ? section.tabs : [];
+      return (
+        <TabsSectionRenderer
+          key={key}
+          sectionKey={key}
+          section={section}
+          tabs={tabs}
+          sectionStyle={sectionStyle}
+          inner={inner}
+          theme={theme}
+          headingColor={headingColor(theme)}
+          mutedColor={mutedColor(theme)}
+          bodyColor={bodyColor(theme)}
+          hTag={hTag}
+          hFontSize={hFontSize}
+        />
       );
     }
 

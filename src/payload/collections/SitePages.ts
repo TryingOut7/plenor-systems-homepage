@@ -118,6 +118,40 @@ export const SitePages: CollectionConfig = {
       },
     },
     {
+      name: 'hideNavbar',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Hide the navigation bar on this page',
+      },
+    },
+    {
+      name: 'hideFooter',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Hide the footer on this page',
+      },
+    },
+    {
+      name: 'pageBackgroundColor',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Override page background color (CSS value, e.g. #F5F5F5)',
+      },
+    },
+    {
+      name: 'customHeadScripts',
+      type: 'textarea',
+      admin: {
+        position: 'sidebar',
+        description: 'Custom <script> or <link> tags to inject in <head> for this page only',
+      },
+    },
+    {
       name: 'sections',
       type: 'blocks',
       blocks: pageSectionBlocks,

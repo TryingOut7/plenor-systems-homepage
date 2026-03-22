@@ -22,6 +22,26 @@ export const SiteSettings: GlobalConfig = {
       defaultValue: 'Plenor Systems',
     },
     {
+      name: 'logoImage',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        position: 'sidebar',
+        description: 'Optional logo image. If not set, the site name text is used.',
+      },
+    },
+    {
+      name: 'logoWidth',
+      type: 'number',
+      defaultValue: 120,
+      min: 40,
+      max: 400,
+      admin: {
+        position: 'sidebar',
+        description: 'Logo display width in pixels',
+      },
+    },
+    {
       name: 'brandTagline',
       type: 'text',
     },
@@ -101,6 +121,30 @@ export const SiteSettings: GlobalConfig = {
         { name: 'label', type: 'text', required: true },
         { name: 'href', type: 'text', required: true },
         { name: 'isVisible', type: 'checkbox', defaultValue: true },
+        {
+          name: 'children',
+          type: 'array',
+          dbName: 'nav_children',
+          admin: { description: 'Optional dropdown links shown on hover' },
+          fields: [
+            { name: 'label', type: 'text', required: true },
+            { name: 'href', type: 'text', required: true },
+          ],
+        },
+      ],
+    },
+
+    // ─── Announcement Banner ──────────────────────────────────────────────
+    {
+      name: 'announcementBanner',
+      type: 'group',
+      fields: [
+        { name: 'enabled', type: 'checkbox', defaultValue: false },
+        { name: 'text', type: 'text' },
+        { name: 'linkLabel', type: 'text' },
+        { name: 'linkHref', type: 'text' },
+        { name: 'backgroundColor', type: 'text', defaultValue: '#1B2D4F', admin: { description: 'Hex, rgb, or CSS value' } },
+        { name: 'textColor', type: 'text', defaultValue: '#FFFFFF', admin: { description: 'Hex, rgb, or CSS value' } },
       ],
     },
 

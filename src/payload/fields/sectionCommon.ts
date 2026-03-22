@@ -55,10 +55,85 @@ export const customClassNameField: Field = {
   },
 };
 
+export const isHiddenField: Field = {
+  name: 'isHidden',
+  type: 'checkbox',
+  defaultValue: false,
+  admin: {
+    description: 'Hide this section without deleting it',
+  },
+};
+
+export const visibleFromField: Field = {
+  name: 'visibleFrom',
+  type: 'date',
+  admin: {
+    description: 'Section becomes visible on this date (optional)',
+    date: { pickerAppearance: 'dayAndTime' },
+  },
+};
+
+export const visibleUntilField: Field = {
+  name: 'visibleUntil',
+  type: 'date',
+  admin: {
+    description: 'Section is hidden after this date (optional)',
+    date: { pickerAppearance: 'dayAndTime' },
+  },
+};
+
+export const headingSizeField: Field = {
+  name: 'headingSize',
+  type: 'select',
+  admin: {
+    description: 'Override heading size for this section (default: md)',
+  },
+  options: [
+    { label: 'Extra Small', value: 'xs' },
+    { label: 'Small', value: 'sm' },
+    { label: 'Medium (default)', value: 'md' },
+    { label: 'Large', value: 'lg' },
+    { label: 'Extra Large', value: 'xl' },
+  ],
+};
+
+export const textAlignField: Field = {
+  name: 'textAlign',
+  type: 'select',
+  admin: {
+    description: 'Override text alignment for this section',
+  },
+  options: [
+    { label: 'Left', value: 'left' },
+    { label: 'Center', value: 'center' },
+    { label: 'Right', value: 'right' },
+  ],
+};
+
+export const headingTagField: Field = {
+  name: 'headingTag',
+  type: 'select',
+  admin: {
+    description: 'HTML heading tag for SEO/accessibility (default: h2)',
+  },
+  options: [
+    { label: 'H1', value: 'h1' },
+    { label: 'H2 (default)', value: 'h2' },
+    { label: 'H3', value: 'h3' },
+    { label: 'H4', value: 'h4' },
+  ],
+};
+
 export const sectionCommonFields: Field[] = [
   themeField,
   backgroundColorField,
   sizeField,
   anchorIdField,
   customClassNameField,
+  isHiddenField,
+  visibleFromField,
+  visibleUntilField,
+  headingSizeField,
+  textAlignField,
+  headingTagField,
 ];

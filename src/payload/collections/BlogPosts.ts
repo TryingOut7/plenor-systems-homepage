@@ -91,6 +91,14 @@ export const BlogPosts: CollectionConfig = {
       ],
     },
     {
+      name: 'category',
+      type: 'relationship',
+      relationTo: 'blog-categories',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'resourceUrl',
       type: 'text',
       admin: {

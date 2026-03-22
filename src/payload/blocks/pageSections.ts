@@ -12,6 +12,21 @@ const HeroSection: Block = {
     { name: 'subheading', type: 'textarea' },
     { name: 'primaryCtaLabel', type: 'text' },
     { name: 'primaryCtaHref', type: 'text' },
+    { name: 'secondaryCtaLabel', type: 'text' },
+    { name: 'secondaryCtaHref', type: 'text' },
+    { name: 'backgroundImage', type: 'upload', relationTo: 'media' },
+    { name: 'backgroundVideo', type: 'text', admin: { description: 'Video URL (mp4) for background video' } },
+    {
+      name: 'textAlignment',
+      type: 'select',
+      defaultValue: 'center',
+      options: [
+        { label: 'Left', value: 'left' },
+        { label: 'Center', value: 'center' },
+        { label: 'Right', value: 'right' },
+      ],
+    },
+    { name: 'minHeight', type: 'number', admin: { description: 'Minimum hero height in pixels (e.g. 600)' } },
   ],
 };
 
@@ -122,13 +137,28 @@ const ImageSection: Block = {
       ],
     },
     {
+      name: 'aspectRatio',
+      type: 'select',
+      defaultValue: 'auto',
+      options: [
+        { label: 'Auto', value: 'auto' },
+        { label: 'Square (1:1)', value: 'square' },
+        { label: 'Landscape (16:9)', value: 'landscape' },
+        { label: 'Portrait (3:4)', value: 'portrait' },
+      ],
+    },
+    { name: 'gridColumns', type: 'number', defaultValue: 3, min: 1, max: 6, admin: { description: 'Number of columns in grid mode' } },
+    {
       name: 'images',
       type: 'array',
       fields: [
         { name: 'image', type: 'upload', relationTo: 'media', required: true },
+        { name: 'altOverride', type: 'text', admin: { description: 'Override the image alt text' } },
+        { name: 'caption', type: 'text', admin: { description: 'Caption shown below this image' } },
+        { name: 'linkHref', type: 'text', admin: { description: 'Make image clickable with this URL' } },
       ],
     },
-    { name: 'caption', type: 'text' },
+    { name: 'caption', type: 'text', admin: { description: 'Section-level caption below all images' } },
   ],
 };
 
@@ -402,6 +432,271 @@ const ReusableSectionReference: Block = {
   ],
 };
 
+const StatsSection: Block = {
+  slug: 'statsSection',
+  dbName: 'stats_sec',
+  labels: { singular: 'Stats Section', plural: 'Stats Sections' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'heading', type: 'text' },
+    { name: 'subheading', type: 'text' },
+    {
+      name: 'stats',
+      type: 'array',
+      dbName: 'stats_items',
+      fields: [
+        { name: 'value', type: 'text', required: true },
+        { name: 'label', type: 'text', required: true },
+        { name: 'description', type: 'text' },
+      ],
+    },
+  ],
+};
+
+const FaqSection: Block = {
+  slug: 'faqSection',
+  dbName: 'faq_sec',
+  labels: { singular: 'FAQ Section', plural: 'FAQ Sections' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'heading', type: 'text' },
+    { name: 'subheading', type: 'text' },
+    {
+      name: 'items',
+      type: 'array',
+      dbName: 'faq_items',
+      fields: [
+        { name: 'question', type: 'text', required: true },
+        { name: 'answer', type: 'textarea', required: true },
+      ],
+    },
+  ],
+};
+
+const FeatureGridSection: Block = {
+  slug: 'featureGridSection',
+  dbName: 'feat_grid',
+  labels: { singular: 'Feature Grid', plural: 'Feature Grids' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'heading', type: 'text' },
+    { name: 'subheading', type: 'text' },
+    {
+      name: 'columns',
+      type: 'select',
+      defaultValue: '3',
+      options: [
+        { label: '2 Columns', value: '2' },
+        { label: '3 Columns', value: '3' },
+        { label: '4 Columns', value: '4' },
+      ],
+    },
+    {
+      name: 'features',
+      type: 'array',
+      dbName: 'feat_items',
+      fields: [
+        { name: 'icon', type: 'text', admin: { description: 'Emoji or short icon label' } },
+        { name: 'title', type: 'text', required: true },
+        { name: 'description', type: 'textarea', required: true },
+        { name: 'linkLabel', type: 'text' },
+        { name: 'linkHref', type: 'text' },
+      ],
+    },
+  ],
+};
+
+const FormSection: Block = {
+  slug: 'formSection',
+  dbName: 'form_sec',
+  labels: { singular: 'Form Section', plural: 'Form Sections' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'heading', type: 'text' },
+    { name: 'subheading', type: 'text' },
+    {
+      name: 'form',
+      type: 'relationship',
+      relationTo: 'forms',
+      required: true,
+    },
+    {
+      name: 'successMessage',
+      type: 'textarea',
+      admin: { description: 'Message shown after successful submission (overrides form default)' },
+    },
+  ],
+};
+
+const TeamSection: Block = {
+  slug: 'teamSection',
+  dbName: 'team_sec',
+  labels: { singular: 'Team Section', plural: 'Team Sections' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'heading', type: 'text' },
+    { name: 'subheading', type: 'text' },
+    {
+      name: 'members',
+      type: 'relationship',
+      relationTo: 'team-members',
+      hasMany: true,
+      admin: { description: 'Select team members to display (leave empty to show all, ordered by order field)' },
+    },
+    {
+      name: 'columns',
+      type: 'select',
+      defaultValue: '3',
+      options: [
+        { label: '2 Columns', value: '2' },
+        { label: '3 Columns', value: '3' },
+        { label: '4 Columns', value: '4' },
+      ],
+    },
+  ],
+};
+
+const LogoBandSection: Block = {
+  slug: 'logoBandSection',
+  dbName: 'logo_band',
+  labels: { singular: 'Logo Band Section', plural: 'Logo Band Sections' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'heading', type: 'text', admin: { description: 'Optional label above logos, e.g. "Trusted by"' } },
+    {
+      name: 'logos',
+      type: 'relationship',
+      relationTo: 'logos',
+      hasMany: true,
+      admin: { description: 'Select logos to display (leave empty to show all, ordered by order field)' },
+    },
+    {
+      name: 'displayMode',
+      type: 'select',
+      defaultValue: 'static',
+      options: [
+        { label: 'Static Grid', value: 'static' },
+        { label: 'Scrolling Marquee', value: 'marquee' },
+      ],
+    },
+    { name: 'logoHeight', type: 'number', defaultValue: 40, admin: { description: 'Logo height in pixels' } },
+  ],
+};
+
+const QuoteSection: Block = {
+  slug: 'quoteSection',
+  dbName: 'quote_sec',
+  labels: { singular: 'Quote Section', plural: 'Quote Sections' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'quote', type: 'textarea', required: true, admin: { description: 'The quote text (without quotation marks)' } },
+    { name: 'attribution', type: 'text', admin: { description: 'Author name, e.g. "Jane Smith"' } },
+    { name: 'attributionRole', type: 'text', admin: { description: 'Author role/company, e.g. "CEO, Acme Inc."' } },
+    { name: 'photo', type: 'upload', relationTo: 'media', admin: { description: 'Optional author photo' } },
+    {
+      name: 'style',
+      type: 'select',
+      defaultValue: 'centered',
+      options: [
+        { label: 'Centered', value: 'centered' },
+        { label: 'Left with border', value: 'left-border' },
+        { label: 'Large pull quote', value: 'pull' },
+      ],
+    },
+  ],
+};
+
+const TabsSection: Block = {
+  slug: 'tabsSection',
+  dbName: 'tabs_sec',
+  labels: { singular: 'Tabs Section', plural: 'Tabs Sections' },
+  fields: [
+    ...sectionCommonFields,
+    { name: 'heading', type: 'text' },
+    { name: 'subheading', type: 'text' },
+    {
+      name: 'tabs',
+      type: 'array',
+      dbName: 'tabs_items',
+      fields: [
+        { name: 'label', type: 'text', required: true, admin: { description: 'Tab button label' } },
+        { name: 'heading', type: 'text', admin: { description: 'Content heading for this tab' } },
+        { name: 'body', type: 'textarea', admin: { description: 'Main body text for this tab' } },
+        { name: 'image', type: 'upload', relationTo: 'media', admin: { description: 'Optional image for this tab' } },
+        { name: 'linkLabel', type: 'text' },
+        { name: 'linkHref', type: 'text' },
+      ],
+    },
+  ],
+};
+
+const SplitSection: Block = {
+  slug: 'splitSection',
+  dbName: 'split_sec',
+  labels: { singular: 'Split / Two-Column Section', plural: 'Split Sections' },
+  fields: [
+    ...sectionCommonFields,
+    {
+      name: 'layout',
+      type: 'select',
+      defaultValue: '50-50',
+      options: [
+        { label: 'Left Heavy (60/40)', value: '60-40' },
+        { label: 'Equal (50/50)', value: '50-50' },
+        { label: 'Right Heavy (40/60)', value: '40-60' },
+      ],
+    },
+    {
+      name: 'reverseOnMobile',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { description: 'Reverse column order on mobile (right column shown first)' },
+    },
+    {
+      name: 'verticalAlign',
+      type: 'select',
+      defaultValue: 'center',
+      options: [
+        { label: 'Top', value: 'top' },
+        { label: 'Center', value: 'center' },
+        { label: 'Bottom', value: 'bottom' },
+      ],
+    },
+    {
+      name: 'leftType',
+      type: 'select',
+      defaultValue: 'richText',
+      options: [
+        { label: 'Rich Text', value: 'richText' },
+        { label: 'Image', value: 'image' },
+        { label: 'Video Embed', value: 'video' },
+      ],
+    },
+    { name: 'leftHeading', type: 'text' },
+    { name: 'leftContent', type: 'richText', admin: { condition: (_, siblingData) => siblingData?.leftType === 'richText' } },
+    { name: 'leftImage', type: 'upload', relationTo: 'media', admin: { condition: (_, siblingData) => siblingData?.leftType === 'image' } },
+    { name: 'leftVideoUrl', type: 'text', admin: { description: 'YouTube or Vimeo embed URL', condition: (_, siblingData) => siblingData?.leftType === 'video' } },
+    { name: 'leftCtaLabel', type: 'text', admin: { description: 'Optional CTA button' } },
+    { name: 'leftCtaHref', type: 'text' },
+    {
+      name: 'rightType',
+      type: 'select',
+      defaultValue: 'image',
+      options: [
+        { label: 'Rich Text', value: 'richText' },
+        { label: 'Image', value: 'image' },
+        { label: 'Video Embed', value: 'video' },
+      ],
+    },
+    { name: 'rightHeading', type: 'text' },
+    { name: 'rightContent', type: 'richText', admin: { condition: (_, siblingData) => siblingData?.rightType === 'richText' } },
+    { name: 'rightImage', type: 'upload', relationTo: 'media', admin: { condition: (_, siblingData) => siblingData?.rightType === 'image' } },
+    { name: 'rightVideoUrl', type: 'text', admin: { description: 'YouTube or Vimeo embed URL', condition: (_, siblingData) => siblingData?.rightType === 'video' } },
+    { name: 'rightCtaLabel', type: 'text', admin: { description: 'Optional CTA button' } },
+    { name: 'rightCtaHref', type: 'text' },
+  ],
+};
+
 const SpacerSection: Block = {
   slug: 'spacerSection',
   dbName: 'spacer',
@@ -425,6 +720,14 @@ export const pageSectionBlocks: Block[] = [
   HeroSection,
   RichTextSection,
   CtaSection,
+  StatsSection,
+  FaqSection,
+  FeatureGridSection,
+  FormSection,
+  TeamSection,
+  LogoBandSection,
+  QuoteSection,
+  TabsSection,
   GuideFormSection,
   InquiryFormSection,
   PrivacyNoteSection,
@@ -440,6 +743,7 @@ export const pageSectionBlocks: Block[] = [
   LegacyChecklistSection,
   LegacyQuoteSection,
   LegacyCenteredCtaSection,
+  SplitSection,
   ReusableSectionReference,
   SpacerSection,
   DividerSection,

@@ -24,6 +24,8 @@ export type SiteSettings = {
   brandTagline?: string;
   siteUrl?: string;
   contactEmail?: string;
+  logoImage?: { url?: string; alt?: string; width?: number; height?: number };
+  logoWidth?: number;
   primaryCtaLabel?: string;
   primaryCtaHref?: string;
   headerButtons?: Array<{
@@ -41,7 +43,16 @@ export type SiteSettings = {
     label?: string;
     href?: string;
     isVisible?: boolean;
+    children?: Array<{ id?: string; label?: string; href?: string }>;
   }>;
+  announcementBanner?: {
+    enabled?: boolean;
+    text?: string;
+    linkLabel?: string;
+    linkHref?: string;
+    backgroundColor?: string;
+    textColor?: string;
+  };
   footerColumns?: Array<{
     id?: string;
     title?: string;
@@ -121,6 +132,9 @@ export type UISettings = {
     cookieBackground?: string;
     cookieText?: string;
     cookieLink?: string;
+    navBackground?: string;
+    navScrolledBackground?: string;
+    navBorder?: string;
   };
   typography?: {
     bodyFontFamily?: string;
@@ -129,6 +143,8 @@ export type UISettings = {
     baseLineHeight?: number;
     headingLetterSpacing?: string;
     sectionLabelLetterSpacing?: string;
+    headingFontUrl?: string;
+    bodyFontUrl?: string;
   };
   layout?: {
     containerMaxWidth?: string;
@@ -139,6 +155,8 @@ export type UISettings = {
     heroPaddingRegular?: string;
     heroPaddingSpacious?: string;
     mobileSectionPadding?: string;
+    navHeight?: number;
+    cardRadius?: number;
   };
   buttons?: {
     radius?: number;
@@ -173,6 +191,10 @@ export type SitePage = {
   presetKey?: 'custom' | 'home' | 'services' | 'about' | 'pricing' | 'contact';
   presetContent?: Record<string, unknown>;
   isActive?: boolean;
+  hideNavbar?: boolean;
+  hideFooter?: boolean;
+  pageBackgroundColor?: string;
+  customHeadScripts?: string;
   seo?: SeoFields;
   sections?: PageSection[];
 };
@@ -194,6 +216,32 @@ export type ServiceItem = {
   };
 };
 
+export type BlogCategory = {
+  id?: string;
+  name?: string;
+  slug?: string;
+  description?: string;
+};
+
+export type TeamMember = {
+  id?: string;
+  name?: string;
+  role?: string;
+  bio?: string;
+  photo?: { url?: string; alt?: string };
+  linkedinHref?: string;
+  twitterHref?: string;
+  order?: number;
+};
+
+export type Logo = {
+  id?: string;
+  name?: string;
+  image?: { url?: string; alt?: string };
+  href?: string;
+  order?: number;
+};
+
 export type BlogPost = {
   id?: string;
   title?: string;
@@ -208,6 +256,7 @@ export type BlogPost = {
   isFeatured?: boolean;
   readingTimeMinutes?: number;
   tags?: Array<{ tag?: string }>;
+  category?: BlogCategory;
   resourceUrl?: string;
   seo?: SeoFields;
 };
@@ -872,6 +921,10 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(slug: st
       presetKey: d.presetKey as SitePage['presetKey'],
       presetContent: d.presetContent as SitePage['presetContent'],
       isActive: d.isActive as boolean | undefined,
+      hideNavbar: d.hideNavbar as boolean | undefined,
+      hideFooter: d.hideFooter as boolean | undefined,
+      pageBackgroundColor: d.pageBackgroundColor as string | undefined,
+      customHeadScripts: d.customHeadScripts as string | undefined,
       seo: normalizeSeo(d.seo),
       sections: resolvedSections,
     });

@@ -97,6 +97,18 @@ export default async function CmsDynamicPage({
 
   return (
     <>
+      {page.hideNavbar && (
+        <style>{`header[role="banner"] { display: none !important; }`}</style>
+      )}
+      {page.hideFooter && (
+        <style>{`footer[role="contentinfo"] { display: none !important; }`}</style>
+      )}
+      {page.pageBackgroundColor && (
+        <style>{`body { background-color: ${page.pageBackgroundColor} !important; }`}</style>
+      )}
+      {page.customHeadScripts && (
+        <div dangerouslySetInnerHTML={{ __html: page.customHeadScripts }} style={{ display: 'none' }} />
+      )}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}

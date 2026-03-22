@@ -127,6 +127,18 @@ export default async function ContactPage() {
 
   return (
     <>
+      {sitePage.hideNavbar && (
+        <style>{`header[role="banner"] { display: none !important; }`}</style>
+      )}
+      {sitePage.hideFooter && (
+        <style>{`footer[role="contentinfo"] { display: none !important; }`}</style>
+      )}
+      {sitePage.pageBackgroundColor && (
+        <style>{`body { background-color: ${sitePage.pageBackgroundColor} !important; }`}</style>
+      )}
+      {sitePage.customHeadScripts && (
+        <div dangerouslySetInnerHTML={{ __html: sitePage.customHeadScripts }} style={{ display: 'none' }} />
+      )}
       <section
         aria-labelledby="contact-hero-heading"
         style={{
