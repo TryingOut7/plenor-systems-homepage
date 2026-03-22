@@ -17,6 +17,14 @@ import type {
 type SectionTheme = 'navy' | 'charcoal' | 'black' | 'white' | 'light';
 type SectionSize = 'compact' | 'regular' | 'spacious';
 
+const HEX_COLOR_PATTERN = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
+const RGB_COLOR_PATTERN =
+  /^rgba?\(\s*(?:\d{1,3}%?\s*,\s*){2}\d{1,3}%?(?:\s*,\s*(?:0|1|0?\.\d+))?\s*\)$/i;
+const HSL_COLOR_PATTERN =
+  /^hsla?\(\s*[-+]?\d+(?:\.\d+)?(?:deg|rad|grad|turn)?\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*(?:,\s*(?:0|1|0?\.\d+))?\s*\)$/i;
+const CSS_VAR_COLOR_PATTERN = /^var\(--[a-zA-Z0-9-_]+\)$/;
+const NAMED_COLOR_PATTERN = /^[a-zA-Z][a-zA-Z-]*$/;
+
 interface UniversalSectionsProps {
   documentId: string;
   documentType: string;
@@ -95,6 +103,181 @@ function normalizeTheme(theme: unknown): SectionTheme {
 function normalizeSize(size: unknown): SectionSize {
   if (size === 'compact' || size === 'regular' || size === 'spacious') return size;
   return 'regular';
+}
+
+function isValidCssColor(value: string): boolean {
+  if (!value || value.length > 64) return false;
+  return (
+    HEX_COLOR_PATTERN.test(value) ||
+    RGB_COLOR_PATTERN.test(value) ||
+    HSL_COLOR_PATTERN.test(value) ||
+    CSS_VAR_COLOR_PATTERN.test(value) ||
+    NAMED_COLOR_PATTERN.test(value)
+  );
+}
+
+function normalizeCustomBackgroundColor(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const color = value.trim();
+  return isValidCssColor(color) ? color : undefined;
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function parseRgbChannel(token: string): number | null {
+  const normalized = token.trim();
+  if (!normalized) return null;
+  if (normalized.endsWith('%')) {
+    const parsed = Number.parseFloat(normalized.slice(0, -1));
+    if (!Number.isFinite(parsed)) return null;
+    return clamp((parsed / 100) * 255, 0, 255);
+  }
+
+  const parsed = Number.parseFloat(normalized);
+  if (!Number.isFinite(parsed)) return null;
+  return clamp(parsed, 0, 255);
+}
+
+function parseAlphaChannel(token: string | undefined): number {
+  if (!token) return 1;
+  const normalized = token.trim();
+  if (!normalized) return 1;
+  if (normalized.endsWith('%')) {
+    const parsed = Number.parseFloat(normalized.slice(0, -1));
+    if (!Number.isFinite(parsed)) return 1;
+    return clamp(parsed / 100, 0, 1);
+  }
+  const parsed = Number.parseFloat(normalized);
+  if (!Number.isFinite(parsed)) return 1;
+  return clamp(parsed, 0, 1);
+}
+
+function parseHue(value: string): number | null {
+  const normalized = value.trim().toLowerCase();
+  const parsed = Number.parseFloat(normalized);
+  if (!Number.isFinite(parsed)) return null;
+
+  if (normalized.endsWith('rad')) return (parsed * 180) / Math.PI;
+  if (normalized.endsWith('grad')) return parsed * 0.9;
+  if (normalized.endsWith('turn')) return parsed * 360;
+  return parsed;
+}
+
+function parseHexColor(color: string): { r: number; g: number; b: number; a: number } | null {
+  if (!HEX_COLOR_PATTERN.test(color)) return null;
+  const hex = color.slice(1);
+
+  if (hex.length === 3 || hex.length === 4) {
+    const expanded = hex.split('').map((char) => `${char}${char}`).join('');
+    return parseHexColor(`#${expanded}`);
+  }
+
+  if (hex.length === 6 || hex.length === 8) {
+    const r = Number.parseInt(hex.slice(0, 2), 16);
+    const g = Number.parseInt(hex.slice(2, 4), 16);
+    const b = Number.parseInt(hex.slice(4, 6), 16);
+    const a = hex.length === 8 ? Number.parseInt(hex.slice(6, 8), 16) / 255 : 1;
+    return { r, g, b, a };
+  }
+
+  return null;
+}
+
+function parseRgbColor(color: string): { r: number; g: number; b: number; a: number } | null {
+  const match = color.match(/^rgba?\((.+)\)$/i);
+  if (!match) return null;
+  const parts = match[1].split(',').map((part) => part.trim());
+  if (parts.length !== 3 && parts.length !== 4) return null;
+
+  const r = parseRgbChannel(parts[0]);
+  const g = parseRgbChannel(parts[1]);
+  const b = parseRgbChannel(parts[2]);
+  if (r === null || g === null || b === null) return null;
+
+  return { r, g, b, a: parseAlphaChannel(parts[3]) };
+}
+
+function hslToRgb(hue: number, saturation: number, lightness: number): { r: number; g: number; b: number } {
+  const normalizedHue = ((hue % 360) + 360) % 360;
+  const c = (1 - Math.abs((2 * lightness) - 1)) * saturation;
+  const x = c * (1 - Math.abs(((normalizedHue / 60) % 2) - 1));
+  const m = lightness - c / 2;
+
+  let rPrime = 0;
+  let gPrime = 0;
+  let bPrime = 0;
+
+  if (normalizedHue < 60) {
+    rPrime = c;
+    gPrime = x;
+  } else if (normalizedHue < 120) {
+    rPrime = x;
+    gPrime = c;
+  } else if (normalizedHue < 180) {
+    gPrime = c;
+    bPrime = x;
+  } else if (normalizedHue < 240) {
+    gPrime = x;
+    bPrime = c;
+  } else if (normalizedHue < 300) {
+    rPrime = x;
+    bPrime = c;
+  } else {
+    rPrime = c;
+    bPrime = x;
+  }
+
+  return {
+    r: Math.round((rPrime + m) * 255),
+    g: Math.round((gPrime + m) * 255),
+    b: Math.round((bPrime + m) * 255),
+  };
+}
+
+function parseHslColor(color: string): { r: number; g: number; b: number; a: number } | null {
+  const match = color.match(/^hsla?\((.+)\)$/i);
+  if (!match) return null;
+  const parts = match[1].split(',').map((part) => part.trim());
+  if (parts.length !== 3 && parts.length !== 4) return null;
+
+  const hue = parseHue(parts[0]);
+  if (hue === null) return null;
+
+  if (!parts[1].endsWith('%') || !parts[2].endsWith('%')) return null;
+  const saturation = clamp(Number.parseFloat(parts[1]) / 100, 0, 1);
+  const lightness = clamp(Number.parseFloat(parts[2]) / 100, 0, 1);
+
+  if (!Number.isFinite(saturation) || !Number.isFinite(lightness)) return null;
+
+  const rgb = hslToRgb(hue, saturation, lightness);
+  return { ...rgb, a: parseAlphaChannel(parts[3]) };
+}
+
+function resolveColorDarkness(color: string): boolean | undefined {
+  const normalized = color.trim().toLowerCase();
+  const parsed = parseHexColor(normalized) || parseRgbColor(normalized) || parseHslColor(normalized);
+  if (!parsed) return undefined;
+
+  const alpha = clamp(parsed.a, 0, 1);
+  const compositeRed = (parsed.r * alpha) + (255 * (1 - alpha));
+  const compositeGreen = (parsed.g * alpha) + (255 * (1 - alpha));
+  const compositeBlue = (parsed.b * alpha) + (255 * (1 - alpha));
+
+  const toLinear = (channel: number): number => {
+    const normalizedChannel = channel / 255;
+    return normalizedChannel <= 0.04045
+      ? normalizedChannel / 12.92
+      : Math.pow((normalizedChannel + 0.055) / 1.055, 2.4);
+  };
+
+  const luminance =
+    (0.2126 * toLinear(compositeRed)) +
+    (0.7152 * toLinear(compositeGreen)) +
+    (0.0722 * toLinear(compositeBlue));
+
+  return luminance < 0.45;
 }
 
 function normalizePath(path: string): string {
@@ -336,11 +519,25 @@ export default function UniversalSections({
   ): React.ReactNode => {
     const key = `${keyPrefix}${section.id || index}`;
     const size = normalizeSize(section.size);
-    const theme = normalizeTheme(section.theme);
+    const baseTheme = normalizeTheme(section.theme);
     const padding = sectionPadding[size];
+    const customBackgroundColor = normalizeCustomBackgroundColor(section.backgroundColor);
+    const customBackgroundIsDark =
+      customBackgroundColor ? resolveColorDarkness(customBackgroundColor) : undefined;
+    const theme: SectionTheme =
+      customBackgroundColor && customBackgroundIsDark !== undefined
+        ? customBackgroundIsDark
+          ? 'navy'
+          : 'white'
+        : baseTheme;
+    const resolvedBackgroundColor =
+      customBackgroundColor ??
+      (baseTheme === 'white' || baseTheme === 'light'
+        ? getLightBackgroundColor(baseTheme)
+        : getDarkBackgroundColor(baseTheme));
     const sectionStyle: CSSProperties = {
       padding,
-      backgroundColor: theme === 'white' || theme === 'light' ? getLightBackgroundColor(theme) : getDarkBackgroundColor(theme),
+      backgroundColor: resolvedBackgroundColor,
     };
 
     if (section.blockType === 'heroSection') {
@@ -351,7 +548,7 @@ export default function UniversalSections({
           style={{
             ...sectionStyle,
             padding: heroPadding[size],
-            color: 'var(--ui-color-hero-text)',
+            color: headingColor(theme),
             position: 'relative',
             overflow: 'hidden',
           }}
@@ -359,7 +556,7 @@ export default function UniversalSections({
         >
           <div style={{ ...inner, maxWidth: 'min(760px, var(--ui-layout-container-max-width))' }}>
             {typeof section.eyebrow === 'string' ? (
-              <p className="section-label" style={{ color: 'var(--ui-color-hero-muted)', marginBottom: '20px' }}>
+              <p className="section-label" style={{ color: mutedColor(theme), marginBottom: '20px' }}>
                 {section.eyebrow}
               </p>
             ) : null}
@@ -374,12 +571,12 @@ export default function UniversalSections({
               {String(section.heading || '')}
             </h1>
             {section.subheading ? (
-              <p style={{ color: 'var(--ui-color-hero-muted)', fontSize: '18px', marginBottom: section.primaryCtaLabel ? '28px' : 0 }}>
+              <p style={{ color: bodyColor(theme), fontSize: '18px', marginBottom: section.primaryCtaLabel ? '28px' : 0 }}>
                 {String(section.subheading)}
               </p>
             ) : null}
             {section.primaryCtaLabel ? (
-              <Link className="btn-ghost" href={normalizePath(String(section.primaryCtaHref || '#'))}>
+              <Link className={isDarkTheme(theme) ? 'btn-ghost' : 'btn-primary'} href={normalizePath(String(section.primaryCtaHref || '#'))}>
                 {String(section.primaryCtaLabel)}
               </Link>
             ) : null}
@@ -1069,7 +1266,7 @@ export default function UniversalSections({
               }}
             >
               <div>
-                <p className="section-label" style={{ marginBottom: '16px' }}>
+                <p className="section-label" style={{ marginBottom: '16px', color: mutedColor(theme) }}>
                   {String(section.label || 'Free resource')}
                 </p>
                 <h2
@@ -1145,7 +1342,7 @@ export default function UniversalSections({
               }}
             >
               <div>
-                <p className="section-label" style={{ marginBottom: '16px' }}>
+                <p className="section-label" style={{ marginBottom: '16px', color: mutedColor(theme) }}>
                   {String(section.label || 'Send an inquiry')}
                 </p>
                 <h2
@@ -1297,7 +1494,7 @@ export default function UniversalSections({
               </div>
             )}
             {section.caption ? (
-              <p style={{ marginTop: '12px', color: 'var(--ui-color-text-muted)' }}>{String(section.caption)}</p>
+              <p style={{ marginTop: '12px', color: mutedColor(theme) }}>{String(section.caption)}</p>
             ) : null}
           </div>
         </section>
@@ -1330,7 +1527,7 @@ export default function UniversalSections({
               ) : posterUrl ? (
                 <Image src={posterUrl} alt="" width={0} height={0} sizes="100vw" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
-                <div style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--ui-color-text-muted)' }}>
+                <div style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', color: mutedColor(theme) }}>
                   Add an embed URL or poster image
                 </div>
               )}
@@ -1354,7 +1551,16 @@ export default function UniversalSections({
                     {columns.map((column: unknown, colIndex: number) => {
                       const label = typeof column === 'object' && column !== null ? (column as Record<string, unknown>).label : column;
                       return (
-                        <th key={`${key}-col-${colIndex}`} style={{ textAlign: 'left', padding: '12px', borderBottom: '1px solid var(--ui-color-border)', backgroundColor: 'var(--ui-color-section-alt)' }}>
+                        <th
+                          key={`${key}-col-${colIndex}`}
+                          style={{
+                            textAlign: 'left',
+                            padding: '12px',
+                            borderBottom: '1px solid var(--ui-color-border)',
+                            backgroundColor: 'var(--ui-color-section-alt)',
+                            color: headingColor(theme),
+                          }}
+                        >
                           {String(label || '')}
                         </th>
                       );
@@ -1371,7 +1577,10 @@ export default function UniversalSections({
                         {cells.map((cell: unknown, cellIndex: number) => {
                           const value = typeof cell === 'object' && cell !== null ? (cell as Record<string, unknown>).value : cell;
                           return (
-                            <td key={`${key}-row-${rowIndex}-cell-${cellIndex}`} style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)' }}>
+                            <td
+                              key={`${key}-row-${rowIndex}-cell-${cellIndex}`}
+                              style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)', color: bodyColor(theme) }}
+                            >
                               {String(value || '')}
                             </td>
                           );
@@ -1398,11 +1607,11 @@ export default function UniversalSections({
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '640px' }}>
                 <thead>
                   <tr>
-                    <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)' }}>Feature</th>
+                    <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)', color: headingColor(theme) }}>Feature</th>
                     {columns.map((column: unknown, idx: number) => {
                       const label = typeof column === 'object' && column !== null ? (column as Record<string, unknown>).label : column;
                       return (
-                        <th key={`${key}-plan-col-${idx}`} style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)' }}>
+                        <th key={`${key}-plan-col-${idx}`} style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)', color: headingColor(theme) }}>
                           {String(label || '')}
                         </th>
                       );
@@ -1418,11 +1627,11 @@ export default function UniversalSections({
                         : [];
                     return (
                       <tr key={`${key}-feature-${rowIndex}`}>
-                        <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)', fontWeight: 600 }}>{label}</td>
+                        <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)', fontWeight: 600, color: headingColor(theme) }}>{label}</td>
                         {values.map((value: unknown, valueIndex: number) => {
                           const v = typeof value === 'object' && value !== null ? (value as Record<string, unknown>).value : value;
                           return (
-                            <td key={`${key}-feature-${rowIndex}-value-${valueIndex}`} style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)' }}>
+                            <td key={`${key}-feature-${rowIndex}-value-${valueIndex}`} style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)', color: bodyColor(theme) }}>
                               {String(v || '')}
                             </td>
                           );
@@ -1482,9 +1691,9 @@ export default function UniversalSections({
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
                   <thead>
                     <tr>
-                      <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)' }}>Title</th>
-                      <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)' }}>Summary</th>
-                      <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)' }}>Meta</th>
+                      <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)', color: headingColor(theme) }}>Title</th>
+                      <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)', color: headingColor(theme) }}>Summary</th>
+                      <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)', color: headingColor(theme) }}>Meta</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1497,8 +1706,8 @@ export default function UniversalSections({
                               {normalized.title}
                             </Link>
                           </td>
-                          <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)' }}>{normalized.description}</td>
-                          <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)', color: 'var(--ui-color-text-muted)' }}>{normalized.meta}</td>
+                          <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)', color: bodyColor(theme) }}>{normalized.description}</td>
+                          <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)', color: mutedColor(theme) }}>{normalized.meta}</td>
                         </tr>
                       );
                     })}
@@ -1514,7 +1723,7 @@ export default function UniversalSections({
                       <Link href={normalized.href} style={{ color: headingColor(theme), fontWeight: 600, textDecoration: 'none' }}>
                         {normalized.title}
                       </Link>
-                      {normalized.description ? <p style={{ margin: '8px 0 0', color: 'var(--ui-color-text-muted)' }}>{normalized.description}</p> : null}
+                      {normalized.description ? <p style={{ margin: '8px 0 0', color: mutedColor(theme) }}>{normalized.description}</p> : null}
                     </li>
                   );
                 })}
@@ -1549,7 +1758,7 @@ export default function UniversalSections({
                 >
                   Previous
                 </button>
-                <span style={{ color: 'var(--ui-color-text-muted)', fontSize: '14px' }}>
+                <span style={{ color: mutedColor(theme), fontSize: '14px' }}>
                   Page {currentPage} of {totalPages}
                 </span>
                 <button
@@ -1598,9 +1807,9 @@ export default function UniversalSections({
 
     if (section.blockType === 'dividerSection') {
       return (
-        <div key={key} style={{ padding: '20px 24px', backgroundColor: isDarkTheme(theme) ? getDarkBackgroundColor(theme) : getLightBackgroundColor(theme) }}>
+        <div key={key} style={{ padding: '20px 24px', backgroundColor: resolvedBackgroundColor }}>
           <div style={{ ...inner, borderTop: '1px solid var(--ui-color-border)', paddingTop: '14px' }}>
-            {section.label ? <p style={{ margin: 0, fontSize: '12px', color: 'var(--ui-color-text-muted)' }}>{String(section.label)}</p> : null}
+            {section.label ? <p style={{ margin: 0, fontSize: '12px', color: mutedColor(theme) }}>{String(section.label)}</p> : null}
           </div>
         </div>
       );

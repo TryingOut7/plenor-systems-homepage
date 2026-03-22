@@ -11,6 +11,21 @@ export const themeField: Field = {
     { label: 'White', value: 'white' },
     { label: 'Light', value: 'light' },
   ],
+  admin: {
+    description: 'Base theme for section typography and button styling',
+  },
+};
+
+export const backgroundColorField: Field = {
+  name: 'backgroundColor',
+  type: 'text',
+  admin: {
+    description: 'Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)',
+    placeholder: '#F8F9FA',
+    components: {
+      beforeInput: ['@/payload/admin/components/SectionBackgroundColorPicker'],
+    },
+  },
 };
 
 export const sizeField: Field = {
@@ -42,6 +57,7 @@ export const customClassNameField: Field = {
 
 export const sectionCommonFields: Field[] = [
   themeField,
+  backgroundColorField,
   sizeField,
   anchorIdField,
   customClassNameField,
