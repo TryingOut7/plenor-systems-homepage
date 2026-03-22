@@ -514,17 +514,23 @@ export default buildConfig({
 
     // ── Import/Export Plugin ───────────────────────────────────────────────────
     // Import and export collection data as CSV or JSON
-    importExportPlugin({
-      collections: [
-        { slug: 'service-items' },
-        { slug: 'site-pages' },
-        { slug: 'reusable-sections' },
-        { slug: 'redirect-rules' },
-        { slug: 'blog-posts' },
-        { slug: 'testimonials' },
-        { slug: 'media' },
-      ],
-    }),
+    // NOTE: Disabled locally — LibSQL cannot handle special chars in Google Drive
+    // path. Works fine on Vercel. Re-enable when running outside Google Drive.
+    ...(process.env.VERCEL
+      ? [
+          importExportPlugin({
+            collections: [
+              { slug: 'service-items' },
+              { slug: 'site-pages' },
+              { slug: 'reusable-sections' },
+              { slug: 'redirect-rules' },
+              { slug: 'blog-posts' },
+              { slug: 'testimonials' },
+              { slug: 'media' },
+            ],
+          }),
+        ]
+      : []),
 
   ],
 });
