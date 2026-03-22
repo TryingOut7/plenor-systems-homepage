@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload';
 import { seoFields } from '../fields/seo';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow';
 import { pageSectionBlocks } from '../blocks/pageSections';
@@ -20,6 +20,77 @@ function isCorePreset(data: unknown): boolean {
   return corePresetValues.includes(key as (typeof corePresetValues)[number]);
 }
 
+function asObject(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return value as Record<string, unknown>;
+}
+
+function readEffectivePresetKey(incoming: Record<string, unknown>, original: Record<string, unknown>): string {
+  const incomingPreset = incoming.presetKey;
+  if (typeof incomingPreset === 'string') return incomingPreset;
+
+  const originalPreset = original.presetKey;
+  if (typeof originalPreset === 'string') return originalPreset;
+
+  return 'custom';
+}
+
+function readEffectiveIsActive(
+  incoming: Record<string, unknown>,
+  original: Record<string, unknown>,
+  operation: 'create' | 'update',
+): boolean {
+  if (typeof incoming.isActive === 'boolean') return incoming.isActive;
+  if (typeof original.isActive === 'boolean') return original.isActive;
+
+  // Field default is true for newly created pages.
+  return operation === 'create';
+}
+
+const enforceSitePageActivationRules: CollectionBeforeChangeHook = async ({
+  data,
+  originalDoc,
+  operation,
+  req,
+}) => {
+  const incoming = asObject(data);
+  const original = asObject(originalDoc);
+
+  if (operation !== 'create' && operation !== 'update') return incoming;
+
+  const nextPresetKey = readEffectivePresetKey(incoming, original);
+  const nextIsActive = readEffectiveIsActive(incoming, original, operation);
+  if (nextPresetKey !== 'home' || !nextIsActive) return incoming;
+
+  const currentId = incoming.id ?? original.id;
+  const excludeSelf =
+    typeof currentId === 'string' || typeof currentId === 'number'
+      ? [{ id: { not_equals: String(currentId) } }]
+      : [];
+
+  const result = await req.payload.find({
+    collection: 'site-pages',
+    where: {
+      and: [
+        { presetKey: { equals: 'home' } },
+        { isActive: { equals: true } },
+        ...excludeSelf,
+      ],
+    },
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  });
+
+  if (result.docs.length > 0) {
+    throw new Error(
+      'Only one Home preset page can be active at a time. Deactivate the other active Home page first.',
+    );
+  }
+
+  return incoming;
+};
+
 export const SitePages: CollectionConfig = {
   slug: 'site-pages',
   admin: {
@@ -36,7 +107,12 @@ export const SitePages: CollectionConfig = {
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   hooks: {
-    beforeChange: [normalizeSlugBeforeChange, workflowBeforeChange, applyCorePresetSections],
+    beforeChange: [
+      normalizeSlugBeforeChange,
+      workflowBeforeChange,
+      applyCorePresetSections,
+      enforceSitePageActivationRules,
+    ],
     afterChange: [workflowAfterChange, auditAfterChange],
     afterDelete: [auditAfterDelete],
   },
@@ -113,6 +189,12 @@ export const SitePages: CollectionConfig = {
       name: 'isActive',
       type: 'checkbox',
       defaultValue: true,
+      access: {
+        create: ({ req }) =>
+          !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
+        update: ({ req }) =>
+          !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
+      },
       admin: {
         position: 'sidebar',
       },
