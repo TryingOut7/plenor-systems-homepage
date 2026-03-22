@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import RichText from './RichText';
@@ -151,6 +151,115 @@ function readChecklistArray(value: unknown): Array<{ title: string; description:
     .filter((entry) => entry.title && entry.description);
 }
 
+type NormalizedImage = { url: string; alt: string };
+
+function normalizeImageEntries(images: unknown): NormalizedImage[] {
+  if (!Array.isArray(images)) return [];
+
+  return images
+    .map((imageEntry: unknown) => {
+      const img = typeof imageEntry === 'object' && imageEntry !== null
+        ? (imageEntry as Record<string, unknown>).image
+        : imageEntry;
+      const url = getImageUrl(img);
+      if (!url) return null;
+      return { url, alt: getImageAlt(img) };
+    })
+    .filter((entry): entry is NormalizedImage => !!entry);
+}
+
+function ImageSlideshow({ images }: { images: NormalizedImage[] }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (images.length <= 1 || isPaused) return;
+
+    const interval = window.setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 4500);
+
+    return () => window.clearInterval(interval);
+  }, [images.length, isPaused]);
+
+  if (images.length === 0) return null;
+  const boundedIndex = ((currentIndex % images.length) + images.length) % images.length;
+
+  return (
+    <div
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocusCapture={() => setIsPaused(true)}
+      onBlurCapture={() => setIsPaused(false)}
+    >
+      <div style={{ marginBottom: '12px', aspectRatio: '16 / 9', overflow: 'hidden', borderRadius: '8px', border: '1px solid var(--ui-color-border)' }}>
+        <Image
+          src={images[boundedIndex].url}
+          alt={images[boundedIndex].alt}
+          width={0}
+          height={0}
+          sizes="100vw"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      </div>
+
+      {images.length > 1 ? (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)}
+            style={{
+              border: '1px solid var(--ui-color-border)',
+              backgroundColor: 'var(--ui-color-surface)',
+              color: 'var(--ui-color-primary)',
+              borderRadius: '6px',
+              padding: '8px 12px',
+              cursor: 'pointer',
+            }}
+          >
+            Previous
+          </button>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {images.map((_, dotIndex) => (
+              <button
+                key={`dot-${dotIndex}`}
+                type="button"
+                aria-label={`Go to slide ${dotIndex + 1}`}
+                onClick={() => setCurrentIndex(dotIndex)}
+                style={{
+                  width: '9px',
+                  height: '9px',
+                  borderRadius: '999px',
+                  border: 0,
+                  padding: 0,
+                  cursor: 'pointer',
+                  backgroundColor: dotIndex === boundedIndex ? 'var(--ui-color-primary)' : 'var(--ui-color-border)',
+                }}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setCurrentIndex((prev) => (prev + 1) % images.length)}
+            style={{
+              border: '1px solid var(--ui-color-border)',
+              backgroundColor: 'var(--ui-color-surface)',
+              color: 'var(--ui-color-primary)',
+              borderRadius: '6px',
+              padding: '8px 12px',
+              cursor: 'pointer',
+            }}
+          >
+            Next
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function matchesFilter(item: Record<string, unknown>, filterField?: string, filterValue?: string): boolean {
   if (!filterField || !filterValue) return true;
   const field = item[filterField];
@@ -219,7 +328,6 @@ export default function UniversalSections({
   inquiryFormLabels,
 }: UniversalSectionsProps) {
   const [listPages, setListPages] = useState<Record<string, number>>({});
-  const [slideIndexes, setSlideIndexes] = useState<Record<string, number>>({});
 
   const renderSection = (
     section: PageSection,
@@ -1158,21 +1266,7 @@ export default function UniversalSections({
     if (section.blockType === 'imageSection') {
       const images = Array.isArray(section.images) ? section.images : [];
       const displayMode = section.displayMode === 'slideshow' ? 'slideshow' : 'grid';
-      const normalizedImages = images
-        .map((imageEntry: unknown) => {
-          const img = typeof imageEntry === 'object' && imageEntry !== null
-            ? (imageEntry as Record<string, unknown>).image
-            : imageEntry;
-          const url = getImageUrl(img);
-          if (!url) return null;
-          return { url, alt: getImageAlt(img) };
-        })
-        .filter((entry): entry is { url: string; alt: string } => !!entry);
-
-      const currentIndexRaw = slideIndexes[key] ?? 0;
-      const currentIndex = normalizedImages.length
-        ? Math.max(0, Math.min(normalizedImages.length - 1, currentIndexRaw))
-        : 0;
+      const normalizedImages = normalizeImageEntries(images);
 
       return (
         <section
@@ -1186,66 +1280,7 @@ export default function UniversalSections({
               <h2 style={{ marginBottom: '24px', color: headingColor(theme) }}>{String(section.heading)}</h2>
             ) : null}
             {displayMode === 'slideshow' ? (
-              normalizedImages.length > 0 ? (
-                <div>
-                  <div style={{ marginBottom: '12px' }}>
-                    <Image
-                      src={normalizedImages[currentIndex].url}
-                      alt={normalizedImages[currentIndex].alt}
-                      width={0}
-                      height={0}
-                      sizes="100vw"
-                      style={{ width: '100%', height: 'auto', borderRadius: '8px', border: '1px solid var(--ui-color-border)' }}
-                    />
-                  </div>
-                  {normalizedImages.length > 1 ? (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setSlideIndexes((prev) => ({
-                            ...prev,
-                            [key]:
-                              (currentIndex - 1 + normalizedImages.length) % normalizedImages.length,
-                          }))
-                        }
-                        style={{
-                          border: '1px solid var(--ui-color-border)',
-                          backgroundColor: 'var(--ui-color-surface)',
-                          color: 'var(--ui-color-primary)',
-                          borderRadius: '6px',
-                          padding: '8px 12px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Previous
-                      </button>
-                      <span style={{ color: 'var(--ui-color-text-muted)', fontSize: '14px' }}>
-                        {currentIndex + 1} / {normalizedImages.length}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setSlideIndexes((prev) => ({
-                            ...prev,
-                            [key]: (currentIndex + 1) % normalizedImages.length,
-                          }))
-                        }
-                        style={{
-                          border: '1px solid var(--ui-color-border)',
-                          backgroundColor: 'var(--ui-color-surface)',
-                          color: 'var(--ui-color-primary)',
-                          borderRadius: '6px',
-                          padding: '8px 12px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Next
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-              ) : null
+              <ImageSlideshow images={normalizedImages} />
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                 {normalizedImages.map((img, imageIndex: number) => (
