@@ -285,6 +285,7 @@ const LegacyNarrativeSection: Block = {
     {
       name: 'paragraphs',
       type: 'array',
+      dbName: 'lgn_paras',
       fields: [{ name: 'paragraph', type: 'textarea', required: true }],
     },
     { name: 'linkLabel', type: 'text' },
@@ -305,6 +306,7 @@ const LegacyNumberedStageSection: Block = {
     {
       name: 'items',
       type: 'array',
+      dbName: 'lgs_items',
       fields: [{ name: 'item', type: 'textarea', required: true }],
     },
     { name: 'whoForHeading', type: 'text', defaultValue: 'Who it is for' },
@@ -323,6 +325,7 @@ const LegacyAudienceGridSection: Block = {
     {
       name: 'audiences',
       type: 'array',
+      dbName: 'lga_auds',
       fields: [
         { name: 'label', type: 'text', required: true },
         { name: 'copy', type: 'textarea', required: true },
@@ -343,6 +346,7 @@ const LegacyChecklistSection: Block = {
     {
       name: 'items',
       type: 'array',
+      dbName: 'lgc_items',
       fields: [
         { name: 'title', type: 'text', required: true },
         { name: 'description', type: 'textarea', required: true },
