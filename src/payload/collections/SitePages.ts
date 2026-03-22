@@ -106,9 +106,7 @@ export const SitePages: CollectionConfig = {
       type: 'json',
       defaultValue: {},
       admin: {
-        condition: (data) => isCorePreset(data),
-        description:
-          'Preset text content. Use JSON object by preset key, for example {"home": {"heroHeading": "..."}}.',
+        condition: () => false,
       },
     },
     {
@@ -124,9 +122,9 @@ export const SitePages: CollectionConfig = {
       type: 'blocks',
       blocks: pageSectionBlocks,
       admin: {
-        condition: (data) => !isCorePreset(data),
+        condition: () => true,
         description:
-          'Section builder is available for custom pages only. Core preset pages keep fixed structure.',
+          'For core presets, structure is locked to template and only text content changes are kept.',
       },
     },
     workflowStatusField,
