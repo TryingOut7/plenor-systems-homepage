@@ -3,6 +3,7 @@ import { pageSectionBlocks } from '../blocks/pageSections';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog';
+import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug';
 
 export const ReusableSections: CollectionConfig = {
   slug: 'reusable-sections',
@@ -17,7 +18,7 @@ export const ReusableSections: CollectionConfig = {
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   hooks: {
-    beforeChange: [workflowBeforeChange],
+    beforeChange: [normalizeSlugBeforeChange, workflowBeforeChange],
     afterChange: [workflowAfterChange, auditAfterChange],
     afterDelete: [auditAfterDelete],
   },
