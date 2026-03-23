@@ -349,6 +349,9 @@ function setMapCache<T>(map: Map<string, CacheEntry<T>>, key: string, value: T, 
 }
 
 function shouldSkipPayload(): boolean {
+  if (process.env.CMS_SKIP_PAYLOAD === 'true') {
+    return true;
+  }
   return Date.now() < payloadFailureUntil;
 }
 

@@ -44,6 +44,22 @@ npm run backend:dev
 
 When `BACKEND_INTERNAL_URL` is set in `.env.local`, Next API routes proxy to backend first and fall back to local handlers if backend is unreachable.
 
+Current backend routes:
+
+- `GET /health`
+- `GET /health/ready`
+- `GET /metrics` (requires `x-api-key` with internal/admin role)
+- `GET /v1/search`
+- `POST /v1/forms/guide` (supports `Idempotency-Key`)
+- `POST /v1/forms/inquiry` (supports `Idempotency-Key`)
+- `POST /v1/internal/seed-site-pages`
+- `GET /v1/content/pages/{slug}`
+- `GET /v1/content/navigation`
+- `GET /v1/admin/submissions` (admin API key)
+- `GET /v1/admin/submissions/{id}` (admin API key)
+- `POST /v1/admin/submissions/{id}/replay-side-effects` (admin API key, supports `Idempotency-Key`)
+- `GET /v1/integrations/status` (internal/admin API key)
+
 ## Environment Variables
 
 See `.env.local` for all required variables:
@@ -60,6 +76,12 @@ See `.env.local` for all required variables:
 | `SUPABASE_URL` | Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-only) |
 | `STAGING_PASSWORD` | Optional — enables password gate on all routes |
+| `BACKEND_API_KEYS` | Comma-separated API keys (`key:role:keyId`) for backend role auth |
+| `BACKEND_INTERNAL_API_KEY` | Optional dedicated internal API key (alternative to `BACKEND_API_KEYS`) |
+| `BACKEND_ADMIN_API_KEY` | Optional dedicated admin API key (alternative to `BACKEND_API_KEYS`) |
+| `OUTBOUND_WEBHOOK_URL` | Optional signed outbound event webhook target |
+| `OUTBOUND_WEBHOOK_SECRET` | Optional HMAC secret for `X-Plenor-Signature` |
+| `CMS_SKIP_PAYLOAD` | Optional local/test flag to bypass payload-backed CMS calls |
 
 ## Pages
 
@@ -76,6 +98,43 @@ See `.env.local` for all required variables:
 
 ```bash
 npm run build
+```
+
+## Contracts (OpenAPI + Typed Client)
+
+Generate API types from backend OpenAPI spec:
+
+```bash
+npm run openapi:generate
+```
+
+Verify generated types are up to date:
+
+```bash
+npm run openapi:check
+```
+
+Spec location: `apps/backend/openapi/openapi.yaml`  
+Generated client types: `packages/api-client/src/generated.ts`
+
+## Tests
+
+```bash
+npm run test:unit
+npm run test:integration
+npm run test:e2e
+```
+
+Run all test suites:
+
+```bash
+npm run test:ci
+```
+
+Architecture boundary lint:
+
+```bash
+npm run lint:architecture
 ```
 
 ## Seed Payload Site Pages

@@ -1,4 +1,6 @@
 export interface RequestContext {
+  requestId?: string;
+  method?: string;
   path: string;
   url: string;
   origin: string | null;
@@ -8,4 +10,6 @@ export interface RequestContext {
   realIp: string | null;
   forwardedFor: string | null;
   authorization: string | null;
+  apiKey: string | null;
+  idempotencyKey: string | null;
 }

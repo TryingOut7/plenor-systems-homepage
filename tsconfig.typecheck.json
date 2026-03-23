@@ -9,7 +9,8 @@
     "src/**/*.tsx",
     "packages/**/*.ts",
     "apps/**/*.ts",
-    "apps/**/*.tsx"
+    "apps/**/*.tsx",
+    "tests/**/*.ts"
   ],
   "exclude": [
     "node_modules",

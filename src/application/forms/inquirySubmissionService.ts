@@ -4,9 +4,11 @@ import {
   validateInquirySubmission,
   type InquirySubmissionInput,
 } from '@/domain/forms/inquirySubmission';
-import { saveInquirySubmissionToPayloadForm } from '@/infrastructure/cms/formSubmissionGateway';
-import { queueCrmEvent } from '@/infrastructure/integrations/crmGateway';
-import { sendInquiryRoutingEmails } from '@/infrastructure/integrations/emailGateway';
+import {
+  enqueueIntegrationJobs,
+  processOutboxTick,
+} from '@/infrastructure/integrations/outboxService';
+import { buildInquirySubmissionEvent } from '@/infrastructure/integrations/outboundEvents';
 import { persistInquirySubmission } from '@/infrastructure/persistence/submissionRepository';
 import { verifyRequestOrigin } from '@/infrastructure/security/originVerifier';
 import { checkRateLimit } from '@/infrastructure/security/rateLimiter';
@@ -49,16 +51,23 @@ export async function submitInquiryForm(
       email: validation.data.email,
       company: validation.data.company,
       challenge: validation.data.challenge,
-      submittedAt: new Date().toISOString(),
     };
 
+    let submissionId = '';
     try {
-      await persistInquirySubmission(
+      const submission = await persistInquirySubmission(
         entry.name,
         entry.email,
         entry.company,
         entry.challenge,
       );
+
+      submissionId = submission.id;
+      const event = buildInquirySubmissionEvent({ submission });
+      await enqueueIntegrationJobs({
+        submissionId: submission.id,
+        event,
+      });
     } catch {
       console.error(
         'DB log failed for inquiry submission - entry:',
@@ -66,34 +75,16 @@ export async function submitInquiryForm(
       );
     }
 
-    void queueCrmEvent({
-      event: 'inquiry',
-      timestamp: entry.submittedAt,
-      data: {
-        name: entry.name,
-        email: entry.email,
-        company: entry.company,
-        challenge: entry.challenge,
-      },
-    }).catch((error) => {
-      console.error('CRM webhook failed (inquiry):', error);
-    });
-
-    void saveInquirySubmissionToPayloadForm({
-      name: entry.name,
-      email: entry.email,
-      company: entry.company,
-      challenge: entry.challenge,
-    }).catch((error) => {
-      console.error('Payload form-submissions save failed (inquiry):', error);
-    });
-
-    await sendInquiryRoutingEmails({
-      name: entry.name,
-      email: entry.email,
-      company: entry.company,
-      challenge: entry.challenge,
-    });
+    if (submissionId) {
+      try {
+        await processOutboxTick(10);
+      } catch (error) {
+        console.error(
+          'Outbox processing failed for inquiry submission:',
+          error,
+        );
+      }
+    }
 
     return ok({ success: true });
   } catch (error) {

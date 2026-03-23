@@ -15,6 +15,8 @@ export function toRequestContext(request: FastifyRequest): RequestContext {
   const base = host ? `${protocol}://${host}` : `http://localhost`;
 
   return {
+    requestId: request.id,
+    method: request.method,
     path,
     url: `${base}${request.url}`,
     origin: firstHeader(request.headers.origin),
@@ -24,5 +26,7 @@ export function toRequestContext(request: FastifyRequest): RequestContext {
     realIp: firstHeader(request.headers['x-real-ip']),
     forwardedFor: firstHeader(request.headers['x-forwarded-for']),
     authorization: firstHeader(request.headers.authorization),
+    apiKey: firstHeader(request.headers['x-api-key']),
+    idempotencyKey: firstHeader(request.headers['idempotency-key']),
   };
 }

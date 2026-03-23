@@ -1,11 +1,31 @@
 import { fireCrmWebhook } from '@/lib/crm-webhook';
+import type { OutboundEventV1 } from '@plenor/contracts/events';
 
 export type CrmEventName = 'guide_download' | 'inquiry';
+export type CrmEventType =
+  | 'submission.guide.created'
+  | 'submission.inquiry.created';
 
 export async function queueCrmEvent(input: {
-  event: CrmEventName;
+  eventType: CrmEventType;
   timestamp: string;
-  data: Record<string, unknown>;
+  event: OutboundEventV1;
 }): Promise<void> {
-  await fireCrmWebhook(input);
+  const mappedEvent: CrmEventName =
+    input.eventType === 'submission.guide.created' ? 'guide_download' : 'inquiry';
+
+  const payload =
+    input.event.payload && typeof input.event.payload === 'object'
+      ? (input.event.payload as Record<string, unknown>)
+      : {};
+
+  await fireCrmWebhook({
+    event: mappedEvent,
+    timestamp: input.timestamp,
+    data: {
+      version: input.event.version,
+      eventId: input.event.id,
+      ...payload,
+    },
+  });
 }

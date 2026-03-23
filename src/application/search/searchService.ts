@@ -126,6 +126,7 @@ export async function searchSiteContent(
       page: params.page,
       limit: params.limit,
       totalPages: Math.ceil(total / params.limit),
+      requestId: context.requestId,
     },
     facets,
   });

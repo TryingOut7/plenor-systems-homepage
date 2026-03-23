@@ -1,4 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
+import { toBackendErrorResponse } from '../adapters/errorEnvelope';
 
 interface RateLimitEntry {
   count: number;
@@ -53,7 +54,19 @@ export function createRateLimitHook(options: RateLimitOptions) {
     if (current.count > options.maxRequests) {
       const retryAfter = Math.ceil((current.resetAt - now) / 1000);
       reply.header('Retry-After', String(retryAfter));
-      reply.status(429).send({ error: 'Too many requests.' });
+      reply.status(429).send(
+        toBackendErrorResponse({
+          status: 429,
+          requestId: request.id,
+          body: {
+            code: 'RATE_LIMITED',
+            message: 'Too many requests.',
+          },
+          headers: {
+            'Retry-After': String(retryAfter),
+          },
+        }),
+      );
     }
   };
 }

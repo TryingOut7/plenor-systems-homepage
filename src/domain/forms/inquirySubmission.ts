@@ -23,6 +23,7 @@ export function validateInquirySubmission(
 ): InquirySubmissionValidation {
   const rawName = typeof input.name === 'string' ? input.name : '';
   const rawEmail = typeof input.email === 'string' ? input.email : '';
+  const normalizedEmail = rawEmail.trim().toLowerCase();
   const rawCompany = typeof input.company === 'string' ? input.company : '';
   const rawChallenge = typeof input.challenge === 'string' ? input.challenge : '';
 
@@ -30,7 +31,7 @@ export function validateInquirySubmission(
     return { ok: false, message: 'Name is required (max 200 characters).' };
   }
 
-  if (!rawEmail || rawEmail.length > 320 || !isValidEmail(rawEmail)) {
+  if (!normalizedEmail || normalizedEmail.length > 320 || !isValidEmail(normalizedEmail)) {
     return { ok: false, message: 'A valid email address is required.' };
   }
 
@@ -57,7 +58,7 @@ export function validateInquirySubmission(
     ok: true,
     data: {
       name: sanitizeText(rawName.trim()),
-      email: rawEmail.trim().toLowerCase(),
+      email: normalizedEmail,
       company: sanitizeText(rawCompany.trim()),
       challenge: sanitizeText(rawChallenge.trim()),
     },

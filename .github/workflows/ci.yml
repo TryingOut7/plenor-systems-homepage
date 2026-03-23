@@ -24,8 +24,17 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Architecture Boundaries
+        run: npm run lint:architecture
+
       - name: Type check
-        run: npx tsc --noEmit
+        run: npm run check:type
+
+      - name: OpenAPI Contract Check
+        run: npm run openapi:check
+
+      - name: Tests
+        run: npm run test:ci
 
       - name: Build
         run: npm run build

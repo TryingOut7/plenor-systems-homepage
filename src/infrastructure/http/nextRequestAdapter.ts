@@ -3,6 +3,8 @@ import type { NextRequest } from 'next/server';
 
 export function toRequestContext(request: NextRequest): RequestContext {
   return {
+    requestId: request.headers.get('x-request-id') || undefined,
+    method: request.method,
     path: request.nextUrl.pathname,
     url: request.url,
     origin: request.headers.get('origin'),
@@ -12,6 +14,8 @@ export function toRequestContext(request: NextRequest): RequestContext {
     realIp: request.headers.get('x-real-ip'),
     forwardedFor: request.headers.get('x-forwarded-for'),
     authorization: request.headers.get('authorization'),
+    apiKey: request.headers.get('x-api-key'),
+    idempotencyKey: request.headers.get('idempotency-key'),
   };
 }
 

@@ -22,7 +22,9 @@
       "@/*": ["./src/*"],
       "@plenor/contracts": ["./packages/contracts/src/index.ts"],
       "@plenor/contracts/draft-mode": ["./packages/contracts/src/draftMode.ts"],
-      "@plenor/contracts/*": ["./packages/contracts/src/*"]
+      "@plenor/contracts/*": ["./packages/contracts/src/*"],
+      "@plenor/api-client": ["./packages/api-client/src/index.ts"],
+      "@plenor/api-client/*": ["./packages/api-client/src/*"]
     }
   },
   "include": [

@@ -8,6 +8,11 @@
     "./forms": "./src/forms.ts",
     "./search": "./src/search.ts",
     "./draft-mode": "./src/draftMode.ts",
-    "./internal": "./src/internal.ts"
+    "./internal": "./src/internal.ts",
+    "./errors": "./src/errors.ts",
+    "./auth": "./src/auth.ts",
+    "./content": "./src/content.ts",
+    "./admin-submissions": "./src/adminSubmissions.ts",
+    "./events": "./src/events.ts"
   }
 }

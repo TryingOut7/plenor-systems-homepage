@@ -4,13 +4,11 @@ import {
   validateGuideSubmission,
   type GuideSubmissionInput,
 } from '@/domain/forms/guideSubmission';
-import { getGuideEmailTemplate } from '@/infrastructure/cms/emailTemplateGateway';
-import { saveGuideSubmissionToPayloadForm } from '@/infrastructure/cms/formSubmissionGateway';
-import { queueCrmEvent } from '@/infrastructure/integrations/crmGateway';
 import {
-  sendGuideDeliveryEmail,
-  type GuideEmailTemplate,
-} from '@/infrastructure/integrations/emailGateway';
+  enqueueIntegrationJobs,
+  processOutboxTick,
+} from '@/infrastructure/integrations/outboxService';
+import { buildGuideSubmissionEvent } from '@/infrastructure/integrations/outboundEvents';
 import { persistGuideSubmission } from '@/infrastructure/persistence/submissionRepository';
 import { verifyRequestOrigin } from '@/infrastructure/security/originVerifier';
 import { checkRateLimit } from '@/infrastructure/security/rateLimiter';
@@ -51,11 +49,22 @@ export async function submitGuideForm(
     const entry = {
       name: validation.data.name,
       email: validation.data.email,
-      submittedAt: new Date().toISOString(),
     };
 
+    let submissionId = '';
     try {
-      await persistGuideSubmission(entry.name, entry.email);
+      const submission = await persistGuideSubmission(entry.name, entry.email);
+      submissionId = submission.id;
+
+      const event = buildGuideSubmissionEvent({
+        submission,
+        templateId: validation.data.templateId,
+      });
+
+      await enqueueIntegrationJobs({
+        submissionId: submission.id,
+        event,
+      });
     } catch {
       console.error(
         'DB log failed for guide submission - entry:',
@@ -63,35 +72,16 @@ export async function submitGuideForm(
       );
     }
 
-    void queueCrmEvent({
-      event: 'guide_download',
-      timestamp: entry.submittedAt,
-      data: { name: entry.name, email: entry.email },
-    }).catch((error) => {
-      console.error('CRM webhook failed (guide):', error);
-    });
-
-    void saveGuideSubmissionToPayloadForm({
-      name: entry.name,
-      email: entry.email,
-    }).catch((error) => {
-      console.error('Payload form-submissions save failed (guide):', error);
-    });
-
-    let emailTemplate: GuideEmailTemplate | undefined;
-    if (validation.data.templateId != null) {
+    if (submissionId) {
       try {
-        emailTemplate = await getGuideEmailTemplate(validation.data.templateId);
+        await processOutboxTick(10);
       } catch (error) {
-        console.error('Failed to fetch email template:', error);
+        console.error(
+          'Outbox processing failed for guide submission:',
+          error,
+        );
       }
     }
-
-    await sendGuideDeliveryEmail({
-      name: entry.name,
-      email: entry.email,
-      template: emailTemplate,
-    });
 
     return ok({ success: true });
   } catch (error) {

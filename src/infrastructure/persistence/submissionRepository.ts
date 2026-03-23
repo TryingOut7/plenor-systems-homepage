@@ -1,10 +1,14 @@
-import { logGuideSubmission, logInquirySubmission } from '@/lib/db';
+import {
+  persistGuideSubmissionRecord,
+  persistInquirySubmissionRecord,
+  type StoredSubmission,
+} from '@/infrastructure/persistence/backendStore';
 
 export async function persistGuideSubmission(
   name: string,
   email: string,
-): Promise<void> {
-  await logGuideSubmission(name, email);
+): Promise<StoredSubmission> {
+  return persistGuideSubmissionRecord({ name, email });
 }
 
 export async function persistInquirySubmission(
@@ -12,6 +16,11 @@ export async function persistInquirySubmission(
   email: string,
   company: string,
   challenge: string,
-): Promise<void> {
-  await logInquirySubmission(name, email, company, challenge);
+): Promise<StoredSubmission> {
+  return persistInquirySubmissionRecord({
+    name,
+    email,
+    company,
+    challenge,
+  });
 }

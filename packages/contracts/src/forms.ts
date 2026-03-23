@@ -1,3 +1,5 @@
+import type { BackendErrorResponse } from './errors';
+
 export interface GuideSubmissionRequest {
   name?: string;
   email?: string;
@@ -17,4 +19,11 @@ export interface FormSubmissionSuccessResponse {
 
 export interface FormSubmissionErrorResponse {
   message: string;
+  success?: BackendErrorResponse['success'];
+  code?: BackendErrorResponse['code'];
+  status?: BackendErrorResponse['status'];
+  requestId?: BackendErrorResponse['requestId'];
+  retryAfterSeconds?: BackendErrorResponse['retryAfterSeconds'];
+  details?: BackendErrorResponse['details'];
+  error?: string;
 }

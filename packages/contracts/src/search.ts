@@ -1,3 +1,5 @@
+import type { BackendErrorResponse } from './errors';
+
 export interface SearchResultItem {
   id: string | number;
   collection: string;
@@ -15,6 +17,7 @@ export interface SearchResponse {
     page: number;
     limit: number;
     totalPages: number;
+    requestId?: string;
   };
   facets: {
     collection: Record<string, number>;
@@ -24,4 +27,8 @@ export interface SearchResponse {
 
 export interface SearchErrorResponse {
   error: string;
+  code?: BackendErrorResponse['code'];
+  message?: string;
+  status?: number;
+  success?: false;
 }
