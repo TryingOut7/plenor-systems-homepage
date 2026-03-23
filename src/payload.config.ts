@@ -525,7 +525,8 @@ export default buildConfig({
             },
           ],
         },
-        fields: [
+        fields: ({ defaultFields }) => [
+          ...defaultFields,
           {
             name: 'formType',
             type: 'text',
