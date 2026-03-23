@@ -77,8 +77,6 @@ PAYLOAD_DB_PUSH                 # Enable Payload schema push (default: true)
 PAYLOAD_SECRET                  # Auth token secret for Payload CMS
 PAYLOAD_SEED_SECRET             # Optional secret for seed command
 NEXT_PUBLIC_SERVER_URL          # Public server URL
-STAGING_LOCK_ENABLED            # Set to "true" to enable staging password gate (default: false)
-STAGING_PASSWORD                # Password for staging gate — requires STAGING_LOCK_ENABLED=true
 ENABLE_DEV_REDIRECT_RULES       # Enable redirect rules in local dev (default: false)
 ```
 
@@ -127,7 +125,6 @@ The app uses Next.js route groups: `(frontend)` for public pages, `(payload)` fo
 | `/about`, `/services`, `/pricing`, `/contact` | `src/app/(frontend)/*/page.tsx` |
 | `/services/[slug]` | `src/app/(frontend)/services/[slug]/page.tsx` — individual service pages |
 | `/privacy` | `src/app/(frontend)/privacy/page.tsx` |
-| `/staging-login` | `src/app/(frontend)/staging-login/page.tsx` |
 | `/[...slug]` | `src/app/(frontend)/[...slug]/page.tsx` — any active `site-pages` entry by slug |
 | `/admin/[[...segments]]` | `src/app/(payload)/admin/[[...segments]]/page.tsx` — Payload CMS admin panel |
 | `/admin-diagnostics` | `src/app/(diagnostics)/admin-diagnostics/page.tsx` |
@@ -141,7 +138,6 @@ All pages use `export const revalidate = 60` (ISR, 60-second cache).
 - `GET /api/search` — Faceted full-text search across collections (tag/featured filters, pagination)
 - `GET/POST /api/draft-mode/enable` — Enables Next.js draft mode (requires `PAYLOAD_SECRET`)
 - `GET /api/draft-mode/disable` — Disables draft mode
-- `POST /api/staging-auth` — Sets/clears the `staging_auth` session cookie
 - `POST /api/internal/seed-site-pages` — Seeds site-pages collection (requires `PAYLOAD_SEED_SECRET`)
 
 ### Payload Config (`src/payload.config.ts`)
