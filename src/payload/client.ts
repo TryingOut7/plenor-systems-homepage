@@ -1,4 +1,3 @@
-import 'server-only';
 import { cache } from 'react';
 import { getPayload as getPayloadInstance } from 'payload';
 import config from '../payload.config';

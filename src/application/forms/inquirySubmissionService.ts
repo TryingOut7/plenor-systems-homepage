@@ -13,7 +13,7 @@ import { checkRateLimit } from '@/infrastructure/security/rateLimiter';
 import type {
   FormSubmissionErrorResponse,
   FormSubmissionSuccessResponse,
-} from '@/shared/contracts/forms';
+} from '@plenor/contracts/forms';
 
 type InquirySubmissionServiceResponse =
   | FormSubmissionSuccessResponse

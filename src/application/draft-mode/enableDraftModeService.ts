@@ -9,7 +9,7 @@ import { compareSecret } from '@/infrastructure/security/secretComparator';
 import type {
   DraftModeErrorResponse,
   EnableDraftModeSuccessResponse,
-} from '@/shared/contracts/draftMode';
+} from '@plenor/contracts/draft-mode';
 
 type EnableDraftModeServiceResponse =
   | EnableDraftModeSuccessResponse

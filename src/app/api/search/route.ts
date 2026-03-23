@@ -1,4 +1,5 @@
 import { searchSiteContent } from '@/application/search/searchService';
+import { proxyRequestToBackend } from '@/infrastructure/http/backendProxy';
 import { toRequestContext } from '@/infrastructure/http/nextRequestAdapter';
 import { toJsonResponse } from '@/infrastructure/http/nextResponseAdapter';
 import type { NextRequest } from 'next/server';
@@ -18,6 +19,11 @@ import type { NextRequest } from 'next/server';
  */
 
 export async function GET(req: NextRequest) {
+  const proxied = await proxyRequestToBackend(req, '/v1/search');
+  if (proxied) {
+    return proxied;
+  }
+
   const result = await searchSiteContent(toRequestContext(req));
   return toJsonResponse(result);
 }

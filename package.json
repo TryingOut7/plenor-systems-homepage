@@ -2,11 +2,20 @@
   "name": "plenor-systems-homepage",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "check:type": "tsc --noEmit --pretty false --project tsconfig.typecheck.json",
+    "backend:dev": "npm run dev --workspace @plenor/backend",
+    "backend:start": "npm run start --workspace @plenor/backend",
+    "backend:lint": "npm run lint --workspace @plenor/backend",
+    "backend:typecheck": "npm run typecheck --workspace @plenor/backend",
     "payload": "payload",
     "generate:types": "payload generate:types",
     "seed:site-pages": "node scripts/seed-site-pages.mjs",
@@ -36,6 +45,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "resend": "^6.9.3",
+    "server-only": "^0.0.1",
     "sharp": "^0.34.5"
   },
   "devDependencies": {

@@ -1,5 +1,4 @@
 import type { SearchableCollection } from '@/domain/search/searchQuery';
-import { getPayload } from '@/payload/client';
 import type { Where } from 'payload';
 
 const FEATURED_COLLECTIONS = new Set<SearchableCollection>([
@@ -14,6 +13,7 @@ export async function findPublishedDocuments(params: {
   featuredFilter: string | null;
   limit: number;
 }): Promise<Array<Record<string, unknown>>> {
+  const { getPayload } = await import('../../payload/client');
   const where: Record<string, unknown> = {
     workflowStatus: { equals: 'published' },
   };

@@ -1,10 +1,12 @@
-import { getGuideFormId, getInquiryFormId } from '@/lib/payload-form-stubs';
-import { getPayload } from '@/payload/client';
-
 export async function saveGuideSubmissionToPayloadForm(input: {
   name: string;
   email: string;
 }): Promise<void> {
+  const [{ getGuideFormId }, { getPayload }] = await Promise.all([
+    import('../../lib/payload-form-stubs'),
+    import('../../payload/client'),
+  ]);
+
   const [formId, payload] = await Promise.all([getGuideFormId(), getPayload()]);
 
   await payload.create({
@@ -27,6 +29,11 @@ export async function saveInquirySubmissionToPayloadForm(input: {
   company: string;
   challenge: string;
 }): Promise<void> {
+  const [{ getInquiryFormId }, { getPayload }] = await Promise.all([
+    import('../../lib/payload-form-stubs'),
+    import('../../payload/client'),
+  ]);
+
   const [formId, payload] = await Promise.all([getInquiryFormId(), getPayload()]);
 
   await payload.create({

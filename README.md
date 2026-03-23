@@ -26,6 +26,24 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Backend Service (Phase 2)
+
+An optional backend service now exists at `apps/backend` for split-runtime setups.
+
+Run backend locally:
+
+```bash
+npm run backend:start
+```
+
+Run backend in dev watch mode:
+
+```bash
+npm run backend:dev
+```
+
+When `BACKEND_INTERNAL_URL` is set in `.env.local`, Next API routes proxy to backend first and fall back to local handlers if backend is unreachable.
+
 ## Environment Variables
 
 See `.env.local` for all required variables:

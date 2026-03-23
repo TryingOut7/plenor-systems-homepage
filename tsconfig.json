@@ -19,7 +19,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@plenor/contracts": ["./packages/contracts/src/index.ts"],
+      "@plenor/contracts/draft-mode": ["./packages/contracts/src/draftMode.ts"],
+      "@plenor/contracts/*": ["./packages/contracts/src/*"]
     }
   },
   "include": [

@@ -1,9 +1,9 @@
 import type { GuideEmailTemplate } from '@/infrastructure/integrations/emailGateway';
-import { getPayload } from '@/payload/client';
 
 export async function getGuideEmailTemplate(
   templateId: string | number,
 ): Promise<GuideEmailTemplate | undefined> {
+  const { getPayload } = await import('../../payload/client');
   const payload = await getPayload();
 
   const template = await payload.findByID({

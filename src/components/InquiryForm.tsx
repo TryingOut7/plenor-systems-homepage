@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
-import type { InquirySubmissionRequest } from '@/shared/contracts/forms';
+import type { InquirySubmissionRequest } from '@plenor/contracts/forms';
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 

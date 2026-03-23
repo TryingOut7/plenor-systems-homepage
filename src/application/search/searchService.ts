@@ -12,7 +12,7 @@ import type {
   SearchErrorResponse,
   SearchResponse,
   SearchResultItem,
-} from '@/shared/contracts/search';
+} from '@plenor/contracts/search';
 
 type SearchServiceResponse =
   | SearchResponse
