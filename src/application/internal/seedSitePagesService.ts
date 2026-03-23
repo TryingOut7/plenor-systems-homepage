@@ -1,12 +1,13 @@
+import type { SeedRepository } from '@/application/ports/seedRepository';
 import type { RequestContext } from '@/application/shared/requestContext';
 import { fail, ok, type ServiceResult } from '@/application/shared/serviceResult';
 import { readBearerToken } from '@/domain/internal/seedAuth';
-import { runSitePageSeed } from '@/infrastructure/cms/seedGateway';
 import { verifyRequestOrigin } from '@/infrastructure/security/originVerifier';
 import { compareSecret } from '@/infrastructure/security/secretComparator';
 
 export async function seedSitePagesForRequest(
   context: RequestContext,
+  repository: SeedRepository,
 ): Promise<ServiceResult<unknown>> {
   if (process.env.NODE_ENV !== 'development') {
     return fail(404, { error: 'Not found' });
@@ -28,7 +29,7 @@ export async function seedSitePagesForRequest(
   }
 
   try {
-    const result = await runSitePageSeed();
+    const result = await repository.runSitePageSeed();
     return ok(result);
   } catch (error) {
     console.error('Seed failed:', error);

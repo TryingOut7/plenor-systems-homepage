@@ -51,6 +51,11 @@ const eslintConfig = defineConfig([
               message:
                 "Application layer must not depend on UI/framework route files.",
             },
+            {
+              group: ["@/infrastructure/cms/**", "@/payload/**"],
+              message:
+                "Application services must depend on repository ports, not Payload/CMS adapters directly.",
+            },
           ],
         },
       ],

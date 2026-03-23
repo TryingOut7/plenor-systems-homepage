@@ -1,3 +1,4 @@
+import type { SearchRepository } from '@/application/ports/searchRepository';
 import type { RequestContext } from '@/application/shared/requestContext';
 import { fail, ok, type ServiceResult } from '@/application/shared/serviceResult';
 import {
@@ -6,7 +7,6 @@ import {
   isSearchableCollection,
   parseSearchParams,
 } from '@/domain/search/searchQuery';
-import { findPublishedDocuments } from '@/infrastructure/cms/searchGateway';
 import { checkRateLimit } from '@/infrastructure/security/rateLimiter';
 import type {
   SearchErrorResponse,
@@ -38,6 +38,7 @@ function normalizeTags(rawTags: unknown): string[] {
 
 export async function searchSiteContent(
   context: RequestContext,
+  repository: SearchRepository,
 ): Promise<ServiceResult<SearchServiceResponse>> {
   const rateLimitError = checkRateLimit(context);
   if (rateLimitError) {
@@ -65,7 +66,7 @@ export async function searchSiteContent(
 
   for (const collection of collections) {
     try {
-      const docs = await findPublishedDocuments({
+      const docs = await repository.findPublishedDocuments({
         collection,
         query: params.query,
         featuredFilter: params.featuredFilter,

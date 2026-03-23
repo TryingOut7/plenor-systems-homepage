@@ -67,6 +67,9 @@ npm run lint:architecture # Enforce architecture boundary imports
 npm run check:type       # Repository typecheck (excludes .next noise)
 npm run openapi:generate # Generate typed API definitions from OpenAPI
 npm run openapi:check    # Verify generated OpenAPI types are up to date
+npm run db:migrate       # Apply versioned DB migrations from migrations/versions
+npm run db:migrate:status # Show applied/pending migrations
+npm run db:migrate:rollback # Roll back the latest applied migration
 npm run test:unit        # Domain/application unit tests
 npm run test:integration # Fastify route integration tests
 npm run test:e2e         # Typed-client smoke tests against live backend instance
@@ -122,10 +125,12 @@ Plus Resend keys (`RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME`, `CO
 ### Phase 1: Clean Monolith Boundaries (inside `src/`)
 
 - **`src/domain/`** — Pure business rules/validation (no framework or infra imports).
-- **`src/application/`** — Use-case orchestration and service results.
+- **`src/application/`** — Use-case orchestration and service results, consuming dependency ports.
 - **`src/infrastructure/`** — External adapters (DB, email, Payload, HTTP adapters, security).
 - **`src/app/api/`** — Thin controllers only (request/response mapping + service call).
 - **`src/components/`** — UI layer.
+- **`src/application/ports/`** — Stable repository/service interfaces consumed by application layer.
+- Payload-specific schema/collection knowledge is isolated to infrastructure adapters (for example `src/infrastructure/cms/*`), not application services.
 
 Import boundaries are enforced by ESLint via `lint:architecture`.
 
@@ -220,15 +225,18 @@ CI workflow (`.github/workflows/ci.yml`) runs:
 2. `npm run lint`
 3. `npm run lint:architecture`
 4. `npm run check:type`
-5. `npm run openapi:check`
-6. `npm run test:ci`
-7. `npm run build`
+5. `npm run db:migrate`
+6. `npm run db:migrate:status -- --check`
+7. `npm run openapi:check`
+8. `npm run test:ci`
+9. `npm run build`
 
 ## Operational Notes
 
 - If backend proxy is down or unreachable, proxy-enabled Next API routes fall back to local application services.
 - `/health` is intentionally excluded from backend edge rate limiting.
 - Non-public backend routes use API key role checks (`internal`, `admin`) via `x-api-key`.
+- Versioned SQL migrations live in `migrations/versions`, tracked by `public.schema_migrations`.
 - When adding/changing backend endpoints:
   1. Update `apps/backend/openapi/openapi.yaml`
   2. Run `npm run openapi:generate`
@@ -274,7 +282,7 @@ Use this matrix in order. A feature is incomplete if any non-`N/A` row fails don
 | **Step 9: Reliability requirements** | Mutation semantics, async side-effect behavior | Documented idempotency/retry behavior and duplicate handling | `N/A` | Mutating operations are retry-safe or explicitly constrained and documented. |
 | **Step 10: Observability requirements** | Logging/monitoring standards, request ID policy | Structured log fields, request ID propagation, health/readiness impact notes | `N/A` | Operators can diagnose failures for the new/changed path without code inspection. |
 | **Step 11: Test requirements** | Contract diff + implementation diff | Unit + integration + e2e coverage for changed behavior | Add tests under `tests/unit`, `tests/integration`, `tests/e2e` | Tests cover happy path, validation errors, auth errors, rate-limit, and integration failure mode. |
-| **Step 12: Full gate commands (mandatory, ordered)** | Code/tests/docs complete | Passing gate report | `npm run lint`<br/>`npm run lint:architecture`<br/>`npm run check:type`<br/>`npm run backend:lint`<br/>`npm run backend:typecheck`<br/>`npm run openapi:check`<br/>`npm run test:ci`<br/>`npm run build` | All commands pass in order with no skipped steps unless marked `N/A` in PR notes. |
+| **Step 12: Full gate commands (mandatory, ordered)** | Code/tests/docs complete | Passing gate report | `npm run lint`<br/>`npm run lint:architecture`<br/>`npm run check:type`<br/>`npm run db:migrate`<br/>`npm run db:migrate:status -- --check`<br/>`npm run backend:lint`<br/>`npm run backend:typecheck`<br/>`npm run openapi:check`<br/>`npm run test:ci`<br/>`npm run build` | All commands pass in order with no skipped steps unless marked `N/A` in PR notes. |
 | **Step 13: Documentation sync** | Final merged behavior + env/config changes | Updated CLAUDE/README/.env docs for routes, vars, and ops behavior | Update docs files directly | No undocumented configuration or behavior drift remains. |
 | **Step 14: Release readiness note** | Deployment target, risk classification, rollback strategy | Rollout steps, rollback trigger, post-deploy smoke checks | `N/A` | Release note is explicit enough for another engineer to execute without clarification. |
 | **Step 15: Completion rule** | Evidence from Steps 0-14 | Final feature checklist with pass/`N/A` status | `N/A` | Feature is not complete until Steps 0-14 are satisfied or explicitly marked `N/A` with rationale. |
@@ -335,11 +343,13 @@ Copy/paste and fill before implementation:
 1. npm run lint
 2. npm run lint:architecture
 3. npm run check:type
-4. npm run backend:lint
-5. npm run backend:typecheck
-6. npm run openapi:check
-7. npm run test:ci
-8. npm run build
+4. npm run db:migrate
+5. npm run db:migrate:status -- --check
+6. npm run backend:lint
+7. npm run backend:typecheck
+8. npm run openapi:check
+9. npm run test:ci
+10. npm run build
 
 ## 9) Documentation and Release
 - Docs updated (CLAUDE/README/.env):

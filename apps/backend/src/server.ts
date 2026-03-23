@@ -11,6 +11,9 @@ import { getBackendMetricsSnapshot, recordBackendRequest } from './observability
 import type { RequestContext } from '../../../src/application/shared/requestContext';
 import type { ServiceResult } from '../../../src/application/shared/serviceResult';
 import { getIntegrationStatus } from '../../../src/application/integrations/integrationStatusService';
+import { payloadContentRepository } from '../../../src/infrastructure/cms/contentGateway';
+import { payloadSeedRepository } from '../../../src/infrastructure/cms/seedGateway';
+import { payloadSearchRepository } from '../../../src/infrastructure/cms/searchGateway';
 import { hasDatabaseCredentials, isPersistentStoreConfigured } from '../../../src/infrastructure/persistence/backendStore';
 
 function pickExport<T>(mod: Record<string, unknown>, name: string): T {
@@ -176,10 +179,16 @@ export function buildBackendServer(): FastifyInstance {
       '../../../src/application/search/searchService'
     )) as Record<string, unknown>;
     const searchSiteContent = pickExport<
-      (context: RequestContext) => Promise<ServiceResult<unknown>>
+      (
+        context: RequestContext,
+        repository: typeof payloadSearchRepository,
+      ) => Promise<ServiceResult<unknown>>
     >(mod, 'searchSiteContent');
 
-    const result = await searchSiteContent(toRequestContext(request));
+    const result = await searchSiteContent(
+      toRequestContext(request),
+      payloadSearchRepository,
+    );
     return sendServiceResult(reply, result, request.id);
   });
 
@@ -301,10 +310,16 @@ export function buildBackendServer(): FastifyInstance {
       '../../../src/application/internal/seedSitePagesService'
     )) as Record<string, unknown>;
     const seedSitePagesForRequest = pickExport<
-      (context: RequestContext) => Promise<ServiceResult<unknown>>
+      (
+        context: RequestContext,
+        repository: typeof payloadSeedRepository,
+      ) => Promise<ServiceResult<unknown>>
     >(mod, 'seedSitePagesForRequest');
 
-    const result = await seedSitePagesForRequest(context);
+    const result = await seedSitePagesForRequest(
+      context,
+      payloadSeedRepository,
+    );
     const responseBody =
       result.status >= 400
         ? toBackendErrorResponse({
@@ -336,10 +351,15 @@ export function buildBackendServer(): FastifyInstance {
       (
         context: RequestContext,
         slug: string,
+        repository: typeof payloadContentRepository,
       ) => Promise<ServiceResult<unknown>>
     >(mod, 'getContentPageBySlug');
 
-    const result = await getContentPageBySlug(toRequestContext(request), slug);
+    const result = await getContentPageBySlug(
+      toRequestContext(request),
+      slug,
+      payloadContentRepository,
+    );
     return sendServiceResult(reply, result, request.id);
   });
 
@@ -348,10 +368,16 @@ export function buildBackendServer(): FastifyInstance {
       '../../../src/application/content/pageContentService'
     )) as Record<string, unknown>;
     const getContentNavigation = pickExport<
-      (context: RequestContext) => Promise<ServiceResult<unknown>>
+      (
+        context: RequestContext,
+        repository: typeof payloadContentRepository,
+      ) => Promise<ServiceResult<unknown>>
     >(mod, 'getContentNavigation');
 
-    const result = await getContentNavigation(toRequestContext(request));
+    const result = await getContentNavigation(
+      toRequestContext(request),
+      payloadContentRepository,
+    );
     return sendServiceResult(reply, result, request.id);
   });
 

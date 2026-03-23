@@ -1,4 +1,5 @@
 import { getContentPageBySlug } from '@/application/content/pageContentService';
+import { payloadContentRepository } from '@/infrastructure/cms/contentGateway';
 import { proxyRequestToBackend } from '@/infrastructure/http/backendProxy';
 import { toRequestContext } from '@/infrastructure/http/nextRequestAdapter';
 import { toJsonResponse } from '@/infrastructure/http/nextResponseAdapter';
@@ -21,6 +22,7 @@ export async function GET(
   const result = await getContentPageBySlug(
     toRequestContext(request),
     resolved.slug,
+    payloadContentRepository,
   );
   return toJsonResponse(result);
 }

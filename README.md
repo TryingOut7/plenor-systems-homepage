@@ -8,7 +8,7 @@ Next.js 16 marketing site for [plenor.ai](https://plenor.ai).
 - Tailwind CSS v4 (App Router, `src/` directory)
 - Resend (transactional email)
 - GA4 (analytics, cookie-gated)
-- Supabase (form submission logging)
+- Supabase/Postgres (CMS + backend persistence)
 
 ## Getting Started
 
@@ -100,6 +100,36 @@ See `.env.local` for all required variables:
 npm run build
 ```
 
+## Database Migrations
+
+Versioned backend persistence migrations live in `migrations/versions`.
+
+Apply pending migrations:
+
+```bash
+npm run db:migrate
+```
+
+Show migration status:
+
+```bash
+npm run db:migrate:status
+```
+
+Fail if any migration is pending (CI check mode):
+
+```bash
+npm run db:migrate:status -- --check
+```
+
+Rollback the last applied migration:
+
+```bash
+npm run db:migrate:rollback
+```
+
+Migration tracking table: `public.schema_migrations`.
+
 ## Contracts (OpenAPI + Typed Client)
 
 Generate API types from backend OpenAPI spec:
@@ -136,6 +166,10 @@ Architecture boundary lint:
 ```bash
 npm run lint:architecture
 ```
+
+Architecture boundary note:
+- Application services use repository ports from `src/application/ports/*`.
+- Payload collection/table specifics stay in infrastructure adapters (`src/infrastructure/cms/*`, `src/infrastructure/persistence/*`).
 
 ## Seed Payload Site Pages
 

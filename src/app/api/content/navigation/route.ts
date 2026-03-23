@@ -1,4 +1,5 @@
 import { getContentNavigation } from '@/application/content/pageContentService';
+import { payloadContentRepository } from '@/infrastructure/cms/contentGateway';
 import { proxyRequestToBackend } from '@/infrastructure/http/backendProxy';
 import { toRequestContext } from '@/infrastructure/http/nextRequestAdapter';
 import { toJsonResponse } from '@/infrastructure/http/nextResponseAdapter';
@@ -10,6 +11,9 @@ export async function GET(request: NextRequest) {
     return proxied;
   }
 
-  const result = await getContentNavigation(toRequestContext(request));
+  const result = await getContentNavigation(
+    toRequestContext(request),
+    payloadContentRepository,
+  );
   return toJsonResponse(result);
 }

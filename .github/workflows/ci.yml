@@ -9,6 +9,24 @@ on:
 jobs:
   lint-and-build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: plenor_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d plenor_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URI: postgresql://postgres:postgres@127.0.0.1:5432/plenor_ci
+      PAYLOAD_SECRET: ci-build-secret-not-real
+      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
 
     steps:
       - uses: actions/checkout@v4
@@ -30,6 +48,12 @@ jobs:
       - name: Type check
         run: npm run check:type
 
+      - name: Run DB Migrations
+        run: npm run db:migrate
+
+      - name: Migration Status Check
+        run: npm run db:migrate:status -- --check
+
       - name: OpenAPI Contract Check
         run: npm run openapi:check
 
@@ -38,7 +62,3 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          DATABASE_URI: 'postgresql://placeholder:placeholder@localhost:5432/placeholder'
-          PAYLOAD_SECRET: 'ci-build-secret-not-real'
-          NEXT_PUBLIC_SERVER_URL: 'http://localhost:3000'

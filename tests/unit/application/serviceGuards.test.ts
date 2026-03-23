@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { enableDraftModeForRequest } from '@/application/draft-mode/enableDraftModeService';
 import { searchSiteContent } from '@/application/search/searchService';
+import type { SearchRepository } from '@/application/ports/searchRepository';
 import type { RequestContext } from '@/application/shared/requestContext';
 
 function context(overrides: Partial<RequestContext> = {}): RequestContext {
@@ -53,6 +54,11 @@ describe('application service guards', () => {
         path: '/v1/search',
         url: 'http://localhost:3000/v1/search',
       }),
+      {
+        async findPublishedDocuments() {
+          return [];
+        },
+      } satisfies SearchRepository,
     );
 
     expect(result.status).toBe(400);

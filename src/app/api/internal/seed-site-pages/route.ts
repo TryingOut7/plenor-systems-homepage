@@ -1,4 +1,5 @@
 import { seedSitePagesForRequest } from '@/application/internal/seedSitePagesService';
+import { payloadSeedRepository } from '@/infrastructure/cms/seedGateway';
 import { proxyRequestToBackend } from '@/infrastructure/http/backendProxy';
 import { toRequestContext } from '@/infrastructure/http/nextRequestAdapter';
 import { toJsonResponse } from '@/infrastructure/http/nextResponseAdapter';
@@ -10,6 +11,9 @@ export async function POST(request: NextRequest) {
     return proxied;
   }
 
-  const result = await seedSitePagesForRequest(toRequestContext(request));
+  const result = await seedSitePagesForRequest(
+    toRequestContext(request),
+    payloadSeedRepository,
+  );
   return toJsonResponse(result);
 }

@@ -1,4 +1,5 @@
 import { searchSiteContent } from '@/application/search/searchService';
+import { payloadSearchRepository } from '@/infrastructure/cms/searchGateway';
 import { proxyRequestToBackend } from '@/infrastructure/http/backendProxy';
 import { toRequestContext } from '@/infrastructure/http/nextRequestAdapter';
 import { toJsonResponse } from '@/infrastructure/http/nextResponseAdapter';
@@ -24,6 +25,9 @@ export async function GET(req: NextRequest) {
     return proxied;
   }
 
-  const result = await searchSiteContent(toRequestContext(req));
+  const result = await searchSiteContent(
+    toRequestContext(req),
+    payloadSearchRepository,
+  );
   return toJsonResponse(result);
 }
