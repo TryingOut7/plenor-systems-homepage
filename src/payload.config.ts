@@ -512,15 +512,12 @@ export default buildConfig({
         fields: [
           {
             name: 'formType',
-            type: 'select',
+            type: 'text',
             dbName: 'form_type',
             required: false,
-            options: [
-              { label: 'Guide Download', value: 'Guide Download' },
-              { label: 'Inquiry', value: 'Inquiry' },
-            ],
             admin: {
               position: 'sidebar',
+              readOnly: true,
               description: 'Set automatically — the form this submission came from.',
             },
           },
