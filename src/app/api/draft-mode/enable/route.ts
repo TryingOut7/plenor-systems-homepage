@@ -1,23 +1,16 @@
 import { draftMode } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { safeCompare } from '@/lib/timing-safe-equal';
-import { rateLimit } from '@/lib/rate-limit';
+import { enableDraftModeForRequest } from '@/application/draft-mode/enableDraftModeService';
+import { toRequestContext, readJsonBody } from '@/infrastructure/http/nextRequestAdapter';
+import { toJsonResponse } from '@/infrastructure/http/nextResponseAdapter';
+import type { NextRequest } from 'next/server';
 
 export async function POST(request: NextRequest) {
-  const rlError = rateLimit(request);
-  if (rlError) return rlError;
+  const [context, body] = [toRequestContext(request), await readJsonBody(request)];
+  const result = enableDraftModeForRequest(context, body);
 
-  const { secret, slug = '/' } = await request.json();
-
-  if (typeof slug !== 'string' || !slug.startsWith('/') || slug.startsWith('//')) {
-    return NextResponse.json({ error: 'Invalid slug' }, { status: 400 });
+  if (result.status === 200) {
+    (await draftMode()).enable();
   }
 
-  const expectedSecret = process.env.PAYLOAD_SECRET;
-  if (!expectedSecret || !safeCompare(String(secret ?? ''), expectedSecret)) {
-    return NextResponse.json({ error: 'Invalid secret' }, { status: 401 });
-  }
-
-  (await draftMode()).enable();
-  return NextResponse.json({ ok: true, slug });
+  return toJsonResponse(result);
 }

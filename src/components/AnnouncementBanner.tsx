@@ -1,9 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 
 const DISMISS_KEY = 'announcement-banner-dismissed';
+const subscribeNoop = () => () => {};
+
+function getDismissedServerSnapshot(): boolean {
+  return true;
+}
+
+function getDismissedClientSnapshot(): boolean {
+  if (typeof window === 'undefined') return true;
+  try {
+    return window.sessionStorage.getItem(DISMISS_KEY) === '1';
+  } catch {
+    return true;
+  }
+}
 
 interface AnnouncementBannerProps {
   enabled?: boolean;
@@ -22,17 +36,23 @@ export default function AnnouncementBanner({
   backgroundColor = '#1B2D4F',
   textColor = '#FFFFFF',
 }: AnnouncementBannerProps) {
-  const [dismissed, setDismissed] = useState(true);
-
-  useEffect(() => {
-    setDismissed(sessionStorage.getItem(DISMISS_KEY) === '1');
-  }, []);
+  const persistedDismissed = useSyncExternalStore(
+    subscribeNoop,
+    getDismissedClientSnapshot,
+    getDismissedServerSnapshot,
+  );
+  const [locallyDismissed, setLocallyDismissed] = useState(false);
+  const dismissed = persistedDismissed || locallyDismissed;
 
   if (!enabled || !text || dismissed) return null;
 
   const handleDismiss = () => {
-    sessionStorage.setItem(DISMISS_KEY, '1');
-    setDismissed(true);
+    try {
+      window.sessionStorage.setItem(DISMISS_KEY, '1');
+    } catch {
+      // Ignore storage write failures (private mode / blocked storage).
+    }
+    setLocallyDismissed(true);
   };
 
   return (

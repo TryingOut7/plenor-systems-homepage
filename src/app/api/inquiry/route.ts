@@ -1,96 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { sendInquiryEmails } from '@/lib/email';
-import { logInquirySubmission } from '@/lib/db';
-import { verifyOrigin } from '@/lib/verify-origin';
-import { rateLimit } from '@/lib/rate-limit';
-import { fireCrmWebhook } from '@/lib/crm-webhook';
-import { sanitizeTextField } from '@/lib/sanitize';
-import { getPayload } from '@/payload/client';
-import { getInquiryFormId } from '@/lib/payload-form-stubs';
+import { submitInquiryForm } from '@/application/forms/inquirySubmissionService';
+import { toRequestContext, readJsonBody } from '@/infrastructure/http/nextRequestAdapter';
+import { toJsonResponse } from '@/infrastructure/http/nextResponseAdapter';
+import type { NextRequest } from 'next/server';
 
 export async function POST(req: NextRequest) {
-  const rlError = rateLimit(req);
-  if (rlError) return rlError;
-
-  const originError = verifyOrigin(req);
-  if (originError) return originError;
-
-  try {
-    const body = await req.json();
-    const { name, email, company, challenge } = body as {
-      name?: string;
-      email?: string;
-      company?: string;
-      challenge?: string;
-    };
-
-    if (!name || typeof name !== 'string' || name.trim().length === 0 || name.length > 200) {
-      return NextResponse.json({ message: 'Name is required (max 200 characters).' }, { status: 400 });
-    }
-    if (!email || typeof email !== 'string' || email.length > 320 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json({ message: 'A valid email address is required.' }, { status: 400 });
-    }
-    if (!company || typeof company !== 'string' || company.trim().length === 0 || company.length > 300) {
-      return NextResponse.json({ message: 'Company name is required (max 300 characters).' }, { status: 400 });
-    }
-    if (!challenge || typeof challenge !== 'string' || challenge.trim().length === 0 || challenge.length > 5000) {
-      return NextResponse.json({ message: 'Please describe your product and challenge (max 5000 characters).' }, { status: 400 });
-    }
-
-    const entry = {
-      type: 'inquiry',
-      name: sanitizeTextField(name.trim()),
-      email: email.trim().toLowerCase(),
-      company: sanitizeTextField(company.trim()),
-      challenge: sanitizeTextField(challenge.trim()),
-      submittedAt: new Date().toISOString(),
-    };
-
-    // Persist to DB
-    try {
-      await logInquirySubmission(entry.name, entry.email, entry.company, entry.challenge);
-    } catch {
-      console.error('DB log failed for inquiry submission — entry:', JSON.stringify(entry));
-    }
-
-    // Fire CRM webhook (non-blocking)
-    fireCrmWebhook({
-      event: 'inquiry',
-      timestamp: entry.submittedAt,
-      data: { name: entry.name, email: entry.email, company: entry.company, challenge: entry.challenge },
-    });
-
-    // Save to Payload form-submissions (non-blocking)
-    getInquiryFormId().then((formId) =>
-      getPayload().then((payload) =>
-        payload.create({
-          collection: 'form-submissions',
-          data: {
-            form: formId,
-            formType: 'Inquiry',
-            submissionData: [
-              { field: 'name', value: entry.name },
-              { field: 'email', value: entry.email },
-              { field: 'company', value: entry.company },
-              { field: 'challenge', value: entry.challenge },
-            ],
-          },
-          overrideAccess: true,
-        }),
-      ),
-    ).catch((err) => console.error('Payload form-submissions save failed (inquiry):', err));
-
-    // Route inquiry to Plenor Systems inbox + send acknowledgment to visitor
-    await sendInquiryEmails({
-      name: entry.name,
-      email: entry.email,
-      company: entry.company,
-      challenge: entry.challenge,
-    });
-
-    return NextResponse.json({ success: true }, { status: 200 });
-  } catch (err) {
-    console.error('Inquiry form error:', err);
-    return NextResponse.json({ message: 'Server error. Please try again.' }, { status: 500 });
-  }
+  const [context, body] = [toRequestContext(req), await readJsonBody(req)];
+  const result = await submitInquiryForm(context, body);
+  return toJsonResponse(result);
 }

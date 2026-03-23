@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
+import type { GuideSubmissionRequest } from '@/shared/contracts/forms';
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -69,10 +70,16 @@ export default function GuideForm({
     setState('submitting');
 
     try {
+      const payload: GuideSubmissionRequest = {
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        ...(templateId != null ? { templateId } : {}),
+      };
+
       const res = await fetch('/api/guide', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim().toLowerCase(), ...(templateId != null ? { templateId } : {}) }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {

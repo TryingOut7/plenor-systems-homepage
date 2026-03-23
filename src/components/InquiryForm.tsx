@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
+import type { InquirySubmissionRequest } from '@/shared/contracts/forms';
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -83,15 +84,17 @@ export default function InquiryForm({
     setState('submitting');
 
     try {
+      const payload: InquirySubmissionRequest = {
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        company: company.trim(),
+        challenge: challenge.trim(),
+      };
+
       const res = await fetch('/api/inquiry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
-          company: company.trim(),
-          challenge: challenge.trim(),
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
