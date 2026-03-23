@@ -1600,7 +1600,16 @@ export default function UniversalSections({
                   padding: '36px',
                 }}
               >
-                <GuideForm {...guideFormLabels} />
+                <GuideForm
+                  {...guideFormLabels}
+                  templateId={
+                    section.emailTemplate != null
+                      ? (typeof section.emailTemplate === 'object' && section.emailTemplate !== null
+                          ? (section.emailTemplate as { id?: string | number }).id
+                          : (section.emailTemplate as string | number))
+                      : undefined
+                  }
+                />
               </div>
             </div>
           </div>

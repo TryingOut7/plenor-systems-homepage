@@ -18,6 +18,7 @@ interface GuideFormProps {
   footerText?: string;
   namePlaceholder?: string;
   emailPlaceholder?: string;
+  templateId?: string | number;
 }
 
 export default function GuideForm({
@@ -28,6 +29,7 @@ export default function GuideForm({
   footerText = 'The PDF will be sent to your email automatically. No spam, no mailing lists.',
   namePlaceholder = 'Your name',
   emailPlaceholder = 'you@company.com',
+  templateId,
 }: GuideFormProps) {
   const [state, setState] = useState<FormState>('idle');
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -70,7 +72,7 @@ export default function GuideForm({
       const res = await fetch('/api/guide', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim().toLowerCase() }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim().toLowerCase(), ...(templateId != null ? { templateId } : {}) }),
       });
 
       if (!res.ok) {

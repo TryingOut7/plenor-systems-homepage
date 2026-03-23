@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sendGuideEmail } from '@/lib/email';
+import { sendGuideEmail, type GuideEmailTemplate } from '@/lib/email';
 import { logGuideSubmission } from '@/lib/db';
 import { verifyOrigin } from '@/lib/verify-origin';
 import { rateLimit } from '@/lib/rate-limit';
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, email } = body as { name?: string; email?: string };
+    const { name, email, templateId } = body as { name?: string; email?: string; templateId?: string | number };
 
     if (!name || typeof name !== 'string' || name.trim().length === 0 || name.length > 200) {
       return NextResponse.json({ message: 'Name is required (max 200 characters).' }, { status: 400 });
@@ -66,8 +66,35 @@ export async function POST(req: NextRequest) {
       ),
     ).catch((err) => console.error('Payload form-submissions save failed (guide):', err));
 
+    // Resolve email template from CMS if one is linked to this form section
+    let emailTemplate: GuideEmailTemplate | undefined;
+    if (templateId != null) {
+      try {
+        const payload = await getPayload();
+        const tpl = await payload.findByID({
+          collection: 'email-templates',
+          id: templateId,
+          overrideAccess: true,
+        });
+        if (tpl) {
+          emailTemplate = {
+            subject: tpl.subject || undefined,
+            heading: tpl.heading || undefined,
+            highlightTitle: (tpl.highlightTitle as string | undefined) || undefined,
+            body: (tpl.body as string | undefined) || undefined,
+            buttonLabel: (tpl.buttonLabel as string | undefined) || undefined,
+            buttonUrl: (tpl.buttonUrl as string | undefined) || undefined,
+            replyTo: (tpl.replyTo as string | undefined) || undefined,
+          };
+        }
+      } catch (err) {
+        console.error('Failed to fetch email template:', err);
+        // fall through — send default email
+      }
+    }
+
     // Send guide delivery email via Resend
-    await sendGuideEmail({ name: entry.name, email: entry.email });
+    await sendGuideEmail({ name: entry.name, email: entry.email, template: emailTemplate });
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
