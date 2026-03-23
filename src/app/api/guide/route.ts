@@ -5,6 +5,8 @@ import { verifyOrigin } from '@/lib/verify-origin';
 import { rateLimit } from '@/lib/rate-limit';
 import { fireCrmWebhook } from '@/lib/crm-webhook';
 import { sanitizeTextField } from '@/lib/sanitize';
+import { getPayload } from '@/payload/client';
+import { getGuideFormId } from '@/lib/payload-form-stubs';
 
 export async function POST(req: NextRequest) {
   const rlError = rateLimit(req);
@@ -45,6 +47,24 @@ export async function POST(req: NextRequest) {
       timestamp: entry.submittedAt,
       data: { name: entry.name, email: entry.email },
     });
+
+    // Save to Payload form-submissions (non-blocking)
+    getGuideFormId().then((formId) =>
+      getPayload().then((payload) =>
+        payload.create({
+          collection: 'form-submissions',
+          data: {
+            form: formId,
+            formType: 'guide',
+            submissionData: [
+              { field: 'name', value: entry.name },
+              { field: 'email', value: entry.email },
+            ],
+          },
+          overrideAccess: true,
+        }),
+      ),
+    ).catch((err) => console.error('Payload form-submissions save failed (guide):', err));
 
     // Send guide delivery email via Resend
     await sendGuideEmail({ name: entry.name, email: entry.email });

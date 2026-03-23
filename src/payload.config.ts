@@ -509,6 +509,22 @@ export default buildConfig({
       },
       formSubmissionOverrides: {
         slug: 'form-submissions',
+        fields: [
+          {
+            name: 'formType',
+            type: 'select',
+            dbName: 'form_type',
+            required: false,
+            options: [
+              { label: 'Guide Download', value: 'guide' },
+              { label: 'Inquiry', value: 'inquiry' },
+            ],
+            admin: {
+              position: 'sidebar',
+              description: 'Set automatically — the form this submission came from.',
+            },
+          },
+        ],
       },
     }),
 

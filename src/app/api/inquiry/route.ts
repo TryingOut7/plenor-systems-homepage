@@ -5,6 +5,8 @@ import { verifyOrigin } from '@/lib/verify-origin';
 import { rateLimit } from '@/lib/rate-limit';
 import { fireCrmWebhook } from '@/lib/crm-webhook';
 import { sanitizeTextField } from '@/lib/sanitize';
+import { getPayload } from '@/payload/client';
+import { getInquiryFormId } from '@/lib/payload-form-stubs';
 
 export async function POST(req: NextRequest) {
   const rlError = rateLimit(req);
@@ -57,6 +59,26 @@ export async function POST(req: NextRequest) {
       timestamp: entry.submittedAt,
       data: { name: entry.name, email: entry.email, company: entry.company, challenge: entry.challenge },
     });
+
+    // Save to Payload form-submissions (non-blocking)
+    getInquiryFormId().then((formId) =>
+      getPayload().then((payload) =>
+        payload.create({
+          collection: 'form-submissions',
+          data: {
+            form: formId,
+            formType: 'inquiry',
+            submissionData: [
+              { field: 'name', value: entry.name },
+              { field: 'email', value: entry.email },
+              { field: 'company', value: entry.company },
+              { field: 'challenge', value: entry.challenge },
+            ],
+          },
+          overrideAccess: true,
+        }),
+      ),
+    ).catch((err) => console.error('Payload form-submissions save failed (inquiry):', err));
 
     // Route inquiry to Plenor Systems inbox + send acknowledgment to visitor
     await sendInquiryEmails({
