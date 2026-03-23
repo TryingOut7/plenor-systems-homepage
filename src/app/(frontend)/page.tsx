@@ -228,7 +228,7 @@ export default async function HomePage() {
       <section
         aria-labelledby="hero-heading"
         style={{
-          backgroundColor: '#1B2D4F',
+          backgroundColor: 'var(--ui-color-hero-bg)',
           padding: '120px 32px 128px',
           position: 'relative',
           overflow: 'hidden',
@@ -267,7 +267,7 @@ export default async function HomePage() {
               fontFamily: 'var(--font-display), Georgia, serif',
               fontSize: 'clamp(40px, 6vw, 72px)',
               fontWeight: 700,
-              color: '#ffffff',
+              color: 'var(--ui-color-dark-text)',
               lineHeight: 1.08,
               letterSpacing: '-0.03em',
               marginBottom: '32px',
@@ -300,7 +300,7 @@ export default async function HomePage() {
 
       <section
         aria-labelledby="problem-heading"
-        style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
+        style={{ padding: '100px 32px', backgroundColor: 'var(--ui-color-background)' }}
       >
         <div style={{ ...inner, maxWidth: '760px' }}>
           <p className="section-label" style={{ marginBottom: '24px' }}>
@@ -312,7 +312,7 @@ export default async function HomePage() {
               fontFamily: 'var(--font-display), Georgia, serif',
               fontSize: 'clamp(30px, 4vw, 44px)',
               fontWeight: 700,
-              color: '#1B2D4F',
+              color: 'var(--ui-color-primary)',
               lineHeight: 1.15,
               letterSpacing: '-0.02em',
               marginBottom: '28px',
@@ -325,17 +325,17 @@ export default async function HomePage() {
             style={{
               width: '40px',
               height: '3px',
-              backgroundColor: '#1B2D4F',
+              backgroundColor: 'var(--ui-color-primary)',
               marginBottom: '32px',
               borderRadius: '2px',
             }}
             aria-hidden="true"
           />
 
-          <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '20px' }}>
+          <p style={{ fontSize: '17px', color: 'var(--ui-color-text-muted)', lineHeight: 1.7, marginBottom: '20px' }}>
             {d.problemBody1}
           </p>
-          <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7 }}>
+          <p style={{ fontSize: '17px', color: 'var(--ui-color-text-muted)', lineHeight: 1.7 }}>
             {d.problemBody2}
           </p>
         </div>
@@ -343,7 +343,7 @@ export default async function HomePage() {
 
       <section
         aria-labelledby="what-we-do-heading"
-        style={{ padding: '100px 32px', backgroundColor: '#F8F9FA' }}
+        style={{ padding: '100px 32px', backgroundColor: 'var(--ui-color-section-alt)' }}
       >
         <div style={inner}>
           <div style={{ marginBottom: '56px' }}>
@@ -356,7 +356,7 @@ export default async function HomePage() {
                 fontFamily: 'var(--font-display), Georgia, serif',
                 fontSize: 'clamp(28px, 4vw, 40px)',
                 fontWeight: 700,
-                color: '#1B2D4F',
+                color: 'var(--ui-color-primary)',
                 lineHeight: 1.15,
                 letterSpacing: '-0.02em',
               }}
@@ -406,7 +406,7 @@ export default async function HomePage() {
                   fontFamily: 'var(--font-display), Georgia, serif',
                   fontSize: '22px',
                   fontWeight: 700,
-                  color: '#1B2D4F',
+                  color: 'var(--ui-color-primary)',
                   marginBottom: '14px',
                   lineHeight: 1.25,
                   letterSpacing: '-0.02em',
@@ -414,7 +414,7 @@ export default async function HomePage() {
               >
                 {d.testingCardTitle}
               </h3>
-              <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '24px' }}>
+              <p style={{ fontSize: '15px', color: 'var(--ui-color-text-muted)', lineHeight: 1.65, marginBottom: '24px' }}>
                 {d.testingCardBody}
               </p>
               <Link
@@ -423,7 +423,7 @@ export default async function HomePage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px',
-                  color: '#1B2D4F',
+                  color: 'var(--ui-color-primary)',
                   fontWeight: 600,
                   fontSize: '14px',
                   textDecoration: 'none',
@@ -470,7 +470,7 @@ export default async function HomePage() {
                   fontFamily: 'var(--font-display), Georgia, serif',
                   fontSize: '22px',
                   fontWeight: 700,
-                  color: '#1B2D4F',
+                  color: 'var(--ui-color-primary)',
                   marginBottom: '14px',
                   lineHeight: 1.25,
                   letterSpacing: '-0.02em',
@@ -478,7 +478,7 @@ export default async function HomePage() {
               >
                 {d.launchCardTitle}
               </h3>
-              <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '24px' }}>
+              <p style={{ fontSize: '15px', color: 'var(--ui-color-text-muted)', lineHeight: 1.65, marginBottom: '24px' }}>
                 {d.launchCardBody}
               </p>
               <Link
@@ -487,7 +487,7 @@ export default async function HomePage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px',
-                  color: '#1B2D4F',
+                  color: 'var(--ui-color-primary)',
                   fontWeight: 600,
                   fontSize: '14px',
                   textDecoration: 'none',
@@ -510,7 +510,7 @@ export default async function HomePage() {
 
       <section
         aria-labelledby="who-heading"
-        style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
+        style={{ padding: '100px 32px', backgroundColor: 'var(--ui-color-background)' }}
       >
         <div style={inner}>
           <div style={{ marginBottom: '56px' }}>
@@ -523,7 +523,7 @@ export default async function HomePage() {
                 fontFamily: 'var(--font-display), Georgia, serif',
                 fontSize: 'clamp(28px, 4vw, 40px)',
                 fontWeight: 700,
-                color: '#1B2D4F',
+                color: 'var(--ui-color-primary)',
                 lineHeight: 1.15,
                 letterSpacing: '-0.02em',
               }}
@@ -544,8 +544,8 @@ export default async function HomePage() {
                 key={label}
                 style={{
                   padding: '40px 36px',
-                  borderLeft: i === 0 ? '1px solid #E5E7EB' : 'none',
-                  borderRight: '1px solid #E5E7EB',
+                  borderLeft: i === 0 ? '1px solid var(--ui-color-border)' : 'none',
+                  borderRight: '1px solid var(--ui-color-border)',
                   borderTop: '3px solid transparent',
                   transition: 'border-top-color 0.2s ease, background-color 0.2s ease',
                 }}
@@ -556,21 +556,21 @@ export default async function HomePage() {
                     fontFamily: 'var(--font-display), Georgia, serif',
                     fontSize: '22px',
                     fontWeight: 700,
-                    color: '#1B2D4F',
+                    color: 'var(--ui-color-primary)',
                     marginBottom: '12px',
                     letterSpacing: '-0.02em',
                   }}
                 >
                   {label}
                 </h3>
-                <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65 }}>{copy}</p>
+                <p style={{ fontSize: '15px', color: 'var(--ui-color-text-muted)', lineHeight: 1.65 }}>{copy}</p>
               </div>
             ))}
           </div>
         </div>
 
         <style>{`
-          .who-card:hover { border-top-color: #1B2D4F !important; background-color: #FAFBFC; }
+          .who-card:hover { border-top-color: var(--ui-color-primary) !important; background-color: #FAFBFC; }
         `}</style>
       </section>
 
@@ -579,7 +579,7 @@ export default async function HomePage() {
         id="guide"
         style={{
           padding: '100px 32px',
-          backgroundColor: '#1B2D4F',
+          backgroundColor: 'var(--ui-color-dark-bg)',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -613,7 +613,7 @@ export default async function HomePage() {
               fontFamily: 'var(--font-display), Georgia, serif',
               fontSize: 'clamp(28px, 4vw, 40px)',
               fontWeight: 700,
-              color: '#ffffff',
+              color: 'var(--ui-color-dark-text)',
               letterSpacing: '-0.02em',
               lineHeight: 1.15,
               marginBottom: '16px',
@@ -632,7 +632,7 @@ export default async function HomePage() {
 
           <div
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--ui-color-background)',
               borderRadius: '8px',
               padding: '40px',
             }}
