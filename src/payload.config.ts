@@ -509,6 +509,35 @@ export default buildConfig({
       },
       formSubmissionOverrides: {
         slug: 'form-submissions',
+        hooks: {
+          beforeChange: [
+            async ({ data, req }) => {
+              if (data.formType) return data;
+              const formId = typeof data.form === 'object' ? data.form?.id : data.form;
+              if (!formId) return data;
+              try {
+                const form = await req.payload.findByID({ collection: 'forms', id: formId });
+                data.formType = form?.title ?? null;
+              } catch {
+                // non-fatal — leave formType null
+              }
+              return data;
+            },
+          ],
+        },
+        fields: [
+          {
+            name: 'formType',
+            type: 'text',
+            dbName: 'form_type',
+            required: false,
+            admin: {
+              position: 'sidebar',
+              readOnly: true,
+              description: 'Set automatically — the form this submission came from.',
+            },
+          },
+        ],
       },
     }),
 

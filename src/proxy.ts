@@ -1,26 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const COOKIE = 'staging_auth';
-
-/** Edge-compatible constant-time string comparison. */
-function constantTimeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  const encoder = new TextEncoder();
-  const bufA = encoder.encode(a);
-  const bufB = encoder.encode(b);
-  let result = 0;
-  for (let i = 0; i < bufA.length; i++) {
-    result |= bufA[i] ^ bufB[i];
-  }
-  return result === 0;
-}
-
-function getExpectedStagingCookieValue(password: string): string {
-  // Keep the cookie value URL-safe so browsers do not reject it for invalid
-  // characters when the staging password contains symbols.
-  return encodeURIComponent(password);
-}
-
 type RedirectRule = {
   fromPath?: string;
   toPath?: string;
@@ -126,39 +105,11 @@ function resolveRedirectTarget(
 }
 
 export async function proxy(request: NextRequest) {
-  const password = process.env.STAGING_PASSWORD;
-  const stagingLockEnabled = process.env.STAGING_LOCK_ENABLED === 'true';
   const { pathname } = request.nextUrl;
 
   // Skip proxy for Payload API routes to avoid self-referential fetch deadlock
-  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/staging-auth')) {
+  if (pathname.startsWith('/api/')) {
     return NextResponse.next();
-  }
-
-  if (stagingLockEnabled && password) {
-    // Always allow the login page, its auth API route, the Payload admin panel, and API routes
-    if (
-      pathname === '/staging-login' ||
-      pathname.startsWith('/api/staging-auth') ||
-      pathname.startsWith('/admin')
-    ) {
-      return NextResponse.next();
-    }
-
-    // Password protected staging: enforce session cookie.
-    // Accept both legacy raw-password cookie and new URL-encoded format.
-    const currentCookie = request.cookies.get(COOKIE)?.value ?? '';
-    const expectedCookie = getExpectedStagingCookieValue(password);
-    const isAuthenticated =
-      constantTimeEqual(currentCookie, password) ||
-      constantTimeEqual(currentCookie, expectedCookie);
-
-    if (!isAuthenticated) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/staging-login';
-      url.searchParams.set('next', pathname);
-      return NextResponse.redirect(url);
-    }
   }
 
   const rules = await loadRedirectRules();
