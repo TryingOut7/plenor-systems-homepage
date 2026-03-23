@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
           collection: 'form-submissions',
           data: {
             form: formId,
-            formType: 'guide',
+            formType: 'Guide Download',
             submissionData: [
               { field: 'name', value: entry.name },
               { field: 'email', value: entry.email },

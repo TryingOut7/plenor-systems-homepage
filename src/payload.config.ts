@@ -516,8 +516,8 @@ export default buildConfig({
             dbName: 'form_type',
             required: false,
             options: [
-              { label: 'Guide Download', value: 'guide' },
-              { label: 'Inquiry', value: 'inquiry' },
+              { label: 'Guide Download', value: 'Guide Download' },
+              { label: 'Inquiry', value: 'Inquiry' },
             ],
             admin: {
               position: 'sidebar',

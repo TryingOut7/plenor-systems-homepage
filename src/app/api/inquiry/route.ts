@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
           collection: 'form-submissions',
           data: {
             form: formId,
-            formType: 'inquiry',
+            formType: 'Inquiry',
             submissionData: [
               { field: 'name', value: entry.name },
               { field: 'email', value: entry.email },
