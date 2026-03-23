@@ -32,6 +32,7 @@ import { Testimonials } from './payload/collections/Testimonials';
 import { AuditLogs } from './payload/collections/AuditLogs';
 import { TeamMembers } from './payload/collections/TeamMembers';
 import { Logos } from './payload/collections/Logos';
+import { EmailTemplates } from './payload/collections/EmailTemplates';
 import { SiteSettings } from './payload/globals/SiteSettings';
 import { UISettings } from './payload/globals/UISettings';
 
@@ -390,6 +391,7 @@ export default buildConfig({
     AuditLogs,
     TeamMembers,
     Logos,
+    EmailTemplates,
   ],
   globals: [SiteSettings, UISettings],
   editor: lexicalEditor(),

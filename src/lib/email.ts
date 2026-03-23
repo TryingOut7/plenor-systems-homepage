@@ -35,26 +35,41 @@ function sanitizeHeaderValue(value: string): string {
 
 // ── Guide delivery email ──────────────────────────────────────────────────────
 
+export interface GuideEmailTemplate {
+  subject?: string;
+  heading?: string;
+  highlightTitle?: string;
+  body?: string;
+  buttonLabel?: string;
+  buttonUrl?: string;
+  replyTo?: string;
+}
+
 export async function sendGuideEmail({
   name,
   email,
+  template,
 }: {
   name: string;
   email: string;
+  template?: GuideEmailTemplate;
 }) {
   const resend = getResend();
 
-  const pdfLine = GUIDE_PDF_URL
+  const buttonUrl = template?.buttonUrl || GUIDE_PDF_URL;
+  const buttonLabel = template?.buttonLabel || 'Download the guide';
+
+  const pdfLine = buttonUrl
     ? `<p style="margin:0 0 24px;">
-         <a href="${GUIDE_PDF_URL}"
+         <a href="${buttonUrl}"
             style="display:inline-block;background:${C.primary};color:${C.white};font-weight:700;
                    font-size:15px;padding:12px 24px;border-radius:6px;text-decoration:none;">
-           Download the guide
+           ${escapeHtml(buttonLabel)}
          </a>
        </p>
        <p style="margin:0 0 16px;font-size:13px;color:${C.muted};">
          If the button doesn't work, copy and paste this link into your browser:<br/>
-         <a href="${GUIDE_PDF_URL}" style="color:${C.primary};">${GUIDE_PDF_URL}</a>
+         <a href="${buttonUrl}" style="color:${C.primary};">${buttonUrl}</a>
        </p>`
     : `<p style="margin:0 0 16px;color:${C.error};font-size:14px;">
          <strong>Note:</strong> The guide PDF link has not been configured yet.
@@ -64,13 +79,46 @@ export async function sendGuideEmail({
   await resend.emails.send({
     from: FROM,
     to: email,
-    replyTo: REPLY_TO,
-    subject: `Your free guide from ${BRAND_NAME}`,
-    html: guideEmailHtml({ name, pdfLine }),
+    replyTo: template?.replyTo || REPLY_TO,
+    subject: template?.subject || `Your free guide from ${BRAND_NAME}`,
+    html: guideEmailHtml({
+      name,
+      pdfLine,
+      heading: template?.heading,
+      highlightTitle: template?.highlightTitle,
+      bodyText: template?.body,
+    }),
   });
 }
 
-function guideEmailHtml({ name, pdfLine }: { name: string; pdfLine: string }) {
+function guideEmailHtml({
+  name,
+  pdfLine,
+  heading,
+  highlightTitle,
+  bodyText,
+}: {
+  name: string;
+  pdfLine: string;
+  heading?: string;
+  highlightTitle?: string;
+  bodyText?: string;
+}) {
+  const resolvedHeading = heading
+    ? escapeHtml(heading).replace(/\{name\}/g, escapeHtml(name))
+    : `Here's your guide, ${escapeHtml(name)}.`;
+
+  const bodyBlock = highlightTitle || bodyText
+    ? `<p style="margin:0 0 24px;font-size:16px;color:${C.muted};line-height:1.6;">
+        ${highlightTitle ? `<strong style="color:${C.text};">${escapeHtml(highlightTitle)}</strong>` : ''}
+        ${bodyText ? `${highlightTitle ? '<br/>' : ''}${escapeHtml(bodyText)}` : ''}
+       </p>`
+    : `<p style="margin:0 0 24px;font-size:16px;color:${C.muted};line-height:1.6;">
+        <strong style="color:${C.text};">${escapeHtml(GUIDE_TITLE)}</strong>
+        covers the specific errors teams make in Testing &amp; QA and Launch &amp; Go-to-Market,
+        and what to do instead.
+       </p>`;
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -89,13 +137,9 @@ function guideEmailHtml({ name, pdfLine }: { name: string; pdfLine: string }) {
                 ${BRAND_NAME}
               </p>
               <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:${C.text};line-height:1.3;">
-                Here's your guide, ${escapeHtml(name)}.
+                ${resolvedHeading}
               </h1>
-              <p style="margin:0 0 24px;font-size:16px;color:${C.muted};line-height:1.6;">
-                <strong style="color:${C.text};">${escapeHtml(GUIDE_TITLE)}</strong>
-                covers the specific errors teams make in Testing &amp; QA and Launch &amp; Go-to-Market,
-                and what to do instead.
-              </p>
+              ${bodyBlock}
               ${pdfLine}
               <p style="margin:0 0 16px;font-size:15px;color:${C.muted};line-height:1.6;">
                 If you have questions about anything in the guide, or want to talk about how the
