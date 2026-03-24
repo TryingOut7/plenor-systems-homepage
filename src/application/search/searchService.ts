@@ -50,6 +50,7 @@ export async function searchSiteContent(
     return fail(400, {
       error:
         'At least one search parameter is required (q, collection, tag, or featured).',
+      requestId: context.requestId,
     });
   }
 

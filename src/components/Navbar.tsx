@@ -254,7 +254,7 @@ export default function Navbar({
                   </Link>
                 )}
                 {hasChildren && openDropdown === index && (
-                  <div className="nav-dropdown">
+                  <div className="nav-dropdown" role="menu" aria-label={`${link.label} submenu`}>
                     {link.children!.map((child) => (
                       <Link
                         key={child.href}

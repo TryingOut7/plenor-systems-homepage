@@ -17,7 +17,7 @@ export default function FaqAccordion({ items, theme }: FaqAccordionProps) {
     <div>
       {items.map((item, idx) => (
         <div
-          key={idx}
+          key={`faq-${item.question.slice(0, 40)}-${idx}`}
           style={{
             borderBottom: `1px solid ${
               dark ? 'rgba(255,255,255,0.15)' : 'var(--ui-color-border)'

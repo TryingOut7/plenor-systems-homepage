@@ -16,8 +16,13 @@ export default function TeamSection({
 }: SectionRendererProps) {
   const sectionRecord = asSectionRecord(section);
   const members = Array.isArray(sectionRecord.members) ? sectionRecord.members : [];
+  const colsMap: Record<string, string> = {
+    '2': 'repeat(2, 1fr)',
+    '3': 'repeat(3, 1fr)',
+    '4': 'repeat(4, 1fr)',
+  };
   const rawCols = typeof sectionRecord.columns === 'string' ? sectionRecord.columns : '3';
-  const cols = ['2', '3', '4'].includes(rawCols) ? rawCols : '3';
+  const gridCols = colsMap[rawCols] ?? colsMap['3'];
 
   return (
     <section
@@ -51,7 +56,7 @@ export default function TeamSection({
           </p>
         ) : null}
 
-        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '32px' }}>
           {members.map((member: unknown, memberIndex: number) => {
             const m =
               member && typeof member === 'object'

@@ -2,6 +2,11 @@ import SectionHeading from './shared/SectionHeading';
 import FaqAccordion from './shared/FaqAccordion';
 import type { SectionRendererProps } from './types';
 import { asSectionRecord } from './utils';
+import { stripTags } from '@/lib/sanitize';
+
+function sanitizeFaqText(value: string): string {
+  return stripTags(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
+}
 
 export default function FaqSection({
   section,
@@ -27,8 +32,8 @@ export default function FaqSection({
     '@type': 'FAQPage',
     mainEntity: faqItems.map((item) => ({
       '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+      name: sanitizeFaqText(item.question),
+      acceptedAnswer: { '@type': 'Answer', text: sanitizeFaqText(item.answer) },
     })),
   };
 

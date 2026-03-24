@@ -57,7 +57,7 @@ export default function VideoSection({
           ) : posterUrl ? (
             <Image
               src={posterUrl}
-              alt=""
+              alt={typeof sectionRecord.heading === 'string' ? sectionRecord.heading : 'Video poster'}
               width={0}
               height={0}
               sizes="100vw"

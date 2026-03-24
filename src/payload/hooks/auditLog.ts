@@ -1,4 +1,5 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload';
+import { AUDIT_ACTIONS } from '../constants/auditActions';
 
 function getDocTitle(doc: Record<string, unknown>): string {
   return (
@@ -26,7 +27,7 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
 
   const userRecord = req.user as Record<string, unknown>;
   const title = getDocTitle(doc as Record<string, unknown>);
-  const action = operation === 'create' ? 'create' : 'update';
+  const action = operation === 'create' ? AUDIT_ACTIONS.CREATE : AUDIT_ACTIONS.UPDATE;
   const summary = `${userRecord.email || 'Unknown'} ${action}d ${collection.slug}: ${title}`;
 
   try {
@@ -67,7 +68,7 @@ export const auditAfterDelete: CollectionAfterDeleteHook = async ({
       collection: 'audit-logs',
       overrideAccess: true,
       data: {
-        action: 'delete' as const,
+        action: AUDIT_ACTIONS.DELETE,
         collection: collection.slug,
         documentId: String(doc.id),
         documentTitle: title,

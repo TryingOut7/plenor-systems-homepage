@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { escapeHtml } from './sanitize';
 
 // Resend client — instantiated lazily so missing env vars only throw at send time.
 function getResend(): Resend {
@@ -304,11 +305,3 @@ function inquiryAckHtml({ name }: { name: string }) {
 </html>`;
 }
 
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}

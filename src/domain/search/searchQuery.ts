@@ -26,7 +26,7 @@ export function parseSearchParams(url: string): SearchParams {
   const { searchParams } = new URL(url);
 
   return {
-    query: searchParams.get('q')?.trim() || '',
+    query: (searchParams.get('q')?.trim() || '').slice(0, 200),
     collectionFilter: searchParams.get('collection'),
     tagFilter: searchParams.get('tag')?.trim() || null,
     featuredFilter: searchParams.get('featured'),

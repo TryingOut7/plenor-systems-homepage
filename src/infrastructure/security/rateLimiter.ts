@@ -21,7 +21,12 @@ function cleanup(): void {
 }
 
 function getClientIp(context: RequestContext): string {
-  return context.realIp || context.forwardedFor?.split(',')[0]?.trim() || 'unknown';
+  const ip = context.realIp || context.forwardedFor?.split(',')[0]?.trim();
+  if (!ip) {
+    console.warn('Rate limiter: could not determine client IP, using fallback key');
+    return 'unknown';
+  }
+  return ip;
 }
 
 export function checkRateLimit(

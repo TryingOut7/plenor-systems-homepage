@@ -22,7 +22,8 @@ export function toRequestContext(request: NextRequest): RequestContext {
 export async function readJsonBody(request: NextRequest): Promise<unknown> {
   try {
     return await request.json();
-  } catch {
+  } catch (error) {
+    console.warn('Failed to parse JSON request body:', error instanceof Error ? error.message : error);
     return null;
   }
 }

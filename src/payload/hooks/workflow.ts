@@ -145,7 +145,14 @@ export const workflowAfterChange: CollectionAfterChangeHook = async ({
       text,
     });
   } catch (err) {
-    req.payload.logger.error({ err, msg: 'Workflow notification email failed' });
+    req.payload.logger.error({
+      err,
+      msg: 'Workflow notification email failed',
+      collection: collection.slug,
+      documentId: String((doc as Record<string, unknown>).id),
+      newStatus,
+      oldStatus: oldStatus || 'new',
+    });
   }
 
   return doc;

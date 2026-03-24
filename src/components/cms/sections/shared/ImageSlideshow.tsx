@@ -63,6 +63,7 @@ export default function ImageSlideshow({ images }: ImageSlideshowProps) {
         >
           <button
             type="button"
+            aria-label="Previous slide"
             onClick={() =>
               setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
             }
@@ -103,6 +104,7 @@ export default function ImageSlideshow({ images }: ImageSlideshowProps) {
 
           <button
             type="button"
+            aria-label="Next slide"
             onClick={() => setCurrentIndex((prev) => (prev + 1) % images.length)}
             style={{
               border: '1px solid var(--ui-color-border)',

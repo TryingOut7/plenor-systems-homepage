@@ -1,8 +1,12 @@
 import type { CollectionConfig } from 'payload';
 import { seoFields } from '../fields/seo';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow';
+import { createdByField } from '../fields/ownership';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog';
+import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy';
+import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow';
+import { authorScopedUpdate } from '../access/authorScopedAccess';
 
 export const Testimonials: CollectionConfig = {
   slug: 'testimonials',
@@ -16,11 +20,11 @@ export const Testimonials: CollectionConfig = {
       return { workflowStatus: { equals: 'published' } };
     },
     create: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
-    update: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
+    update: authorScopedUpdate,
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   hooks: {
-    beforeChange: [workflowBeforeChange],
+    beforeChange: [stampCreatedByBeforeChange, normalizeSlugBeforeChange, workflowBeforeChange],
     afterChange: [workflowAfterChange, auditAfterChange],
     afterDelete: [auditAfterDelete],
   },
@@ -101,6 +105,7 @@ export const Testimonials: CollectionConfig = {
         },
       ],
     },
+    createdByField,
     workflowStatusField,
     ...workflowApprovalFields,
     ...seoFields,

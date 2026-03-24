@@ -1,11 +1,14 @@
 import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload';
 import { seoFields } from '../fields/seo';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow';
+import { createdByField } from '../fields/ownership';
 import { pageSectionBlocks } from '../blocks/pageSections';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog';
+import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow';
 import { applyCorePresetSections } from '../hooks/sitePagePreset';
 import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug';
+import { authorScopedUpdate } from '../access/authorScopedAccess';
 
 const corePresetValues = ['home', 'services', 'about', 'pricing', 'contact'] as const;
 
@@ -103,11 +106,12 @@ export const SitePages: CollectionConfig = {
       return { workflowStatus: { equals: 'published' }, isActive: { equals: true } };
     },
     create: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
-    update: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
+    update: authorScopedUpdate,
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   hooks: {
     beforeChange: [
+      stampCreatedByBeforeChange,
       normalizeSlugBeforeChange,
       workflowBeforeChange,
       applyCorePresetSections,
@@ -243,6 +247,7 @@ export const SitePages: CollectionConfig = {
           'For core presets, structure is locked to template and only text content changes are kept.',
       },
     },
+    createdByField,
     workflowStatusField,
     ...workflowApprovalFields,
     ...seoFields,

@@ -514,7 +514,7 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(slug: st
         workflowStatus: { equals: 'published' },
       },
       limit: 1,
-      depth: 2,
+      depth: 1,
     });
     const doc = result.docs[0];
     if (!doc) {
@@ -588,6 +588,7 @@ function normalizeBlogPost(doc: Record<string, unknown>): BlogPost {
     isFeatured: doc.isFeatured as boolean | undefined,
     readingTimeMinutes: doc.readingTimeMinutes as number | undefined,
     tags: doc.tags as BlogPost['tags'],
+    category: doc.category as BlogPost['category'],
     resourceUrl: doc.resourceUrl as string | undefined,
     seo: normalizeSeo(doc.seo),
   };

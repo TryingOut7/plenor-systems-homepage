@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { AUDIT_ACTION_OPTIONS } from '../constants/auditActions';
 
 export const AuditLogs: CollectionConfig = {
   slug: 'audit-logs',
@@ -18,11 +19,7 @@ export const AuditLogs: CollectionConfig = {
       name: 'action',
       type: 'select',
       required: true,
-      options: [
-        { label: 'Create', value: 'create' },
-        { label: 'Update', value: 'update' },
-        { label: 'Delete', value: 'delete' },
-      ],
+      options: [...AUDIT_ACTION_OPTIONS],
       admin: { position: 'sidebar' },
     },
     {

@@ -43,7 +43,7 @@ export async function submitGuideForm(
     const validation = validateGuideSubmission(input);
 
     if (!validation.ok) {
-      return fail(400, { message: validation.message });
+      return fail(400, { message: validation.message, requestId: context.requestId });
     }
 
     const entry = {
@@ -65,11 +65,13 @@ export async function submitGuideForm(
         submissionId: submission.id,
         event,
       });
-    } catch {
+    } catch (dbError) {
       console.error(
         'DB log failed for guide submission - entry:',
         JSON.stringify(entry),
+        dbError,
       );
+      return fail(500, { message: 'Unable to save your submission. Please try again.', requestId: context.requestId });
     }
 
     if (submissionId) {
@@ -86,6 +88,6 @@ export async function submitGuideForm(
     return ok({ success: true });
   } catch (error) {
     console.error('Guide form error:', error);
-    return fail(500, { message: 'Server error. Please try again.' });
+    return fail(500, { message: 'Server error. Please try again.', requestId: context.requestId });
   }
 }

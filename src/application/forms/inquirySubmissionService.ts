@@ -43,7 +43,7 @@ export async function submitInquiryForm(
     const validation = validateInquirySubmission(input);
 
     if (!validation.ok) {
-      return fail(400, { message: validation.message });
+      return fail(400, { message: validation.message, requestId: context.requestId });
     }
 
     const entry = {
@@ -68,11 +68,13 @@ export async function submitInquiryForm(
         submissionId: submission.id,
         event,
       });
-    } catch {
+    } catch (dbError) {
       console.error(
         'DB log failed for inquiry submission - entry:',
         JSON.stringify(entry),
+        dbError,
       );
+      return fail(500, { message: 'Unable to save your submission. Please try again.', requestId: context.requestId });
     }
 
     if (submissionId) {
@@ -89,6 +91,6 @@ export async function submitInquiryForm(
     return ok({ success: true });
   } catch (error) {
     console.error('Inquiry form error:', error);
-    return fail(500, { message: 'Server error. Please try again.' });
+    return fail(500, { message: 'Server error. Please try again.', requestId: context.requestId });
   }
 }

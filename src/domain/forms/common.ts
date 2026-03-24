@@ -8,7 +8,7 @@ const ESCAPE_MAP: Record<string, string> = {
 
 const ESCAPE_RE = /[&<>"']/g;
 const STRIP_TAGS_RE = /<[^>]*>/g;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
 export function sanitizeText(value: string): string {
   let stripped = value;

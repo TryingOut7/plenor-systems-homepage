@@ -10,10 +10,9 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const resolved = await params;
-  const encodedSlug = encodeURIComponent(resolved.slug);
   const proxied = await proxyRequestToBackend(
     request,
-    `/v1/content/pages/${encodedSlug}`,
+    `/v1/content/pages/${resolved.slug}`,
   );
   if (proxied) {
     return proxied;
