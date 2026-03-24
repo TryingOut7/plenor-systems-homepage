@@ -18,6 +18,8 @@
     "db:migrate": "node scripts/db/migrate.mjs",
     "db:migrate:status": "node scripts/db/migrate-status.mjs",
     "db:migrate:rollback": "node scripts/db/migrate-rollback.mjs",
+    "db:check:payload": "node scripts/db/check-payload-schema.mjs",
+    "db:repair:payload": "node scripts/db/repair-payload-schema.mjs",
     "test": "npm run test:ci",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",

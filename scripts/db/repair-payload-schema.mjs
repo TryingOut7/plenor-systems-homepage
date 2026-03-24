@@ -1,0 +1,385 @@
+import { withDatabaseClient } from './migration-lib.mjs';
+
+const BLOCK_TABLES_WITH_SECTION_LABEL = [
+  'hero',
+  'richtext',
+  'cta',
+  'stats_sec',
+  'faq_sec',
+  'feat_grid',
+  'form_sec',
+  'team_sec',
+  'logo_band',
+  'quote_sec',
+  'tabs_sec',
+  'guide_form',
+  'inquiry_form',
+  'privacy_note',
+  'img_sec',
+  'vid_sec',
+  'simple_table',
+  'cmp_table',
+  'dyn_list',
+  'split_sec',
+  'reuse_sec_ref',
+  'divider',
+  'legacy_hero',
+  'legacy_narrative',
+  'legacy_stage',
+  'legacy_audience',
+  'legacy_checklist',
+  'legacy_quote',
+  'legacy_cta',
+];
+
+const VERSION_BLOCK_TABLES_WITH_SECTION_LABEL = BLOCK_TABLES_WITH_SECTION_LABEL.map(
+  (name) => `${name}_v`,
+);
+
+const COLLECTION_TABLES_WITH_CREATED_BY = [
+  'service_items',
+  'blog_posts',
+  'testimonials',
+  'site_pages',
+];
+
+function createAddVarcharColumnSql(tableNames, columnName) {
+  const quotedNames = tableNames.map((name) => `'${name}'`).join(', ');
+  return `
+DO $$
+DECLARE
+  target_table TEXT;
+BEGIN
+  FOREACH target_table IN ARRAY ARRAY[${quotedNames}] LOOP
+    EXECUTE format(
+      'ALTER TABLE IF EXISTS public.%I ADD COLUMN IF NOT EXISTS %I character varying',
+      target_table,
+      '${columnName}'
+    );
+  END LOOP;
+END;
+$$;
+`;
+}
+
+function createAddIntegerColumnSql(tableNames, columnName) {
+  const quotedNames = tableNames.map((name) => `'${name}'`).join(', ');
+  return `
+DO $$
+DECLARE
+  target_table TEXT;
+BEGIN
+  FOREACH target_table IN ARRAY ARRAY[${quotedNames}] LOOP
+    EXECUTE format(
+      'ALTER TABLE IF EXISTS public.%I ADD COLUMN IF NOT EXISTS %I integer',
+      target_table,
+      '${columnName}'
+    );
+  END LOOP;
+END;
+$$;
+`;
+}
+
+async function run() {
+  await withDatabaseClient(async (client) => {
+    await client.query('BEGIN');
+
+    try {
+      await client.query(`
+        ALTER TABLE IF EXISTS public.ui_settings
+          ADD COLUMN IF NOT EXISTS colors_nav_background character varying DEFAULT 'transparent',
+          ADD COLUMN IF NOT EXISTS colors_nav_scrolled_background character varying DEFAULT '#FFFFFF',
+          ADD COLUMN IF NOT EXISTS colors_nav_border character varying DEFAULT '#E5E7EB',
+          ADD COLUMN IF NOT EXISTS typography_heading_font_url character varying,
+          ADD COLUMN IF NOT EXISTS typography_body_font_url character varying,
+          ADD COLUMN IF NOT EXISTS layout_nav_height numeric DEFAULT 68,
+          ADD COLUMN IF NOT EXISTS layout_card_radius numeric DEFAULT 8;
+      `);
+
+      await client.query(`
+        ALTER TABLE IF EXISTS public._ui_settings_v
+          ADD COLUMN IF NOT EXISTS version_colors_nav_background character varying DEFAULT 'transparent',
+          ADD COLUMN IF NOT EXISTS version_colors_nav_scrolled_background character varying DEFAULT '#FFFFFF',
+          ADD COLUMN IF NOT EXISTS version_colors_nav_border character varying DEFAULT '#E5E7EB',
+          ADD COLUMN IF NOT EXISTS version_typography_heading_font_url character varying,
+          ADD COLUMN IF NOT EXISTS version_typography_body_font_url character varying,
+          ADD COLUMN IF NOT EXISTS version_layout_nav_height numeric DEFAULT 68,
+          ADD COLUMN IF NOT EXISTS version_layout_card_radius numeric DEFAULT 8;
+      `);
+
+      await client.query(`
+        ALTER TABLE IF EXISTS public.site_settings
+          ADD COLUMN IF NOT EXISTS logo_image_id integer,
+          ADD COLUMN IF NOT EXISTS logo_width numeric DEFAULT 120,
+          ADD COLUMN IF NOT EXISTS announcement_banner_enabled boolean DEFAULT false,
+          ADD COLUMN IF NOT EXISTS announcement_banner_text character varying,
+          ADD COLUMN IF NOT EXISTS announcement_banner_link_label character varying,
+          ADD COLUMN IF NOT EXISTS announcement_banner_link_href character varying,
+          ADD COLUMN IF NOT EXISTS announcement_banner_background_color character varying DEFAULT '#1B2D4F',
+          ADD COLUMN IF NOT EXISTS announcement_banner_text_color character varying DEFAULT '#FFFFFF',
+          ADD COLUMN IF NOT EXISTS guide_form_privacy_label character varying DEFAULT 'Privacy Policy',
+          ADD COLUMN IF NOT EXISTS guide_form_privacy_href character varying DEFAULT '/privacy',
+          ADD COLUMN IF NOT EXISTS inquiry_form_privacy_label character varying DEFAULT 'Privacy Policy',
+          ADD COLUMN IF NOT EXISTS inquiry_form_privacy_href character varying DEFAULT '/privacy',
+          ADD COLUMN IF NOT EXISTS not_found_page_meta_title character varying DEFAULT 'Page Not Found',
+          ADD COLUMN IF NOT EXISTS not_found_page_meta_description character varying DEFAULT 'The page you requested could not be found.';
+      `);
+
+      await client.query(`
+        ALTER TABLE IF EXISTS public._site_settings_v
+          ADD COLUMN IF NOT EXISTS version_logo_image_id integer,
+          ADD COLUMN IF NOT EXISTS version_logo_width numeric DEFAULT 120,
+          ADD COLUMN IF NOT EXISTS version_announcement_banner_enabled boolean DEFAULT false,
+          ADD COLUMN IF NOT EXISTS version_announcement_banner_text character varying,
+          ADD COLUMN IF NOT EXISTS version_announcement_banner_link_label character varying,
+          ADD COLUMN IF NOT EXISTS version_announcement_banner_link_href character varying,
+          ADD COLUMN IF NOT EXISTS version_announcement_banner_background_color character varying DEFAULT '#1B2D4F',
+          ADD COLUMN IF NOT EXISTS version_announcement_banner_text_color character varying DEFAULT '#FFFFFF',
+          ADD COLUMN IF NOT EXISTS version_guide_form_privacy_label character varying DEFAULT 'Privacy Policy',
+          ADD COLUMN IF NOT EXISTS version_guide_form_privacy_href character varying DEFAULT '/privacy',
+          ADD COLUMN IF NOT EXISTS version_inquiry_form_privacy_label character varying DEFAULT 'Privacy Policy',
+          ADD COLUMN IF NOT EXISTS version_inquiry_form_privacy_href character varying DEFAULT '/privacy',
+          ADD COLUMN IF NOT EXISTS version_not_found_page_meta_title character varying DEFAULT 'Page Not Found',
+          ADD COLUMN IF NOT EXISTS version_not_found_page_meta_description character varying DEFAULT 'The page you requested could not be found.';
+      `);
+
+      await client.query(
+        createAddVarcharColumnSql(
+          BLOCK_TABLES_WITH_SECTION_LABEL,
+          'section_label',
+        ),
+      );
+      await client.query(
+        createAddVarcharColumnSql(
+          VERSION_BLOCK_TABLES_WITH_SECTION_LABEL,
+          'section_label',
+        ),
+      );
+      await client.query(
+        createAddIntegerColumnSql(
+          COLLECTION_TABLES_WITH_CREATED_BY,
+          'created_by_id',
+        ),
+      );
+
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS public.nav_children (
+          _order integer NOT NULL,
+          _parent_id character varying NOT NULL,
+          id character varying NOT NULL,
+          label character varying,
+          href character varying,
+          CONSTRAINT nav_children_pkey PRIMARY KEY (id)
+        );
+      `);
+
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS nav_children_parent_id_idx
+          ON public.nav_children USING btree (_parent_id);
+      `);
+
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS nav_children_order_idx
+          ON public.nav_children USING btree (_order);
+      `);
+
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS public._nav_children_v (
+          _order integer NOT NULL,
+          _parent_id integer NOT NULL,
+          id integer NOT NULL GENERATED BY DEFAULT AS IDENTITY,
+          label character varying,
+          href character varying,
+          _uuid character varying,
+          CONSTRAINT _nav_children_v_pkey PRIMARY KEY (id)
+        );
+      `);
+
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS _nav_children_v_parent_id_idx
+          ON public._nav_children_v USING btree (_parent_id);
+      `);
+
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS _nav_children_v_order_idx
+          ON public._nav_children_v USING btree (_order);
+      `);
+
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS site_settings_logo_image_idx
+          ON public.site_settings USING btree (logo_image_id);
+      `);
+
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS _site_settings_v_version_logo_image_idx
+          ON public._site_settings_v USING btree (version_logo_image_id);
+      `);
+
+      await client.query(`
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'site_settings_navigation_links'
+  ) AND NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'nav_children_parent_id_fk'
+  ) THEN
+    ALTER TABLE public.nav_children
+      ADD CONSTRAINT nav_children_parent_id_fk
+      FOREIGN KEY (_parent_id)
+      REFERENCES public.site_settings_navigation_links(id)
+      ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+      `);
+
+      for (const tableName of COLLECTION_TABLES_WITH_CREATED_BY) {
+        const constraintName = `${tableName}_created_by_id_fkey`;
+
+        await client.query(`
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = '${tableName}'
+  ) AND EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'users'
+  ) AND NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = '${constraintName}'
+  ) THEN
+    ALTER TABLE public.${tableName}
+      ADD CONSTRAINT ${constraintName}
+      FOREIGN KEY (created_by_id)
+      REFERENCES public.users(id)
+      ON DELETE SET NULL;
+  END IF;
+END;
+$$;
+        `);
+      }
+
+      await client.query(`
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = '_site_settings_v_version_navigation_links'
+  ) AND NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = '_nav_children_v_parent_id_fk'
+  ) THEN
+    ALTER TABLE public._nav_children_v
+      ADD CONSTRAINT _nav_children_v_parent_id_fk
+      FOREIGN KEY (_parent_id)
+      REFERENCES public._site_settings_v_version_navigation_links(id)
+      ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+      `);
+
+      await client.query(`
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'media'
+  ) AND NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'site_settings_logo_image_id_media_id_fk'
+  ) THEN
+    ALTER TABLE public.site_settings
+      ADD CONSTRAINT site_settings_logo_image_id_media_id_fk
+      FOREIGN KEY (logo_image_id)
+      REFERENCES public.media(id)
+      ON DELETE SET NULL;
+  END IF;
+END;
+$$;
+      `);
+
+      await client.query(`
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'media'
+  ) AND NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = '_site_settings_v_version_logo_image_id_media_id_fk'
+  ) THEN
+    ALTER TABLE public._site_settings_v
+      ADD CONSTRAINT _site_settings_v_version_logo_image_id_media_id_fk
+      FOREIGN KEY (version_logo_image_id)
+      REFERENCES public.media(id)
+      ON DELETE SET NULL;
+  END IF;
+END;
+$$;
+      `);
+
+      await client.query(`
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'site_settings'
+  ) THEN
+    INSERT INTO public.site_settings (_status)
+    SELECT 'draft'::enum_site_settings_status
+    WHERE NOT EXISTS (SELECT 1 FROM public.site_settings);
+  END IF;
+END;
+$$;
+      `);
+
+      await client.query(`
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'ui_settings'
+  ) THEN
+    INSERT INTO public.ui_settings (_status)
+    SELECT 'draft'::enum_ui_settings_status
+    WHERE NOT EXISTS (SELECT 1 FROM public.ui_settings);
+  END IF;
+END;
+$$;
+      `);
+
+      await client.query('COMMIT');
+      console.log('Payload schema repair completed successfully.');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    }
+  });
+}
+
+run().catch((error) => {
+  console.error(
+    `Payload schema repair failed: ${
+      error instanceof Error ? error.message : String(error)
+    }`,
+  );
+  process.exit(1);
+});
