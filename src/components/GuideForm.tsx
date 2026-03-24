@@ -17,6 +17,8 @@ interface GuideFormProps {
   successHeading?: string;
   successBody?: string;
   footerText?: string;
+  privacyLabel?: string;
+  privacyHref?: string;
   namePlaceholder?: string;
   emailPlaceholder?: string;
   templateId?: string | number;
@@ -26,8 +28,10 @@ export default function GuideForm({
   submitLabel = 'Send me the guide',
   submittingLabel = 'Sending\u2026',
   successHeading = 'Guide on its way!',
-  successBody = 'Check your inbox \u2014 the PDF will arrive shortly from Plenor Systems.',
+  successBody = 'Check your inbox \u2014 the PDF will arrive shortly from our team.',
   footerText = 'The PDF will be sent to your email automatically. No spam, no mailing lists.',
+  privacyLabel = 'Privacy Policy',
+  privacyHref = '/privacy',
   namePlaceholder = 'Your name',
   emailPlaceholder = 'you@company.com',
   templateId,
@@ -263,8 +267,8 @@ export default function GuideForm({
 
       <p style={{ fontSize: '12px', color: 'var(--ui-color-text-muted)', marginTop: '12px', textAlign: 'center' }}>
         {footerText}{' '}
-        <Link href="/privacy" style={{ color: 'var(--ui-color-text-muted)', textDecoration: 'underline' }}>
-          Privacy Policy
+        <Link href={privacyHref} style={{ color: 'var(--ui-color-text-muted)', textDecoration: 'underline' }}>
+          {privacyLabel}
         </Link>
       </p>
     </form>

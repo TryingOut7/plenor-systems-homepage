@@ -3,13 +3,14 @@ import Link from 'next/link';
 import RichText from '@/components/cms/RichText';
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
 import { getSiteSettings } from '@/payload/cms';
+import { resolveContactEmail, resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
 
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
-  const siteName = settings?.siteName || 'Plenor Systems';
-  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  const siteName = resolveSiteName(settings);
+  const siteUrl = resolveSiteUrl(settings);
   return {
     title: 'Privacy Policy',
     description: `Privacy Policy for ${siteName} — how we collect, use, and protect your data.`,
@@ -28,9 +29,11 @@ const h2Style: React.CSSProperties = { fontSize: '20px', fontWeight: 700, color:
 export default async function PrivacyPage() {
   const settings = await getSiteSettings();
 
-  const siteName = settings?.siteName || 'Plenor Systems';
-  const contactEmail = settings?.contactEmail || 'hello@plenor.ai';
-  const lastUpdated = settings?.privacyLastUpdated || 'March 2026';
+  const siteName = resolveSiteName(settings);
+  const contactEmail = resolveContactEmail(settings);
+  const lastUpdated =
+    settings?.privacyLastUpdated ||
+    new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
   const cmsContent = settings?.privacyPolicy ?? null;
 
   return (

@@ -19,7 +19,7 @@ export const SiteSettings: GlobalConfig = {
     {
       name: 'siteName',
       type: 'text',
-      defaultValue: 'Plenor Systems',
+      defaultValue: 'Website',
     },
     {
       name: 'logoImage',
@@ -48,12 +48,12 @@ export const SiteSettings: GlobalConfig = {
     {
       name: 'siteUrl',
       type: 'text',
-      defaultValue: 'https://plenor.ai',
+      defaultValue: 'https://example.com',
     },
     {
       name: 'contactEmail',
       type: 'email',
-      defaultValue: 'hello@plenor.ai',
+      defaultValue: 'contact@example.com',
     },
     {
       name: 'primaryCtaLabel',
@@ -180,9 +180,7 @@ export const SiteSettings: GlobalConfig = {
     {
       name: 'socialLinks',
       type: 'array',
-      defaultValue: [
-        { label: 'LinkedIn', url: 'https://www.linkedin.com/company/plenor-ai' },
-      ],
+      defaultValue: [],
       fields: [
         { name: 'label', type: 'text', required: true },
         { name: 'url', type: 'text', required: true },
@@ -251,6 +249,8 @@ export const SiteSettings: GlobalConfig = {
         { name: 'successHeading', type: 'text' },
         { name: 'successBody', type: 'text' },
         { name: 'footerText', type: 'text' },
+        { name: 'privacyLabel', type: 'text', defaultValue: 'Privacy Policy' },
+        { name: 'privacyHref', type: 'text', defaultValue: '/privacy' },
         { name: 'namePlaceholder', type: 'text' },
         { name: 'emailPlaceholder', type: 'text' },
       ],
@@ -264,6 +264,8 @@ export const SiteSettings: GlobalConfig = {
         { name: 'successHeading', type: 'text' },
         { name: 'successBody', type: 'text' },
         { name: 'consentText', type: 'text' },
+        { name: 'privacyLabel', type: 'text', defaultValue: 'Privacy Policy' },
+        { name: 'privacyHref', type: 'text', defaultValue: '/privacy' },
         { name: 'namePlaceholder', type: 'text' },
         { name: 'emailPlaceholder', type: 'text' },
         { name: 'companyPlaceholder', type: 'text' },
@@ -304,6 +306,12 @@ export const SiteSettings: GlobalConfig = {
       name: 'notFoundPage',
       type: 'group',
       fields: [
+        { name: 'metaTitle', type: 'text', defaultValue: 'Page Not Found' },
+        {
+          name: 'metaDescription',
+          type: 'textarea',
+          defaultValue: 'The page you requested could not be found.',
+        },
         { name: 'heading', type: 'text' },
         { name: 'body', type: 'textarea' },
         { name: 'buttonLabel', type: 'text' },

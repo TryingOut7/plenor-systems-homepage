@@ -2,17 +2,19 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import GuideForm from '@/components/GuideForm';
-import { getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
+import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import { resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
+import { resolveHomePageData } from '@/lib/page-content/home';
 
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
-  const siteName = settings?.siteName || 'Plenor Systems';
-  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  const siteName = resolveSiteName(settings);
+  const siteUrl = resolveSiteUrl(settings);
   const title = `${siteName} — Testing & QA and Launch & Go-to-Market Framework`;
   const description =
-    'Plenor Systems brings structure to the two most failure-prone stages of product development: Testing & QA and Launch & Go-to-Market.';
+    `${siteName} brings structure to the two most failure-prone stages of product development: Testing & QA and Launch & Go-to-Market.`;
 
   return {
     title,
@@ -26,161 +28,16 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-interface HomePageData {
-  heroHeading?: string;
-  heroSubtext?: string;
-  problemHeading?: string;
-  problemBody1?: string;
-  problemBody2?: string;
-  testingCardTitle?: string;
-  testingCardBody?: string;
-  launchCardTitle?: string;
-  launchCardBody?: string;
-  audiences?: { label: string; copy: string }[];
-  guideCTAHeading?: string;
-  guideCTABody?: string;
-}
-
-const defaults: Required<HomePageData> = {
-  heroHeading: 'Plenor Systems brings structure to the two most failure-prone stages of product development.',
-  heroSubtext: 'Testing & QA and Launch & Go-to-Market, done right.',
-  problemHeading: 'Most product failures happen at the end, not the beginning.',
-  problemBody1:
-    "Teams spend months building a product, then rush testing, skip structured QA, and launch without a clear go-to-market plan. The result: bugs found by customers, positioning that misses the market, and launches that don't generate expected traction.",
-  problemBody2:
-    "These aren't execution failures — they're structural ones. The final stages of product development are consistently underprepared. Plenor Systems is built specifically to fix that.",
-  testingCardTitle: 'Testing & QA that catches what matters before release.',
-  testingCardBody:
-    'A structured approach to verification, quality criteria, and release readiness. Designed to reduce rework and give your team confidence before shipping.',
-  launchCardTitle: 'Launch & Go-to-Market with a plan that holds up on launch day.',
-  launchCardBody:
-    'From positioning and channel selection to operational readiness, the framework keeps go-to-market work structured rather than reactive.',
-  audiences: [
-    {
-      label: 'Startups',
-      copy: 'Moving fast but need a reliable process for the final stretch — before a launch defines your reputation.',
-    },
-    {
-      label: 'SMEs',
-      copy: 'Growing teams that have outpaced informal processes and need structure without slowing down delivery.',
-    },
-    {
-      label: 'Enterprises',
-      copy: 'Larger organisations that need a rigorous, repeatable framework that scales across products and teams.',
-    },
-  ],
-  guideCTAHeading: 'Get the free guide',
-  guideCTABody:
-    'The guide covers the specific errors teams make in Testing & QA and Launch & Go-to-Market, and what to do instead. Enter your name and email and the PDF is sent to your inbox automatically.',
-};
-
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
-function findSection(
-  sections: PageSection[],
-  blockType: string,
-  heading?: string,
-): PageSection | undefined {
-  return sections.find((section) => {
-    if (section.blockType !== blockType) return false;
-    if (!heading) return true;
-    return String(section.heading || '').trim() === heading;
-  });
-}
-
-function getRows(section: PageSection | undefined): unknown[] {
-  if (!section || !Array.isArray(section.rows)) return [];
-  return section.rows;
-}
-
-function getCellValue(row: unknown, index: number): string {
-  if (!row || typeof row !== 'object') return '';
-  const cells = Array.isArray((row as Record<string, unknown>).cells)
-    ? ((row as Record<string, unknown>).cells as unknown[])
-    : [];
-  const cell = cells[index];
-  if (!cell || typeof cell !== 'object') return '';
-  const value = (cell as Record<string, unknown>).value;
-  return typeof value === 'string' ? value : '';
-}
-
-function getRichTextParagraphs(section: PageSection | undefined): string[] {
-  if (!section || !section.content || typeof section.content !== 'object') return [];
-  const root = (section.content as Record<string, unknown>).root;
-  if (!root || typeof root !== 'object') return [];
-  const children = Array.isArray((root as Record<string, unknown>).children)
-    ? ((root as Record<string, unknown>).children as unknown[])
-    : [];
-
-  const readText = (node: unknown): string => {
-    if (!node || typeof node !== 'object') return '';
-    const record = node as Record<string, unknown>;
-    if (typeof record.text === 'string') return record.text;
-    if (!Array.isArray(record.children)) return '';
-    return record.children.map(readText).join('');
-  };
-
-  return children
-    .map(readText)
-    .map((text) => text.trim())
-    .filter(Boolean);
-}
-
-function getHomePageData(sections: PageSection[]): Required<HomePageData> {
-  const hero = findSection(sections, 'heroSection');
-  const problem = findSection(
-    sections,
-    'richTextSection',
-    'Most product failures happen at the end, not the beginning.',
-  );
-  const whatWeDo = findSection(sections, 'simpleTableSection', 'What We Do');
-  const audiencesSection = findSection(
-    sections,
-    'simpleTableSection',
-    'Built for teams at every stage',
-  );
-  const guide = findSection(sections, 'guideFormSection');
-
-  const problemParagraphs = getRichTextParagraphs(problem);
-  const whatRows = getRows(whatWeDo);
-  const audienceRows = getRows(audiencesSection);
-
-  const mappedAudiences = audienceRows
-    .map((row) => ({
-      label: getCellValue(row, 0),
-      copy: getCellValue(row, 1),
-    }))
-    .filter((entry) => entry.label && entry.copy);
-
-  return {
-    ...defaults,
-    heroHeading: typeof hero?.heading === 'string' ? hero.heading : defaults.heroHeading,
-    heroSubtext:
-      typeof hero?.subheading === 'string' ? hero.subheading : defaults.heroSubtext,
-    problemHeading:
-      typeof problem?.heading === 'string' ? problem.heading : defaults.problemHeading,
-    problemBody1: problemParagraphs[0] || defaults.problemBody1,
-    problemBody2: problemParagraphs[1] || defaults.problemBody2,
-    testingCardTitle: getCellValue(whatRows[0], 1) || defaults.testingCardTitle,
-    testingCardBody: getCellValue(whatRows[0], 2) || defaults.testingCardBody,
-    launchCardTitle: getCellValue(whatRows[1], 1) || defaults.launchCardTitle,
-    launchCardBody: getCellValue(whatRows[1], 2) || defaults.launchCardBody,
-    audiences: mappedAudiences.length ? mappedAudiences : defaults.audiences,
-    guideCTAHeading:
-      typeof guide?.heading === 'string' ? guide.heading : defaults.guideCTAHeading,
-    guideCTABody:
-      typeof guide?.body === 'string' ? guide.body : defaults.guideCTABody,
-  };
-}
-
 export default async function HomePage() {
-  const sitePage = await getSitePageBySlug('home');
+  const [sitePage, siteSettings] = await Promise.all([getSitePageBySlug('home'), getSiteSettings()]);
 
   if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {
     notFound();
   }
 
-  const d = getHomePageData(sitePage.sections);
+  const d = resolveHomePageData(sitePage.sections);
 
   return (
     <>
@@ -196,35 +53,6 @@ export default async function HomePage() {
       {sitePage.customHeadScripts && (
         <div dangerouslySetInnerHTML={{ __html: sitePage.customHeadScripts }} style={{ display: 'none' }} />
       )}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'Organization',
-            name: 'Plenor Systems',
-            url: 'https://plenor.ai',
-            sameAs: ['https://www.linkedin.com/company/plenor-ai'],
-            contactPoint: {
-              '@type': 'ContactPoint',
-              email: 'hello@plenor.ai',
-              contactType: 'customer service',
-            },
-          }),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'WebSite',
-            name: 'Plenor Systems',
-            url: 'https://plenor.ai',
-          }),
-        }}
-      />
-
       <section
         aria-labelledby="hero-heading"
         style={{
@@ -257,7 +85,7 @@ export default async function HomePage() {
               letterSpacing: '0.14em',
             }}
           >
-            Product Development Framework
+            {d.heroEyebrow}
           </p>
 
           <h1
@@ -291,8 +119,8 @@ export default async function HomePage() {
           </p>
 
           <div className="animate-fade-up-delay-2">
-            <Link href="/contact#guide" className="btn-ghost">
-              Get the Free Guide
+            <Link href={d.heroCtaHref} className="btn-ghost">
+              {d.heroCtaLabel}
             </Link>
           </div>
         </div>
@@ -304,7 +132,7 @@ export default async function HomePage() {
       >
         <div style={{ ...inner, maxWidth: '760px' }}>
           <p className="section-label" style={{ marginBottom: '24px' }}>
-            The Problem
+            {d.problemLabel}
           </p>
           <h2
             id="problem-heading"
@@ -348,7 +176,7 @@ export default async function HomePage() {
         <div style={inner}>
           <div style={{ marginBottom: '56px' }}>
             <p className="section-label" style={{ marginBottom: '12px' }}>
-              What We Do
+              {d.whatWeDoLabel}
             </p>
             <h2
               id="what-we-do-heading"
@@ -361,7 +189,7 @@ export default async function HomePage() {
                 letterSpacing: '-0.02em',
               }}
             >
-              Two stages. Both critical.
+              {d.whatWeDoHeading}
             </h2>
           </div>
 
@@ -399,7 +227,7 @@ export default async function HomePage() {
                 className="section-label"
                 style={{ marginBottom: '16px' }}
               >
-                Stage 1
+                {d.testingStageLabel}
               </p>
               <h3
                 style={{
@@ -418,7 +246,7 @@ export default async function HomePage() {
                 {d.testingCardBody}
               </p>
               <Link
-                href="/services"
+                href={d.whatWeDoLinkHref}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -431,7 +259,7 @@ export default async function HomePage() {
                 }}
                 className="card-link"
               >
-                How it works
+                {d.whatWeDoLinkLabel}
                 <span aria-hidden="true">→</span>
               </Link>
             </article>
@@ -463,7 +291,7 @@ export default async function HomePage() {
                 className="section-label"
                 style={{ marginBottom: '16px' }}
               >
-                Stage 2
+                {d.launchStageLabel}
               </p>
               <h3
                 style={{
@@ -482,7 +310,7 @@ export default async function HomePage() {
                 {d.launchCardBody}
               </p>
               <Link
-                href="/services"
+                href={d.whatWeDoLinkHref}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -495,7 +323,7 @@ export default async function HomePage() {
                 }}
                 className="card-link"
               >
-                How it works
+                {d.whatWeDoLinkLabel}
                 <span aria-hidden="true">→</span>
               </Link>
             </article>
@@ -515,7 +343,7 @@ export default async function HomePage() {
         <div style={inner}>
           <div style={{ marginBottom: '56px' }}>
             <p className="section-label" style={{ marginBottom: '12px' }}>
-              Who It&apos;s For
+              {d.whoLabel}
             </p>
             <h2
               id="who-heading"
@@ -528,7 +356,7 @@ export default async function HomePage() {
                 letterSpacing: '-0.02em',
               }}
             >
-              Built for teams at every stage.
+              {d.whoHeading}
             </h2>
           </div>
 
@@ -605,7 +433,7 @@ export default async function HomePage() {
 
         <div style={{ ...inner, maxWidth: '640px', position: 'relative', zIndex: 1 }}>
           <p className="section-label" style={{ color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>
-            Free Resource
+            {d.guideLabel}
           </p>
           <h2
             id="guide-cta-heading"
@@ -623,11 +451,9 @@ export default async function HomePage() {
           </h2>
           <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.65, marginBottom: '48px' }}>
             <strong style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>
-              The 7 Most Common Product Development Mistakes — and How to Avoid Them.
+              {d.guideHighlightText}
             </strong>{' '}
-            The guide covers the specific errors teams make in Testing & QA and Launch &
-            Go-to-Market, and what to do instead. Enter your name and email and the PDF is sent to
-            your inbox automatically.
+            {d.guideCTABody}
           </p>
 
           <div
@@ -637,7 +463,7 @@ export default async function HomePage() {
               padding: '40px',
             }}
           >
-            <GuideForm />
+            <GuideForm {...siteSettings?.guideForm} />
           </div>
         </div>
       </section>

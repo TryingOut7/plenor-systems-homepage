@@ -5,6 +5,7 @@ import RichText from '@/components/cms/RichText';
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
 import { getServiceItemBySlug, getSiteSettings } from '@/payload/cms';
 import { buildBreadcrumbJsonLd } from '@/lib/breadcrumbs';
+import { resolveSiteUrl } from '@/lib/site-config';
 
 export const revalidate = 60;
 
@@ -25,11 +26,12 @@ export async function generateMetadata({
 
   if (!item) return {};
 
+  const siteUrl = resolveSiteUrl(settings);
   const seo = item.seo || {};
   const defaultSeo = settings?.defaultSeo || {};
   const title = seo.metaTitle || item.title || defaultSeo.metaTitle || 'Service';
   const description = seo.metaDescription || item.summary || defaultSeo.metaDescription || '';
-  const canonical = seo.canonicalUrl || `https://plenor.ai/services/${resolvedParams.slug}`;
+  const canonical = seo.canonicalUrl || `${siteUrl}/services/${resolvedParams.slug}`;
   const ogImage = seo.ogImage?.url || item.heroImage?.url || defaultSeo.ogImage?.url;
 
   return {
@@ -58,7 +60,7 @@ export default async function ServiceItemPage({
   ]);
   if (!item) notFound();
 
-  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  const siteUrl = resolveSiteUrl(settings);
   const breadcrumbs = buildBreadcrumbJsonLd([
     { name: 'Home', url: siteUrl },
     { name: 'Services', url: `${siteUrl}/services` },

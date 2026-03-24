@@ -12,6 +12,12 @@ import CookieBanner from '@/components/CookieBanner';
 import DraftModeBanner from '@/components/DraftModeBanner';
 import SkipLink from '@/components/SkipLink';
 import { getSiteSettings, getUISettings, type UISettings } from '@/payload/cms';
+import {
+  resolveContactEmail,
+  resolveSiteName,
+  resolveSiteUrl,
+  resolveTwitterHandle,
+} from '@/lib/site-config';
 
 const playfair = localFont({
   src: '../../fonts/PlayfairDisplay-VariableFont_wght.ttf',
@@ -29,12 +35,13 @@ const dmSans = localFont({
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
-  const siteName = settings?.siteName || 'Plenor Systems';
-  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  const siteName = resolveSiteName(settings);
+  const siteUrl = resolveSiteUrl(settings);
+  const twitterHandle = resolveTwitterHandle(settings);
   const description =
     settings?.defaultMetaDescription ||
     settings?.defaultSeo?.metaDescription ||
-    'Plenor Systems provides a structured product development framework for Testing & QA and Launch & Go-to-Market — the two stages most likely to cause rework or failed launches.';
+    `${siteName} provides a structured product development framework for Testing & QA and Launch & Go-to-Market — the two stages most likely to cause rework or failed launches.`;
   const defaultTitle =
     settings?.defaultSeo?.metaTitle ||
     `${siteName} — Testing & QA and Launch & Go-to-Market Framework`;
@@ -53,7 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      site: settings?.twitterHandle || '@plenor_ai',
+      ...(twitterHandle ? { site: twitterHandle } : {}),
     },
     robots: {
       index: true,
@@ -158,9 +165,9 @@ export default async function RootLayout({
   const { isEnabled: isDraftMode } = await draftMode();
   const [siteSettings, uiSettings] = await Promise.all([getSiteSettings(), getUISettings()]);
 
-  const siteName = siteSettings?.siteName || 'Plenor Systems';
-  const siteUrl = siteSettings?.siteUrl || 'https://plenor.ai';
-  const contactEmail = siteSettings?.contactEmail || 'hello@plenor.ai';
+  const siteName = resolveSiteName(siteSettings);
+  const siteUrl = resolveSiteUrl(siteSettings);
+  const contactEmail = resolveContactEmail(siteSettings);
   const analyticsId = siteSettings?.analyticsId;
 
   const jsonLd = siteSettings?.jsonLd;

@@ -7,7 +7,6 @@ export const LegacyQuoteSection: Block = {
   labels: { singular: 'Legacy Quote', plural: 'Legacy Quotes' },
   fields: [
     ...sectionCommonFields,
-    { name: 'sectionLabel', type: 'text' },
     { name: 'quote', type: 'textarea', required: true },
   ],
 };

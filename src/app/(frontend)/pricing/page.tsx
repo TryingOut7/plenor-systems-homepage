@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
+import { resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
 
 export const revalidate = 60;
 
@@ -59,8 +60,8 @@ const defaults: Required<PricingPageData> = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
-  const siteName = settings?.siteName || 'Plenor Systems';
-  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  const siteName = resolveSiteName(settings);
+  const siteUrl = resolveSiteUrl(settings);
   return {
     title: 'Pricing — Let\'s find the right fit for your team',
     description: `${siteName} pricing is tailored to your team size and scope. Get in touch to discuss your product and receive a proposal.`,

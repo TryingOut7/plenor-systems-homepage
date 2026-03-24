@@ -23,12 +23,12 @@ export const InquiryFormSection: Block = {
         'We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.',
     },
     { name: 'directEmailLabel', type: 'text', defaultValue: 'Prefer email directly?' },
-    { name: 'emailAddress', type: 'email', defaultValue: 'hello@plenor.ai' },
+    { name: 'emailAddress', type: 'email', defaultValue: 'contact@example.com' },
     { name: 'linkedinLabel', type: 'text', defaultValue: 'Connect on LinkedIn' },
     {
       name: 'linkedinHref',
       type: 'text',
-      defaultValue: 'https://www.linkedin.com/company/plenor-ai',
+      defaultValue: '',
     },
   ],
 };

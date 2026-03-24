@@ -5,6 +5,7 @@ export const revalidate = 60;
 import UniversalSections from '@/components/cms/UniversalSections';
 import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 import { buildBreadcrumbJsonLd } from '@/lib/breadcrumbs';
+import { resolveSiteUrl } from '@/lib/site-config';
 
 type RouteParams = {
   slug?: string[];
@@ -17,8 +18,8 @@ function buildSlug(params: RouteParams): string {
   return params.slug?.join('/') || '';
 }
 
-function canonicalForSlug(slug: string): string {
-  return `https://plenor.ai/${slug.replace(/^\/+/, '')}`;
+function canonicalForSlug(baseUrl: string, slug: string): string {
+  return `${baseUrl}/${slug.replace(/^\/+/, '')}`;
 }
 
 export async function generateMetadata({
@@ -41,7 +42,7 @@ export async function generateMetadata({
   const defaultSeo = settings?.defaultSeo || {};
   const title = seo.metaTitle || page.title || defaultSeo.metaTitle || settings?.siteName || 'Page';
   const description = seo.metaDescription || defaultSeo.metaDescription || settings?.brandTagline || '';
-  const canonical = seo.canonicalUrl || canonicalForSlug(slug);
+  const canonical = seo.canonicalUrl || canonicalForSlug(resolveSiteUrl(settings), slug);
   const ogImage = seo.ogImage?.url || defaultSeo.ogImage?.url;
 
   return {
@@ -80,7 +81,7 @@ export default async function CmsDynamicPage({
     notFound();
   }
 
-  const siteUrl = siteSettings?.siteUrl || 'https://plenor.ai';
+  const siteUrl = resolveSiteUrl(siteSettings);
   const segments = slug.split('/');
   const breadcrumbItems = [{ name: 'Home', url: siteUrl }];
   let path = '';

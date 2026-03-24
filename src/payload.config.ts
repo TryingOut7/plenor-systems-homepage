@@ -248,12 +248,12 @@ const adminRoutes = {
 };
 
 const adminMeta = {
-  titleSuffix: process.env.PAYLOAD_ADMIN_META_TITLE_SUFFIX || ' | Plenor CMS',
+  titleSuffix: process.env.PAYLOAD_ADMIN_META_TITLE_SUFFIX || ' | CMS',
   ...(adminMetaOGImageType ? { defaultOGImageType: adminMetaOGImageType } : {}),
 };
 
 const adminCustom = {
-  projectName: process.env.PAYLOAD_ADMIN_PROJECT_NAME || 'Plenor Systems',
+  projectName: process.env.PAYLOAD_ADMIN_PROJECT_NAME || 'Website',
   environmentLabel:
     process.env.PAYLOAD_ADMIN_ENV_LABEL || process.env.VERCEL_ENV || process.env.NODE_ENV || 'development',
 };
@@ -423,7 +423,7 @@ export default buildConfig({
         email: resendAdapter({
           apiKey: process.env.RESEND_API_KEY,
           defaultFromAddress: process.env.RESEND_FROM_EMAIL || 'noreply@example.com',
-          defaultFromName: process.env.RESEND_FROM_NAME || 'Plenor Systems',
+          defaultFromName: process.env.RESEND_FROM_NAME || 'Website',
         }),
       }
     : {}),
@@ -442,7 +442,7 @@ export default buildConfig({
       globals: ['site-settings'],
       uploadsCollection: 'media',
       generateTitle: ({ doc }) =>
-        `${(doc as Record<string, unknown>)?.title || 'Untitled'} | Plenor Systems`,
+        `${(doc as Record<string, unknown>)?.title || 'Untitled'} | ${process.env.PAYLOAD_ADMIN_PROJECT_NAME || 'Website'}`,
       generateDescription: ({ doc }) =>
         (doc as Record<string, unknown>)?.summary as string ||
         '',

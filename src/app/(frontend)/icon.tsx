@@ -5,6 +5,9 @@ export const size = { width: 32, height: 32 };
 export const contentType = 'image/png';
 
 export default function Icon() {
+  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Website';
+  const mark = siteName.trim().charAt(0).toUpperCase() || 'W';
+
   return new ImageResponse(
     (
       <div
@@ -27,7 +30,7 @@ export default function Icon() {
             fontFamily: 'system-ui, sans-serif',
           }}
         >
-          P
+          {mark}
         </div>
       </div>
     ),

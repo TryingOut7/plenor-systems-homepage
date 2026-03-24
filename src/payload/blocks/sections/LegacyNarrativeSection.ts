@@ -7,7 +7,6 @@ export const LegacyNarrativeSection: Block = {
   labels: { singular: 'Legacy Narrative', plural: 'Legacy Narratives' },
   fields: [
     ...sectionCommonFields,
-    { name: 'sectionLabel', type: 'text' },
     { name: 'heading', type: 'text' },
     {
       name: 'paragraphs',

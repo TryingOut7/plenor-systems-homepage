@@ -6,11 +6,18 @@ export function renderOGImage({
   title,
   subtitle,
   label,
+  brandName,
 }: {
   title: string;
   subtitle?: string;
   label?: string;
+  brandName?: string;
 }) {
+  const resolvedBrandName =
+    typeof brandName === 'string' && brandName.trim()
+      ? brandName.trim()
+      : (process.env.NEXT_PUBLIC_SITE_NAME || 'Website');
+
   return new ImageResponse(
     (
       <div
@@ -35,7 +42,7 @@ export function renderOGImage({
             marginBottom: 48,
           }}
         >
-          Plenor Systems
+          {resolvedBrandName}
         </div>
 
         {/* Label */}

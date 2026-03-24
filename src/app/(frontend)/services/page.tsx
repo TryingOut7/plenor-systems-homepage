@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
+import { resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
 
 export const revalidate = 60;
 
@@ -25,7 +26,7 @@ interface ServicesPageData {
 const defaults: Required<ServicesPageData> = {
   heroHeading: 'Two framework stages. The two that decide whether a product succeeds.',
   heroSubtext:
-    'Testing & QA and Launch & Go-to-Market are where most product failures originate — not in design or development. Plenor Systems is built specifically for these stages.',
+    'Testing & QA and Launch & Go-to-Market are where most product failures originate — not in design or development. This framework is built specifically for these stages.',
   testingBody:
     'Shipping without a structured quality process means issues surface after release — when they’re most expensive to fix. The Testing & QA module establishes clear quality criteria, verification steps, and release gates before code reaches users.',
   testingItems: [
@@ -59,8 +60,8 @@ const defaults: Required<ServicesPageData> = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
-  const siteName = settings?.siteName || 'Plenor Systems';
-  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  const siteName = resolveSiteName(settings);
+  const siteUrl = resolveSiteUrl(settings);
   return {
     title: 'Services — Testing & QA and Launch & Go-to-Market',
     description: `${siteName} covers two framework stages: Testing & QA and Launch & Go-to-Market. Learn what each stage covers, who it helps, and why a structured framework matters.`,
@@ -232,8 +233,8 @@ export default async function ServicesPage() {
   }
 
   const d = getServicesPageData(sitePage.sections);
-  const siteName = siteSettings?.siteName || 'Plenor Systems';
-  const siteUrl = siteSettings?.siteUrl || 'https://plenor.ai';
+  const siteName = resolveSiteName(siteSettings);
+  const siteUrl = resolveSiteUrl(siteSettings);
 
   return (
     <>
@@ -539,7 +540,7 @@ export default async function ServicesPage() {
             style={{ color: '#6B7280', fontSize: '14px', textDecoration: 'none', fontWeight: 500 }}
             className="breadcrumb-link"
           >
-            About Plenor Systems →
+            {`About ${siteName} →`}
           </Link>
           <Link
             href="/pricing"

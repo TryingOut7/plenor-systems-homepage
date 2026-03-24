@@ -243,6 +243,48 @@ CI workflow (`.github/workflows/ci.yml`) runs:
   3. Update/add integration and e2e tests
   4. Run `npm run openapi:check && npm run test:ci`
 
+## Frontend Content Externalization Phases
+
+This section tracks the phased removal of hardcoded frontend content so future sites can reuse backend/CMS contracts and swap UI with minimal code edits.
+
+### Phase A (Completed)
+
+- Standardized brand/site fallbacks via `src/lib/site-config.ts`.
+- Removed direct `Plenor` hardcoding from metadata, OG/icon generation, footer/nav defaults, and payload defaults.
+- Replaced large hardcoded `DEFAULT_SITE_PAGES` fallback payload in `src/payload/cms.ts` with preset-based generation (`buildCorePresetSections`).
+
+### Phase B (Completed)
+
+- Made form legal links fully CMS-configurable:
+  - `site-settings.guideForm.privacyLabel`
+  - `site-settings.guideForm.privacyHref`
+  - `site-settings.inquiryForm.privacyLabel`
+  - `site-settings.inquiryForm.privacyHref`
+- Wired `GuideForm` and `InquiryForm` to consume those CMS fields instead of hardcoded `Privacy Policy` + `/privacy`.
+- Updated hardcoded home/contact form mounts to pass `site-settings.guideForm` and `site-settings.inquiryForm`.
+- Reduced home/contact hardcoded hero/form copy by reading existing section fields:
+  - hero eyebrow + primary CTA label/href
+  - guide section label/heading/highlight/body
+  - inquiry section label
+  - table-based stage labels for home cards
+- Contact page bottom legal notice now uses `site-settings.inquiryForm` consent/privacy fields.
+
+### Phase C (Completed)
+
+- Added shared page-content resolvers so route-level fallback/override logic is centralized and testable:
+  - `src/lib/page-content/home.ts`
+  - `src/lib/page-content/contact.ts`
+  - `src/lib/page-content/not-found.ts`
+- Updated custom home rendering to use CMS-driven section content for previously hardcoded structural copy:
+  - problem label via `richTextSection.sectionLabel`
+  - "What We Do" heading/link via `ctaSection` (`heading`, `buttonLabel`, `buttonHref`)
+  - audience label via `simpleTableSection.sectionLabel`
+- Added `sectionLabel` to `sectionCommonFields` so custom page layouts can expose/edit eyebrow-style labels across block types.
+- Updated preset-merge behavior (`src/payload/hooks/sitePagePreset.ts`) to preserve `sectionLabel` when core presets are regenerated.
+- Added not-found CMS metadata fields (`notFoundPage.metaTitle`, `notFoundPage.metaDescription`) and wired `generateMetadata` on `/not-found` to use them.
+- Added regression tests for CMS fallback/override behavior:
+  - `tests/unit/cms/pageContentResolvers.test.ts`
+
 ## Backend Feature Implementation Playbook (Mandatory)
 
 This section is normative and mandatory for all backend feature work.

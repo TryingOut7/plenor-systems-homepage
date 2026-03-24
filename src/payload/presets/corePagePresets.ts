@@ -153,7 +153,7 @@ function richTextFromParagraphs(paragraphs: string[]): Record<string, unknown> {
 function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
   const heroHeading = asString(
     content.heroHeading,
-    'Plenor Systems brings structure to the two most failure-prone stages of product development.',
+    'This framework brings structure to the two most failure-prone stages of product development.',
   );
   const heroSubtext = asString(content.heroSubtext, 'Testing & QA and Launch & Go-to-Market, done right.');
   const problemHeading = asString(content.problemHeading, 'Most product failures happen at the end, not the beginning.');
@@ -163,7 +163,7 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
   );
   const problemBody2 = asString(
     content.problemBody2,
-    "These aren't execution failures — they're structural ones. The final stages of product development are consistently underprepared. Plenor Systems is built specifically to fix that.",
+    "These aren't execution failures — they're structural ones. The final stages of product development are consistently underprepared. This framework is built specifically to fix that.",
   );
   const testingCardTitle = asString(content.testingCardTitle, 'Testing & QA that catches what matters before release.');
   const testingCardBody = asString(
@@ -199,6 +199,7 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
     {
       blockType: 'richTextSection',
       theme: 'white',
+      sectionLabel: 'The Problem',
       heading: problemHeading,
       content: richTextFromParagraphs([problemBody1, problemBody2]),
     },
@@ -206,7 +207,7 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
       blockType: 'ctaSection',
       theme: 'light',
       heading: 'Two stages. Both critical.',
-      body: 'Plenor Systems focuses on Testing & QA and Launch & Go-to-Market, where product outcomes are won or lost.',
+      body: 'This framework focuses on Testing & QA and Launch & Go-to-Market, where product outcomes are won or lost.',
       buttonLabel: 'How it works',
       buttonHref: '/services',
     },
@@ -235,6 +236,7 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
     {
       blockType: 'simpleTableSection',
       theme: 'white',
+      sectionLabel: "Who It's For",
       heading: 'Built for teams at every stage',
       columns: [{ label: 'Team' }, { label: 'How it helps' }],
       rows: audiences.map((audience) => ({
@@ -257,7 +259,7 @@ function buildServicesSections(content: PresetContent): Record<string, unknown>[
   const heroHeading = asString(content.heroHeading, 'Two framework stages. The two that decide whether a product succeeds.');
   const heroSubtext = asString(
     content.heroSubtext,
-    'Testing & QA and Launch & Go-to-Market are where most product failures originate — not in design or development. Plenor Systems is built specifically for these stages.',
+    'Testing & QA and Launch & Go-to-Market are where most product failures originate — not in design or development. This framework is built specifically for these stages.',
   );
   const testingBody = asString(
     content.testingBody,
@@ -347,11 +349,11 @@ function buildServicesSections(content: PresetContent): Record<string, unknown>[
 function buildAboutSections(content: PresetContent): Record<string, unknown>[] {
   const heroParagraph1 = asString(
     content.heroParagraph1,
-    'Plenor Systems is a product development framework built around a specific observation: the stages most likely to cause a launch to fail are Testing & QA and Go-to-Market — and they’re consistently the least structured.',
+    'This product development framework is built around a specific observation: the stages most likely to cause a launch to fail are Testing & QA and Go-to-Market — and they’re consistently the least structured.',
   );
   const heroParagraph2 = asString(
     content.heroParagraph2,
-    'Most frameworks cover the full development lifecycle. Plenor Systems covers only the final two stages — not because the others don’t matter, but because these two are where structure is most absent and most needed.',
+    'Most frameworks cover the full development lifecycle. This framework covers only the final two stages — not because the others don’t matter, but because these two are where structure is most absent and most needed.',
   );
   const heroParagraph3 = asString(
     content.heroParagraph3,
@@ -359,7 +361,7 @@ function buildAboutSections(content: PresetContent): Record<string, unknown>[] {
   );
   const focusParagraph1 = asString(
     content.focusParagraph1,
-    'Plenor Systems covers two stages: Testing & QA and Launch & Go-to-Market. That scope is intentional.',
+    'This framework covers two stages: Testing & QA and Launch & Go-to-Market. That scope is intentional.',
   );
   const focusParagraph2 = asString(
     content.focusParagraph2,
@@ -508,9 +510,9 @@ function buildContactSections(content: PresetContent): Record<string, unknown>[]
     'We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.',
   );
   const directEmailLabel = asString(content.directEmailLabel, 'Prefer email directly?');
-  const emailAddress = asString(content.emailAddress, 'hello@plenor.ai');
+  const emailAddress = asString(content.emailAddress, 'contact@example.com');
   const linkedinLabel = asString(content.linkedinLabel, 'LinkedIn →');
-  const linkedinHref = asString(content.linkedinHref, 'https://www.linkedin.com/company/plenor-ai');
+  const linkedinHref = asString(content.linkedinHref, '');
 
   return [
     {
@@ -563,4 +565,3 @@ export function buildCorePresetSections(
   if (preset === 'contact') return buildContactSections(presetContent);
   return [];
 }
-

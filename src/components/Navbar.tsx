@@ -52,7 +52,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({
-  siteName = 'Plenor Systems',
+  siteName = 'Website',
   primaryCtaLabel,
   primaryCtaHref,
   navigationLinks,

@@ -3,47 +3,16 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import GuideForm from '@/components/GuideForm';
 import InquiryForm from '@/components/InquiryForm';
-import { getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
+import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import { resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
+import { resolveContactPageData } from '@/lib/page-content/contact';
 
 export const revalidate = 60;
 
-interface ContactPageData {
-  heroHeading?: string;
-  heroSubtext?: string;
-  guideHighlightText?: string;
-  guideBody?: string;
-  inquiryHeading?: string;
-  inquirySubtext?: string;
-  nextStepsLabel?: string;
-  nextStepsBody?: string;
-  directEmailLabel?: string;
-  emailAddress?: string;
-  linkedinLabel?: string;
-  linkedinHref?: string;
-}
-
-const defaults: Required<ContactPageData> = {
-  heroHeading: 'Let’s talk.',
-  heroSubtext: 'Tell us about your product and team and we’ll get back to you within 2 business days.',
-  guideHighlightText: 'The 7 Most Common Product Development Mistakes — and How to Avoid Them.',
-  guideBody:
-    'The guide covers the specific errors teams make in Testing & QA and Launch & Go-to-Market, and what to do instead. Enter your name and email and the PDF is sent to your inbox automatically.',
-  inquiryHeading: 'Send a direct inquiry',
-  inquirySubtext:
-    'Tell us about your product, your team, and the challenge you’re working through. We’ll respond within 2 business days.',
-  nextStepsLabel: 'What happens next',
-  nextStepsBody:
-    'We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.',
-  directEmailLabel: 'Prefer email directly?',
-  emailAddress: 'hello@plenor.ai',
-  linkedinLabel: 'LinkedIn →',
-  linkedinHref: 'https://www.linkedin.com/company/plenor-ai',
-};
-
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
-  const siteName = settings?.siteName || 'Plenor Systems';
-  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  const siteName = resolveSiteName(settings);
+  const siteUrl = resolveSiteUrl(settings);
   return {
     title: 'Contact — Send an Inquiry',
     description: `Send a direct inquiry to ${siteName}. Tell us about your product and team.`,
@@ -58,72 +27,14 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
-function findSection(
-  sections: PageSection[],
-  blockType: string,
-  heading?: string,
-): PageSection | undefined {
-  return sections.find((section) => {
-    if (section.blockType !== blockType) return false;
-    if (!heading) return true;
-    return String(section.heading || '').trim() === heading;
-  });
-}
-
-function getContactPageData(sections: PageSection[]): Required<ContactPageData> {
-  const hero = findSection(sections, 'heroSection');
-  const guide = findSection(sections, 'guideFormSection');
-  const inquiry = findSection(sections, 'inquiryFormSection');
-
-  return {
-    ...defaults,
-    heroHeading: typeof hero?.heading === 'string' ? hero.heading : defaults.heroHeading,
-    heroSubtext:
-      typeof hero?.subheading === 'string' ? hero.subheading : defaults.heroSubtext,
-    guideHighlightText:
-      typeof guide?.highlightText === 'string'
-        ? guide.highlightText
-        : defaults.guideHighlightText,
-    guideBody: typeof guide?.body === 'string' ? guide.body : defaults.guideBody,
-    inquiryHeading:
-      typeof inquiry?.heading === 'string' ? inquiry.heading : defaults.inquiryHeading,
-    inquirySubtext:
-      typeof inquiry?.subtext === 'string' ? inquiry.subtext : defaults.inquirySubtext,
-    nextStepsLabel:
-      typeof inquiry?.nextStepsLabel === 'string'
-        ? inquiry.nextStepsLabel
-        : defaults.nextStepsLabel,
-    nextStepsBody:
-      typeof inquiry?.nextStepsBody === 'string'
-        ? inquiry.nextStepsBody
-        : defaults.nextStepsBody,
-    directEmailLabel:
-      typeof inquiry?.directEmailLabel === 'string'
-        ? inquiry.directEmailLabel
-        : defaults.directEmailLabel,
-    emailAddress:
-      typeof inquiry?.emailAddress === 'string'
-        ? inquiry.emailAddress
-        : defaults.emailAddress,
-    linkedinLabel:
-      typeof inquiry?.linkedinLabel === 'string'
-        ? inquiry.linkedinLabel
-        : defaults.linkedinLabel,
-    linkedinHref:
-      typeof inquiry?.linkedinHref === 'string'
-        ? inquiry.linkedinHref
-        : defaults.linkedinHref,
-  };
-}
-
 export default async function ContactPage() {
-  const sitePage = await getSitePageBySlug('contact');
+  const [sitePage, siteSettings] = await Promise.all([getSitePageBySlug('contact'), getSiteSettings()]);
 
   if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {
     notFound();
   }
 
-  const d = getContactPageData(sitePage.sections);
+  const d = resolveContactPageData(sitePage.sections);
 
   return (
     <>
@@ -161,7 +72,7 @@ export default async function ContactPage() {
         />
         <div style={{ maxWidth: '680px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <p className="section-label animate-fade-in" style={{ color: 'rgba(255,255,255,0.45)', marginBottom: '24px' }}>
-            Contact
+            {d.heroLabel}
           </p>
           <h1
             id="contact-hero-heading"
@@ -199,7 +110,7 @@ export default async function ContactPage() {
             }}
           >
             <div>
-              <p className="section-label" style={{ marginBottom: '16px' }}>Free resource</p>
+              <p className="section-label" style={{ marginBottom: '16px' }}>{d.guideLabel}</p>
               <h2
                 id="guide-form-heading"
                 style={{
@@ -212,7 +123,7 @@ export default async function ContactPage() {
                   marginBottom: '20px',
                 }}
               >
-                Get the free guide
+                {d.guideHeading}
               </h2>
               <div style={{ width: '32px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '24px', borderRadius: '2px' }} aria-hidden="true" />
               <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.7, marginBottom: '16px' }}>
@@ -234,7 +145,7 @@ export default async function ContactPage() {
                 padding: '36px',
               }}
             >
-              <GuideForm />
+              <GuideForm {...siteSettings?.guideForm} />
             </div>
           </div>
         </div>
@@ -254,7 +165,7 @@ export default async function ContactPage() {
             }}
           >
             <div>
-              <p className="section-label" style={{ marginBottom: '16px' }}>Send an inquiry</p>
+              <p className="section-label" style={{ marginBottom: '16px' }}>{d.inquiryLabel}</p>
               <h2
                 id="inquiry-form-heading"
                 style={{
@@ -298,28 +209,36 @@ export default async function ContactPage() {
                 </p>
               </div>
 
-              <div>
-                <p style={{ fontWeight: 600, fontSize: '14px', color: '#1A1A1A', marginBottom: '8px' }}>
-                  {d.directEmailLabel}
-                </p>
-                <a
-                  href={`mailto:${d.emailAddress}`}
-                  style={{ color: '#1B2D4F', fontWeight: 600, fontSize: '14px', textDecoration: 'none' }}
-                  className="text-link"
-                >
-                  {d.emailAddress}
-                </a>
-                <span style={{ color: '#E5E7EB', margin: '0 10px' }}>·</span>
-                <a
-                  href={d.linkedinHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: '#6B7280', fontSize: '14px', textDecoration: 'none' }}
-                  className="text-link"
-                >
-                  {d.linkedinLabel}
-                </a>
-              </div>
+              {(d.emailAddress || d.linkedinHref) ? (
+                <div>
+                  <p style={{ fontWeight: 600, fontSize: '14px', color: '#1A1A1A', marginBottom: '8px' }}>
+                    {d.directEmailLabel}
+                  </p>
+                  {d.emailAddress ? (
+                    <a
+                      href={`mailto:${d.emailAddress}`}
+                      style={{ color: '#1B2D4F', fontWeight: 600, fontSize: '14px', textDecoration: 'none' }}
+                      className="text-link"
+                    >
+                      {d.emailAddress}
+                    </a>
+                  ) : null}
+                  {(d.emailAddress && d.linkedinHref) ? (
+                    <span style={{ color: '#E5E7EB', margin: '0 10px' }}>·</span>
+                  ) : null}
+                  {d.linkedinHref ? (
+                    <a
+                      href={d.linkedinHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: '#6B7280', fontSize: '14px', textDecoration: 'none' }}
+                      className="text-link"
+                    >
+                      {d.linkedinLabel}
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
 
             <div
@@ -331,7 +250,7 @@ export default async function ContactPage() {
                 padding: '36px',
               }}
             >
-              <InquiryForm />
+              <InquiryForm {...siteSettings?.inquiryForm} />
             </div>
           </div>
         </div>
@@ -346,9 +265,12 @@ export default async function ContactPage() {
         }}
       >
         <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>
-          By submitting this form, you agree to our{' '}
-          <Link href="/privacy" style={{ color: '#6B7280', textDecoration: 'underline' }}>
-            Privacy Policy
+          {(siteSettings?.inquiryForm?.consentText || d.privacyNoteLabel)}{' '}
+          <Link
+            href={siteSettings?.inquiryForm?.privacyHref || d.privacyPolicyHref}
+            style={{ color: '#6B7280', textDecoration: 'underline' }}
+          >
+            {siteSettings?.inquiryForm?.privacyLabel || d.privacyPolicyLabel}
           </Link>
           .
         </p>

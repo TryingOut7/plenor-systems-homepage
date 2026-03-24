@@ -7,14 +7,27 @@ function getResend(): Resend {
   return new Resend(key);
 }
 
-const FROM = `${process.env.RESEND_FROM_NAME ?? 'Plenor Systems'} <${process.env.RESEND_FROM_EMAIL ?? 'noreply@plenor.ai'}>`;
-const REPLY_TO = process.env.CONTACT_EMAIL ?? 'hello@plenor.ai';
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? 'hello@plenor.ai';
+const FROM = `${process.env.RESEND_FROM_NAME ?? 'Website'} <${process.env.RESEND_FROM_EMAIL ?? 'noreply@example.com'}>`;
+const REPLY_TO = process.env.CONTACT_EMAIL ?? 'contact@example.com';
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? 'contact@example.com';
 const GUIDE_PDF_URL = process.env.GUIDE_PDF_URL ?? '';
+const SITE_URL = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SERVER_URL ?? '').replace(/\/$/, '');
+const PRIVACY_POLICY_URL = process.env.PRIVACY_POLICY_URL ?? (SITE_URL ? `${SITE_URL}/privacy` : '/privacy');
+const GUIDE_PAGE_URL = process.env.GUIDE_PAGE_URL ?? (SITE_URL ? `${SITE_URL}/contact#guide` : '/contact#guide');
 
 // Brand copy — configurable via env vars so changes don't require code edits.
-const BRAND_NAME = process.env.RESEND_FROM_NAME ?? 'Plenor Systems';
+const BRAND_NAME = process.env.RESEND_FROM_NAME ?? 'Website';
 const GUIDE_TITLE = process.env.GUIDE_TITLE ?? 'The 7 Most Common Product Development Mistakes — and How to Avoid Them';
+const CURRENT_YEAR = new Date().getFullYear();
+
+function siteHostLabel(): string {
+  if (!SITE_URL) return 'this website';
+  try {
+    return new URL(SITE_URL).host;
+  } catch {
+    return SITE_URL;
+  }
+}
 
 // Email-safe color palette. CSS variables cannot be used in email HTML (client
 // support is near-zero), so colors are centralised here instead.
@@ -151,11 +164,11 @@ function guideEmailHtml({
           <tr>
             <td style="padding:24px 40px 32px;border-top:1px solid ${C.border};margin-top:32px;">
               <p style="margin:0;font-size:13px;color:${C.muted};line-height:1.5;">
-                You received this email because you requested the free guide at plenor.ai.
+                You received this email because you requested the free guide at ${escapeHtml(siteHostLabel())}.
                 This is a one-time delivery — you have not been subscribed to any mailing list.
                 <br/>
-                © 2026 ${BRAND_NAME}.
-                <a href="https://plenor.ai/privacy" style="color:${C.muted};">Privacy Policy</a>
+                © ${CURRENT_YEAR} ${BRAND_NAME}.
+                <a href="${PRIVACY_POLICY_URL}" style="color:${C.muted};">Privacy Policy</a>
               </p>
             </td>
           </tr>
@@ -182,7 +195,7 @@ export async function sendInquiryEmails({
 }) {
   const resend = getResend();
 
-  // 1. Notify Plenor Systems inbox
+  // 1. Notify primary inbox
   await resend.emails.send({
     from: FROM,
     to: CONTACT_EMAIL,
@@ -267,7 +280,7 @@ function inquiryAckHtml({ name }: { name: string }) {
                 mistakes the framework is designed to prevent:
               </p>
               <p style="margin:0 0 24px;">
-                <a href="https://plenor.ai/contact#guide"
+                <a href="${GUIDE_PAGE_URL}"
                    style="display:inline-block;background:${C.primary};color:${C.white};font-weight:700;
                           font-size:15px;padding:12px 24px;border-radius:6px;text-decoration:none;">
                   Get the free guide
@@ -278,8 +291,8 @@ function inquiryAckHtml({ name }: { name: string }) {
           <tr>
             <td style="padding:24px 40px 32px;border-top:1px solid ${C.border};">
               <p style="margin:0;font-size:13px;color:${C.muted};line-height:1.5;">
-                © 2026 ${BRAND_NAME}.
-                <a href="https://plenor.ai/privacy" style="color:${C.muted};">Privacy Policy</a>
+                © ${CURRENT_YEAR} ${BRAND_NAME}.
+                <a href="${PRIVACY_POLICY_URL}" style="color:${C.muted};">Privacy Policy</a>
               </p>
             </td>
           </tr>

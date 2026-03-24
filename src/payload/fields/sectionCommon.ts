@@ -124,8 +124,17 @@ export const headingTagField: Field = {
   ],
 };
 
+export const sectionLabelField: Field = {
+  name: 'sectionLabel',
+  type: 'text',
+  admin: {
+    description: 'Optional eyebrow/section label for custom page layouts',
+  },
+};
+
 export const sectionCommonFields: Field[] = [
   themeField,
+  sectionLabelField,
   backgroundColorField,
   sizeField,
   anchorIdField,

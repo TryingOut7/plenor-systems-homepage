@@ -1,4 +1,4 @@
-# CMS Playbook (Plenor Systems)
+# CMS Playbook
 
 This is the operational handbook for the current Payload CMS setup in this repository.
 
@@ -10,7 +10,92 @@ It covers:
 - all available section blocks and how each one behaves
 - global settings, media, redirects, forms, and troubleshooting
 
-Last updated: 2026-03-22
+Last updated: 2026-03-24
+
+---
+
+## 0) Non-Technical Quick Start (Start Here)
+
+This section is for content editors who do not code.
+
+If you only need to update website content, you can ignore most of the technical sections below.
+
+### 0.1 10-Minute Setup
+
+1. Open `http://localhost:3000/admin`.
+2. Log in with your CMS account.
+3. In the left menu, open `Site Pages`.
+4. Click the page you want to edit (`home`, `about`, `services`, `pricing`, `contact`, or a custom page).
+5. Edit text in the page sections.
+6. Click `Save`.
+7. Set `Workflow Status` to `published` if you want changes live.
+8. Make sure `isActive = true` for the page.
+9. Open the page URL in a new tab and confirm your change.
+
+### 0.2 The 5 Most Common Tasks
+
+#### A) Change text on Home, About, Services, Pricing, Contact
+1. Go to `Site Pages`.
+2. Open the page record.
+3. Find the section with the text you want to change.
+4. Update the text fields.
+5. Save and publish.
+
+#### B) Add or edit a custom page
+1. Go to `Site Pages`.
+2. Click `Create New`.
+3. Set `title` and `slug`.
+4. Set `presetKey = custom`.
+5. Add sections under `sections`.
+6. Save, publish, and verify `/<slug>`.
+
+#### C) Update top navigation and footer links
+1. Go to `Globals > Site Settings`.
+2. Edit `navigationLinks` for header menu links.
+3. Edit `footerColumns` for footer links.
+4. Save and refresh the website.
+
+#### D) Change form button text and privacy link
+1. Go to `Globals > Site Settings`.
+2. Open `guideForm` and/or `inquiryForm`.
+3. Update labels like submit text, success text, and privacy link label/href.
+4. Save and test the form on the site.
+
+#### E) Update the 404 page message
+1. Go to `Globals > Site Settings`.
+2. Open `notFoundPage`.
+3. Update:
+   - `metaTitle`
+   - `metaDescription`
+   - `heading`
+   - `body`
+   - `buttonLabel`
+   - `buttonHref`
+4. Save and test by opening a URL that does not exist.
+
+### 0.3 Publish Rules (Very Important)
+
+Changes are not fully live unless:
+- `Workflow Status` is `published`
+- Page `isActive` is `true`
+
+If one of these is missing, the site may still show old content.
+
+### 0.4 Safe Editing Rules
+
+- Edit text freely.
+- Avoid deleting or reordering sections on preset pages unless you know why.
+- If a change looks wrong, revert that field and save again.
+- Verify desktop and mobile after publishing.
+
+### 0.5 When To Ask A Developer
+
+Ask for help if:
+- the layout structure should change a lot (not just text)
+- a block type is missing a field you need
+- a page shows defaults instead of your edited text
+- form submissions fail
+- you need a new API, integration, or automation
 
 ---
 
@@ -180,7 +265,16 @@ Core marketing pages are currently custom-rendered routes:
 - `/pricing`
 - `/contact`
 
-These routes read selected section data by block type and, in multiple places, by exact heading text.
+Special case:
+- not-found UI is custom-rendered in `src/app/(frontend)/not-found.tsx`.
+
+Current extraction model:
+- Home and Contact now use centralized resolver modules:
+  - `src/lib/page-content/home.ts`
+  - `src/lib/page-content/contact.ts`
+- Not-found metadata/content now uses:
+  - `src/lib/page-content/not-found.ts`
+- About, Services, and Pricing still use custom route extraction with some heading-based matching.
 
 ### Custom pages
 All other slugs render through universal builder:
@@ -198,13 +292,13 @@ If `presetKey` is one of:
 Then `applyCorePresetSections` hook regenerates section structure from template on save.
 
 ### Text that is preserved on preset pages
-- `heroSection`: eyebrow, heading, subheading, primary CTA label/href
-- `richTextSection`: heading, content
-- `ctaSection`: heading, body, button label/href
-- `guideFormSection`: label, heading, highlightText, body
-- `inquiryFormSection`: label, heading, subtext, next steps, email/link fields
-- `privacyNoteSection`: label and policy link fields
-- `simpleTableSection`: heading, column labels, row cell values
+- `heroSection`: `sectionLabel`, eyebrow, heading, subheading, primary CTA label/href
+- `richTextSection`: `sectionLabel`, heading, content
+- `ctaSection`: `sectionLabel`, heading, body, button label/href
+- `guideFormSection`: `sectionLabel`, label, heading, highlightText, body
+- `inquiryFormSection`: `sectionLabel`, label, heading, subtext, next steps, email/link fields
+- `privacyNoteSection`: `sectionLabel`, label and policy link fields
+- `simpleTableSection`: `sectionLabel`, heading, column labels, row cell values
 
 ### What generally gets reset by preset regeneration
 - section ordering
@@ -214,9 +308,8 @@ Then `applyCorePresetSections` hook regenerates section structure from template 
 ### Heading-based dependencies to keep stable (core routes)
 
 Home:
-- `Most product failures happen at the end, not the beginning.`
-- `What We Do`
-- `Built for teams at every stage`
+- No strict heading lock is required for the primary extraction path.
+- Resolver is now mostly block-type + field-based, with heading fallback only when needed.
 
 About:
 - `Who we are`
@@ -237,7 +330,11 @@ Pricing:
 - `Ready to talk?`
 - `Not ready to talk yet?`
 
-If you rename these headings, core route extraction logic may fall back to defaults.
+Contact:
+- No strict heading lock is required for primary extraction.
+- Resolver reads block fields directly by block type.
+
+If you rename the listed About/Services/Pricing headings, those routes may fall back to defaults.
 
 ---
 
@@ -269,7 +366,7 @@ If you rename these headings, core route extraction logic may fall back to defau
 2. Keep `presetKey` as current core value.
 3. Edit only text-level fields listed in Section 9.
 4. Avoid changing preset structural assumptions unless you also update route code.
-5. Keep required heading identities stable for current custom route parsing.
+5. Keep required heading identities stable for About/Services/Pricing (see Section 9).
 6. Set workflow to `published` if needed.
 7. Save and verify route output.
 
@@ -279,6 +376,7 @@ If you rename these headings, core route extraction logic may fall back to defau
 
 Common controls from `sectionCommonFields`:
 - `theme`: `navy`, `charcoal`, `black`, `white`, `light`
+- `sectionLabel` (optional eyebrow/section kicker used by custom renderers)
 - `backgroundColor` (custom CSS color)
 - `size`: `compact`, `regular`, `spacious`
 - `anchorId`
@@ -369,12 +467,20 @@ Note:
 - Required: none
 - Key fields: label, heading, highlightText, body
 - Behavior: embeds `GuideForm` client component posting to `/api/guide`
+- Form text and legal link can be overridden globally via `site-settings.guideForm.*`:
+  - `submitLabel`, `submittingLabel`, `successHeading`, `successBody`, `footerText`
+  - `privacyLabel`, `privacyHref`
+  - `namePlaceholder`, `emailPlaceholder`
 
 ### 13.13 `inquiryFormSection`
 - Purpose: direct inquiry lead form area
 - Required: none
 - Key fields: label, heading, subtext, next-step copy, contact fields
 - Behavior: embeds `InquiryForm` posting to `/api/inquiry`
+- Form text and legal link can be overridden globally via `site-settings.inquiryForm.*`:
+  - `submitLabel`, `submittingLabel`, `successHeading`, `successBody`, `consentText`
+  - `privacyLabel`, `privacyHref`
+  - `namePlaceholder`, `emailPlaceholder`, `companyPlaceholder`, `challengePlaceholder`
 
 ### 13.14 `privacyNoteSection`
 - Purpose: short legal consent note
@@ -453,10 +559,10 @@ Main groups:
 - footer links and social links
 - default SEO
 - JSON-LD organization data
-- guide/inquiry form label overrides
+- guide/inquiry form label overrides (including privacy link label/href)
 - cookie banner labels and text
 - privacy policy rich text and last updated
-- not found page content
+- not found page content + not-found metadata (`metaTitle`, `metaDescription`)
 - analytics token
 
 ### `ui-settings` global
@@ -502,6 +608,7 @@ These map to CSS variables in frontend layout and are applied globally.
 - Validation: name + email
 - DB logging: `guide_submissions` (if Supabase env configured)
 - Email delivery triggered after submission
+- Privacy link label/href come from `site-settings.guideForm` (with local fallback)
 
 ### Inquiry form
 - Frontend component: `InquiryForm`
@@ -509,6 +616,7 @@ These map to CSS variables in frontend layout and are applied globally.
 - Validation: name + email + company + challenge
 - DB logging: `inquiry_submissions` (if Supabase env configured)
 - Notification + acknowledgement email flow
+- Consent text + privacy link label/href come from `site-settings.inquiryForm` (with local fallback)
 
 ### Form Builder block
 - `formSection` uses Payload plugin collections:
@@ -546,11 +654,12 @@ Before releasing changes:
 3. Slug is correct and unique.
 4. Images have valid `alt`.
 5. Links are valid (`/path` for internal, `https://` for external).
-6. If preset page, verify heading-dependent extractors still match.
-7. Verify desktop and mobile render.
-8. Verify forms submit successfully.
-9. Verify SEO fields and canonical URL.
-10. Verify redirects if slug moved.
+6. If editing About/Services/Pricing presets, verify heading-dependent extractors still match.
+7. If editing Home/Contact presets, verify resolver-mapped fields render as expected (labels, CTA copy, form/legal text).
+8. Verify desktop and mobile render.
+9. Verify forms submit successfully.
+10. Verify SEO fields and canonical URL.
+11. Verify redirects if slug moved.
 
 ---
 
@@ -566,8 +675,12 @@ Before releasing changes:
 - Preset hook regenerates structure.
 
 ### "Core page content unexpectedly falls back to defaults"
-- Heading-based section matching in custom core routes likely no longer matches.
-- Restore expected heading identifiers or update route code.
+- About/Services/Pricing: heading-based section matching may no longer match.
+- Home/Contact: check required block types and mapped fields in resolver modules.
+- Check resolver files:
+  - `src/lib/page-content/home.ts`
+  - `src/lib/page-content/contact.ts`
+  - `src/lib/page-content/not-found.ts`
 
 ### "Section does not show"
 - Check `isHidden`, `visibleFrom`, `visibleUntil`.
@@ -598,6 +711,9 @@ Key files behind this guide:
 - `src/payload/hooks/workflow.ts`
 - `src/payload/hooks/sitePagePreset.ts`
 - `src/payload/hooks/normalizeSlug.ts`
+- `src/lib/page-content/home.ts`
+- `src/lib/page-content/contact.ts`
+- `src/lib/page-content/not-found.ts`
 - `src/components/cms/UniversalSections.tsx`
 - `src/app/(frontend)/[...slug]/page.tsx`
 - `src/app/(frontend)/page.tsx`
@@ -605,3 +721,4 @@ Key files behind this guide:
 - `src/app/(frontend)/services/page.tsx`
 - `src/app/(frontend)/pricing/page.tsx`
 - `src/app/(frontend)/contact/page.tsx`
+- `src/app/(frontend)/not-found.tsx`

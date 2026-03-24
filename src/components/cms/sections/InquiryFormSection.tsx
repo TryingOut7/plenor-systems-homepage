@@ -17,15 +17,15 @@ export default function InquiryFormSection({
   const emailAddress =
     typeof sectionRecord.emailAddress === 'string' && sectionRecord.emailAddress.trim()
       ? sectionRecord.emailAddress.trim()
-      : 'hello@plenor.ai';
+      : '';
   const linkedinHref =
     typeof sectionRecord.linkedinHref === 'string' && sectionRecord.linkedinHref.trim()
       ? sectionRecord.linkedinHref.trim()
-      : 'https://www.linkedin.com/company/plenor-ai';
+      : '';
   const linkedinLabel =
     typeof sectionRecord.linkedinLabel === 'string' && sectionRecord.linkedinLabel.trim()
       ? sectionRecord.linkedinLabel.trim()
-      : 'Connect on LinkedIn';
+      : 'LinkedIn';
 
   return (
     <section
@@ -100,38 +100,46 @@ export default function InquiryFormSection({
               </p>
             </div>
 
-            <div>
-              <p style={{ fontWeight: 600, fontSize: '14px', color: resolvedHeadingColor, marginBottom: '8px' }}>
-                {String(sectionRecord.directEmailLabel || 'Prefer email directly?')}
-              </p>
-              <a
-                href={`mailto:${emailAddress}`}
-                style={{
-                  color: resolvedHeadingColor,
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  textDecoration: 'none',
-                }}
-                className="text-link"
-              >
-                {emailAddress}
-              </a>
-              <span style={{ color: resolvedMutedColor, margin: '0 10px' }}>|</span>
-              <a
-                href={linkedinHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  color: resolvedHeadingColor,
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  textDecoration: 'none',
-                }}
-                className="text-link"
-              >
-                {linkedinLabel}
-              </a>
-            </div>
+            {(emailAddress || linkedinHref) ? (
+              <div>
+                <p style={{ fontWeight: 600, fontSize: '14px', color: resolvedHeadingColor, marginBottom: '8px' }}>
+                  {String(sectionRecord.directEmailLabel || 'Prefer email directly?')}
+                </p>
+                {emailAddress ? (
+                  <a
+                    href={`mailto:${emailAddress}`}
+                    style={{
+                      color: resolvedHeadingColor,
+                      fontWeight: 600,
+                      fontSize: '14px',
+                      textDecoration: 'none',
+                    }}
+                    className="text-link"
+                  >
+                    {emailAddress}
+                  </a>
+                ) : null}
+                {(emailAddress && linkedinHref) ? (
+                  <span style={{ color: resolvedMutedColor, margin: '0 10px' }}>|</span>
+                ) : null}
+                {linkedinHref ? (
+                  <a
+                    href={linkedinHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: resolvedHeadingColor,
+                      fontWeight: 600,
+                      fontSize: '14px',
+                      textDecoration: 'none',
+                    }}
+                    className="text-link"
+                  >
+                    {linkedinLabel}
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 
           <div

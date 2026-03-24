@@ -7,7 +7,6 @@ export const LegacyAudienceGridSection: Block = {
   labels: { singular: 'Legacy Audience Grid', plural: 'Legacy Audience Grids' },
   fields: [
     ...sectionCommonFields,
-    { name: 'sectionLabel', type: 'text' },
     { name: 'heading', type: 'text' },
     {
       name: 'audiences',

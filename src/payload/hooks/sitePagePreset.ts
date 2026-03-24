@@ -40,6 +40,7 @@ function mergeSimpleTableSectionText(
   sourceSection: Record<string, unknown>,
 ): Record<string, unknown> {
   const next = { ...templateSection };
+  setStringField(next, sourceSection, 'sectionLabel');
   setStringField(next, sourceSection, 'heading');
 
   const templateColumns = asObjectArray(templateSection.columns);
@@ -89,6 +90,7 @@ function mergePresetTextIntoTemplateSections(
 
     if (blockType === 'heroSection') {
       const next = { ...templateSection };
+      setStringField(next, sourceSection, 'sectionLabel');
       setStringField(next, sourceSection, 'eyebrow');
       setStringField(next, sourceSection, 'heading');
       setStringField(next, sourceSection, 'subheading');
@@ -99,6 +101,7 @@ function mergePresetTextIntoTemplateSections(
 
     if (blockType === 'richTextSection') {
       const next = { ...templateSection };
+      setStringField(next, sourceSection, 'sectionLabel');
       setStringField(next, sourceSection, 'heading');
       setObjectField(next, sourceSection, 'content');
       return next;
@@ -106,6 +109,7 @@ function mergePresetTextIntoTemplateSections(
 
     if (blockType === 'ctaSection') {
       const next = { ...templateSection };
+      setStringField(next, sourceSection, 'sectionLabel');
       setStringField(next, sourceSection, 'heading');
       setStringField(next, sourceSection, 'body');
       setStringField(next, sourceSection, 'buttonLabel');
@@ -115,6 +119,7 @@ function mergePresetTextIntoTemplateSections(
 
     if (blockType === 'guideFormSection') {
       const next = { ...templateSection };
+      setStringField(next, sourceSection, 'sectionLabel');
       setStringField(next, sourceSection, 'label');
       setStringField(next, sourceSection, 'heading');
       setStringField(next, sourceSection, 'highlightText');
@@ -124,6 +129,7 @@ function mergePresetTextIntoTemplateSections(
 
     if (blockType === 'inquiryFormSection') {
       const next = { ...templateSection };
+      setStringField(next, sourceSection, 'sectionLabel');
       setStringField(next, sourceSection, 'label');
       setStringField(next, sourceSection, 'heading');
       setStringField(next, sourceSection, 'subtext');
@@ -138,6 +144,7 @@ function mergePresetTextIntoTemplateSections(
 
     if (blockType === 'privacyNoteSection') {
       const next = { ...templateSection };
+      setStringField(next, sourceSection, 'sectionLabel');
       setStringField(next, sourceSection, 'label');
       setStringField(next, sourceSection, 'policyLinkLabel');
       setStringField(next, sourceSection, 'policyLinkHref');

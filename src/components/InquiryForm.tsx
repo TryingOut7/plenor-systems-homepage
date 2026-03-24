@@ -19,6 +19,8 @@ interface InquiryFormProps {
   successHeading?: string;
   successBody?: string;
   consentText?: string;
+  privacyLabel?: string;
+  privacyHref?: string;
   namePlaceholder?: string;
   emailPlaceholder?: string;
   companyPlaceholder?: string;
@@ -31,6 +33,8 @@ export default function InquiryForm({
   successHeading = 'Inquiry received',
   successBody = 'We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.',
   consentText = 'By submitting, you agree to our',
+  privacyLabel = 'Privacy Policy',
+  privacyHref = '/privacy',
   namePlaceholder = 'Your name',
   emailPlaceholder = 'you@company.com',
   companyPlaceholder = 'Your company',
@@ -315,8 +319,8 @@ export default function InquiryForm({
 
       <p style={{ fontSize: '12px', color: 'var(--ui-color-text-muted)', marginTop: '12px', textAlign: 'center' }}>
         {consentText}{' '}
-        <Link href="/privacy" style={{ color: 'var(--ui-color-text-muted)', textDecoration: 'underline' }}>
-          Privacy Policy
+        <Link href={privacyHref} style={{ color: 'var(--ui-color-text-muted)', textDecoration: 'underline' }}>
+          {privacyLabel}
         </Link>
         .
       </p>

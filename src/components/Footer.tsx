@@ -1,14 +1,5 @@
 import Link from 'next/link';
 
-const FALLBACK_PAGE_LINKS = [
-  { label: 'Home', href: '/' },
-  { label: 'Services', href: '/services' },
-  { label: 'Pricing', href: '/pricing' },
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
-  { label: 'Privacy Policy', href: '/privacy' },
-];
-
 type FooterLink = {
   _key?: string;
   label?: string;
@@ -39,20 +30,16 @@ interface FooterProps {
 }
 
 export default function Footer({
-  siteName = 'Plenor Systems',
-  brandTagline = 'A product development framework for Testing & QA and Launch & Go-to-Market.',
-  contactEmail = 'hello@plenor.ai',
+  siteName = 'Website',
+  brandTagline = '',
+  contactEmail = '',
   footerColumns,
   socialLinks,
   copyrightText,
   footerLegalLabel,
   footerLegalHref,
 }: FooterProps) {
-  const fallbackColumns: FooterColumn[] = [
-    { title: 'Pages', links: FALLBACK_PAGE_LINKS },
-  ];
-
-  const normalizedColumns = (footerColumns?.length ? footerColumns : fallbackColumns).map((column) => ({
+  const normalizedColumns = (footerColumns?.length ? footerColumns : []).map((column) => ({
     ...column,
     links:
       column.links
@@ -116,16 +103,18 @@ export default function Footer({
               />
               {siteName}
             </Link>
-            <p
-              style={{
-                color: 'var(--ui-color-footer-muted)',
-                fontSize: '14px',
-                marginTop: '12px',
-                lineHeight: 1.6,
-              }}
-            >
-              {brandTagline}
-            </p>
+            {brandTagline ? (
+              <p
+                style={{
+                  color: 'var(--ui-color-footer-muted)',
+                  fontSize: '14px',
+                  marginTop: '12px',
+                  lineHeight: 1.6,
+                }}
+              >
+                {brandTagline}
+              </p>
+            ) : null}
           </div>
 
           {/* Footer columns */}
@@ -176,79 +165,64 @@ export default function Footer({
           ))}
 
           {/* Contact + Social */}
-          <div>
-            <p
-              style={{
-                fontFamily: 'var(--ui-font-body)',
-                fontSize: '10px',
-                fontWeight: 700,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: 'var(--ui-color-footer-muted)',
-                marginBottom: '16px',
-              }}
-            >
-              Get in touch
-            </p>
-            <a
-              href={`mailto:${contactEmail}`}
-              style={{
-                display: 'block',
-                fontSize: '14px',
-                color: 'var(--ui-color-footer-muted)',
-                textDecoration: 'none',
-                marginBottom: '12px',
-                transition: 'color 0.2s ease',
-              }}
-              className="footer-link"
-            >
-              {contactEmail}
-            </a>
-            {normalizedSocialLinks.length ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {normalizedSocialLinks.map((link, linkIndex) => (
-                  <a
-                    key={link._key || `${link.url}-${linkIndex}`}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${link.label} (opens in new tab)`}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      color: 'var(--ui-color-footer-muted)',
-                      fontSize: '14px',
-                      textDecoration: 'none',
-                      transition: 'color 0.2s ease',
-                    }}
-                    className="footer-link"
-                  >
-                    {link.label}
-                  </a>
-                ))}
-              </div>
-            ) : (
-              <a
-                href="https://www.linkedin.com/company/plenor-ai"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Plenor Systems on LinkedIn (opens in new tab)"
+          {(contactEmail || normalizedSocialLinks.length > 0) ? (
+            <div>
+              <p
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
+                  fontFamily: 'var(--ui-font-body)',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
                   color: 'var(--ui-color-footer-muted)',
-                  fontSize: '14px',
-                  textDecoration: 'none',
-                  transition: 'color 0.2s ease',
+                  marginBottom: '16px',
                 }}
-                className="footer-link"
               >
-                LinkedIn
-              </a>
-            )}
-          </div>
+                Get in touch
+              </p>
+              {contactEmail ? (
+                <a
+                  href={`mailto:${contactEmail}`}
+                  style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    color: 'var(--ui-color-footer-muted)',
+                    textDecoration: 'none',
+                    marginBottom: normalizedSocialLinks.length > 0 ? '12px' : 0,
+                    transition: 'color 0.2s ease',
+                  }}
+                  className="footer-link"
+                >
+                  {contactEmail}
+                </a>
+              ) : null}
+              {normalizedSocialLinks.length ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {normalizedSocialLinks.map((link, linkIndex) => (
+                    <a
+                      key={link._key || `${link.url}-${linkIndex}`}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${link.label} (opens in new tab)`}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        color: 'var(--ui-color-footer-muted)',
+                        fontSize: '14px',
+                        textDecoration: 'none',
+                        transition: 'color 0.2s ease',
+                      }}
+                      className="footer-link"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
         {/* Bottom bar */}

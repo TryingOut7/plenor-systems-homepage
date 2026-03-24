@@ -1,11 +1,12 @@
 import { MetadataRoute } from 'next';
 import { getSitemapSlugs, getSiteSettings } from '@/payload/cms';
+import { resolveSiteUrl } from '@/lib/site-config';
 
 export const revalidate = 60;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [settings, cms] = await Promise.all([getSiteSettings(), getSitemapSlugs()]);
-  const base = (settings?.siteUrl || 'https://plenor.ai').replace(/\/$/, '');
+  const base = resolveSiteUrl(settings);
   const lastModified = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [

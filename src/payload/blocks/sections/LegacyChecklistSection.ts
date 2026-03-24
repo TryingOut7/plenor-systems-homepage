@@ -7,7 +7,6 @@ export const LegacyChecklistSection: Block = {
   labels: { singular: 'Legacy Checklist', plural: 'Legacy Checklists' },
   fields: [
     ...sectionCommonFields,
-    { name: 'sectionLabel', type: 'text' },
     { name: 'heading', type: 'text' },
     {
       name: 'items',

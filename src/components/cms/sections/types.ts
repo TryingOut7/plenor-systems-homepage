@@ -12,6 +12,8 @@ export type GuideFormLabels = {
   successHeading?: string;
   successBody?: string;
   footerText?: string;
+  privacyLabel?: string;
+  privacyHref?: string;
   namePlaceholder?: string;
   emailPlaceholder?: string;
 };
@@ -22,6 +24,8 @@ export type InquiryFormLabels = {
   successHeading?: string;
   successBody?: string;
   consentText?: string;
+  privacyLabel?: string;
+  privacyHref?: string;
   namePlaceholder?: string;
   emailPlaceholder?: string;
   companyPlaceholder?: string;

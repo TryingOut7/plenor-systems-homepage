@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
+import { resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
 
 export const revalidate = 60;
 
@@ -22,13 +23,13 @@ interface AboutPageData {
 
 const defaults: Required<AboutPageData> = {
   heroParagraph1:
-    'Plenor Systems is a product development framework built around a specific observation: the stages most likely to cause a launch to fail are Testing & QA and Go-to-Market — and they’re consistently the least structured.',
+    'This product development framework is built around a specific observation: the stages most likely to cause a launch to fail are Testing & QA and Go-to-Market — and they’re consistently the least structured.',
   heroParagraph2:
-    'Most frameworks cover the full development lifecycle. Plenor Systems covers only the final two stages — not because the others don’t matter, but because these two are where structure is most absent and most needed.',
+    'Most frameworks cover the full development lifecycle. This framework covers only the final two stages — not because the others don’t matter, but because these two are where structure is most absent and most needed.',
   heroParagraph3:
     'The framework is used by teams ranging from early-stage startups to enterprise product groups who need a repeatable, structured process for the stretch of work between build completion and a successful launch.',
   focusParagraph1:
-    'Plenor Systems covers two stages: Testing & QA and Launch & Go-to-Market. That scope is intentional.',
+    'This framework covers two stages: Testing & QA and Launch & Go-to-Market. That scope is intentional.',
   focusParagraph2:
     'Narrowing to two stages means the framework goes deep rather than broad. Each module is specific — built from observed patterns of what goes wrong and why. It is not a general project management tool dressed as a product framework.',
   focusParagraph3:
@@ -44,8 +45,8 @@ const defaults: Required<AboutPageData> = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
-  const siteName = settings?.siteName || 'Plenor Systems';
-  const siteUrl = settings?.siteUrl || 'https://plenor.ai';
+  const siteName = resolveSiteName(settings);
+  const siteUrl = resolveSiteUrl(settings);
   return {
     title: 'About — Who We Are and Why We Built This',
     description: `${siteName} was built to address the two stages of product development most likely to cause failure: Testing & QA and Launch & Go-to-Market.`,
@@ -124,13 +125,17 @@ function getAboutPageData(sections: PageSection[]): Required<AboutPageData> {
 }
 
 export default async function AboutPage() {
-  const sitePage = await getSitePageBySlug('about');
+  const [sitePage, siteSettings] = await Promise.all([
+    getSitePageBySlug('about'),
+    getSiteSettings(),
+  ]);
 
   if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {
     notFound();
   }
 
   const d = getAboutPageData(sitePage.sections);
+  const siteName = resolveSiteName(siteSettings);
 
   return (
     <>
@@ -356,7 +361,7 @@ export default async function AboutPage() {
                   {d.founderName}
                 </p>
                 <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '12px', letterSpacing: '0.02em' }}>
-                  {d.founderRole} · Plenor Systems
+                  {d.founderRole} · {siteName}
                 </p>
                 <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65 }}>
                   {d.founderBio}
