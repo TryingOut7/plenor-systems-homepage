@@ -65,6 +65,7 @@ describe('application service guards', () => {
     expect(result.body).toEqual({
       error:
         'At least one search parameter is required (q, collection, tag, or featured).',
+      requestId: 'test-request-id',
     });
   });
 });

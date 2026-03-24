@@ -2,8 +2,29 @@ import type { SeedRepository } from '@/application/ports/seedRepository';
 import type { RequestContext } from '@/application/shared/requestContext';
 import { fail, ok, type ServiceResult } from '@/application/shared/serviceResult';
 import { readBearerToken } from '@/domain/internal/seedAuth';
+import {
+  authenticateBackendApiKey,
+  hasRequiredRole,
+} from '@/infrastructure/security/backendApiKeyAuth';
 import { verifyRequestOrigin } from '@/infrastructure/security/originVerifier';
 import { compareSecret } from '@/infrastructure/security/secretComparator';
+
+function hasAuthorizedCredential(
+  context: RequestContext,
+  expectedSecret: string | undefined,
+): boolean {
+  const providedToken = readBearerToken(context.authorization);
+  if (providedToken && expectedSecret && compareSecret(providedToken, expectedSecret)) {
+    return true;
+  }
+
+  const principal = authenticateBackendApiKey(context.apiKey);
+  if (!principal) {
+    return false;
+  }
+
+  return hasRequiredRole(principal, ['internal', 'admin']);
+}
 
 export async function seedSitePagesForRequest(
   context: RequestContext,
@@ -19,12 +40,12 @@ export async function seedSitePagesForRequest(
   }
 
   const expectedSecret = process.env.PAYLOAD_SEED_SECRET || process.env.PAYLOAD_SECRET;
-  if (!expectedSecret) {
+  const hasBearerCredential = !!readBearerToken(context.authorization);
+  if (!expectedSecret && hasBearerCredential && !context.apiKey) {
     return fail(500, { error: 'Server configuration error' });
   }
 
-  const providedToken = readBearerToken(context.authorization);
-  if (!providedToken || !compareSecret(providedToken, expectedSecret)) {
+  if (!hasAuthorizedCredential(context, expectedSecret)) {
     return fail(401, { error: 'Unauthorized' });
   }
 
