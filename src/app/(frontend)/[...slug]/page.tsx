@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-
-export const revalidate = 60;
+import PageChromeOverrides from '@/components/PageChromeOverrides';
 import UniversalSections from '@/components/cms/UniversalSections';
 import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 import { buildBreadcrumbJsonLd } from '@/lib/breadcrumbs';
+import { buildSitePageMetadata } from '@/lib/page-metadata';
 import { resolveSiteUrl } from '@/lib/site-config';
+
+export const revalidate = 60;
 
 type RouteParams = {
   slug?: string[];
@@ -16,10 +18,6 @@ const RESERVED_PREFIXES = ['admin', 'admin-diagnostics'];
 
 function buildSlug(params: RouteParams): string {
   return params.slug?.join('/') || '';
-}
-
-function canonicalForSlug(baseUrl: string, slug: string): string {
-  return `${baseUrl}/${slug.replace(/^\/+/, '')}`;
 }
 
 export async function generateMetadata({
@@ -38,28 +36,13 @@ export async function generateMetadata({
 
   if (!page) return {};
 
-  const seo = page.seo || {};
-  const defaultSeo = settings?.defaultSeo || {};
-  const title = seo.metaTitle || page.title || defaultSeo.metaTitle || settings?.siteName || 'Page';
-  const description = seo.metaDescription || defaultSeo.metaDescription || settings?.brandTagline || '';
-  const canonical = seo.canonicalUrl || canonicalForSlug(resolveSiteUrl(settings), slug);
-  const ogImage = seo.ogImage?.url || defaultSeo.ogImage?.url;
-
-  return {
-    title,
-    description,
-    alternates: { canonical },
-    robots: {
-      index: !seo.noindex,
-      follow: !seo.nofollow,
-    },
-    openGraph: {
-      title: seo.ogTitle || title,
-      description: seo.ogDescription || description,
-      url: canonical,
-      images: ogImage ? [{ url: ogImage, alt: seo.ogImage?.alt || defaultSeo.ogImage?.alt || title }] : undefined,
-    },
-  };
+  return buildSitePageMetadata({
+    slug,
+    page,
+    settings,
+    fallbackTitle: 'Page',
+    fallbackDescription: settings?.brandTagline,
+  });
 }
 
 export default async function CmsDynamicPage({
@@ -98,18 +81,7 @@ export default async function CmsDynamicPage({
 
   return (
     <>
-      {page.hideNavbar && (
-        <style>{`header[role="banner"] { display: none !important; }`}</style>
-      )}
-      {page.hideFooter && (
-        <style>{`footer[role="contentinfo"] { display: none !important; }`}</style>
-      )}
-      {page.pageBackgroundColor && (
-        <style>{`body { background-color: ${page.pageBackgroundColor} !important; }`}</style>
-      )}
-      {page.customHeadScripts && (
-        <div dangerouslySetInnerHTML={{ __html: page.customHeadScripts }} style={{ display: 'none' }} />
-      )}
+      <PageChromeOverrides page={page} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}

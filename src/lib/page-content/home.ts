@@ -1,4 +1,11 @@
 import type { PageSection } from '@/payload/cms';
+import {
+  asTrimmedString,
+  findSection,
+  getCellValue,
+  getRichTextParagraphs,
+  getRows,
+} from '@/lib/page-content/helpers';
 
 type HomeAudience = { label: string; copy: string };
 
@@ -78,61 +85,6 @@ export const HOME_PAGE_DEFAULTS: Required<HomePageData> = {
     'The guide covers the specific errors teams make in Testing & QA and Launch & Go-to-Market, and what to do instead. Enter your name and email and the PDF is sent to your inbox automatically.',
 };
 
-function asTrimmedString(value: unknown): string {
-  if (typeof value !== 'string') return '';
-  return value.trim();
-}
-
-function findSection(
-  sections: PageSection[],
-  blockType: string,
-  heading?: string,
-): PageSection | undefined {
-  return sections.find((section) => {
-    if (section.blockType !== blockType) return false;
-    if (!heading) return true;
-    return String(section.heading || '').trim() === heading;
-  });
-}
-
-function getRows(section: PageSection | undefined): unknown[] {
-  if (!section || !Array.isArray(section.rows)) return [];
-  return section.rows;
-}
-
-function getCellValue(row: unknown, index: number): string {
-  if (!row || typeof row !== 'object') return '';
-  const cells = Array.isArray((row as Record<string, unknown>).cells)
-    ? ((row as Record<string, unknown>).cells as unknown[])
-    : [];
-  const cell = cells[index];
-  if (!cell || typeof cell !== 'object') return '';
-  const value = (cell as Record<string, unknown>).value;
-  return typeof value === 'string' ? value : '';
-}
-
-function getRichTextParagraphs(section: PageSection | undefined): string[] {
-  if (!section || !section.content || typeof section.content !== 'object') return [];
-  const root = (section.content as Record<string, unknown>).root;
-  if (!root || typeof root !== 'object') return [];
-  const children = Array.isArray((root as Record<string, unknown>).children)
-    ? ((root as Record<string, unknown>).children as unknown[])
-    : [];
-
-  const readText = (node: unknown): string => {
-    if (!node || typeof node !== 'object') return '';
-    const record = node as Record<string, unknown>;
-    if (typeof record.text === 'string') return record.text;
-    if (!Array.isArray(record.children)) return '';
-    return record.children.map(readText).join('');
-  };
-
-  return children
-    .map(readText)
-    .map((text) => text.trim())
-    .filter(Boolean);
-}
-
 export function resolveHomePageData(
   sections: PageSection[] | null | undefined,
 ): Required<HomePageData> {
@@ -207,4 +159,3 @@ export function resolveHomePageData(
     guideCTABody: asTrimmedString(guide?.body) || HOME_PAGE_DEFAULTS.guideCTABody,
   };
 }
-

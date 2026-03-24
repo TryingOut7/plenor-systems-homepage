@@ -1,177 +1,31 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
-import { resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
+import PageChromeOverrides from '@/components/PageChromeOverrides';
+import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import { buildSitePageMetadata } from '@/lib/page-metadata';
+import { resolvePricingPageData } from '@/lib/page-content/pricing';
+import { resolveSiteName } from '@/lib/site-config';
 
 export const revalidate = 60;
 
-interface PricingPageData {
-  heroHeading?: string;
-  heroSubtext?: string;
-  includedItems?: { title: string; desc: string }[];
-  includedBody?: string;
-  audiences?: { label: string; copy: string }[];
-  ctaHeading?: string;
-  ctaBody?: string;
-  notReadyHeading?: string;
-  notReadyBody?: string;
-}
-
-const defaults: Required<PricingPageData> = {
-  heroHeading: 'Let’s find the right fit for your team.',
-  heroSubtext:
-    'Pricing is tailored based on your team size and scope. Get in touch and we’ll come back with a proposal.',
-  includedItems: [
-    {
-      title: 'Testing & QA Module',
-      desc: 'Quality criteria, structured test planning, release readiness checklists, and defect triage.',
-    },
-    {
-      title: 'Launch & Go-to-Market Module',
-      desc: 'Positioning and messaging, channel strategy, launch sequencing, and operational readiness.',
-    },
-    {
-      title: 'Onboarding support',
-      desc: 'Get your team up and running with the framework from day one.',
-    },
-  ],
-  includedBody:
-    'Engagement is straightforward to start. The framework is accessible to teams of any size — no minimum headcount or project scale required.',
-  audiences: [
-    {
-      label: 'Startups',
-      copy: 'Early-stage teams preparing for a first or major launch who need process without overhead.',
-    },
-    {
-      label: 'SMEs',
-      copy: 'Mid-sized teams with established products moving into new markets or scaling delivery cadence.',
-    },
-    {
-      label: 'Enterprises',
-      copy: 'Larger organisations that need a repeatable framework across multiple product lines or teams.',
-    },
-  ],
-  ctaHeading: 'Ready to talk?',
-  ctaBody: 'Tell us about your product and team — we’ll come back with a proposal.',
-  notReadyHeading: 'Not ready to talk yet?',
-  notReadyBody: 'Start with the free guide to get a sense of the problems the framework addresses.',
-};
-
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSiteSettings();
+  const [sitePage, settings] = await Promise.all([
+    getSitePageBySlug('pricing'),
+    getSiteSettings(),
+  ]);
   const siteName = resolveSiteName(settings);
-  const siteUrl = resolveSiteUrl(settings);
-  return {
-    title: 'Pricing — Let\'s find the right fit for your team',
-    description: `${siteName} pricing is tailored to your team size and scope. Get in touch to discuss your product and receive a proposal.`,
-    alternates: { canonical: `${siteUrl}/pricing` },
-    openGraph: {
-      title: `Pricing | ${siteName}`,
-      description: `${siteName} pricing is tailored to your team size and scope. Get in touch to discuss your product and receive a proposal.`,
-      url: `${siteUrl}/pricing`,
-    },
-  };
-}
-
-const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
-
-function findSection(
-  sections: PageSection[],
-  blockType: string,
-  heading?: string,
-): PageSection | undefined {
-  return sections.find((section) => {
-    if (section.blockType !== blockType) return false;
-    if (!heading) return true;
-    return String(section.heading || '').trim() === heading;
+  return buildSitePageMetadata({
+    slug: 'pricing',
+    page: sitePage,
+    settings,
+    fallbackTitle: "Pricing — Let's find the right fit for your team",
+    fallbackDescription:
+      `${siteName} pricing is tailored to your team size and scope. Get in touch to discuss your product and receive a proposal.`,
   });
 }
 
-function getRows(section: PageSection | undefined): unknown[] {
-  if (!section || !Array.isArray(section.rows)) return [];
-  return section.rows;
-}
-
-function getCellValue(row: unknown, index = 0): string {
-  if (!row || typeof row !== 'object') return '';
-  const cells = Array.isArray((row as Record<string, unknown>).cells)
-    ? ((row as Record<string, unknown>).cells as unknown[])
-    : [];
-  const cell = cells[index];
-  if (!cell || typeof cell !== 'object') return '';
-  const value = (cell as Record<string, unknown>).value;
-  return typeof value === 'string' ? value : '';
-}
-
-function getRichTextParagraphs(section: PageSection | undefined): string[] {
-  if (!section || !section.content || typeof section.content !== 'object') return [];
-  const root = (section.content as Record<string, unknown>).root;
-  if (!root || typeof root !== 'object') return [];
-  const children = Array.isArray((root as Record<string, unknown>).children)
-    ? ((root as Record<string, unknown>).children as unknown[])
-    : [];
-
-  const readText = (node: unknown): string => {
-    if (!node || typeof node !== 'object') return '';
-    const record = node as Record<string, unknown>;
-    if (typeof record.text === 'string') return record.text;
-    if (!Array.isArray(record.children)) return '';
-    return record.children.map(readText).join('');
-  };
-
-  return children
-    .map(readText)
-    .map((text) => text.trim())
-    .filter(Boolean);
-}
-
-function getPricingPageData(sections: PageSection[]): Required<PricingPageData> {
-  const hero = findSection(sections, 'heroSection');
-  const includedTable = findSection(
-    sections,
-    'simpleTableSection',
-    'Everything you need to ship with confidence.',
-  );
-  const includedBodySection = findSection(sections, 'richTextSection');
-  const audienceTable = findSection(sections, 'simpleTableSection', 'No minimum team size. Any stage.');
-  const cta = findSection(sections, 'ctaSection', 'Ready to talk?');
-  const notReady = findSection(sections, 'ctaSection', 'Not ready to talk yet?');
-
-  const includedRows = getRows(includedTable);
-  const audiencesRows = getRows(audienceTable);
-  const includedBodyParagraphs = getRichTextParagraphs(includedBodySection);
-
-  const includedItems = includedRows
-    .map((row) => ({
-      title: getCellValue(row, 0),
-      desc: getCellValue(row, 1),
-    }))
-    .filter((entry) => entry.title && entry.desc);
-
-  const audiences = audiencesRows
-    .map((row) => ({
-      label: getCellValue(row, 0),
-      copy: getCellValue(row, 1),
-    }))
-    .filter((entry) => entry.label && entry.copy);
-
-  return {
-    ...defaults,
-    heroHeading: typeof hero?.heading === 'string' ? hero.heading : defaults.heroHeading,
-    heroSubtext:
-      typeof hero?.subheading === 'string' ? hero.subheading : defaults.heroSubtext,
-    includedItems: includedItems.length ? includedItems : defaults.includedItems,
-    includedBody: includedBodyParagraphs[0] || defaults.includedBody,
-    audiences: audiences.length ? audiences : defaults.audiences,
-    ctaHeading: typeof cta?.heading === 'string' ? cta.heading : defaults.ctaHeading,
-    ctaBody: typeof cta?.body === 'string' ? cta.body : defaults.ctaBody,
-    notReadyHeading:
-      typeof notReady?.heading === 'string' ? notReady.heading : defaults.notReadyHeading,
-    notReadyBody:
-      typeof notReady?.body === 'string' ? notReady.body : defaults.notReadyBody,
-  };
-}
+const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
 export default async function PricingPage() {
   const sitePage = await getSitePageBySlug('pricing');
@@ -180,22 +34,11 @@ export default async function PricingPage() {
     notFound();
   }
 
-  const d = getPricingPageData(sitePage.sections);
+  const d = resolvePricingPageData(sitePage.sections);
 
   return (
     <>
-      {sitePage.hideNavbar && (
-        <style>{`header[role="banner"] { display: none !important; }`}</style>
-      )}
-      {sitePage.hideFooter && (
-        <style>{`footer[role="contentinfo"] { display: none !important; }`}</style>
-      )}
-      {sitePage.pageBackgroundColor && (
-        <style>{`body { background-color: ${sitePage.pageBackgroundColor} !important; }`}</style>
-      )}
-      {sitePage.customHeadScripts && (
-        <div dangerouslySetInnerHTML={{ __html: sitePage.customHeadScripts }} style={{ display: 'none' }} />
-      )}
+      <PageChromeOverrides page={sitePage} />
       <section
         aria-labelledby="pricing-hero-heading"
         style={{
@@ -218,7 +61,7 @@ export default async function PricingPage() {
         />
         <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
           <p className="section-label animate-fade-in" style={{ color: 'rgba(255,255,255,0.45)', marginBottom: '24px' }}>
-            Pricing
+            {d.heroLabel}
           </p>
           <h1
             id="pricing-hero-heading"
@@ -246,7 +89,7 @@ export default async function PricingPage() {
         style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
       >
         <div style={{ ...inner, maxWidth: '800px' }}>
-          <p className="section-label" style={{ marginBottom: '16px' }}>What&apos;s included</p>
+          <p className="section-label" style={{ marginBottom: '16px' }}>{d.includedLabel}</p>
           <h2
             id="included-heading"
             style={{
@@ -259,7 +102,7 @@ export default async function PricingPage() {
               marginBottom: '20px',
             }}
           >
-            Everything you need to ship with confidence.
+            {d.includedHeading}
           </h2>
           <div style={{ width: '40px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '40px', borderRadius: '2px' }} aria-hidden="true" />
 
@@ -314,7 +157,7 @@ export default async function PricingPage() {
         style={{ padding: '100px 32px', backgroundColor: '#F8F9FA' }}
       >
         <div style={{ ...inner, maxWidth: '800px' }}>
-          <p className="section-label" style={{ marginBottom: '16px' }}>Who we work with</p>
+          <p className="section-label" style={{ marginBottom: '16px' }}>{d.audiencesLabel}</p>
           <h2
             id="who-we-work-heading"
             style={{
@@ -327,7 +170,7 @@ export default async function PricingPage() {
               marginBottom: '48px',
             }}
           >
-            No minimum team size. Any stage.
+            {d.audiencesHeading}
           </h2>
 
           <div
@@ -366,7 +209,7 @@ export default async function PricingPage() {
           </div>
 
           <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '20px' }}>
-            There is no minimum team size requirement to work with us.
+            {d.noMinimumNote}
           </p>
         </div>
       </section>
@@ -393,16 +236,16 @@ export default async function PricingPage() {
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.65, marginBottom: '36px' }}>
             {d.ctaBody}
           </p>
-          <Link href="/contact" className="btn-secondary">
-            Get in touch
+          <Link href={d.ctaButtonHref} className="btn-secondary">
+            {d.ctaButtonLabel}
           </Link>
           <div style={{ marginTop: '20px' }}>
             <Link
-              href="/services"
+              href={d.backLinkHref}
               style={{ color: '#6B7280', fontSize: '14px', textDecoration: 'none', fontWeight: 500 }}
               className="breadcrumb-link"
             >
-              ← Back to Services
+              {d.backLinkLabel}
             </Link>
           </div>
         </div>
@@ -429,8 +272,8 @@ export default async function PricingPage() {
           <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.65, marginBottom: '24px' }}>
             {d.notReadyBody}
           </p>
-          <Link href="/contact#guide" className="btn-secondary" style={{ fontSize: '14px', padding: '10px 24px' }}>
-            Get the free guide
+          <Link href={d.notReadyButtonHref} className="btn-secondary" style={{ fontSize: '14px', padding: '10px 24px' }}>
+            {d.notReadyButtonLabel}
           </Link>
         </div>
       </section>

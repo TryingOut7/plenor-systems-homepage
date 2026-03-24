@@ -2,30 +2,28 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import GuideForm from '@/components/GuideForm';
+import PageChromeOverrides from '@/components/PageChromeOverrides';
 import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
-import { resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
+import { buildSitePageMetadata } from '@/lib/page-metadata';
+import { resolveSiteName } from '@/lib/site-config';
 import { resolveHomePageData } from '@/lib/page-content/home';
 
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSiteSettings();
+  const [sitePage, settings] = await Promise.all([
+    getSitePageBySlug('home'),
+    getSiteSettings(),
+  ]);
   const siteName = resolveSiteName(settings);
-  const siteUrl = resolveSiteUrl(settings);
-  const title = `${siteName} — Testing & QA and Launch & Go-to-Market Framework`;
-  const description =
-    `${siteName} brings structure to the two most failure-prone stages of product development: Testing & QA and Launch & Go-to-Market.`;
-
-  return {
-    title,
-    description,
-    alternates: { canonical: `${siteUrl}/` },
-    openGraph: {
-      title,
-      description,
-      url: `${siteUrl}/`,
-    },
-  };
+  return buildSitePageMetadata({
+    slug: '',
+    page: sitePage,
+    settings,
+    fallbackTitle: `${siteName} — Testing & QA and Launch & Go-to-Market Framework`,
+    fallbackDescription:
+      `${siteName} brings structure to the two most failure-prone stages of product development: Testing & QA and Launch & Go-to-Market.`,
+  });
 }
 
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
@@ -41,18 +39,7 @@ export default async function HomePage() {
 
   return (
     <>
-      {sitePage.hideNavbar && (
-        <style>{`header[role="banner"] { display: none !important; }`}</style>
-      )}
-      {sitePage.hideFooter && (
-        <style>{`footer[role="contentinfo"] { display: none !important; }`}</style>
-      )}
-      {sitePage.pageBackgroundColor && (
-        <style>{`body { background-color: ${sitePage.pageBackgroundColor} !important; }`}</style>
-      )}
-      {sitePage.customHeadScripts && (
-        <div dangerouslySetInnerHTML={{ __html: sitePage.customHeadScripts }} style={{ display: 'none' }} />
-      )}
+      <PageChromeOverrides page={sitePage} />
       <section
         aria-labelledby="hero-heading"
         style={{

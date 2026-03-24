@@ -1,198 +1,32 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
+import PageChromeOverrides from '@/components/PageChromeOverrides';
+import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import { buildSitePageMetadata } from '@/lib/page-metadata';
+import { resolveServicesPageData } from '@/lib/page-content/services';
 import { resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
 
 export const revalidate = 60;
 
-interface ServicesPageData {
-  heroHeading?: string;
-  heroSubtext?: string;
-  testingBody?: string;
-  testingItems?: string[];
-  testingWhoFor?: string;
-  launchBody?: string;
-  launchItems?: string[];
-  launchWhoFor?: string;
-  whyFrameworkHeading?: string;
-  whyFrameworkBody1?: string;
-  whyFrameworkBody2?: string;
-  whyFrameworkBody3?: string;
-  ctaHeading?: string;
-  ctaBody?: string;
-}
-
-const defaults: Required<ServicesPageData> = {
-  heroHeading: 'Two framework stages. The two that decide whether a product succeeds.',
-  heroSubtext:
-    'Testing & QA and Launch & Go-to-Market are where most product failures originate — not in design or development. This framework is built specifically for these stages.',
-  testingBody:
-    'Shipping without a structured quality process means issues surface after release — when they’re most expensive to fix. The Testing & QA module establishes clear quality criteria, verification steps, and release gates before code reaches users.',
-  testingItems: [
-    'Defining quality criteria and acceptance standards before development completes',
-    'Structured test planning: functional, regression, performance, and edge-case coverage',
-    'Release readiness checklists and sign-off processes',
-    'Defect triage and prioritisation so teams know what must be fixed before launch',
-  ],
-  testingWhoFor:
-    'Teams that are shipping frequently and catching issues too late, or organisations preparing for a significant launch that cannot afford post-release rework.',
-  launchBody:
-    'A product can pass QA and still underperform at launch. Go-to-market failures are often structural — unclear positioning, undefined channels, or a launch day without operational readiness. The Launch & GTM module addresses each of these.',
-  launchItems: [
-    'Market positioning and messaging that reflects what the product actually does',
-    'Channel selection grounded in where your target audience can be reached',
-    'Launch sequencing and operational readiness — support, onboarding, and infrastructure',
-    'Post-launch review process to capture what worked and what to adjust',
-  ],
-  launchWhoFor:
-    'Startups preparing for a first launch, product teams at SMEs rolling out a new offering, and enterprise groups managing a significant market entry.',
-  whyFrameworkHeading: 'Why a framework, not a one-off engagement',
-  whyFrameworkBody1:
-    'Ad-hoc approaches to testing and go-to-market work in isolation but don’t build repeatable capability. Each launch starts from scratch, and teams re-learn the same lessons.',
-  whyFrameworkBody2:
-    'A structured framework means your team builds consistent habits — clear criteria before testing begins, defined channels before launch planning starts. It works for startups moving fast and for enterprises that need process rigour across multiple products.',
-  whyFrameworkBody3:
-    'The framework is not prescriptive. It sets the structure; your team fills in the specifics.',
-  ctaHeading: 'Not sure yet?',
-  ctaBody: 'Start with the guide — see the kinds of mistakes the framework is designed to prevent.',
-};
-
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSiteSettings();
+  const [sitePage, settings] = await Promise.all([
+    getSitePageBySlug('services'),
+    getSiteSettings(),
+  ]);
   const siteName = resolveSiteName(settings);
-  const siteUrl = resolveSiteUrl(settings);
-  return {
-    title: 'Services — Testing & QA and Launch & Go-to-Market',
-    description: `${siteName} covers two framework stages: Testing & QA and Launch & Go-to-Market. Learn what each stage covers, who it helps, and why a structured framework matters.`,
-    alternates: { canonical: `${siteUrl}/services` },
-    openGraph: {
-      title: `Services — Testing & QA and Launch & Go-to-Market | ${siteName}`,
-      description: `${siteName} covers two framework stages: Testing & QA and Launch & Go-to-Market. Learn what each stage covers, who it helps, and why a structured framework matters.`,
-      url: `${siteUrl}/services`,
-    },
-  };
+  return buildSitePageMetadata({
+    slug: 'services',
+    page: sitePage,
+    settings,
+    fallbackTitle: 'Services — Testing & QA and Launch & Go-to-Market',
+    fallbackDescription:
+      `${siteName} covers two framework stages: Testing & QA and Launch & Go-to-Market. Learn what each stage covers, who it helps, and why a structured framework matters.`,
+  });
 }
 
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 const narrow: React.CSSProperties = { maxWidth: '760px', margin: '0 auto' };
-
-function findSection(
-  sections: PageSection[],
-  blockType: string,
-  heading?: string,
-): PageSection | undefined {
-  return sections.find((section) => {
-    if (section.blockType !== blockType) return false;
-    if (!heading) return true;
-    return String(section.heading || '').trim() === heading;
-  });
-}
-
-function findSectionsByType(sections: PageSection[], blockType: string): PageSection[] {
-  return sections.filter((section) => section.blockType === blockType);
-}
-
-function getRows(section: PageSection | undefined): unknown[] {
-  if (!section || !Array.isArray(section.rows)) return [];
-  return section.rows;
-}
-
-function getCellValue(row: unknown, index = 0): string {
-  if (!row || typeof row !== 'object') return '';
-  const cells = Array.isArray((row as Record<string, unknown>).cells)
-    ? ((row as Record<string, unknown>).cells as unknown[])
-    : [];
-  const cell = cells[index];
-  if (!cell || typeof cell !== 'object') return '';
-  const value = (cell as Record<string, unknown>).value;
-  return typeof value === 'string' ? value : '';
-}
-
-function getRichTextParagraphs(section: PageSection | undefined): string[] {
-  if (!section || !section.content || typeof section.content !== 'object') return [];
-  const root = (section.content as Record<string, unknown>).root;
-  if (!root || typeof root !== 'object') return [];
-  const children = Array.isArray((root as Record<string, unknown>).children)
-    ? ((root as Record<string, unknown>).children as unknown[])
-    : [];
-
-  const readText = (node: unknown): string => {
-    if (!node || typeof node !== 'object') return '';
-    const record = node as Record<string, unknown>;
-    if (typeof record.text === 'string') return record.text;
-    if (!Array.isArray(record.children)) return '';
-    return record.children.map(readText).join('');
-  };
-
-  return children
-    .map(readText)
-    .map((text) => text.trim())
-    .filter(Boolean);
-}
-
-function removeWhoForPrefix(value: string): string {
-  return value
-    .replace(/^Who it['’]s for:\s*/i, '')
-    .replace(/^Who it’s for:\s*/i, '')
-    .trim();
-}
-
-function getServicesPageData(sections: PageSection[]): Required<ServicesPageData> {
-  const hero = findSection(sections, 'heroSection');
-  const testingSection = findSection(sections, 'richTextSection', 'Testing & QA');
-  const launchSection = findSection(sections, 'richTextSection', 'Launch & Go-to-Market');
-  const whySection = findSection(
-    sections,
-    'richTextSection',
-    'Why a framework, not a one-off engagement',
-  );
-
-  const whatCoverTables = findSectionsByType(sections, 'simpleTableSection').filter(
-    (section) => String(section.heading || '').trim() === 'What it covers',
-  );
-  const testingItemsRows = getRows(whatCoverTables[0]);
-  const launchItemsRows = getRows(whatCoverTables[1]);
-
-  const testingParagraphs = getRichTextParagraphs(testingSection);
-  const launchParagraphs = getRichTextParagraphs(launchSection);
-  const whyParagraphs = getRichTextParagraphs(whySection);
-
-  const cta = findSection(sections, 'ctaSection', 'Not sure yet?');
-
-  const mappedTestingItems = testingItemsRows
-    .map((row) => getCellValue(row, 0))
-    .filter(Boolean);
-  const mappedLaunchItems = launchItemsRows
-    .map((row) => getCellValue(row, 0))
-    .filter(Boolean);
-
-  return {
-    ...defaults,
-    heroHeading: typeof hero?.heading === 'string' ? hero.heading : defaults.heroHeading,
-    heroSubtext:
-      typeof hero?.subheading === 'string' ? hero.subheading : defaults.heroSubtext,
-    testingBody: testingParagraphs[0] || defaults.testingBody,
-    testingWhoFor: testingParagraphs[1]
-      ? removeWhoForPrefix(testingParagraphs[1])
-      : defaults.testingWhoFor,
-    testingItems: mappedTestingItems.length ? mappedTestingItems : defaults.testingItems,
-    launchBody: launchParagraphs[0] || defaults.launchBody,
-    launchWhoFor: launchParagraphs[1]
-      ? removeWhoForPrefix(launchParagraphs[1])
-      : defaults.launchWhoFor,
-    launchItems: mappedLaunchItems.length ? mappedLaunchItems : defaults.launchItems,
-    whyFrameworkHeading:
-      typeof whySection?.heading === 'string'
-        ? whySection.heading
-        : defaults.whyFrameworkHeading,
-    whyFrameworkBody1: whyParagraphs[0] || defaults.whyFrameworkBody1,
-    whyFrameworkBody2: whyParagraphs[1] || defaults.whyFrameworkBody2,
-    whyFrameworkBody3: whyParagraphs[2] || defaults.whyFrameworkBody3,
-    ctaHeading: typeof cta?.heading === 'string' ? cta.heading : defaults.ctaHeading,
-    ctaBody: typeof cta?.body === 'string' ? cta.body : defaults.ctaBody,
-  };
-}
 
 const listItem = (text: string) => (
   <li
@@ -232,24 +66,13 @@ export default async function ServicesPage() {
     notFound();
   }
 
-  const d = getServicesPageData(sitePage.sections);
+  const d = resolveServicesPageData(sitePage.sections);
   const siteName = resolveSiteName(siteSettings);
   const siteUrl = resolveSiteUrl(siteSettings);
 
   return (
     <>
-      {sitePage.hideNavbar && (
-        <style>{`header[role="banner"] { display: none !important; }`}</style>
-      )}
-      {sitePage.hideFooter && (
-        <style>{`footer[role="contentinfo"] { display: none !important; }`}</style>
-      )}
-      {sitePage.pageBackgroundColor && (
-        <style>{`body { background-color: ${sitePage.pageBackgroundColor} !important; }`}</style>
-      )}
-      {sitePage.customHeadScripts && (
-        <div dangerouslySetInnerHTML={{ __html: sitePage.customHeadScripts }} style={{ display: 'none' }} />
-      )}
+      <PageChromeOverrides page={sitePage} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -293,7 +116,7 @@ export default async function ServicesPage() {
         />
         <div style={{ ...inner, maxWidth: '760px', position: 'relative', zIndex: 1 }}>
           <p className="section-label animate-fade-in" style={{ color: 'rgba(255,255,255,0.45)', marginBottom: '24px' }}>
-            Framework Overview
+            {d.heroLabel}
           </p>
           <h1
             id="services-hero-heading"
@@ -339,7 +162,7 @@ export default async function ServicesPage() {
             </span>
           </div>
 
-          <p className="section-label" style={{ marginBottom: '16px' }}>Stage 1</p>
+          <p className="section-label" style={{ marginBottom: '16px' }}>{d.testingStageLabel}</p>
           <h2
             id="testing-heading"
             style={{
@@ -352,7 +175,7 @@ export default async function ServicesPage() {
               marginBottom: '20px',
             }}
           >
-            Testing & QA
+            {d.testingHeading}
           </h2>
           <div style={{ width: '40px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '28px', borderRadius: '2px' }} aria-hidden="true" />
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '36px' }}>
@@ -377,7 +200,7 @@ export default async function ServicesPage() {
                   letterSpacing: '-0.01em',
                 }}
               >
-                What it covers
+                {d.testingCoverageHeading}
               </h3>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {d.testingItems.map(listItem)}
@@ -394,7 +217,7 @@ export default async function ServicesPage() {
                   letterSpacing: '-0.01em',
                 }}
               >
-                Who it&apos;s for
+                {d.testingWhoHeading}
               </h3>
               <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.7 }}>
                 {d.testingWhoFor}
@@ -428,7 +251,7 @@ export default async function ServicesPage() {
             </span>
           </div>
 
-          <p className="section-label" style={{ marginBottom: '16px' }}>Stage 2</p>
+          <p className="section-label" style={{ marginBottom: '16px' }}>{d.launchStageLabel}</p>
           <h2
             id="launch-heading"
             style={{
@@ -441,7 +264,7 @@ export default async function ServicesPage() {
               marginBottom: '20px',
             }}
           >
-            Launch & Go-to-Market
+            {d.launchHeading}
           </h2>
           <div style={{ width: '40px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '28px', borderRadius: '2px' }} aria-hidden="true" />
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '36px' }}>
@@ -466,7 +289,7 @@ export default async function ServicesPage() {
                   letterSpacing: '-0.01em',
                 }}
               >
-                What it covers
+                {d.launchCoverageHeading}
               </h3>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {d.launchItems.map(listItem)}
@@ -483,7 +306,7 @@ export default async function ServicesPage() {
                   letterSpacing: '-0.01em',
                 }}
               >
-                Who it&apos;s for
+                {d.launchWhoHeading}
               </h3>
               <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.7 }}>
                 {d.launchWhoFor}
@@ -498,7 +321,7 @@ export default async function ServicesPage() {
         style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
       >
         <div style={narrow}>
-          <p className="section-label" style={{ marginBottom: '16px' }}>The Approach</p>
+          <p className="section-label" style={{ marginBottom: '16px' }}>{d.approachLabel}</p>
           <h2
             id="why-framework-heading"
             style={{
@@ -585,8 +408,8 @@ export default async function ServicesPage() {
           <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6, marginBottom: '36px' }}>
             {d.ctaBody}
           </p>
-          <Link href="/contact#guide" className="btn-ghost">
-            Get the Free Guide
+          <Link href={d.ctaButtonHref} className="btn-ghost">
+            {d.ctaButtonLabel}
           </Link>
         </div>
       </section>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 
 interface CookieBannerProps {
@@ -18,13 +18,10 @@ export default function CookieBanner({
   privacyLabel = 'Privacy Policy',
   privacyHref = '/privacy',
 }: CookieBannerProps) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const consent = window.localStorage.getItem('plenor_cookie_consent');
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!consent) setVisible(true);
-  }, []);
+  const [visible, setVisible] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return !window.localStorage.getItem('plenor_cookie_consent');
+  });
 
   function accept() {
     localStorage.setItem('plenor_cookie_consent', 'accepted');

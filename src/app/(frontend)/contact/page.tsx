@@ -3,26 +3,28 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import GuideForm from '@/components/GuideForm';
 import InquiryForm from '@/components/InquiryForm';
+import PageChromeOverrides from '@/components/PageChromeOverrides';
 import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
-import { resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
+import { buildSitePageMetadata } from '@/lib/page-metadata';
+import { resolveSiteName } from '@/lib/site-config';
 import { resolveContactPageData } from '@/lib/page-content/contact';
 
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSiteSettings();
+  const [sitePage, settings] = await Promise.all([
+    getSitePageBySlug('contact'),
+    getSiteSettings(),
+  ]);
   const siteName = resolveSiteName(settings);
-  const siteUrl = resolveSiteUrl(settings);
-  return {
-    title: 'Contact — Send an Inquiry',
-    description: `Send a direct inquiry to ${siteName}. Tell us about your product and team.`,
-    alternates: { canonical: `${siteUrl}/contact` },
-    openGraph: {
-      title: `Contact ${siteName}`,
-      description: `Send a direct inquiry to ${siteName}. Tell us about your product and team.`,
-      url: `${siteUrl}/contact`,
-    },
-  };
+  return buildSitePageMetadata({
+    slug: 'contact',
+    page: sitePage,
+    settings,
+    fallbackTitle: 'Contact — Send an Inquiry',
+    fallbackDescription:
+      `Send a direct inquiry to ${siteName}. Tell us about your product and team.`,
+  });
 }
 
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
@@ -38,18 +40,7 @@ export default async function ContactPage() {
 
   return (
     <>
-      {sitePage.hideNavbar && (
-        <style>{`header[role="banner"] { display: none !important; }`}</style>
-      )}
-      {sitePage.hideFooter && (
-        <style>{`footer[role="contentinfo"] { display: none !important; }`}</style>
-      )}
-      {sitePage.pageBackgroundColor && (
-        <style>{`body { background-color: ${sitePage.pageBackgroundColor} !important; }`}</style>
-      )}
-      {sitePage.customHeadScripts && (
-        <div dangerouslySetInnerHTML={{ __html: sitePage.customHeadScripts }} style={{ display: 'none' }} />
-      )}
+      <PageChromeOverrides page={sitePage} />
       <section
         aria-labelledby="contact-hero-heading"
         style={{

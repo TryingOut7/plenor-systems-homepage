@@ -2,25 +2,27 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import RichText from '@/components/cms/RichText';
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
-import { getSiteSettings } from '@/payload/cms';
-import { resolveContactEmail, resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
+import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import { buildSitePageMetadata } from '@/lib/page-metadata';
+import { resolveContactEmail, resolveSiteName } from '@/lib/site-config';
 
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSiteSettings();
+  const [sitePage, settings] = await Promise.all([
+    getSitePageBySlug('privacy'),
+    getSiteSettings(),
+  ]);
   const siteName = resolveSiteName(settings);
-  const siteUrl = resolveSiteUrl(settings);
-  return {
-    title: 'Privacy Policy',
-    description: `Privacy Policy for ${siteName} — how we collect, use, and protect your data.`,
-    alternates: { canonical: `${siteUrl}/privacy` },
-    openGraph: {
-      title: `Privacy Policy | ${siteName}`,
-      url: `${siteUrl}/privacy`,
-    },
-    robots: { index: false, follow: false },
-  };
+  return buildSitePageMetadata({
+    slug: 'privacy',
+    page: sitePage,
+    settings,
+    fallbackTitle: 'Privacy Policy',
+    fallbackDescription: `Privacy Policy for ${siteName} — how we collect, use, and protect your data.`,
+    fallbackNoindex: true,
+    fallbackNofollow: true,
+  });
 }
 
 const bodyText: React.CSSProperties = { fontSize: '16px', color: '#6B7280', lineHeight: 1.7, margin: 0 };

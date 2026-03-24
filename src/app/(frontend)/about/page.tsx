@@ -1,128 +1,32 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
-import { resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
+import PageChromeOverrides from '@/components/PageChromeOverrides';
+import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import { buildSitePageMetadata } from '@/lib/page-metadata';
+import { resolveAboutPageData } from '@/lib/page-content/about';
+import { resolveSiteName } from '@/lib/site-config';
 
 export const revalidate = 60;
 
-interface AboutPageData {
-  heroParagraph1?: string;
-  heroParagraph2?: string;
-  heroParagraph3?: string;
-  focusParagraph1?: string;
-  focusParagraph2?: string;
-  focusParagraph3?: string;
-  missionQuote?: string;
-  founderName?: string;
-  founderRole?: string;
-  founderBio?: string;
-  ctaHeading?: string;
-  ctaBody?: string;
-}
-
-const defaults: Required<AboutPageData> = {
-  heroParagraph1:
-    'This product development framework is built around a specific observation: the stages most likely to cause a launch to fail are Testing & QA and Go-to-Market — and they’re consistently the least structured.',
-  heroParagraph2:
-    'Most frameworks cover the full development lifecycle. This framework covers only the final two stages — not because the others don’t matter, but because these two are where structure is most absent and most needed.',
-  heroParagraph3:
-    'The framework is used by teams ranging from early-stage startups to enterprise product groups who need a repeatable, structured process for the stretch of work between build completion and a successful launch.',
-  focusParagraph1:
-    'This framework covers two stages: Testing & QA and Launch & Go-to-Market. That scope is intentional.',
-  focusParagraph2:
-    'Narrowing to two stages means the framework goes deep rather than broad. Each module is specific — built from observed patterns of what goes wrong and why. It is not a general project management tool dressed as a product framework.',
-  focusParagraph3:
-    'The narrow focus is a strength, not a limitation. Teams get a framework that is actually applicable to the work at hand, not a set of generic principles that need extensive interpretation.',
-  missionQuote:
-    'A well-built product deserves a structured path to market — and consistent quality standards before it gets there.',
-  founderName: '',
-  founderRole: '',
-  founderBio: '',
-  ctaHeading: 'Want to work together?',
-  ctaBody: 'Get in touch to discuss your product and team, or start with the free guide.',
-};
-
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSiteSettings();
+  const [sitePage, settings] = await Promise.all([
+    getSitePageBySlug('about'),
+    getSiteSettings(),
+  ]);
   const siteName = resolveSiteName(settings);
-  const siteUrl = resolveSiteUrl(settings);
-  return {
-    title: 'About — Who We Are and Why We Built This',
-    description: `${siteName} was built to address the two stages of product development most likely to cause failure: Testing & QA and Launch & Go-to-Market.`,
-    alternates: { canonical: `${siteUrl}/about` },
-    openGraph: {
-      title: `About ${siteName}`,
-      description: `${siteName} was built to address the two stages of product development most likely to cause failure: Testing & QA and Launch & Go-to-Market.`,
-      url: `${siteUrl}/about`,
-    },
-  };
+  return buildSitePageMetadata({
+    slug: 'about',
+    page: sitePage,
+    settings,
+    fallbackTitle: 'About — Who We Are and Why We Built This',
+    fallbackDescription:
+      `${siteName} was built to address the two stages of product development most likely to cause failure: Testing & QA and Launch & Go-to-Market.`,
+  });
 }
 
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 const narrow: React.CSSProperties = { maxWidth: '760px', margin: '0 auto' };
-
-function findSection(
-  sections: PageSection[],
-  blockType: string,
-  heading?: string,
-): PageSection | undefined {
-  return sections.find((section) => {
-    if (section.blockType !== blockType) return false;
-    if (!heading) return true;
-    return String(section.heading || '').trim() === heading;
-  });
-}
-
-function getRichTextParagraphs(section: PageSection | undefined): string[] {
-  if (!section || !section.content || typeof section.content !== 'object') return [];
-  const root = (section.content as Record<string, unknown>).root;
-  if (!root || typeof root !== 'object') return [];
-  const children = Array.isArray((root as Record<string, unknown>).children)
-    ? ((root as Record<string, unknown>).children as unknown[])
-    : [];
-
-  const readText = (node: unknown): string => {
-    if (!node || typeof node !== 'object') return '';
-    const record = node as Record<string, unknown>;
-    if (typeof record.text === 'string') return record.text;
-    if (!Array.isArray(record.children)) return '';
-    return record.children.map(readText).join('');
-  };
-
-  return children
-    .map(readText)
-    .map((text) => text.trim())
-    .filter(Boolean);
-}
-
-function getAboutPageData(sections: PageSection[]): Required<AboutPageData> {
-  const hero = findSection(sections, 'heroSection');
-  const whoSection = findSection(sections, 'richTextSection', 'Who we are');
-  const focusSection = findSection(sections, 'richTextSection', 'Narrow by design. Deep by necessity.');
-  const mission = findSection(sections, 'ctaSection', 'What we believe');
-  const cta = findSection(sections, 'ctaSection', 'Want to work together?');
-
-  const whoParagraphs = getRichTextParagraphs(whoSection);
-  const focusParagraphs = getRichTextParagraphs(focusSection);
-
-  return {
-    ...defaults,
-    heroParagraph1:
-      typeof hero?.subheading === 'string' ? hero.subheading : defaults.heroParagraph1,
-    heroParagraph2: whoParagraphs[0] || defaults.heroParagraph2,
-    heroParagraph3: whoParagraphs[1] || defaults.heroParagraph3,
-    focusParagraph1: focusParagraphs[0] || defaults.focusParagraph1,
-    focusParagraph2: focusParagraphs[1] || defaults.focusParagraph2,
-    focusParagraph3: focusParagraphs[2] || defaults.focusParagraph3,
-    missionQuote: typeof mission?.body === 'string' ? mission.body : defaults.missionQuote,
-    ctaHeading: typeof cta?.heading === 'string' ? cta.heading : defaults.ctaHeading,
-    ctaBody: typeof cta?.body === 'string' ? cta.body : defaults.ctaBody,
-    founderName: defaults.founderName,
-    founderRole: defaults.founderRole,
-    founderBio: defaults.founderBio,
-  };
-}
 
 export default async function AboutPage() {
   const [sitePage, siteSettings] = await Promise.all([
@@ -134,23 +38,12 @@ export default async function AboutPage() {
     notFound();
   }
 
-  const d = getAboutPageData(sitePage.sections);
+  const d = resolveAboutPageData(sitePage.sections);
   const siteName = resolveSiteName(siteSettings);
 
   return (
     <>
-      {sitePage.hideNavbar && (
-        <style>{`header[role="banner"] { display: none !important; }`}</style>
-      )}
-      {sitePage.hideFooter && (
-        <style>{`footer[role="contentinfo"] { display: none !important; }`}</style>
-      )}
-      {sitePage.pageBackgroundColor && (
-        <style>{`body { background-color: ${sitePage.pageBackgroundColor} !important; }`}</style>
-      )}
-      {sitePage.customHeadScripts && (
-        <div dangerouslySetInnerHTML={{ __html: sitePage.customHeadScripts }} style={{ display: 'none' }} />
-      )}
+      <PageChromeOverrides page={sitePage} />
       <section
         aria-labelledby="about-hero-heading"
         style={{
@@ -173,7 +66,7 @@ export default async function AboutPage() {
         />
         <div style={{ ...narrow, position: 'relative', zIndex: 1 }}>
           <p className="section-label animate-fade-in" style={{ color: 'rgba(255,255,255,0.45)', marginBottom: '24px' }}>
-            About
+            {d.heroLabel}
           </p>
           <h1
             id="about-hero-heading"
@@ -188,7 +81,7 @@ export default async function AboutPage() {
               marginBottom: '32px',
             }}
           >
-            Who we are
+            {d.heroHeading}
           </h1>
           <p className="animate-fade-up-delay-1" style={{ fontSize: '17px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, marginBottom: '20px' }}>
             {d.heroParagraph1}
@@ -207,7 +100,7 @@ export default async function AboutPage() {
         style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
       >
         <div style={narrow}>
-          <p className="section-label" style={{ marginBottom: '16px' }}>Our Focus</p>
+          <p className="section-label" style={{ marginBottom: '16px' }}>{d.focusLabel}</p>
           <h2
             id="focus-heading"
             style={{
@@ -220,7 +113,7 @@ export default async function AboutPage() {
               marginBottom: '20px',
             }}
           >
-            Narrow by design. Deep by necessity.
+            {d.focusHeading}
           </h2>
           <div style={{ width: '40px', height: '3px', backgroundColor: '#1B2D4F', marginBottom: '32px', borderRadius: '2px' }} aria-hidden="true" />
           <p style={{ fontSize: '17px', color: '#6B7280', lineHeight: 1.7, marginBottom: '20px' }}>
@@ -233,7 +126,7 @@ export default async function AboutPage() {
             {d.focusParagraph3}
           </p>
           <Link
-            href="/services"
+            href={d.focusLinkHref}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -245,7 +138,7 @@ export default async function AboutPage() {
             }}
             className="text-link"
           >
-            See how the two stages work →
+            {d.focusLinkLabel}
           </Link>
         </div>
       </section>
@@ -277,7 +170,7 @@ export default async function AboutPage() {
           &ldquo;
         </div>
         <div style={{ ...narrow, position: 'relative', zIndex: 1, textAlign: 'center' }}>
-          <p className="section-label" style={{ marginBottom: '32px' }}>What we believe</p>
+          <p className="section-label" style={{ marginBottom: '32px' }}>{d.missionLabel}</p>
           <h2
             id="mission-heading"
             style={{
@@ -303,7 +196,7 @@ export default async function AboutPage() {
           style={{ padding: '100px 32px', backgroundColor: '#ffffff' }}
         >
           <div style={narrow}>
-            <p className="section-label" style={{ marginBottom: '16px' }}>The Team</p>
+            <p className="section-label" style={{ marginBottom: '16px' }}>{d.teamLabel}</p>
             <h2
               id="team-heading"
               style={{
@@ -316,7 +209,7 @@ export default async function AboutPage() {
                 marginBottom: '40px',
               }}
             >
-              The people behind the framework.
+              {d.teamHeading}
             </h2>
             <div
               style={{
@@ -406,11 +299,11 @@ export default async function AboutPage() {
             {d.ctaBody}
           </p>
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/contact" className="btn-ghost">
-              Get in touch
+            <Link href={d.ctaPrimaryHref} className="btn-ghost">
+              {d.ctaPrimaryLabel}
             </Link>
             <Link
-              href="/contact#guide"
+              href={d.ctaSecondaryHref}
               style={{
                 display: 'inline-block',
                 color: 'rgba(255,255,255,0.75)',
@@ -424,7 +317,7 @@ export default async function AboutPage() {
               }}
               className="ghost-outline"
             >
-              Get the free guide
+              {d.ctaSecondaryLabel}
             </Link>
           </div>
         </div>

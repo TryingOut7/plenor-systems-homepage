@@ -1,4 +1,5 @@
 import type { SiteSettings } from '@/payload/cms';
+import { asTrimmedString } from '@/lib/page-content/helpers';
 
 export interface NotFoundPageData {
   metaTitle?: string;
@@ -18,11 +19,6 @@ export const NOT_FOUND_PAGE_DEFAULTS: Required<NotFoundPageData> = {
   buttonHref: '/',
 };
 
-function asTrimmedString(value: unknown): string {
-  if (typeof value !== 'string') return '';
-  return value.trim();
-}
-
 export function resolveNotFoundPageData(
   settings: SiteSettings | null | undefined,
 ): Required<NotFoundPageData> {
@@ -41,4 +37,3 @@ export function resolveNotFoundPageData(
     buttonHref: asTrimmedString(notFoundPage?.buttonHref) || NOT_FOUND_PAGE_DEFAULTS.buttonHref,
   };
 }
-

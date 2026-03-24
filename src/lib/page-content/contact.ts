@@ -1,4 +1,5 @@
 import type { PageSection } from '@/payload/cms';
+import { asTrimmedString, findSection } from '@/lib/page-content/helpers';
 
 export interface ContactPageData {
   heroLabel?: string;
@@ -47,23 +48,6 @@ export const CONTACT_PAGE_DEFAULTS: Required<ContactPageData> = {
   privacyPolicyHref: '/privacy',
 };
 
-function asTrimmedString(value: unknown): string {
-  if (typeof value !== 'string') return '';
-  return value.trim();
-}
-
-function findSection(
-  sections: PageSection[],
-  blockType: string,
-  heading?: string,
-): PageSection | undefined {
-  return sections.find((section) => {
-    if (section.blockType !== blockType) return false;
-    if (!heading) return true;
-    return String(section.heading || '').trim() === heading;
-  });
-}
-
 export function resolveContactPageData(
   sections: PageSection[] | null | undefined,
 ): Required<ContactPageData> {
@@ -101,4 +85,3 @@ export function resolveContactPageData(
       asTrimmedString(privacyNote?.policyLinkHref) || CONTACT_PAGE_DEFAULTS.privacyPolicyHref,
   };
 }
-
