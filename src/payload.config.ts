@@ -1,9 +1,14 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { buildConfig } from 'payload';
-import { validateEnv } from './lib/env-validation.js';
-
-validateEnv();
+if (process.env.NODE_ENV === 'production') {
+  const missing = ['DATABASE_URI', 'PAYLOAD_SECRET', 'NEXT_PUBLIC_SERVER_URL'].filter(
+    (k) => !process.env[k],
+  );
+  if (missing.length > 0) {
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+}
 import { acceptedLanguages, type AcceptedLanguages } from '@payloadcms/translations';
 
 const __filename = fileURLToPath(import.meta.url);
