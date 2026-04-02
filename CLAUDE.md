@@ -70,6 +70,9 @@ npm run openapi:check    # Verify generated OpenAPI types are up to date
 npm run db:migrate       # Apply versioned DB migrations from migrations/versions
 npm run db:migrate:status # Show applied/pending migrations
 npm run db:migrate:rollback # Roll back the latest applied migration
+npm run db:check:payload # Check Payload schema against actual DB columns/constraints
+npm run db:repair:payload # Repair Payload schema drift in the DB
+npm run backup           # Run database backup script
 npm run test:unit        # Domain/application unit tests
 npm run test:integration # Fastify route integration tests
 npm run test:e2e         # Typed-client smoke tests against live backend instance
