@@ -1,6 +1,22 @@
 import type { CollectionBeforeChangeHook } from 'payload';
 import { buildCorePresetSections, type CorePresetKey } from '../presets/corePagePresets.ts';
 
+function cloneValue<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((entry) => cloneValue(entry)) as T;
+  }
+
+  if (value && typeof value === 'object') {
+    const cloned: Record<string, unknown> = {};
+    for (const [key, nestedValue] of Object.entries(value as Record<string, unknown>)) {
+      cloned[key] = cloneValue(nestedValue);
+    }
+    return cloned as T;
+  }
+
+  return value;
+}
+
 function asObject(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
   return value as Record<string, unknown>;
@@ -13,12 +29,17 @@ function asObjectArray(value: unknown): Array<Record<string, unknown>> {
     .filter((entry) => Object.keys(entry).length > 0);
 }
 
-function pickSectionByIndex(
+function pickSectionByKey(
   sections: Array<Record<string, unknown>>,
-  index: number,
+  structuralKey: string,
+  fallbackIndex: number,
   blockType: string,
 ): Record<string, unknown> {
-  const candidate = asObject(sections[index]);
+  const byKey = sections.find(
+    (s) => typeof s.structuralKey === 'string' && s.structuralKey === structuralKey,
+  );
+  if (byKey) return byKey;
+  const candidate = asObject(sections[fallbackIndex]);
   if (candidate.blockType === blockType) return candidate;
   return {};
 }
@@ -31,7 +52,7 @@ function setStringField(target: Record<string, unknown>, source: Record<string, 
 
 function setObjectField(target: Record<string, unknown>, source: Record<string, unknown>, field: string): void {
   if (source[field] && typeof source[field] === 'object' && !Array.isArray(source[field])) {
-    target[field] = source[field];
+    target[field] = cloneValue(source[field]);
   }
 }
 
@@ -83,8 +104,9 @@ function mergePresetTextIntoTemplateSections(
     const blockType = typeof templateSection.blockType === 'string' ? templateSection.blockType : '';
     if (!blockType) return templateSection;
 
-    const incomingSection = pickSectionByIndex(incomingSections, index, blockType);
-    const originalSection = pickSectionByIndex(originalSections, index, blockType);
+    const structuralKey = typeof templateSection.structuralKey === 'string' ? templateSection.structuralKey : '';
+    const incomingSection = pickSectionByKey(incomingSections, structuralKey, index, blockType);
+    const originalSection = pickSectionByKey(originalSections, structuralKey, index, blockType);
     const sourceSection = Object.keys(incomingSection).length > 0 ? incomingSection : originalSection;
     if (Object.keys(sourceSection).length === 0) return templateSection;
 
@@ -196,7 +218,7 @@ function resolvePresetKey(
 export const applyCorePresetSections: CollectionBeforeChangeHook = ({ data, originalDoc, operation }) => {
   if (!data || typeof data !== 'object') return data;
 
-  const incoming = data as Record<string, unknown>;
+  const incoming = cloneValue(data as Record<string, unknown>);
   const original = asObject(originalDoc);
   const presetKey = resolvePresetKey(incoming, original, operation);
   if (presetKey === 'custom') return incoming;
@@ -215,9 +237,10 @@ export const applyCorePresetSections: CollectionBeforeChangeHook = ({ data, orig
   const incomingSections = asObjectArray(incoming.sections);
   const originalSections = asObjectArray(original.sections);
 
-  incoming.presetContent = mergedRoot;
-  incoming.presetKey = presetKey;
-  incoming.sections = mergePresetTextIntoTemplateSections(templateSections, incomingSections, originalSections);
-
-  return incoming;
+  return {
+    ...incoming,
+    presetContent: mergedRoot,
+    presetKey,
+    sections: mergePresetTextIntoTemplateSections(templateSections, incomingSections, originalSections),
+  };
 };

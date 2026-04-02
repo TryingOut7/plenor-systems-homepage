@@ -189,6 +189,7 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
   return [
     {
       blockType: 'heroSection',
+      structuralKey: 'home.hero',
       theme: 'navy',
       eyebrow: 'Product Development Framework',
       heading: heroHeading,
@@ -198,6 +199,7 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
     },
     {
       blockType: 'richTextSection',
+      structuralKey: 'home.problem',
       theme: 'white',
       sectionLabel: 'The Problem',
       heading: problemHeading,
@@ -205,6 +207,7 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
     },
     {
       blockType: 'ctaSection',
+      structuralKey: 'home.cta',
       theme: 'light',
       heading: 'Two stages. Both critical.',
       body: 'This framework focuses on Testing & QA and Launch & Go-to-Market, where product outcomes are won or lost.',
@@ -213,6 +216,7 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
     },
     {
       blockType: 'simpleTableSection',
+      structuralKey: 'home.table-stages',
       theme: 'light',
       heading: 'What We Do',
       columns: [{ label: 'Stage' }, { label: 'Title' }, { label: 'Description' }],
@@ -235,6 +239,7 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
     },
     {
       blockType: 'simpleTableSection',
+      structuralKey: 'home.table-audiences',
       theme: 'white',
       sectionLabel: "Who It's For",
       heading: 'Built for teams at every stage',
@@ -245,6 +250,7 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
     },
     {
       blockType: 'guideFormSection',
+      structuralKey: 'home.guide-form',
       theme: 'navy',
       anchorId: 'guide',
       label: 'Free resource',
@@ -298,6 +304,7 @@ function buildServicesSections(content: PresetContent): Record<string, unknown>[
   return [
     {
       blockType: 'heroSection',
+      structuralKey: 'services.hero',
       theme: 'navy',
       eyebrow: 'Framework Overview',
       heading: heroHeading,
@@ -305,12 +312,14 @@ function buildServicesSections(content: PresetContent): Record<string, unknown>[
     },
     {
       blockType: 'richTextSection',
+      structuralKey: 'services.testing-body',
       theme: 'white',
       heading: 'Testing & QA',
       content: richTextFromParagraphs([testingBody, `Who it’s for: ${testingWhoFor}`]),
     },
     {
       blockType: 'simpleTableSection',
+      structuralKey: 'services.testing-coverage',
       theme: 'white',
       heading: 'What it covers',
       columns: [{ label: 'What it covers' }],
@@ -318,12 +327,14 @@ function buildServicesSections(content: PresetContent): Record<string, unknown>[
     },
     {
       blockType: 'richTextSection',
+      structuralKey: 'services.launch-body',
       theme: 'light',
       heading: 'Launch & Go-to-Market',
       content: richTextFromParagraphs([launchBody, `Who it’s for: ${launchWhoFor}`]),
     },
     {
       blockType: 'simpleTableSection',
+      structuralKey: 'services.launch-coverage',
       theme: 'light',
       heading: 'What it covers',
       columns: [{ label: 'What it covers' }],
@@ -331,12 +342,14 @@ function buildServicesSections(content: PresetContent): Record<string, unknown>[
     },
     {
       blockType: 'richTextSection',
+      structuralKey: 'services.why-framework',
       theme: 'white',
       heading: whyFrameworkHeading,
       content: richTextFromParagraphs([whyFrameworkBody1, whyFrameworkBody2, whyFrameworkBody3]),
     },
     {
       blockType: 'ctaSection',
+      structuralKey: 'services.cta',
       theme: 'navy',
       heading: ctaHeading,
       body: ctaBody,
@@ -381,6 +394,7 @@ function buildAboutSections(content: PresetContent): Record<string, unknown>[] {
   return [
     {
       blockType: 'heroSection',
+      structuralKey: 'about.hero',
       theme: 'navy',
       eyebrow: 'About',
       heading: 'Who we are',
@@ -388,24 +402,28 @@ function buildAboutSections(content: PresetContent): Record<string, unknown>[] {
     },
     {
       blockType: 'richTextSection',
+      structuralKey: 'about.who',
       theme: 'white',
       heading: 'Who we are',
       content: richTextFromParagraphs([heroParagraph2, heroParagraph3]),
     },
     {
       blockType: 'richTextSection',
+      structuralKey: 'about.focus',
       theme: 'white',
       heading: 'Narrow by design. Deep by necessity.',
       content: richTextFromParagraphs([focusParagraph1, focusParagraph2, focusParagraph3]),
     },
     {
       blockType: 'ctaSection',
+      structuralKey: 'about.mission',
       theme: 'light',
       heading: 'What we believe',
       body: missionQuote,
     },
     {
       blockType: 'ctaSection',
+      structuralKey: 'about.cta',
       theme: 'navy',
       heading: ctaHeading,
       body: ctaBody,
@@ -438,6 +456,7 @@ function buildPricingSections(content: PresetContent): Record<string, unknown>[]
   return [
     {
       blockType: 'heroSection',
+      structuralKey: 'pricing.hero',
       theme: 'navy',
       eyebrow: 'Pricing',
       heading: heroHeading,
@@ -445,6 +464,7 @@ function buildPricingSections(content: PresetContent): Record<string, unknown>[]
     },
     {
       blockType: 'simpleTableSection',
+      structuralKey: 'pricing.table-included',
       theme: 'white',
       heading: 'Everything you need to ship with confidence.',
       columns: [{ label: 'Included' }, { label: 'Details' }],
@@ -454,11 +474,13 @@ function buildPricingSections(content: PresetContent): Record<string, unknown>[]
     },
     {
       blockType: 'richTextSection',
+      structuralKey: 'pricing.included-body',
       theme: 'white',
       content: richTextFromParagraphs([includedBody]),
     },
     {
       blockType: 'simpleTableSection',
+      structuralKey: 'pricing.table-audiences',
       theme: 'light',
       heading: 'No minimum team size. Any stage.',
       columns: [{ label: 'Team' }, { label: 'Best fit' }],
@@ -468,6 +490,7 @@ function buildPricingSections(content: PresetContent): Record<string, unknown>[]
     },
     {
       blockType: 'ctaSection',
+      structuralKey: 'pricing.cta-ready',
       theme: 'white',
       heading: ctaHeading,
       body: ctaBody,
@@ -476,6 +499,7 @@ function buildPricingSections(content: PresetContent): Record<string, unknown>[]
     },
     {
       blockType: 'ctaSection',
+      structuralKey: 'pricing.cta-not-ready',
       theme: 'light',
       heading: notReadyHeading,
       body: notReadyBody,
@@ -517,6 +541,7 @@ function buildContactSections(content: PresetContent): Record<string, unknown>[]
   return [
     {
       blockType: 'heroSection',
+      structuralKey: 'contact.hero',
       theme: 'navy',
       eyebrow: 'Contact',
       heading: heroHeading,
@@ -524,6 +549,7 @@ function buildContactSections(content: PresetContent): Record<string, unknown>[]
     },
     {
       blockType: 'guideFormSection',
+      structuralKey: 'contact.guide-form',
       theme: 'light',
       anchorId: 'guide',
       label: 'Free resource',
@@ -533,6 +559,7 @@ function buildContactSections(content: PresetContent): Record<string, unknown>[]
     },
     {
       blockType: 'inquiryFormSection',
+      structuralKey: 'contact.inquiry-form',
       theme: 'white',
       label: 'Send an inquiry',
       heading: inquiryHeading,
@@ -546,6 +573,7 @@ function buildContactSections(content: PresetContent): Record<string, unknown>[]
     },
     {
       blockType: 'privacyNoteSection',
+      structuralKey: 'contact.privacy-note',
       theme: 'light',
       label: 'By submitting this form, you agree to our',
       policyLinkLabel: 'Privacy Policy',
