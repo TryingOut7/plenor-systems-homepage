@@ -50,6 +50,6 @@ const nextConfig: NextConfig = {
 
 export default withSentryConfig(withPayload(nextConfig), {
   silent: true,
-  hideSourceMaps: true,
   disableLogger: true,
+  sourcemaps: { disable: true },
 });
