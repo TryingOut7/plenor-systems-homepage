@@ -442,23 +442,6 @@ export default buildConfig({
 
   // ─── Plugins ──────────────────────────────────────────────────────────────────
   plugins: [
-    // ── Vercel Blob Storage ───────────────────────────────────────────────────
-    // Stores uploaded media in Vercel Blob instead of the ephemeral filesystem.
-    // Requires BLOB_READ_WRITE_TOKEN env var (set automatically when Vercel Blob
-    // is enabled in the Vercel project dashboard under Storage → Blob).
-    ...(hasBlobReadWriteToken
-      ? [
-          vercelBlobStorage({
-            collections: {
-              media: true,
-              exports: true,
-              imports: true,
-            },
-            token: blobReadWriteToken,
-          }),
-        ]
-      : []),
-
     // ── SEO Plugin ────────────────────────────────────────────────────────────
     // Adds meta title, description, and image fields to content collections
     seoPlugin({
@@ -585,6 +568,22 @@ export default buildConfig({
               { slug: 'testimonials' },
               { slug: 'media' },
             ],
+          }),
+        ]
+      : []),
+
+    // ── Vercel Blob Storage ───────────────────────────────────────────────────
+    // Must run after plugins that register upload collections (e.g. import-export)
+    // so adapter assignment includes those collections.
+    ...(hasBlobReadWriteToken
+      ? [
+          vercelBlobStorage({
+            collections: {
+              media: true,
+              exports: true,
+              imports: true,
+            },
+            token: blobReadWriteToken,
           }),
         ]
       : []),
