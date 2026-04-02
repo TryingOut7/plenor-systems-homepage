@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "payload generate:importmap && next build",
+    "build": "TSX_TSCONFIG_PATH=tsconfig.json payload generate:importmap && next build",
     "start": "next start",
     "lint": "eslint",
     "lint:architecture": "eslint src/domain src/application src/app/api",
