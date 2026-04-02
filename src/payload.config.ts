@@ -59,6 +59,9 @@ function resolveServerURL(): string {
 }
 
 const serverURL = resolveServerURL();
+const blobReadWriteToken = process.env.BLOB_READ_WRITE_TOKEN;
+const hasBlobReadWriteToken =
+  typeof blobReadWriteToken === 'string' && blobReadWriteToken.length > 0;
 const dbRejectUnauthorized = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true';
 const dbPushSchema =
   process.env.PAYLOAD_DB_PUSH === 'true';
@@ -443,15 +446,18 @@ export default buildConfig({
     // Stores uploaded media in Vercel Blob instead of the ephemeral filesystem.
     // Requires BLOB_READ_WRITE_TOKEN env var (set automatically when Vercel Blob
     // is enabled in the Vercel project dashboard under Storage → Blob).
-    vercelBlobStorage({
-      enabled: !!process.env.BLOB_READ_WRITE_TOKEN,
-      collections: {
-        media: true,
-        exports: true,
-        imports: true,
-      },
-      token: process.env.BLOB_READ_WRITE_TOKEN || '',
-    }),
+    ...(hasBlobReadWriteToken
+      ? [
+          vercelBlobStorage({
+            collections: {
+              media: true,
+              exports: true,
+              imports: true,
+            },
+            token: blobReadWriteToken,
+          }),
+        ]
+      : []),
 
     // ── SEO Plugin ────────────────────────────────────────────────────────────
     // Adds meta title, description, and image fields to content collections
@@ -565,8 +571,9 @@ export default buildConfig({
     // ── Import/Export Plugin ───────────────────────────────────────────────────
     // Import and export collection data as CSV or JSON
     // NOTE: Disabled locally — LibSQL cannot handle special chars in Google Drive
-    // path. Works fine on Vercel. Re-enable when running outside Google Drive.
-    ...(process.env.VERCEL
+    // path. Also disabled when blob storage is not configured to avoid Vercel
+    // upload collections running without persistent storage.
+    ...(process.env.VERCEL && hasBlobReadWriteToken
       ? [
           importExportPlugin({
             collections: [

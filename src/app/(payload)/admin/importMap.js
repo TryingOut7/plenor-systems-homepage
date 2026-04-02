@@ -54,6 +54,7 @@ import { QueryPresetsGroupByCell as QueryPresetsGroupByCell_2b8867833a34864a02dd
 import { QueryPresetsGroupByField as QueryPresetsGroupByField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
 import { ImportExportProvider as ImportExportProvider_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_0127ca5cb5544af3ad1a6a5999faa7b0 } from '@payloadcms/storage-vercel-blob/client'
 import { default as default_4de2b5b97b2b4bb1c1c999625da7722f } from '@/payload/admin/components/SectionBackgroundColorPicker'
 
 export const importMap = {
@@ -113,5 +114,6 @@ export const importMap = {
   "@payloadcms/next/client#QueryPresetsGroupByField": QueryPresetsGroupByField_2b8867833a34864a02ddf429b0728a40,
   "@payloadcms/plugin-import-export/rsc#ImportExportProvider": ImportExportProvider_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
+  "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_0127ca5cb5544af3ad1a6a5999faa7b0,
   "@/payload/admin/components/SectionBackgroundColorPicker#default": default_4de2b5b97b2b4bb1c1c999625da7722f
 }
