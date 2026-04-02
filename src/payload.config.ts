@@ -1,7 +1,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { buildConfig } from 'payload';
-import { validateEnv } from './lib/env-validation';
+import { validateEnv } from './lib/env-validation.js';
 
 validateEnv();
 import { acceptedLanguages, type AcceptedLanguages } from '@payloadcms/translations';
