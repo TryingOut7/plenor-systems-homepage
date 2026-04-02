@@ -6,6 +6,7 @@ import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload
 import { buildBreadcrumbJsonLd } from '@/lib/breadcrumbs';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
 import { resolveSiteUrl } from '@/lib/site-config';
+import { getCmsReadOptions } from '@/lib/cms-read-options';
 
 export const revalidate = 60;
 
@@ -29,9 +30,10 @@ export async function generateMetadata({
   const slug = buildSlug(resolvedParams);
   if (!slug || RESERVED_PREFIXES.includes(resolvedParams.slug?.[0] ?? '')) return {};
 
+  const cmsReadOptions = await getCmsReadOptions();
   const [page, settings] = await Promise.all([
-    getSitePageBySlug(slug),
-    getSiteSettings(),
+    getSitePageBySlug(slug, cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
   ]);
 
   if (!page) return {};
@@ -54,10 +56,11 @@ export default async function CmsDynamicPage({
   const slug = buildSlug(resolvedParams);
   if (!slug || RESERVED_PREFIXES.includes(resolvedParams.slug?.[0] ?? '')) notFound();
 
+  const cmsReadOptions = await getCmsReadOptions();
   const [page, collectionData, siteSettings] = await Promise.all([
-    getSitePageBySlug(slug),
-    getCollectionData(),
-    getSiteSettings(),
+    getSitePageBySlug(slug, cmsReadOptions),
+    getCollectionData(cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
   ]);
 
   if (!page || !Array.isArray(page.sections) || page.sections.length === 0) {

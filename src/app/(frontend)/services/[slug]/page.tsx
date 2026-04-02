@@ -6,6 +6,7 @@ import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical
 import { getServiceItemBySlug, getSiteSettings } from '@/payload/cms';
 import { buildBreadcrumbJsonLd } from '@/lib/breadcrumbs';
 import { resolveSiteUrl } from '@/lib/site-config';
+import { getCmsReadOptions } from '@/lib/cms-read-options';
 
 export const revalidate = 60;
 
@@ -19,9 +20,10 @@ export async function generateMetadata({
   params: Promise<RouteParams>;
 }): Promise<Metadata> {
   const resolvedParams = await params;
+  const cmsReadOptions = await getCmsReadOptions();
   const [item, settings] = await Promise.all([
-    getServiceItemBySlug(resolvedParams.slug),
-    getSiteSettings(),
+    getServiceItemBySlug(resolvedParams.slug, cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
   ]);
 
   if (!item) return {};
@@ -54,9 +56,10 @@ export default async function ServiceItemPage({
   params: Promise<RouteParams>;
 }) {
   const resolvedParams = await params;
+  const cmsReadOptions = await getCmsReadOptions();
   const [item, settings] = await Promise.all([
-    getServiceItemBySlug(resolvedParams.slug),
-    getSiteSettings(),
+    getServiceItemBySlug(resolvedParams.slug, cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
   ]);
   if (!item) notFound();
 

@@ -48,6 +48,27 @@ describe('application service guards', () => {
     expect(result.body).toEqual({ error: 'Invalid secret' });
   });
 
+  it('uses PAYLOAD_PREVIEW_SECRET when configured', async () => {
+    process.env.PAYLOAD_SECRET = 'fallback-secret';
+    process.env.PAYLOAD_PREVIEW_SECRET = 'preview-secret';
+
+    const accepted = await enableDraftModeForRequest(context(), {
+      secret: 'preview-secret',
+      slug: '/',
+    });
+    expect(accepted.status).toBe(200);
+    expect(accepted.body).toEqual({ ok: true, slug: '/' });
+
+    const rejectedFallback = await enableDraftModeForRequest(context(), {
+      secret: 'fallback-secret',
+      slug: '/',
+    });
+    expect(rejectedFallback.status).toBe(401);
+    expect(rejectedFallback.body).toEqual({ error: 'Invalid secret' });
+
+    delete process.env.PAYLOAD_PREVIEW_SECRET;
+  });
+
   it('returns 400 for search without filters', async () => {
     const result = await searchSiteContent(
       context({

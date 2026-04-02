@@ -7,13 +7,15 @@ import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
 import { resolveSiteName } from '@/lib/site-config';
 import { resolveHomePageData } from '@/lib/page-content/home';
+import { getCmsReadOptions } from '@/lib/cms-read-options';
 
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const cmsReadOptions = await getCmsReadOptions();
   const [sitePage, settings] = await Promise.all([
-    getSitePageBySlug('home'),
-    getSiteSettings(),
+    getSitePageBySlug('home', cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
   ]);
   const siteName = resolveSiteName(settings);
   return buildSitePageMetadata({
@@ -29,7 +31,11 @@ export async function generateMetadata(): Promise<Metadata> {
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
 export default async function HomePage() {
-  const [sitePage, siteSettings] = await Promise.all([getSitePageBySlug('home'), getSiteSettings()]);
+  const cmsReadOptions = await getCmsReadOptions();
+  const [sitePage, siteSettings] = await Promise.all([
+    getSitePageBySlug('home', cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
+  ]);
 
   if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {
     notFound();

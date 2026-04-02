@@ -6,13 +6,15 @@ import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
 import { resolvePricingPageData } from '@/lib/page-content/pricing';
 import { resolveSiteName } from '@/lib/site-config';
+import { getCmsReadOptions } from '@/lib/cms-read-options';
 
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const cmsReadOptions = await getCmsReadOptions();
   const [sitePage, settings] = await Promise.all([
-    getSitePageBySlug('pricing'),
-    getSiteSettings(),
+    getSitePageBySlug('pricing', cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
   ]);
   const siteName = resolveSiteName(settings);
   return buildSitePageMetadata({
@@ -28,7 +30,8 @@ export async function generateMetadata(): Promise<Metadata> {
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
 export default async function PricingPage() {
-  const sitePage = await getSitePageBySlug('pricing');
+  const cmsReadOptions = await getCmsReadOptions();
+  const sitePage = await getSitePageBySlug('pricing', cmsReadOptions);
 
   if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {
     notFound();

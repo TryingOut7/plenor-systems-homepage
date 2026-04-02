@@ -119,6 +119,65 @@ function parseCsvList(value?: string): string[] {
     .filter(Boolean);
 }
 
+function normalizePreviewSlug(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const normalized = value.trim().replace(/^\/+|\/+$/g, '');
+  return normalized || null;
+}
+
+function resolveCollectionLivePreviewPath(
+  collectionSlug: string | undefined,
+  data: Record<string, unknown> | undefined,
+): string | null {
+  if (!collectionSlug) return null;
+
+  const slug = normalizePreviewSlug(data?.slug);
+
+  if (collectionSlug === 'site-pages') {
+    if (!slug || slug === 'home') return '/';
+    return `/${slug}`;
+  }
+
+  if (collectionSlug === 'service-items') {
+    if (!slug) return '/services';
+    return `/services/${slug}`;
+  }
+
+  return null;
+}
+
+function resolveGlobalLivePreviewPath(globalSlug: string | undefined): string | null {
+  if (!globalSlug) return null;
+  if (globalSlug === 'site-settings' || globalSlug === 'ui-settings') {
+    return '/';
+  }
+  return null;
+}
+
+function resolveLivePreviewURL(args: {
+  collectionConfig?: { slug?: string };
+  globalConfig?: { slug?: string };
+  data?: unknown;
+}): string | null {
+  const data = args.data && typeof args.data === 'object'
+    ? (args.data as Record<string, unknown>)
+    : undefined;
+  const path =
+    resolveCollectionLivePreviewPath(args.collectionConfig?.slug, data) ||
+    resolveGlobalLivePreviewPath(args.globalConfig?.slug);
+  if (!path) return null;
+
+  const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || process.env.PAYLOAD_SECRET;
+  if (!previewSecret) return null;
+
+  const params = new URLSearchParams({
+    secret: previewSecret,
+    slug: path,
+  });
+
+  return `/api/draft-mode/enable?${params.toString()}`;
+}
+
 function resolveAdminFallbackLanguage(): AcceptedLanguages {
   const envLanguage = process.env.PAYLOAD_ADMIN_FALLBACK_LANGUAGE;
   if (!envLanguage) return defaultAdminLanguage;
@@ -301,8 +360,8 @@ export default buildConfig({
       baseDir: path.resolve(__dirname),
     },
     livePreview: {
-      url: serverURL,
-      collections: ['site-pages', 'service-items', 'blog-posts', 'testimonials'],
+      url: resolveLivePreviewURL,
+      collections: ['site-pages', 'service-items'],
       globals: ['site-settings', 'ui-settings'],
       breakpoints: [
         { label: 'Mobile', name: 'mobile', width: 375, height: 667 },

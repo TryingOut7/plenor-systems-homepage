@@ -73,6 +73,7 @@ See `.env.example` for all variables:
 | `CONTACT_EMAIL` | Internal inbox for inquiry notifications |
 | `GUIDE_PDF_URL` | Secure URL for the downloadable guide PDF |
 | `PAYLOAD_SECRET` | Payload auth secret |
+| `PAYLOAD_PREVIEW_SECRET` | Optional dedicated secret for Payload live preview draft-mode URLs (falls back to `PAYLOAD_SECRET`) |
 | `PAYLOAD_SEED_SECRET` | Optional dedicated seed secret (falls back to `PAYLOAD_SECRET`) |
 | `NEXT_PUBLIC_SERVER_URL` | Public base URL used for origin verification and canonical links |
 | `SUPABASE_URL` | Supabase project URL |
@@ -195,6 +196,12 @@ Notes:
 
 - Cloudflare analytics script is loaded only after explicit cookie consent (`accepted`).
 - `declined` consent remains persisted and prevents analytics script loading until consent changes.
+
+## Live Preview
+
+- Payload live preview URLs point to `GET /api/draft-mode/enable?secret=...&slug=...`.
+- The route enables Next draft mode and redirects to the requested frontend slug.
+- Auth uses `PAYLOAD_PREVIEW_SECRET` when set, otherwise falls back to `PAYLOAD_SECRET`.
 
 ## Pre-launch Checklist
 

@@ -6,13 +6,15 @@ import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
 import { resolveServicesPageData } from '@/lib/page-content/services';
 import { resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
+import { getCmsReadOptions } from '@/lib/cms-read-options';
 
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const cmsReadOptions = await getCmsReadOptions();
   const [sitePage, settings] = await Promise.all([
-    getSitePageBySlug('services'),
-    getSiteSettings(),
+    getSitePageBySlug('services', cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
   ]);
   const siteName = resolveSiteName(settings);
   return buildSitePageMetadata({
@@ -57,9 +59,10 @@ const listItem = (text: string) => (
 );
 
 export default async function ServicesPage() {
+  const cmsReadOptions = await getCmsReadOptions();
   const [sitePage, siteSettings] = await Promise.all([
-    getSitePageBySlug('services'),
-    getSiteSettings(),
+    getSitePageBySlug('services', cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
   ]);
 
   if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {

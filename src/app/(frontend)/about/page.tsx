@@ -6,13 +6,15 @@ import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
 import { resolveAboutPageData } from '@/lib/page-content/about';
 import { resolveSiteName } from '@/lib/site-config';
+import { getCmsReadOptions } from '@/lib/cms-read-options';
 
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const cmsReadOptions = await getCmsReadOptions();
   const [sitePage, settings] = await Promise.all([
-    getSitePageBySlug('about'),
-    getSiteSettings(),
+    getSitePageBySlug('about', cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
   ]);
   const siteName = resolveSiteName(settings);
   return buildSitePageMetadata({
@@ -29,9 +31,10 @@ const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 const narrow: React.CSSProperties = { maxWidth: '760px', margin: '0 auto' };
 
 export default async function AboutPage() {
+  const cmsReadOptions = await getCmsReadOptions();
   const [sitePage, siteSettings] = await Promise.all([
-    getSitePageBySlug('about'),
-    getSiteSettings(),
+    getSitePageBySlug('about', cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
   ]);
 
   if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {

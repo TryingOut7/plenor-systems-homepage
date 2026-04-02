@@ -305,6 +305,14 @@ export type SitemapQueryResult = {
   serviceItems: Array<{ slug?: string; includeInSitemap?: boolean; updatedAt?: string }>;
 };
 
+export type CmsReadOptions = {
+  draft?: boolean;
+};
+
+function isDraftRead(options?: CmsReadOptions): boolean {
+  return options?.draft === true;
+}
+
 type CacheEntry<T> = {
   value: T;
   expiresAt: number;
@@ -429,18 +437,29 @@ function normalizeSeo(seo: unknown): SeoFields | undefined {
 
 // ─── Data Fetching Functions ──────────────────────────────────────────────────
 
-export const getSiteSettings = cache(async function getSiteSettings(): Promise<SiteSettings | null> {
-  const cached = getFromCache(siteSettingsCache.entry);
-  if (cached !== undefined) return cached;
-  if (shouldSkipPayload()) return setCache(siteSettingsCache, null, 10_000);
+export const getSiteSettings = cache(async function getSiteSettings(
+  options: CmsReadOptions = {},
+): Promise<SiteSettings | null> {
+  const draft = isDraftRead(options);
+
+  if (!draft) {
+    const cached = getFromCache(siteSettingsCache.entry);
+    if (cached !== undefined) return cached;
+    if (shouldSkipPayload()) return setCache(siteSettingsCache, null, 10_000);
+  }
 
   try {
     const payload = await getPayload();
-    const data = await payload.findGlobal({ slug: 'site-settings' });
-    if (!data) return setCache(siteSettingsCache, null);
+    const data = await payload.findGlobal({
+      slug: 'site-settings',
+      ...(draft ? { draft: true } : {}),
+    });
+    if (!data) {
+      return draft ? null : setCache(siteSettingsCache, null);
+    }
 
     const d = data as Record<string, unknown>;
-    return setCache(siteSettingsCache, {
+    const normalized: SiteSettings = {
       siteName: d.siteName as string | undefined,
       brandTagline: d.brandTagline as string | undefined,
       siteUrl: d.siteUrl as string | undefined,
@@ -465,43 +484,63 @@ export const getSiteSettings = cache(async function getSiteSettings(): Promise<S
       privacyLastUpdated: d.privacyLastUpdated as string | undefined,
       notFoundPage: d.notFoundPage as SiteSettings['notFoundPage'],
       analyticsId: d.analyticsId as string | undefined,
-    });
+    };
+
+    return draft ? normalized : setCache(siteSettingsCache, normalized);
   } catch {
+    if (draft) return null;
     markPayloadFailure();
     return setCache(siteSettingsCache, null, 10_000);
   }
 });
 
-export const getUISettings = cache(async function getUISettings(): Promise<UISettings | null> {
-  const cached = getFromCache(uiSettingsCache.entry);
-  if (cached !== undefined) return cached;
-  if (shouldSkipPayload()) return setCache(uiSettingsCache, null, 10_000);
+export const getUISettings = cache(async function getUISettings(
+  options: CmsReadOptions = {},
+): Promise<UISettings | null> {
+  const draft = isDraftRead(options);
+
+  if (!draft) {
+    const cached = getFromCache(uiSettingsCache.entry);
+    if (cached !== undefined) return cached;
+    if (shouldSkipPayload()) return setCache(uiSettingsCache, null, 10_000);
+  }
 
   try {
     const payload = await getPayload();
-    const data = await payload.findGlobal({ slug: 'ui-settings' });
-    if (!data) return setCache(uiSettingsCache, null);
+    const data = await payload.findGlobal({
+      slug: 'ui-settings',
+      ...(draft ? { draft: true } : {}),
+    });
+    if (!data) return draft ? null : setCache(uiSettingsCache, null);
 
     const d = data as Record<string, unknown>;
-    return setCache(uiSettingsCache, {
+    const normalized: UISettings = {
       colors: d.colors as UISettings['colors'],
       typography: d.typography as UISettings['typography'],
       layout: d.layout as UISettings['layout'],
       buttons: d.buttons as UISettings['buttons'],
-    });
+    };
+
+    return draft ? normalized : setCache(uiSettingsCache, normalized);
   } catch {
+    if (draft) return null;
     markPayloadFailure();
     return setCache(uiSettingsCache, null, 10_000);
   }
 });
 
-export const getSitePageBySlug = cache(async function getSitePageBySlug(slug: string): Promise<SitePage | null> {
+export const getSitePageBySlug = cache(async function getSitePageBySlug(
+  slug: string,
+  options: CmsReadOptions = {},
+): Promise<SitePage | null> {
+  const draft = isDraftRead(options);
   const normalizedSlug = slug.replace(/^\/+|\/+$/g, '');
-  const cached = getMapCache(pageCache, normalizedSlug);
-  if (cached !== undefined) return cached;
-
-  if (shouldSkipPayload()) {
-    return setMapCache(pageCache, normalizedSlug, cloneDefaultSitePage(normalizedSlug), 10_000);
+  if (!draft) {
+    const cached = getMapCache(pageCache, normalizedSlug);
+    if (cached !== undefined) return cached;
+    if (shouldSkipPayload()) {
+      return setMapCache(pageCache, normalizedSlug, cloneDefaultSitePage(normalizedSlug), 10_000);
+    }
   }
 
   try {
@@ -510,14 +549,20 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(slug: st
       collection: 'site-pages',
       where: {
         slug: { equals: normalizedSlug },
-        isActive: { equals: true },
-        workflowStatus: { equals: 'published' },
+        ...(draft
+          ? {}
+          : {
+              isActive: { equals: true },
+              workflowStatus: { equals: 'published' },
+            }),
       },
       limit: 1,
       depth: 1,
+      ...(draft ? { draft: true } : {}),
     });
     const doc = result.docs[0];
     if (!doc) {
+      if (draft) return null;
       return setMapCache(pageCache, normalizedSlug, cloneDefaultSitePage(normalizedSlug));
     }
 
@@ -526,7 +571,7 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(slug: st
     const sections = Array.isArray(d.sections) ? d.sections.map(normalizeSection) : [];
     const resolvedSections = sections.length > 0 ? sections : (fallback?.sections ?? []);
 
-    return setMapCache(pageCache, normalizedSlug, {
+    const normalized: SitePage = {
       id: String(d.id),
       title: (d.title as string | undefined) || fallback?.title,
       slug: (d.slug as string | undefined) || fallback?.slug,
@@ -541,8 +586,11 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(slug: st
       customHeadScripts: d.customHeadScripts as string | undefined,
       seo: normalizeSeo(d.seo),
       sections: resolvedSections,
-    });
+    };
+
+    return draft ? normalized : setMapCache(pageCache, normalizedSlug, normalized);
   } catch {
+    if (draft) return null;
     markPayloadFailure();
     return setMapCache(pageCache, normalizedSlug, cloneDefaultSitePage(normalizedSlug), 10_000);
   }
@@ -612,11 +660,16 @@ function normalizeTestimonial(doc: Record<string, unknown>): Testimonial {
   };
 }
 
-export const getCollectionData = cache(async function getCollectionData(): Promise<CollectionData> {
-  const cached = getFromCache(collectionDataCache.entry);
-  if (cached !== undefined) return cached;
+export const getCollectionData = cache(async function getCollectionData(
+  options: CmsReadOptions = {},
+): Promise<CollectionData> {
+  const draft = isDraftRead(options);
+  if (!draft) {
+    const cached = getFromCache(collectionDataCache.entry);
+    if (cached !== undefined) return cached;
+  }
   const emptyData: CollectionData = { serviceItems: [], blogPosts: [], testimonials: [] };
-  if (shouldSkipPayload()) return setCache(collectionDataCache, emptyData, 10_000);
+  if (!draft && shouldSkipPayload()) return setCache(collectionDataCache, emptyData, 10_000);
 
   try {
     const payload = await getPayload();
@@ -624,60 +677,75 @@ export const getCollectionData = cache(async function getCollectionData(): Promi
     const [serviceResult, blogResult, testimonialResult] = await Promise.all([
       payload.find({
         collection: 'service-items',
-        where: publishedFilter,
+        ...(draft ? {} : { where: publishedFilter }),
         sort: '-updatedAt',
         limit: 100,
         depth: 1,
+        ...(draft ? { draft: true } : {}),
       }),
       payload.find({
         collection: 'blog-posts',
-        where: publishedFilter,
+        ...(draft ? {} : { where: publishedFilter }),
         sort: '-publishedAt',
         limit: 100,
         depth: 1,
+        ...(draft ? { draft: true } : {}),
       }),
       payload.find({
         collection: 'testimonials',
-        where: publishedFilter,
+        ...(draft ? {} : { where: publishedFilter }),
         sort: '-publishedAt',
         limit: 100,
         depth: 1,
+        ...(draft ? { draft: true } : {}),
       }),
     ]);
 
-    return setCache(collectionDataCache, {
+    const normalized: CollectionData = {
       serviceItems: serviceResult.docs.map((d) => normalizeServiceItem(d as unknown as Record<string, unknown>)),
       blogPosts: blogResult.docs.map((d) => normalizeBlogPost(d as unknown as Record<string, unknown>)),
       testimonials: testimonialResult.docs.map((d) => normalizeTestimonial(d as unknown as Record<string, unknown>)),
-    });
+    };
+
+    return draft ? normalized : setCache(collectionDataCache, normalized);
   } catch {
+    if (draft) return emptyData;
     markPayloadFailure();
     return setCache(collectionDataCache, emptyData, 10_000);
   }
 });
 
-export const getServiceItemBySlug = cache(async function getServiceItemBySlug(slug: string): Promise<ServiceItem | null> {
+export const getServiceItemBySlug = cache(async function getServiceItemBySlug(
+  slug: string,
+  options: CmsReadOptions = {},
+): Promise<ServiceItem | null> {
+  const draft = isDraftRead(options);
   const normalizedSlug = slug.replace(/^\/+|\/+$/g, '');
-  const cached = getMapCache(serviceItemCache, normalizedSlug);
-  if (cached !== undefined) return cached;
-  if (shouldSkipPayload()) return setMapCache(serviceItemCache, normalizedSlug, null, 10_000);
+  if (!draft) {
+    const cached = getMapCache(serviceItemCache, normalizedSlug);
+    if (cached !== undefined) return cached;
+    if (shouldSkipPayload()) return setMapCache(serviceItemCache, normalizedSlug, null, 10_000);
+  }
 
   try {
     const payload = await getPayload();
     const result = await payload.find({
       collection: 'service-items',
-      where: { slug: { equals: normalizedSlug }, workflowStatus: { equals: 'published' } },
+      where: {
+        slug: { equals: normalizedSlug },
+        ...(draft ? {} : { workflowStatus: { equals: 'published' } }),
+      },
       limit: 1,
       depth: 1,
+      ...(draft ? { draft: true } : {}),
     });
     const doc = result.docs[0];
-    if (!doc) return setMapCache(serviceItemCache, normalizedSlug, null);
-    return setMapCache(
-      serviceItemCache,
-      normalizedSlug,
-      normalizeServiceItem(doc as unknown as Record<string, unknown>),
-    );
+    if (!doc) return draft ? null : setMapCache(serviceItemCache, normalizedSlug, null);
+
+    const normalized = normalizeServiceItem(doc as unknown as Record<string, unknown>);
+    return draft ? normalized : setMapCache(serviceItemCache, normalizedSlug, normalized);
   } catch {
+    if (draft) return null;
     markPayloadFailure();
     return setMapCache(serviceItemCache, normalizedSlug, null, 10_000);
   }

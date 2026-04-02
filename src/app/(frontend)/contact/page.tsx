@@ -8,13 +8,15 @@ import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
 import { resolveSiteName } from '@/lib/site-config';
 import { resolveContactPageData } from '@/lib/page-content/contact';
+import { getCmsReadOptions } from '@/lib/cms-read-options';
 
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const cmsReadOptions = await getCmsReadOptions();
   const [sitePage, settings] = await Promise.all([
-    getSitePageBySlug('contact'),
-    getSiteSettings(),
+    getSitePageBySlug('contact', cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
   ]);
   const siteName = resolveSiteName(settings);
   return buildSitePageMetadata({
@@ -30,7 +32,11 @@ export async function generateMetadata(): Promise<Metadata> {
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
 export default async function ContactPage() {
-  const [sitePage, siteSettings] = await Promise.all([getSitePageBySlug('contact'), getSiteSettings()]);
+  const cmsReadOptions = await getCmsReadOptions();
+  const [sitePage, siteSettings] = await Promise.all([
+    getSitePageBySlug('contact', cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
+  ]);
 
   if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {
     notFound();

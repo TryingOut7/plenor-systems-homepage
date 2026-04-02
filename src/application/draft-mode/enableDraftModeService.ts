@@ -16,6 +16,10 @@ type EnableDraftModeServiceResponse =
   | DraftModeErrorResponse
   | { message: string };
 
+function resolvePreviewSecret(): string | undefined {
+  return process.env.PAYLOAD_PREVIEW_SECRET || process.env.PAYLOAD_SECRET;
+}
+
 export async function enableDraftModeForRequest(
   context: RequestContext,
   body: unknown,
@@ -35,7 +39,7 @@ export async function enableDraftModeForRequest(
     return fail(validation.status, { error: validation.message });
   }
 
-  const expectedSecret = process.env.PAYLOAD_SECRET;
+  const expectedSecret = resolvePreviewSecret();
   if (!expectedSecret || !compareSecret(validation.data.secret, expectedSecret)) {
     return fail(401, { error: 'Invalid secret' });
   }

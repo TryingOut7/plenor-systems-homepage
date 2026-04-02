@@ -2,11 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getSiteSettings } from '@/payload/cms';
 import { resolveNotFoundPageData } from '@/lib/page-content/not-found';
+import { getCmsReadOptions } from '@/lib/cms-read-options';
 
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSiteSettings();
+  const cmsReadOptions = await getCmsReadOptions();
+  const settings = await getSiteSettings(cmsReadOptions);
   const notFoundData = resolveNotFoundPageData(settings);
 
   return {
@@ -17,7 +19,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function NotFound() {
-  const settings = await getSiteSettings();
+  const cmsReadOptions = await getCmsReadOptions();
+  const settings = await getSiteSettings(cmsReadOptions);
   const notFoundData = resolveNotFoundPageData(settings);
 
   return (

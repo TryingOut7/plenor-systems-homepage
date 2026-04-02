@@ -10,6 +10,7 @@ import AnnouncementBanner from '@/components/AnnouncementBanner';
 import ConsentGatedAnalytics from '@/components/ConsentGatedAnalytics';
 import CookieBanner from '@/components/CookieBanner';
 import DraftModeBanner from '@/components/DraftModeBanner';
+import PayloadLivePreviewRefresh from '@/components/PayloadLivePreviewRefresh';
 import SkipLink from '@/components/SkipLink';
 import { getSafeStylesheetUrl } from '@/lib/external-resource-policy';
 import { getSiteSettings, getUISettings, type UISettings } from '@/payload/cms';
@@ -19,6 +20,7 @@ import {
   resolveSiteUrl,
   resolveTwitterHandle,
 } from '@/lib/site-config';
+import { getCmsReadOptions } from '@/lib/cms-read-options';
 
 const playfair = localFont({
   src: '../../fonts/PlayfairDisplay-VariableFont_wght.ttf',
@@ -35,7 +37,8 @@ const dmSans = localFont({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSiteSettings();
+  const cmsReadOptions = await getCmsReadOptions();
+  const settings = await getSiteSettings(cmsReadOptions);
   const siteName = resolveSiteName(settings);
   const siteUrl = resolveSiteUrl(settings);
   const twitterHandle = resolveTwitterHandle(settings);
@@ -164,7 +167,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const { isEnabled: isDraftMode } = await draftMode();
-  const [siteSettings, uiSettings] = await Promise.all([getSiteSettings(), getUISettings()]);
+  const cmsReadOptions = { draft: isDraftMode };
+  const [siteSettings, uiSettings] = await Promise.all([
+    getSiteSettings(cmsReadOptions),
+    getUISettings(cmsReadOptions),
+  ]);
 
   const siteName = resolveSiteName(siteSettings);
   const siteUrl = resolveSiteUrl(siteSettings);
@@ -195,6 +202,9 @@ export default async function RootLayout({
   const uiVariableStyles = buildUIVariableStyles(uiSettings);
   const headingFontUrl = getSafeStylesheetUrl(uiSettings?.typography?.headingFontUrl);
   const bodyFontUrl = getSafeStylesheetUrl(uiSettings?.typography?.bodyFontUrl);
+  const livePreviewServerURL =
+    process.env.NEXT_PUBLIC_SERVER_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : siteUrl);
 
   return (
     <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
@@ -242,6 +252,7 @@ export default async function RootLayout({
           privacyHref={siteSettings?.cookieBanner?.privacyHref}
         />
         {analyticsId && <ConsentGatedAnalytics analyticsId={analyticsId} />}
+        {isDraftMode && <PayloadLivePreviewRefresh serverURL={livePreviewServerURL} />}
         {isDraftMode && <DraftModeBanner />}
         <SpeedInsights />
         <script

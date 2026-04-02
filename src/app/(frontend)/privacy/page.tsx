@@ -5,13 +5,15 @@ import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical
 import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
 import { resolveContactEmail, resolveSiteName } from '@/lib/site-config';
+import { getCmsReadOptions } from '@/lib/cms-read-options';
 
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const cmsReadOptions = await getCmsReadOptions();
   const [sitePage, settings] = await Promise.all([
-    getSitePageBySlug('privacy'),
-    getSiteSettings(),
+    getSitePageBySlug('privacy', cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
   ]);
   const siteName = resolveSiteName(settings);
   return buildSitePageMetadata({
@@ -29,7 +31,8 @@ const bodyText: React.CSSProperties = { fontSize: '16px', color: '#6B7280', line
 const h2Style: React.CSSProperties = { fontSize: '20px', fontWeight: 700, color: '#1B2D4F', marginBottom: '12px', marginTop: '40px' };
 
 export default async function PrivacyPage() {
-  const settings = await getSiteSettings();
+  const cmsReadOptions = await getCmsReadOptions();
+  const settings = await getSiteSettings(cmsReadOptions);
 
   const siteName = resolveSiteName(settings);
   const contactEmail = resolveContactEmail(settings);
