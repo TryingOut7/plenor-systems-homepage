@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import path from "path";
 import { withPayload } from "@payloadcms/next/withPayload";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['sharp'],
@@ -47,4 +48,8 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withPayload(nextConfig);
+export default withSentryConfig(withPayload(nextConfig), {
+  silent: true,
+  hideSourceMaps: true,
+  disableLogger: true,
+});

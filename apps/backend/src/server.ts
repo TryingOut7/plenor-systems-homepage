@@ -1,4 +1,5 @@
 import Fastify, { type FastifyInstance } from 'fastify';
+import cors from '@fastify/cors';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { toBackendErrorResponse } from './adapters/errorEnvelope';
@@ -36,10 +37,26 @@ export function buildBackendServer(): FastifyInstance {
   const rateLimitWindowMs = Number(process.env.BACKEND_RATE_LIMIT_WINDOW_MS || '60000');
   const requestStartById = new Map<string, number>();
 
+  const isDev = process.env.NODE_ENV !== 'production';
+  const rawOrigins = process.env.BACKEND_CORS_ORIGINS || process.env.NEXT_PUBLIC_SERVER_URL || '';
+  const allowedOrigins = rawOrigins
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
   const app = Fastify({
-    logger: true,
+    logger: isDev
+      ? { transport: { target: 'pino-pretty', options: { colorize: true } } }
+      : { level: process.env.LOG_LEVEL || 'info' },
     trustProxy: true,
     requestIdHeader: 'x-request-id',
+  });
+
+  app.register(cors, {
+    origin: isDev || allowedOrigins.length === 0 ? true : allowedOrigins,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Api-Key', 'Idempotency-Key', 'X-Request-Id'],
+    credentials: false,
   });
 
   app.addHook(

@@ -1,6 +1,9 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { buildConfig } from 'payload';
+import { validateEnv } from './lib/env-validation';
+
+validateEnv();
 import { acceptedLanguages, type AcceptedLanguages } from '@payloadcms/translations';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -8,6 +11,9 @@ const __dirname = path.dirname(__filename);
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import sharp from 'sharp';
+
+// ─── Storage ──────────────────────────────────────────────────────────────────
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob';
 
 // ─── Plugins ──────────────────────────────────────────────────────────────────
 import { seoPlugin } from '@payloadcms/plugin-seo';
@@ -55,9 +61,7 @@ function resolveServerURL(): string {
 const serverURL = resolveServerURL();
 const dbRejectUnauthorized = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true';
 const dbPushSchema =
-  process.env.PAYLOAD_DB_PUSH !== undefined
-    ? process.env.PAYLOAD_DB_PUSH === 'true'
-    : !!process.env.VERCEL;
+  process.env.PAYLOAD_DB_PUSH === 'true';
 const enableNestedDocsPlugin = process.env.PAYLOAD_ENABLE_NESTED_DOCS === 'true';
 const adminThemeValues = ['all', 'dark', 'light'] as const;
 const adminAvatarValues = ['default', 'gravatar'] as const;
@@ -435,6 +439,20 @@ export default buildConfig({
 
   // ─── Plugins ──────────────────────────────────────────────────────────────────
   plugins: [
+    // ── Vercel Blob Storage ───────────────────────────────────────────────────
+    // Stores uploaded media in Vercel Blob instead of the ephemeral filesystem.
+    // Requires BLOB_READ_WRITE_TOKEN env var (set automatically when Vercel Blob
+    // is enabled in the Vercel project dashboard under Storage → Blob).
+    vercelBlobStorage({
+      enabled: !!process.env.BLOB_READ_WRITE_TOKEN,
+      collections: {
+        media: true,
+        exports: true,
+        imports: true,
+      },
+      token: process.env.BLOB_READ_WRITE_TOKEN || '',
+    }),
+
     // ── SEO Plugin ────────────────────────────────────────────────────────────
     // Adds meta title, description, and image fields to content collections
     seoPlugin({
