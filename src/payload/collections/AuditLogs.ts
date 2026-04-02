@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { AUDIT_ACTION_OPTIONS } from '../constants/auditActions';
+import { AUDIT_ACTION_OPTIONS } from '../constants/auditActions.ts';
 
 export const AuditLogs: CollectionConfig = {
   slug: 'audit-logs',

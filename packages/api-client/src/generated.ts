@@ -239,7 +239,9 @@ export interface components {
                     credentialsConfigured: boolean;
                 };
                 persistence: {
+                    requiredPersistenceTablesReady: boolean;
                     idempotencyAndOutboxPersistentStoreReady: boolean;
+                    error?: string | null;
                 };
             };
         };
@@ -270,7 +272,7 @@ export interface components {
             /** @constant */
             success: false;
             /** @enum {string} */
-            code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_PAYLOAD" | "DEPENDENCY_UNAVAILABLE" | "INTERNAL_ERROR";
+            code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_PAYLOAD" | "BACKEND_UNAVAILABLE" | "DEPENDENCY_UNAVAILABLE" | "INTERNAL_ERROR";
             message: string;
             status: number;
             requestId?: string;

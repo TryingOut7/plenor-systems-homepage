@@ -1,12 +1,12 @@
 import type { CollectionConfig } from 'payload';
-import { seoFields } from '../fields/seo';
-import { workflowStatusField, workflowApprovalFields } from '../fields/workflow';
-import { createdByField } from '../fields/ownership';
-import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog';
-import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy';
-import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug';
-import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow';
-import { authorScopedUpdate } from '../access/authorScopedAccess';
+import { seoFields } from '../fields/seo.ts';
+import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
+import { createdByField } from '../fields/ownership.ts';
+import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
+import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
+import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
+import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
+import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
 
 export const Testimonials: CollectionConfig = {
   slug: 'testimonials',

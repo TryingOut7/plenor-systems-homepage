@@ -2,7 +2,7 @@ import type {
   CollectionBeforeChangeHook,
   CollectionAfterChangeHook,
 } from 'payload';
-import type { WorkflowStatus } from '../fields/workflow';
+import type { WorkflowStatus } from '../fields/workflow.ts';
 
 type UserRecord = Record<string, unknown>;
 

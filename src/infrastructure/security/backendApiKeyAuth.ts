@@ -1,4 +1,5 @@
 import type { BackendPrincipal, BackendRole } from '@plenor/contracts/auth';
+import { safeCompare } from '@/lib/timing-safe-equal';
 
 interface ApiKeyEntry {
   key: string;
@@ -63,7 +64,13 @@ export function authenticateBackendApiKey(
   const provided = rawApiKey.trim();
   if (!provided) return null;
 
-  const match = getConfiguredApiKeys().find((entry) => entry.key === provided);
+  let match: ApiKeyEntry | null = null;
+  for (const entry of getConfiguredApiKeys()) {
+    if (safeCompare(entry.key, provided)) {
+      match = entry;
+    }
+  }
+
   if (!match) return null;
   return { keyId: match.keyId, role: match.role };
 }

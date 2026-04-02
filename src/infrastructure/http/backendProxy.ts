@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { BackendErrorResponse } from '@plenor/contracts/errors';
 
 function normalizeBackendBaseUrl(baseUrl: string): string {
   return baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
@@ -11,6 +12,27 @@ function createProxyHeaders(request: NextRequest): Headers {
   return headers;
 }
 
+function backendUnavailableResponse(
+  request: NextRequest,
+  details?: Record<string, unknown>,
+): NextResponse<BackendErrorResponse> {
+  const requestId = request.headers.get('x-request-id') || undefined;
+  const message = 'Backend service is unavailable. Please retry shortly.';
+
+  return NextResponse.json(
+    {
+      success: false,
+      status: 503,
+      code: 'BACKEND_UNAVAILABLE',
+      message,
+      error: message,
+      requestId,
+      ...(details ? { details } : {}),
+    },
+    { status: 503 },
+  );
+}
+
 export async function proxyRequestToBackend(
   request: NextRequest,
   backendPath: string,
@@ -20,8 +42,19 @@ export async function proxyRequestToBackend(
     return null;
   }
 
-  const targetUrl = new URL(backendPath.replace(/^\//, ''), normalizeBackendBaseUrl(backendBase));
-  targetUrl.search = request.nextUrl.search;
+  let targetUrl: URL;
+  try {
+    targetUrl = new URL(
+      backendPath.replace(/^\//, ''),
+      normalizeBackendBaseUrl(backendBase),
+    );
+    targetUrl.search = request.nextUrl.search;
+  } catch (error) {
+    console.error('Invalid BACKEND_INTERNAL_URL configuration:', error);
+    return backendUnavailableResponse(request, {
+      reason: 'invalid_backend_internal_url',
+    });
+  }
 
   try {
     const body =
@@ -46,7 +79,9 @@ export async function proxyRequestToBackend(
       headers: responseHeaders,
     });
   } catch (error) {
-    console.error('Backend proxy failed, falling back to local service:', error);
-    return null;
+    console.error('Backend proxy failed; returning fail-closed response:', error);
+    return backendUnavailableResponse(request, {
+      reason: 'proxy_request_failed',
+    });
   }
 }

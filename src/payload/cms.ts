@@ -1,6 +1,6 @@
 import { cache } from 'react';
-import { getPayload } from './client';
-import { buildCorePresetSections, type CorePresetKey } from './presets/corePagePresets';
+import { getPayload } from './client.ts';
+import { buildCorePresetSections, type CorePresetKey } from './presets/corePagePresets.ts';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Payload CMS data types consumed by frontend components.

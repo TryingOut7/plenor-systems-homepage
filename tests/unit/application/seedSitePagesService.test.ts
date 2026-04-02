@@ -85,7 +85,7 @@ describe('seedSitePagesForRequest', () => {
     expect(result.body).toEqual({ error: 'Unauthorized' });
   });
 
-  it('returns 500 when bearer auth is provided but secret is missing', async () => {
+  it('returns 401 when bearer auth is provided but secret is missing', async () => {
     delete process.env.PAYLOAD_SECRET;
     delete process.env.PAYLOAD_SEED_SECRET;
 
@@ -94,7 +94,7 @@ describe('seedSitePagesForRequest', () => {
       repo({ seeded: true }),
     );
 
-    expect(result.status).toBe(500);
-    expect(result.body).toEqual({ error: 'Server configuration error' });
+    expect(result.status).toBe(401);
+    expect(result.body).toEqual({ error: 'Unauthorized' });
   });
 });

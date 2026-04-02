@@ -109,6 +109,28 @@ const inMemory = {
   outbox: new Map<string, OutboxJob>(),
 };
 
+const REQUIRED_PERSISTENCE_TABLES = [
+  'guide_submissions',
+  'inquiry_submissions',
+  'backend_idempotency_keys',
+  'backend_outbox_jobs',
+  'backend_rate_limit_counters',
+] as const;
+
+function allowInMemoryFallback(): boolean {
+  return process.env.NODE_ENV !== 'production';
+}
+
+function requirePersistentTable(table: string, capability: string): void {
+  if (allowInMemoryFallback() || tableAvailable(table)) {
+    return;
+  }
+
+  throw new Error(
+    `[backend-store] ${capability} requires persistent table "${table}" in production.`,
+  );
+}
+
 function isMissingTableError(message: string): boolean {
   return /relation .* does not exist/i.test(message);
 }
@@ -117,7 +139,7 @@ function markMissingTable(table: string): void {
   if (!supabase.tableMissing.has(table)) {
     supabase.tableMissing.add(table);
     console.warn(
-      `[backend-store] Missing table "${table}". Falling back to in-memory storage for this table.`,
+      `[backend-store] Missing table "${table}".`,
     );
   }
 }
@@ -141,6 +163,8 @@ interface DbQuery {
   update(values: unknown, options?: unknown): DbQuery;
   select(columns: string): DbQuery;
   eq(column: string, value: unknown): DbQuery;
+  in(column: string, values: unknown[]): DbQuery;
+  lte(column: string, value: unknown): DbQuery;
   order(column: string, options?: { ascending?: boolean }): DbQuery;
   limit(value: number): DbQuery;
   single(): DbQuery;
@@ -168,11 +192,35 @@ function nowIso(): string {
 }
 
 export function isPersistentStoreConfigured(): boolean {
-  return tableAvailable('backend_idempotency_keys') && tableAvailable('backend_outbox_jobs');
+  return REQUIRED_PERSISTENCE_TABLES.every((table) => tableAvailable(table));
 }
 
 export function hasDatabaseCredentials(): boolean {
   return supabase.enabled;
+}
+
+export async function refreshPersistenceCapabilityState(): Promise<void> {
+  if (!supabase.enabled || !supabase.client) {
+    return;
+  }
+
+  for (const table of REQUIRED_PERSISTENCE_TABLES) {
+    if (supabase.tableMissing.has(table)) {
+      continue;
+    }
+
+    const { error } = await executeQuery<unknown[]>(
+      db().from(table).select('*').limit(1),
+    );
+
+    if (error && isMissingTableError(error.message)) {
+      markMissingTable(table);
+    } else if (error) {
+      throw new Error(
+        `[backend-store] Failed to verify persistence table "${table}": ${error.message}`,
+      );
+    }
+  }
 }
 
 export async function persistGuideSubmissionRecord(input: {
@@ -187,6 +235,8 @@ export async function persistGuideSubmissionRecord(input: {
     email: input.email,
     submittedAt,
   };
+
+  requirePersistentTable('guide_submissions', 'Guide submission persistence');
 
   if (tableAvailable('guide_submissions')) {
     const { data, error } = await executeQuery<GuideSubmissionRow>(
@@ -209,15 +259,22 @@ export async function persistGuideSubmissionRecord(input: {
         submittedAt:
           typeof data.submitted_at === 'string' ? data.submitted_at : submittedAt,
       };
-      inMemory.submissions.unshift(record);
+      if (allowInMemoryFallback()) {
+        inMemory.submissions.unshift(record);
+      }
       return record;
     }
 
     if (error && isMissingTableError(error.message)) {
       markMissingTable('guide_submissions');
+      requirePersistentTable('guide_submissions', 'Guide submission persistence');
     } else if (error) {
       throw new Error(error.message);
     }
+  }
+
+  if (!allowInMemoryFallback()) {
+    throw new Error('Guide submission persistence is unavailable in production.');
   }
 
   inMemory.submissions.unshift(fallbackRecord);
@@ -240,6 +297,8 @@ export async function persistInquirySubmissionRecord(input: {
     challenge: input.challenge,
     submittedAt,
   };
+
+  requirePersistentTable('inquiry_submissions', 'Inquiry submission persistence');
 
   if (tableAvailable('inquiry_submissions')) {
     const { data, error } = await executeQuery<InquirySubmissionRow>(
@@ -266,15 +325,22 @@ export async function persistInquirySubmissionRecord(input: {
         submittedAt:
           typeof data.submitted_at === 'string' ? data.submitted_at : submittedAt,
       };
-      inMemory.submissions.unshift(record);
+      if (allowInMemoryFallback()) {
+        inMemory.submissions.unshift(record);
+      }
       return record;
     }
 
     if (error && isMissingTableError(error.message)) {
       markMissingTable('inquiry_submissions');
+      requirePersistentTable('inquiry_submissions', 'Inquiry submission persistence');
     } else if (error) {
       throw new Error(error.message);
     }
+  }
+
+  if (!allowInMemoryFallback()) {
+    throw new Error('Inquiry submission persistence is unavailable in production.');
   }
 
   inMemory.submissions.unshift(fallbackRecord);
@@ -287,6 +353,11 @@ export async function listStoredSubmissions(params: {
 }): Promise<{ items: StoredSubmission[]; total: number }> {
   const start = (params.page - 1) * params.limit;
   const end = start + params.limit;
+
+  if (!allowInMemoryFallback()) {
+    requirePersistentTable('guide_submissions', 'Admin submissions listing');
+    requirePersistentTable('inquiry_submissions', 'Admin submissions listing');
+  }
 
   if (
     tableAvailable('guide_submissions') &&
@@ -311,12 +382,14 @@ export async function listStoredSubmissions(params: {
 
     if (guideRows.error && isMissingTableError(guideRows.error.message)) {
       markMissingTable('guide_submissions');
+      requirePersistentTable('guide_submissions', 'Admin submissions listing');
     } else if (guideRows.error) {
       throw new Error(guideRows.error.message);
     }
 
     if (inquiryRows.error && isMissingTableError(inquiryRows.error.message)) {
       markMissingTable('inquiry_submissions');
+      requirePersistentTable('inquiry_submissions', 'Admin submissions listing');
     } else if (inquiryRows.error) {
       throw new Error(inquiryRows.error.message);
     }
@@ -353,6 +426,10 @@ export async function listStoredSubmissions(params: {
     }
   }
 
+  if (!allowInMemoryFallback()) {
+    throw new Error('Admin submissions listing is unavailable in production.');
+  }
+
   const snapshot = [...inMemory.submissions].sort((a, b) =>
     b.submittedAt.localeCompare(a.submittedAt),
   );
@@ -365,13 +442,25 @@ export async function listStoredSubmissions(params: {
 export async function getStoredSubmissionById(
   submissionId: string,
 ): Promise<StoredSubmission | null> {
-  const inMemoryHit = inMemory.submissions.find((s) => s.id === submissionId);
-  if (inMemoryHit) {
-    return inMemoryHit;
+  if (allowInMemoryFallback()) {
+    const inMemoryHit = inMemory.submissions.find((s) => s.id === submissionId);
+    if (inMemoryHit) {
+      return inMemoryHit;
+    }
   }
 
   const [kind, rawId] = submissionId.split('_');
   if (!rawId) return null;
+
+  if (!allowInMemoryFallback()) {
+    if (kind === 'guide') {
+      requirePersistentTable('guide_submissions', 'Submission lookup');
+    }
+
+    if (kind === 'inquiry') {
+      requirePersistentTable('inquiry_submissions', 'Submission lookup');
+    }
+  }
 
   if (kind === 'guide' && tableAvailable('guide_submissions')) {
     const { data, error } = await executeQuery<GuideSubmissionRow>(
@@ -394,6 +483,7 @@ export async function getStoredSubmissionById(
 
     if (error && isMissingTableError(error.message)) {
       markMissingTable('guide_submissions');
+      requirePersistentTable('guide_submissions', 'Submission lookup');
     }
   }
 
@@ -420,6 +510,7 @@ export async function getStoredSubmissionById(
 
     if (error && isMissingTableError(error.message)) {
       markMissingTable('inquiry_submissions');
+      requirePersistentTable('inquiry_submissions', 'Submission lookup');
     }
   }
 
@@ -431,8 +522,12 @@ export async function readIdempotencyRecord(input: {
   key: string;
 }): Promise<IdempotencyRecord | null> {
   const memoryKey = idempotencyKey(input.route, input.key);
-  const local = inMemory.idempotency.get(memoryKey);
-  if (local) return local;
+  if (allowInMemoryFallback()) {
+    const local = inMemory.idempotency.get(memoryKey);
+    if (local) return local;
+  }
+
+  requirePersistentTable('backend_idempotency_keys', 'Idempotency replay lookup');
 
   if (tableAvailable('backend_idempotency_keys')) {
     const { data, error } = await executeQuery<IdempotencyRow>(
@@ -457,12 +552,15 @@ export async function readIdempotencyRecord(input: {
             : undefined,
         createdAt: String(data.created_at || nowIso()),
       };
-      inMemory.idempotency.set(memoryKey, parsed);
+      if (allowInMemoryFallback()) {
+        inMemory.idempotency.set(memoryKey, parsed);
+      }
       return parsed;
     }
 
     if (error && isMissingTableError(error.message)) {
       markMissingTable('backend_idempotency_keys');
+      requirePersistentTable('backend_idempotency_keys', 'Idempotency replay lookup');
     } else if (error) {
       throw new Error(error.message);
     }
@@ -475,9 +573,12 @@ export async function writeIdempotencyRecord(
   record: IdempotencyRecord,
 ): Promise<void> {
   const memoryKey = idempotencyKey(record.route, record.key);
-  inMemory.idempotency.set(memoryKey, record);
+  if (allowInMemoryFallback()) {
+    inMemory.idempotency.set(memoryKey, record);
+  }
 
   if (!tableAvailable('backend_idempotency_keys')) {
+    requirePersistentTable('backend_idempotency_keys', 'Idempotency result storage');
     return;
   }
 
@@ -500,6 +601,7 @@ export async function writeIdempotencyRecord(
 
   if (error && isMissingTableError(error.message)) {
     markMissingTable('backend_idempotency_keys');
+    requirePersistentTable('backend_idempotency_keys', 'Idempotency result storage');
     return;
   }
 
@@ -531,9 +633,7 @@ export async function enqueueOutboxJobs(
     updatedAt: timestamp,
   }));
 
-  for (const job of created) {
-    inMemory.outbox.set(job.id, job);
-  }
+  requirePersistentTable('backend_outbox_jobs', 'Outbox enqueue');
 
   if (tableAvailable('backend_outbox_jobs')) {
     const { error } = await executeQuery<OutboxJobRow[]>(
@@ -555,65 +655,150 @@ export async function enqueueOutboxJobs(
 
     if (error && isMissingTableError(error.message)) {
       markMissingTable('backend_outbox_jobs');
+      requirePersistentTable('backend_outbox_jobs', 'Outbox enqueue');
     } else if (error) {
       throw new Error(error.message);
+    } else {
+      return created;
     }
+  }
+
+  if (!allowInMemoryFallback()) {
+    throw new Error('Outbox enqueue is unavailable in production.');
+  }
+
+  for (const job of created) {
+    inMemory.outbox.set(job.id, job);
   }
 
   return created;
 }
 
+function mapOutboxRow(row: OutboxJobRow): OutboxJob {
+  return {
+    id: String(row.id),
+    submissionId: String(row.submission_id),
+    provider: String(row.provider),
+    status: row.status as OutboxStatus,
+    attempts: Number(row.attempts ?? 0),
+    maxAttempts: Number(row.max_attempts ?? 5),
+    nextAttemptAt: String(row.next_attempt_at || nowIso()),
+    lastError: row.last_error ? String(row.last_error) : undefined,
+    payload: (row.payload || {}) as Record<string, unknown>,
+    createdAt: String(row.created_at || nowIso()),
+    updatedAt: String(row.updated_at || nowIso()),
+  };
+}
+
 export async function listOutboxJobsBySubmission(
   submissionId: string,
 ): Promise<OutboxJob[]> {
-  const local = [...inMemory.outbox.values()]
+  if (!allowInMemoryFallback()) {
+    requirePersistentTable('backend_outbox_jobs', 'Outbox listing');
+  }
+
+  if (tableAvailable('backend_outbox_jobs')) {
+    const { data, error } = await executeQuery<OutboxJobRow[]>(
+      db()
+        .from('backend_outbox_jobs')
+        .select(
+          'id, submission_id, provider, status, attempts, max_attempts, next_attempt_at, last_error, payload, created_at, updated_at',
+        )
+        .eq('submission_id', submissionId)
+        .order('created_at', { ascending: false }),
+    );
+
+    if (!error && data) {
+      return data.map(mapOutboxRow);
+    }
+
+    if (error && isMissingTableError(error.message)) {
+      markMissingTable('backend_outbox_jobs');
+      requirePersistentTable('backend_outbox_jobs', 'Outbox listing');
+    } else if (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  if (!allowInMemoryFallback()) {
+    throw new Error('Outbox listing is unavailable in production.');
+  }
+
+  return [...inMemory.outbox.values()]
     .filter((job) => job.submissionId === submissionId)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-
-  if (!tableAvailable('backend_outbox_jobs')) {
-    return local;
-  }
-
-  const { data, error } = await executeQuery<OutboxJobRow[]>(
-    db()
-      .from('backend_outbox_jobs')
-      .select(
-        'id, submission_id, provider, status, attempts, max_attempts, next_attempt_at, last_error, payload, created_at, updated_at',
-      )
-      .eq('submission_id', submissionId)
-      .order('created_at', { ascending: false }),
-  );
-
-  if (!error && data) {
-    return data.map((row) => ({
-      id: String(row.id),
-      submissionId: String(row.submission_id),
-      provider: String(row.provider),
-      status: row.status as OutboxStatus,
-      attempts: Number(row.attempts ?? 0),
-      maxAttempts: Number(row.max_attempts ?? 5),
-      nextAttemptAt: String(row.next_attempt_at || nowIso()),
-      lastError: row.last_error ? String(row.last_error) : undefined,
-      payload: (row.payload || {}) as Record<string, unknown>,
-      createdAt: String(row.created_at || nowIso()),
-      updatedAt: String(row.updated_at || nowIso()),
-    }));
-  }
-
-  if (error && isMissingTableError(error.message)) {
-    markMissingTable('backend_outbox_jobs');
-    return local;
-  }
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return local;
 }
 
 export async function claimDueOutboxJobs(limit: number): Promise<OutboxJob[]> {
+  if (limit <= 0) {
+    return [];
+  }
+
   const now = nowIso();
+
+  if (tableAvailable('backend_outbox_jobs')) {
+    const dueRows = await executeQuery<Array<{ id: string }>>(
+      db()
+        .from('backend_outbox_jobs')
+        .select('id')
+        .in('status', ['pending', 'retrying'])
+        .lte('next_attempt_at', now)
+        .order('next_attempt_at', { ascending: true })
+        .limit(limit),
+    );
+
+    if (dueRows.error && isMissingTableError(dueRows.error.message)) {
+      markMissingTable('backend_outbox_jobs');
+      requirePersistentTable('backend_outbox_jobs', 'Outbox claiming');
+    } else if (dueRows.error) {
+      throw new Error(dueRows.error.message);
+    }
+
+    const ids = (dueRows.data || []).map((row) => String(row.id)).filter(Boolean);
+    if (ids.length === 0) {
+      return [];
+    }
+
+    const claimTimestamp = nowIso();
+    const claimedRows = await executeQuery<OutboxJobRow[]>(
+      db()
+        .from('backend_outbox_jobs')
+        .update({
+          status: 'processing',
+          updated_at: claimTimestamp,
+        })
+        .in('id', ids)
+        .in('status', ['pending', 'retrying'])
+        .lte('next_attempt_at', now)
+        .select(
+          'id, submission_id, provider, status, attempts, max_attempts, next_attempt_at, last_error, payload, created_at, updated_at',
+        ),
+    );
+
+    if (claimedRows.error && isMissingTableError(claimedRows.error.message)) {
+      markMissingTable('backend_outbox_jobs');
+      requirePersistentTable('backend_outbox_jobs', 'Outbox claiming');
+    } else if (claimedRows.error) {
+      throw new Error(claimedRows.error.message);
+    } else {
+      const claimed = (claimedRows.data || [])
+        .map(mapOutboxRow)
+        .sort((a, b) => a.nextAttemptAt.localeCompare(b.nextAttemptAt));
+      if (allowInMemoryFallback()) {
+        for (const job of claimed) {
+          inMemory.outbox.set(job.id, job);
+        }
+      }
+      return claimed;
+    }
+  }
+
+  requirePersistentTable('backend_outbox_jobs', 'Outbox claiming');
+
+  if (!allowInMemoryFallback()) {
+    throw new Error('Outbox claiming is unavailable in production.');
+  }
+
   const due = [...inMemory.outbox.values()]
     .filter(
       (job) =>
@@ -623,58 +808,154 @@ export async function claimDueOutboxJobs(limit: number): Promise<OutboxJob[]> {
     .sort((a, b) => a.nextAttemptAt.localeCompare(b.nextAttemptAt))
     .slice(0, limit);
 
+  const updatedAt = nowIso();
   for (const job of due) {
-    const updated: OutboxJob = {
+    inMemory.outbox.set(job.id, {
       ...job,
       status: 'processing',
-      updatedAt: nowIso(),
-    };
-    inMemory.outbox.set(job.id, updated);
+      updatedAt,
+    });
   }
 
   return due.map((job) => ({
     ...job,
     status: 'processing',
+    updatedAt,
   }));
 }
 
 export async function markOutboxJobSucceeded(jobId: string): Promise<void> {
-  const existing = inMemory.outbox.get(jobId);
-  if (!existing) return;
-  const updated: OutboxJob = {
-    ...existing,
-    status: 'succeeded',
-    updatedAt: nowIso(),
-  };
-  inMemory.outbox.set(jobId, updated);
+  const updatedAt = nowIso();
 
-  if (!tableAvailable('backend_outbox_jobs')) return;
-  const { error } = await executeQuery<OutboxJobRow>(
-    db()
-      .from('backend_outbox_jobs')
-      .update({
-        status: 'succeeded',
-        updated_at: updated.updatedAt,
-        last_error: null,
-      })
-      .eq('id', jobId),
-  );
+  if (tableAvailable('backend_outbox_jobs')) {
+    const { error } = await executeQuery<OutboxJobRow>(
+      db()
+        .from('backend_outbox_jobs')
+        .update({
+          status: 'succeeded',
+          updated_at: updatedAt,
+          last_error: null,
+        })
+        .eq('id', jobId),
+    );
 
-  if (error && isMissingTableError(error.message)) {
-    markMissingTable('backend_outbox_jobs');
+    if (error && isMissingTableError(error.message)) {
+      markMissingTable('backend_outbox_jobs');
+      requirePersistentTable('backend_outbox_jobs', 'Outbox success updates');
+    } else if (error) {
+      throw new Error(error.message);
+    } else if (allowInMemoryFallback()) {
+      const existing = inMemory.outbox.get(jobId);
+      if (existing) {
+        inMemory.outbox.set(jobId, {
+          ...existing,
+          status: 'succeeded',
+          updatedAt,
+          lastError: undefined,
+        });
+      }
+    }
     return;
   }
-  if (error) {
-    throw new Error(error.message);
+
+  requirePersistentTable('backend_outbox_jobs', 'Outbox success updates');
+  if (!allowInMemoryFallback()) {
+    return;
   }
+
+  const existing = inMemory.outbox.get(jobId);
+  if (!existing) {
+    return;
+  }
+
+  inMemory.outbox.set(jobId, {
+    ...existing,
+    status: 'succeeded',
+    updatedAt,
+    lastError: undefined,
+  });
 }
 
 export async function markOutboxJobFailed(
   jobId: string,
   errorMessage: string,
 ): Promise<void> {
+  if (tableAvailable('backend_outbox_jobs')) {
+    const current = await executeQuery<OutboxJobRow>(
+      db()
+        .from('backend_outbox_jobs')
+        .select(
+          'id, submission_id, provider, status, attempts, max_attempts, next_attempt_at, last_error, payload, created_at, updated_at',
+        )
+        .eq('id', jobId)
+        .maybeSingle(),
+    );
+
+    if (current.error && isMissingTableError(current.error.message)) {
+      markMissingTable('backend_outbox_jobs');
+      requirePersistentTable('backend_outbox_jobs', 'Outbox failure updates');
+    } else if (current.error) {
+      throw new Error(current.error.message);
+    }
+
+    if (current.data) {
+      const attempts = Number(current.data.attempts ?? 0) + 1;
+      const maxAttempts = Number(current.data.max_attempts ?? 5);
+      const reachedLimit = attempts >= maxAttempts;
+      const existingNextAttemptAt = String(current.data.next_attempt_at || nowIso());
+      const nextAttemptAt = reachedLimit
+        ? existingNextAttemptAt
+        : new Date(Date.now() + Math.min(60_000, 1_000 * 2 ** attempts)).toISOString();
+      const status: OutboxStatus = reachedLimit ? 'dead_letter' : 'retrying';
+      const updatedAt = nowIso();
+
+      const { error } = await executeQuery<OutboxJobRow>(
+        db()
+          .from('backend_outbox_jobs')
+          .update({
+            attempts,
+            status,
+            last_error: errorMessage,
+            next_attempt_at: nextAttemptAt,
+            updated_at: updatedAt,
+          })
+          .eq('id', jobId),
+      );
+
+      if (error && isMissingTableError(error.message)) {
+        markMissingTable('backend_outbox_jobs');
+        requirePersistentTable('backend_outbox_jobs', 'Outbox failure updates');
+      } else if (error) {
+        throw new Error(error.message);
+      } else if (allowInMemoryFallback()) {
+        inMemory.outbox.set(jobId, {
+          id: String(current.data.id),
+          submissionId: String(current.data.submission_id),
+          provider: String(current.data.provider),
+          status,
+          attempts,
+          maxAttempts,
+          nextAttemptAt,
+          lastError: errorMessage,
+          payload: (current.data.payload || {}) as Record<string, unknown>,
+          createdAt: String(current.data.created_at || nowIso()),
+          updatedAt,
+        });
+      }
+    }
+
+    return;
+  }
+
+  requirePersistentTable('backend_outbox_jobs', 'Outbox failure updates');
+  if (!allowInMemoryFallback()) {
+    return;
+  }
+
   const existing = inMemory.outbox.get(jobId);
-  if (!existing) return;
+  if (!existing) {
+    return;
+  }
 
   const attempts = existing.attempts + 1;
   const reachedLimit = attempts >= existing.maxAttempts;
@@ -682,37 +963,14 @@ export async function markOutboxJobFailed(
     ? existing.nextAttemptAt
     : new Date(Date.now() + Math.min(60_000, 1_000 * 2 ** attempts)).toISOString();
 
-  const updated: OutboxJob = {
+  inMemory.outbox.set(jobId, {
     ...existing,
     attempts,
     status: reachedLimit ? 'dead_letter' : 'retrying',
     lastError: errorMessage,
     nextAttemptAt,
     updatedAt: nowIso(),
-  };
-  inMemory.outbox.set(jobId, updated);
-
-  if (!tableAvailable('backend_outbox_jobs')) return;
-  const { error } = await executeQuery<OutboxJobRow>(
-    db()
-      .from('backend_outbox_jobs')
-      .update({
-        attempts,
-        status: updated.status,
-        last_error: errorMessage,
-        next_attempt_at: updated.nextAttemptAt,
-        updated_at: updated.updatedAt,
-      })
-      .eq('id', jobId),
-  );
-
-  if (error && isMissingTableError(error.message)) {
-    markMissingTable('backend_outbox_jobs');
-    return;
-  }
-  if (error) {
-    throw new Error(error.message);
-  }
+  });
 }
 
 export async function outboxStatsBySubmission(submissionId: string): Promise<{

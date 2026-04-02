@@ -167,6 +167,46 @@ describe('backend route integration', () => {
     expect(metrics.json().requests).toBeTruthy();
   });
 
+  it('fails readiness in production when persistence is unavailable', async () => {
+    const env = process.env as Record<string, string | undefined>;
+    env.NODE_ENV = 'production';
+    env.CMS_SKIP_PAYLOAD = 'true';
+    env.NEXT_PUBLIC_SERVER_URL = 'https://example.com';
+    delete env.SUPABASE_URL;
+    delete env.SUPABASE_SERVICE_ROLE_KEY;
+
+    const prodApp = buildBackendServer();
+    try {
+      const ready = await prodApp.inject({
+        method: 'GET',
+        url: '/health/ready',
+      });
+
+      expect(ready.statusCode).toBe(503);
+      expect(ready.json().ok).toBe(false);
+      expect(
+        ready.json().dependencies.persistence.idempotencyAndOutboxPersistentStoreReady,
+      ).toBe(false);
+      expect(
+        ready.json().dependencies.persistence.requiredPersistenceTablesReady,
+      ).toBe(false);
+    } finally {
+      await prodApp.close();
+    }
+  });
+
+  it('fails fast in production when CORS allowlist is not configured', () => {
+    const env = process.env as Record<string, string | undefined>;
+    env.NODE_ENV = 'production';
+    env.CMS_SKIP_PAYLOAD = 'true';
+    delete env.BACKEND_CORS_ORIGINS;
+    delete env.NEXT_PUBLIC_SERVER_URL;
+
+    expect(() => buildBackendServer()).toThrow(
+      'BACKEND_CORS_ORIGINS (or NEXT_PUBLIC_SERVER_URL) must be set in production',
+    );
+  });
+
   it('serves new content and admin APIs', async () => {
     const content = await app.inject({
       method: 'GET',

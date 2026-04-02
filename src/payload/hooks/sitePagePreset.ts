@@ -1,5 +1,5 @@
 import type { CollectionBeforeChangeHook } from 'payload';
-import { buildCorePresetSections, type CorePresetKey } from '../presets/corePagePresets';
+import { buildCorePresetSections, type CorePresetKey } from '../presets/corePagePresets.ts';
 
 function asObject(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};

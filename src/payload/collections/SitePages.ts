@@ -1,14 +1,14 @@
 import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload';
-import { seoFields } from '../fields/seo';
-import { workflowStatusField, workflowApprovalFields } from '../fields/workflow';
-import { createdByField } from '../fields/ownership';
-import { pageSectionBlocks } from '../blocks/pageSections';
-import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog';
-import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy';
-import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow';
-import { applyCorePresetSections } from '../hooks/sitePagePreset';
-import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug';
-import { authorScopedUpdate } from '../access/authorScopedAccess';
+import { seoFields } from '../fields/seo.ts';
+import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
+import { createdByField } from '../fields/ownership.ts';
+import { pageSectionBlocks } from '../blocks/pageSections.ts';
+import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
+import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
+import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
+import { applyCorePresetSections } from '../hooks/sitePagePreset.ts';
+import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
+import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
 
 const corePresetValues = ['home', 'services', 'about', 'pricing', 'contact'] as const;
 

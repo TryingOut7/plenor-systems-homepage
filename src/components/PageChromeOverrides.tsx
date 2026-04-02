@@ -1,18 +1,10 @@
 import type { SitePage } from '@/payload/cms';
+import Script from 'next/script';
+import { extractSafeHeadScriptSrcs } from '@/lib/external-resource-policy';
 
 type PageChromeOverridesProps = {
   page: Pick<SitePage, 'hideNavbar' | 'hideFooter' | 'pageBackgroundColor' | 'customHeadScripts'>;
 };
-
-const ALLOWED_SCRIPT_RE = /^<script\b[^>]*src=["'][^"']+["'][^>]*>\s*<\/script>$/i;
-
-function sanitizeHeadScripts(raw: string): string {
-  return raw
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0 && ALLOWED_SCRIPT_RE.test(line))
-    .join('\n');
-}
 
 export default function PageChromeOverrides({ page }: PageChromeOverridesProps) {
   const cssRules = [
@@ -25,16 +17,14 @@ export default function PageChromeOverrides({ page }: PageChromeOverridesProps) 
     .filter(Boolean)
     .join('\n');
 
-  const safeScripts = page.customHeadScripts
-    ? sanitizeHeadScripts(page.customHeadScripts)
-    : '';
+  const safeScriptSrcs = extractSafeHeadScriptSrcs(page.customHeadScripts);
 
   return (
     <>
       {cssRules ? <style>{cssRules}</style> : null}
-      {safeScripts ? (
-        <div dangerouslySetInnerHTML={{ __html: safeScripts }} style={{ display: 'none' }} />
-      ) : null}
+      {safeScriptSrcs.map((src, index) => (
+        <Script key={`${src}-${index}`} src={src} strategy="afterInteractive" />
+      ))}
     </>
   );
 }

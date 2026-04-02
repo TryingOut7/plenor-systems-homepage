@@ -2,13 +2,17 @@
   "name": "plenor-systems-homepage",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
   "scripts": {
+    "check:runtime": "node scripts/check-runtime.mjs",
     "dev": "next dev --turbopack",
-    "build": "TSX_TSCONFIG_PATH=tsconfig.json payload generate:importmap && next build",
+    "build": "npm run check:runtime && TSX_TSCONFIG_PATH=tsconfig.json payload generate:importmap && next build",
     "start": "next start",
     "lint": "eslint",
     "lint:architecture": "eslint src/domain src/application src/app/api",

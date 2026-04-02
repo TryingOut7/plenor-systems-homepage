@@ -34,6 +34,13 @@ async function run() {
   ensureEnvLoaded();
 
   const baseUrl = (process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000').replace(/\/+$/, '');
+  let origin;
+  try {
+    origin = new URL(baseUrl).origin;
+  } catch {
+    console.error(`Invalid NEXT_PUBLIC_SERVER_URL/base URL: "${baseUrl}"`);
+    process.exit(1);
+  }
   const secret = process.env.PAYLOAD_SEED_SECRET || process.env.PAYLOAD_SECRET;
 
   if (!secret) {
@@ -45,6 +52,7 @@ async function run() {
     method: 'POST',
     headers: {
       authorization: `Bearer ${secret}`,
+      origin,
     },
   });
 

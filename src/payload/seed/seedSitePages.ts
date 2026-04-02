@@ -1,5 +1,5 @@
 import { getPayload } from '@/payload/client';
-import { buildCorePresetSections } from '../presets/corePagePresets';
+import { buildCorePresetSections } from '../presets/corePagePresets.ts';
 
 type CorePreset = 'home' | 'services' | 'about' | 'pricing' | 'contact';
 

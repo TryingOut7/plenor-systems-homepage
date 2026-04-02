@@ -1,0 +1,172 @@
+type ResourceKind = 'script' | 'style';
+
+const DEFAULT_ALLOWED_SCRIPT_HOSTS = ['static.cloudflareinsights.com'];
+const DEFAULT_ALLOWED_STYLE_HOSTS = ['fonts.googleapis.com'];
+
+function normalizeHost(value: string): string | null {
+  const trimmed = value.trim().toLowerCase();
+  if (!trimmed) {
+    return null;
+  }
+
+  const withProtocol = /^[a-z]+:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  try {
+    const parsed = new URL(withProtocol);
+    return parsed.host.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+function parseHostList(raw: string | undefined): string[] {
+  if (!raw) {
+    return [];
+  }
+
+  return raw
+    .split(',')
+    .map((item) => normalizeHost(item))
+    .filter((item): item is string => !!item);
+}
+
+function allowedHostsFor(kind: ResourceKind, env: NodeJS.ProcessEnv): Set<string> {
+  const configured = parseHostList(
+    kind === 'script'
+      ? env.CMS_ALLOWED_EXTERNAL_SCRIPT_HOSTS
+      : env.CMS_ALLOWED_EXTERNAL_STYLE_HOSTS,
+  );
+  const defaults =
+    kind === 'script' ? DEFAULT_ALLOWED_SCRIPT_HOSTS : DEFAULT_ALLOWED_STYLE_HOSTS;
+
+  const merged = new Set<string>();
+  for (const host of [...defaults, ...configured]) {
+    const normalized = normalizeHost(host);
+    if (normalized) {
+      merged.add(normalized);
+    }
+  }
+
+  return merged;
+}
+
+function isAllowedProtocol(url: URL, env: NodeJS.ProcessEnv): boolean {
+  if (url.protocol === 'https:') {
+    return true;
+  }
+
+  if (
+    env.NODE_ENV !== 'production' &&
+    url.protocol === 'http:' &&
+    (url.hostname === 'localhost' || url.hostname === '127.0.0.1')
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+function isRelativePath(value: string): boolean {
+  return value.startsWith('/');
+}
+
+export function isAllowedExternalResourceUrl(
+  rawUrl: string | undefined | null,
+  kind: ResourceKind,
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  if (!rawUrl) {
+    return false;
+  }
+
+  const value = rawUrl.trim();
+  if (!value) {
+    return false;
+  }
+
+  if (isRelativePath(value)) {
+    return true;
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    return false;
+  }
+
+  if (!isAllowedProtocol(parsed, env)) {
+    return false;
+  }
+
+  if (parsed.username || parsed.password) {
+    return false;
+  }
+
+  return allowedHostsFor(kind, env).has(parsed.host.toLowerCase());
+}
+
+export function getSafeStylesheetUrl(
+  rawUrl: string | undefined | null,
+  env: NodeJS.ProcessEnv = process.env,
+): string | null {
+  if (!isAllowedExternalResourceUrl(rawUrl, 'style', env)) {
+    return null;
+  }
+
+  return rawUrl ? rawUrl.trim() : null;
+}
+
+export function extractSafeHeadScriptSrcs(
+  rawScripts: string | undefined | null,
+  env: NodeJS.ProcessEnv = process.env,
+): string[] {
+  if (!rawScripts) {
+    return [];
+  }
+
+  const matches = rawScripts.matchAll(/<script\b([^>]*)>\s*<\/script>/gi);
+  const safe: string[] = [];
+
+  for (const match of matches) {
+    const attributes = match[1] || '';
+    const srcMatch = attributes.match(/\bsrc\s*=\s*(['"])(.*?)\1/i);
+    const src = srcMatch?.[2]?.trim();
+    if (!src) {
+      continue;
+    }
+
+    if (isAllowedExternalResourceUrl(src, 'script', env)) {
+      safe.push(src);
+    }
+  }
+
+  return safe;
+}
+
+function hostToOrigin(host: string): string {
+  if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) {
+    return `http://${host}`;
+  }
+
+  return `https://${host}`;
+}
+
+export function buildContentSecurityPolicy(
+  env: NodeJS.ProcessEnv = process.env,
+): string {
+  const scriptHosts = [...allowedHostsFor('script', env)].map(hostToOrigin);
+  const styleHosts = [...allowedHostsFor('style', env)].map(hostToOrigin);
+
+  const scriptSrc = [`'self'`, ...scriptHosts].join(' ');
+  const styleSrc = [`'self'`, `'unsafe-inline'`, ...styleHosts].join(' ');
+
+  return [
+    `default-src 'self'`,
+    `script-src ${scriptSrc}`,
+    `style-src ${styleSrc}`,
+    `img-src 'self' https: data:`,
+    `font-src 'self' https:`,
+    `connect-src 'self' https:`,
+    `frame-ancestors 'self'`,
+  ].join('; ');
+}

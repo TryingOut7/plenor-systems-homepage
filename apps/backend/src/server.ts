@@ -15,7 +15,11 @@ import { getIntegrationStatus } from '../../../src/application/integrations/inte
 import { payloadContentRepository } from '../../../src/infrastructure/cms/contentGateway';
 import { payloadSeedRepository } from '../../../src/infrastructure/cms/seedGateway';
 import { payloadSearchRepository } from '../../../src/infrastructure/cms/searchGateway';
-import { hasDatabaseCredentials, isPersistentStoreConfigured } from '../../../src/infrastructure/persistence/backendStore';
+import {
+  hasDatabaseCredentials,
+  isPersistentStoreConfigured,
+  refreshPersistenceCapabilityState,
+} from '../../../src/infrastructure/persistence/backendStore';
 
 function pickExport<T>(mod: Record<string, unknown>, name: string): T {
   const named = mod[name];
@@ -38,11 +42,30 @@ export function buildBackendServer(): FastifyInstance {
   const requestStartById = new Map<string, number>();
 
   const isDev = process.env.NODE_ENV !== 'production';
+  const isProduction = process.env.NODE_ENV === 'production';
   const rawOrigins = process.env.BACKEND_CORS_ORIGINS || process.env.NEXT_PUBLIC_SERVER_URL || '';
   const allowedOrigins = rawOrigins
     .split(',')
     .map((s) => s.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((origin) => {
+      const normalized = /^https?:\/\//i.test(origin)
+        ? origin
+        : origin.startsWith('localhost') || origin.startsWith('127.0.0.1')
+          ? `http://${origin}`
+          : `https://${origin}`;
+      const parsed = new URL(normalized);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        throw new Error(`Invalid CORS origin protocol: ${origin}`);
+      }
+      return parsed.origin;
+    });
+
+  if (isProduction && allowedOrigins.length === 0) {
+    throw new Error(
+      'BACKEND_CORS_ORIGINS (or NEXT_PUBLIC_SERVER_URL) must be set in production for fail-closed CORS.',
+    );
+  }
 
   const app = Fastify({
     logger: isDev
@@ -53,7 +76,7 @@ export function buildBackendServer(): FastifyInstance {
   });
 
   app.register(cors, {
-    origin: isDev || allowedOrigins.length === 0 ? true : allowedOrigins,
+    origin: isDev ? true : allowedOrigins,
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Api-Key', 'Idempotency-Key', 'X-Request-Id'],
     credentials: false,
@@ -64,7 +87,7 @@ export function buildBackendServer(): FastifyInstance {
     createRateLimitHook({
       maxRequests: rateLimitMax,
       windowMs: rateLimitWindowMs,
-      skipPaths: ['/health'],
+      skipPaths: ['/health', '/health/ready'],
     }),
   );
 
@@ -123,7 +146,7 @@ export function buildBackendServer(): FastifyInstance {
     timestamp: new Date().toISOString(),
   }));
 
-  app.get('/health/ready', async (request) => {
+  app.get('/health/ready', async (request, reply) => {
     let cmsReady = true;
     let cmsError: string | null = null;
 
@@ -142,10 +165,19 @@ export function buildBackendServer(): FastifyInstance {
     }
 
     const dbConfigured = hasDatabaseCredentials();
-    const persistentStoreReady = isPersistentStoreConfigured();
+    let persistentStoreReady = isPersistentStoreConfigured();
+    let persistenceError: string | null = null;
 
-    const ready = cmsReady;
-    return {
+    try {
+      await refreshPersistenceCapabilityState();
+      persistentStoreReady = isPersistentStoreConfigured();
+    } catch (error) {
+      persistentStoreReady = false;
+      persistenceError = error instanceof Error ? error.message : String(error);
+    }
+
+    const ready = cmsReady && (!isProduction || persistentStoreReady);
+    return reply.status(ready ? 200 : 503).send({
       ok: ready,
       service: 'plenor-backend',
       requestId: request.id,
@@ -159,10 +191,12 @@ export function buildBackendServer(): FastifyInstance {
           credentialsConfigured: dbConfigured,
         },
         persistence: {
+          requiredPersistenceTablesReady: persistentStoreReady,
           idempotencyAndOutboxPersistentStoreReady: persistentStoreReady,
+          error: persistenceError,
         },
       },
-    };
+    });
   });
 
   app.get('/metrics', async (request, reply) => {

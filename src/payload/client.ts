@@ -1,6 +1,6 @@
 import { cache } from 'react';
 import { getPayload as getPayloadInstance } from 'payload';
-import config from '../payload.config';
+import config from '../payload.config.ts';
 
 let payloadPromise: ReturnType<typeof getPayloadInstance> | null = null;
 

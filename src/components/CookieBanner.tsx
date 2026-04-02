@@ -32,6 +32,7 @@ export default function CookieBanner({
   function decline() {
     localStorage.setItem('plenor_cookie_consent', 'declined');
     setVisible(false);
+    window.dispatchEvent(new CustomEvent('cookie_consent_declined'));
   }
 
   if (!visible) return null;

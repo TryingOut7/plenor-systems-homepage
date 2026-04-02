@@ -1,9 +1,9 @@
 import type { CollectionConfig } from 'payload';
-import { pageSectionBlocks } from '../blocks/pageSections';
-import { workflowStatusField, workflowApprovalFields } from '../fields/workflow';
-import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow';
-import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog';
-import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug';
+import { pageSectionBlocks } from '../blocks/pageSections.ts';
+import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
+import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
+import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
+import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 
 export const ReusableSections: CollectionConfig = {
   slug: 'reusable-sections',

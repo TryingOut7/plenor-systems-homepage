@@ -1,16 +1,17 @@
 import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import Script from 'next/script';
 import { draftMode } from 'next/headers';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AnnouncementBanner from '@/components/AnnouncementBanner';
+import ConsentGatedAnalytics from '@/components/ConsentGatedAnalytics';
 import CookieBanner from '@/components/CookieBanner';
 import DraftModeBanner from '@/components/DraftModeBanner';
 import SkipLink from '@/components/SkipLink';
+import { getSafeStylesheetUrl } from '@/lib/external-resource-policy';
 import { getSiteSettings, getUISettings, type UISettings } from '@/payload/cms';
 import {
   resolveContactEmail,
@@ -192,8 +193,8 @@ export default async function RootLayout({
     url: siteUrl,
   };
   const uiVariableStyles = buildUIVariableStyles(uiSettings);
-  const headingFontUrl = uiSettings?.typography?.headingFontUrl;
-  const bodyFontUrl = uiSettings?.typography?.bodyFontUrl;
+  const headingFontUrl = getSafeStylesheetUrl(uiSettings?.typography?.headingFontUrl);
+  const bodyFontUrl = getSafeStylesheetUrl(uiSettings?.typography?.bodyFontUrl);
 
   return (
     <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
@@ -240,14 +241,7 @@ export default async function RootLayout({
           privacyLabel={siteSettings?.cookieBanner?.privacyLabel}
           privacyHref={siteSettings?.cookieBanner?.privacyHref}
         />
-        {analyticsId && (
-          <Script
-            defer
-            src="https://static.cloudflareinsights.com/beacon.min.js"
-            data-cf-beacon={`{"token": "${analyticsId}"}`}
-            strategy="afterInteractive"
-          />
-        )}
+        {analyticsId && <ConsentGatedAnalytics analyticsId={analyticsId} />}
         {isDraftMode && <DraftModeBanner />}
         <SpeedInsights />
         <script

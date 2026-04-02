@@ -1,32 +1,15 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { toBackendErrorResponse } from '../adapters/errorEnvelope';
-
-interface RateLimitEntry {
-  count: number;
-  resetAt: number;
-}
+import { consumeRateLimitBucket } from '../../../../src/infrastructure/security/rateLimiter';
 
 export interface RateLimitOptions {
   windowMs: number;
   maxRequests: number;
-  maxStoreSize?: number;
   skipPaths?: string[];
 }
 
-const DEFAULT_MAX_STORE_SIZE = 10_000;
-
 export function createRateLimitHook(options: RateLimitOptions) {
-  const store = new Map<string, RateLimitEntry>();
   const skipPaths = new Set(options.skipPaths || []);
-  const maxStoreSize = options.maxStoreSize || DEFAULT_MAX_STORE_SIZE;
-
-  function cleanup(now: number) {
-    for (const [key, entry] of store) {
-      if (entry.resetAt <= now) {
-        store.delete(key);
-      }
-    }
-  }
 
   return async function rateLimitHook(
     request: FastifyRequest,
@@ -37,22 +20,19 @@ export function createRateLimitHook(options: RateLimitOptions) {
       return;
     }
 
-    const now = Date.now();
-    const key = `${request.ip}:${path}`;
-    const current = store.get(key);
+    try {
+      const key = `${request.ip}:${path}`;
+      const outcome = await consumeRateLimitBucket({
+        key,
+        windowMs: options.windowMs,
+        maxRequests: options.maxRequests,
+      });
 
-    if (!current || current.resetAt <= now) {
-      if (store.size >= maxStoreSize) {
-        cleanup(now);
+      if (!outcome.limited) {
+        return;
       }
 
-      store.set(key, { count: 1, resetAt: now + options.windowMs });
-      return;
-    }
-
-    current.count += 1;
-    if (current.count > options.maxRequests) {
-      const retryAfter = Math.ceil((current.resetAt - now) / 1000);
+      const retryAfter = Math.max(1, outcome.retryAfterSeconds || 1);
       reply.header('Retry-After', String(retryAfter));
       reply.status(429).send(
         toBackendErrorResponse({
@@ -64,6 +44,18 @@ export function createRateLimitHook(options: RateLimitOptions) {
           },
           headers: {
             'Retry-After': String(retryAfter),
+          },
+        }),
+      );
+    } catch (error) {
+      request.log.error({ err: error }, 'Rate limiter failure');
+      reply.status(503).send(
+        toBackendErrorResponse({
+          status: 503,
+          requestId: request.id,
+          body: {
+            code: 'DEPENDENCY_UNAVAILABLE',
+            message: 'Rate limiting temporarily unavailable.',
           },
         }),
       );

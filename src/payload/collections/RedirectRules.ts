@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog';
+import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 
 export const RedirectRules: CollectionConfig = {
   slug: 'redirect-rules',

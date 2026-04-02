@@ -6,7 +6,7 @@ import type { NextRequest } from 'next/server';
 
 export async function POST(request: NextRequest) {
   const [context, body] = [toRequestContext(request), await readJsonBody(request)];
-  const result = enableDraftModeForRequest(context, body);
+  const result = await enableDraftModeForRequest(context, body);
 
   if (result.status === 200) {
     (await draftMode()).enable();

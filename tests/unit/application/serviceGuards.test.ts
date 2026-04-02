@@ -24,10 +24,10 @@ function context(overrides: Partial<RequestContext> = {}): RequestContext {
 }
 
 describe('application service guards', () => {
-  it('returns 400 for invalid draft-mode slug', () => {
+  it('returns 400 for invalid draft-mode slug', async () => {
     process.env.PAYLOAD_SECRET = 'secret';
 
-    const result = enableDraftModeForRequest(context(), {
+    const result = await enableDraftModeForRequest(context(), {
       secret: 'secret',
       slug: 'invalid',
     });
@@ -36,10 +36,10 @@ describe('application service guards', () => {
     expect(result.body).toEqual({ error: 'Invalid slug' });
   });
 
-  it('returns 401 for wrong draft-mode secret', () => {
+  it('returns 401 for wrong draft-mode secret', async () => {
     process.env.PAYLOAD_SECRET = 'secret';
 
-    const result = enableDraftModeForRequest(context(), {
+    const result = await enableDraftModeForRequest(context(), {
       secret: 'wrong',
       slug: '/',
     });

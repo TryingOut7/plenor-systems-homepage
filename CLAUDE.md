@@ -102,6 +102,7 @@ BACKEND_HOST                    # Backend bind host (default 127.0.0.1)
 BACKEND_PORT                    # Backend bind port (default 18000)
 BACKEND_RATE_LIMIT_MAX          # Backend edge rate limit max requests/window
 BACKEND_RATE_LIMIT_WINDOW_MS    # Backend edge rate limit window length
+BACKEND_CORS_ORIGINS            # Backend CORS allowlist (required in production unless NEXT_PUBLIC_SERVER_URL is set)
 BACKEND_API_KEYS                # Comma-separated key entries: key:role:keyId
 BACKEND_INTERNAL_API_KEY        # Optional dedicated internal role key
 BACKEND_ADMIN_API_KEY           # Optional dedicated admin role key
@@ -160,8 +161,8 @@ Import boundaries are enforced by ESLint via `lint:architecture`.
   - standardized backend error envelope (`success=false`, `code`, `message`, `status`, `requestId`)
   - POST idempotency support via `Idempotency-Key`
   - persistent outbox pipeline with retry/dead-letter state
-  - edge rate limiting middleware (`apps/backend/src/middleware/rateLimit.ts`)
-- Next API routes (`/api/search`, `/api/guide`, `/api/inquiry`, `/api/internal/seed-site-pages`, `/api/content/*`, `/api/admin/submissions*`, `/api/integrations/status`) are **proxy-first** when `BACKEND_INTERNAL_URL` is set.
+  - shared DB-backed edge rate limiting middleware (`apps/backend/src/middleware/rateLimit.ts`)
+- Next API routes (`/api/search`, `/api/guide`, `/api/inquiry`, `/api/internal/seed-site-pages`, `/api/content/*`, `/api/admin/submissions*`, `/api/integrations/status`) are **proxy-first fail-closed** when `BACKEND_INTERNAL_URL` is set.
 - Draft mode routes remain local in Next (`/api/draft-mode/*`) because they depend on Next draft cookie APIs.
 
 ### Contracts and API Schema
@@ -236,8 +237,9 @@ CI workflow (`.github/workflows/ci.yml`) runs:
 
 ## Operational Notes
 
-- If backend proxy is down or unreachable, proxy-enabled Next API routes fall back to local application services.
-- `/health` is intentionally excluded from backend edge rate limiting.
+- If backend proxy is down or unreachable while `BACKEND_INTERNAL_URL` is set, proxy-enabled Next API routes return `503 BACKEND_UNAVAILABLE` (no local fallback).
+- In production, backend startup fails fast if CORS allowlist is not configured (`BACKEND_CORS_ORIGINS` or `NEXT_PUBLIC_SERVER_URL`).
+- `/health` and `/health/ready` are intentionally excluded from backend edge rate limiting.
 - Non-public backend routes use API key role checks (`internal`, `admin`) via `x-api-key`.
 - Versioned SQL migrations live in `migrations/versions`, tracked by `public.schema_migrations`.
 - When adding/changing backend endpoints:

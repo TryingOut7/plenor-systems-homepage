@@ -40,7 +40,7 @@ export async function searchSiteContent(
   context: RequestContext,
   repository: SearchRepository,
 ): Promise<ServiceResult<SearchServiceResponse>> {
-  const rateLimitError = checkRateLimit(context);
+  const rateLimitError = await checkRateLimit(context);
   if (rateLimitError) {
     return rateLimitError;
   }

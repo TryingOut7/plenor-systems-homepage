@@ -1,14 +1,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { buildConfig } from 'payload';
-if (process.env.NODE_ENV === 'production') {
-  const missing = ['DATABASE_URI', 'PAYLOAD_SECRET', 'NEXT_PUBLIC_SERVER_URL'].filter(
-    (k) => !process.env[k],
-  );
-  if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
-  }
-}
+import { validateEnv } from './lib/env-validation.ts';
 import { acceptedLanguages, type AcceptedLanguages } from '@payloadcms/translations';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -32,20 +25,22 @@ import { importExportPlugin } from '@payloadcms/plugin-import-export';
 import { resendAdapter } from '@payloadcms/email-resend';
 
 // ─── Collections & Globals ────────────────────────────────────────────────────
-import { Media } from './payload/collections/Media';
-import { ServiceItems } from './payload/collections/ServiceItems';
-import { SitePages } from './payload/collections/SitePages';
-import { ReusableSections } from './payload/collections/ReusableSections';
-import { RedirectRules } from './payload/collections/RedirectRules';
-import { BlogPosts } from './payload/collections/BlogPosts';
-import { BlogCategories } from './payload/collections/BlogCategories';
-import { Testimonials } from './payload/collections/Testimonials';
-import { AuditLogs } from './payload/collections/AuditLogs';
-import { TeamMembers } from './payload/collections/TeamMembers';
-import { Logos } from './payload/collections/Logos';
-import { EmailTemplates } from './payload/collections/EmailTemplates';
-import { SiteSettings } from './payload/globals/SiteSettings';
-import { UISettings } from './payload/globals/UISettings';
+import { Media } from './payload/collections/Media.ts';
+import { ServiceItems } from './payload/collections/ServiceItems.ts';
+import { SitePages } from './payload/collections/SitePages.ts';
+import { ReusableSections } from './payload/collections/ReusableSections.ts';
+import { RedirectRules } from './payload/collections/RedirectRules.ts';
+import { BlogPosts } from './payload/collections/BlogPosts.ts';
+import { BlogCategories } from './payload/collections/BlogCategories.ts';
+import { Testimonials } from './payload/collections/Testimonials.ts';
+import { AuditLogs } from './payload/collections/AuditLogs.ts';
+import { TeamMembers } from './payload/collections/TeamMembers.ts';
+import { Logos } from './payload/collections/Logos.ts';
+import { EmailTemplates } from './payload/collections/EmailTemplates.ts';
+import { SiteSettings } from './payload/globals/SiteSettings.ts';
+import { UISettings } from './payload/globals/UISettings.ts';
+
+validateEnv();
 
 function resolveServerURL(): string {
   const raw =

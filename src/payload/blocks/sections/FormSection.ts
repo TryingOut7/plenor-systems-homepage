@@ -1,5 +1,5 @@
 import type { Block } from 'payload';
-import { sectionCommonFields } from '../../fields/sectionCommon';
+import { sectionCommonFields } from '../../fields/sectionCommon.ts';
 
 export const FormSection: Block = {
   slug: 'formSection',

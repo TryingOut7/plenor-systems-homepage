@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
   }
 
   const context = toRequestContext(request);
-  const rateLimitError = checkRateLimit(context);
+  const rateLimitError = await checkRateLimit(context);
   if (rateLimitError) {
     return toJsonResponse(rateLimitError);
   }

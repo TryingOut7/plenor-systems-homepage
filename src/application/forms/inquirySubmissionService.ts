@@ -21,11 +21,29 @@ type InquirySubmissionServiceResponse =
   | FormSubmissionSuccessResponse
   | FormSubmissionErrorResponse;
 
+function redactInquiryLogPayload(input: {
+  name: string;
+  email: string;
+  company: string;
+  challenge: string;
+}) {
+  const emailDomain = input.email.includes('@')
+    ? input.email.split('@').at(-1) || 'invalid'
+    : 'invalid';
+
+  return {
+    nameLength: input.name.length,
+    emailDomain: emailDomain.toLowerCase(),
+    companyLength: input.company.length,
+    challengeLength: input.challenge.length,
+  };
+}
+
 export async function submitInquiryForm(
   context: RequestContext,
   body: unknown,
 ): Promise<ServiceResult<InquirySubmissionServiceResponse>> {
-  const rateLimitError = checkRateLimit(context);
+  const rateLimitError = await checkRateLimit(context);
   if (rateLimitError) {
     return rateLimitError;
   }
@@ -69,11 +87,13 @@ export async function submitInquiryForm(
         event,
       });
     } catch (dbError) {
-      console.error(
-        'DB log failed for inquiry submission - entry:',
-        JSON.stringify(entry),
-        dbError,
-      );
+      const err = dbError instanceof Error ? dbError : new Error(String(dbError));
+      console.error('Inquiry submission persistence failed.', {
+        requestId: context.requestId,
+        input: redactInquiryLogPayload(entry),
+        errorName: err.name,
+        errorMessage: err.message,
+      });
       return fail(500, { message: 'Unable to save your submission. Please try again.', requestId: context.requestId });
     }
 

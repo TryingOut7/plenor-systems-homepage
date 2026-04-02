@@ -40,11 +40,6 @@ export async function seedSitePagesForRequest(
   }
 
   const expectedSecret = process.env.PAYLOAD_SEED_SECRET || process.env.PAYLOAD_SECRET;
-  const hasBearerCredential = !!readBearerToken(context.authorization);
-  if (!expectedSecret && hasBearerCredential && !context.apiKey) {
-    return fail(500, { error: 'Server configuration error' });
-  }
-
   if (!hasAuthorizedCredential(context, expectedSecret)) {
     return fail(401, { error: 'Unauthorized' });
   }

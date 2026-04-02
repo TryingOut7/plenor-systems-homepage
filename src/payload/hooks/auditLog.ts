@@ -1,5 +1,5 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload';
-import { AUDIT_ACTIONS } from '../constants/auditActions';
+import { AUDIT_ACTIONS } from '../constants/auditActions.ts';
 
 function getDocTitle(doc: Record<string, unknown>): string {
   return (

@@ -439,10 +439,19 @@ components:
                   type: boolean
             persistence:
               type: object
-              required: [idempotencyAndOutboxPersistentStoreReady]
+              required:
+                [
+                  requiredPersistenceTablesReady,
+                  idempotencyAndOutboxPersistentStoreReady,
+                ]
               properties:
+                requiredPersistenceTablesReady:
+                  type: boolean
                 idempotencyAndOutboxPersistentStoreReady:
                   type: boolean
+                error:
+                  type: string
+                  nullable: true
     MetricsResponse:
       type: object
       required: [service, uptimeSeconds, requests, timing, requestId, timestamp]
@@ -499,6 +508,7 @@ components:
             - CONFLICT
             - RATE_LIMITED
             - IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_PAYLOAD
+            - BACKEND_UNAVAILABLE
             - DEPENDENCY_UNAVAILABLE
             - INTERNAL_ERROR
         message:

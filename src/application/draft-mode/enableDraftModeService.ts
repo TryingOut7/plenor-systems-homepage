@@ -16,11 +16,11 @@ type EnableDraftModeServiceResponse =
   | DraftModeErrorResponse
   | { message: string };
 
-export function enableDraftModeForRequest(
+export async function enableDraftModeForRequest(
   context: RequestContext,
   body: unknown,
-): ServiceResult<EnableDraftModeServiceResponse> {
-  const rateLimitError = checkRateLimit(context);
+): Promise<ServiceResult<EnableDraftModeServiceResponse>> {
+  const rateLimitError = await checkRateLimit(context);
   if (rateLimitError) {
     return rateLimitError;
   }

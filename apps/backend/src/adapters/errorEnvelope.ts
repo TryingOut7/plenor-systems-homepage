@@ -9,6 +9,7 @@ function defaultMessageByStatus(status: number): string {
   if (status === 404) return 'Not found.';
   if (status === 409) return 'Conflict.';
   if (status === 429) return 'Too many requests.';
+  if (status === 503) return 'Dependency unavailable.';
   if (status >= 500) return 'Internal server error.';
   return 'Request failed.';
 }
@@ -20,6 +21,7 @@ function defaultCodeByStatus(status: number): BackendErrorCode {
   if (status === 404) return 'NOT_FOUND';
   if (status === 409) return 'CONFLICT';
   if (status === 429) return 'RATE_LIMITED';
+  if (status === 503) return 'DEPENDENCY_UNAVAILABLE';
   if (status >= 500) return 'INTERNAL_ERROR';
   return 'INTERNAL_ERROR';
 }

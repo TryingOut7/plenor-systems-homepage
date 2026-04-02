@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import path from "path";
 import { withPayload } from "@payloadcms/next/withPayload";
 import { withSentryConfig } from "@sentry/nextjs";
+import { buildContentSecurityPolicy } from "./src/lib/external-resource-policy";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['sharp'],
@@ -27,7 +28,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; font-src 'self' https:; connect-src 'self' https:; frame-ancestors 'self';",
+            value: buildContentSecurityPolicy(),
           },
         ],
       },

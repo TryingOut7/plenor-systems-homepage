@@ -24,7 +24,7 @@ export async function GET(
     return authError;
   }
 
-  const rateLimitError = checkRateLimit(toRequestContext(request));
+  const rateLimitError = await checkRateLimit(toRequestContext(request));
   if (rateLimitError) {
     return toJsonResponse(rateLimitError);
   }

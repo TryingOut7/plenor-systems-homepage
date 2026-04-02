@@ -21,11 +21,22 @@ type GuideSubmissionServiceResponse =
   | FormSubmissionSuccessResponse
   | FormSubmissionErrorResponse;
 
+function redactGuideLogPayload(input: { name: string; email: string }) {
+  const emailDomain = input.email.includes('@')
+    ? input.email.split('@').at(-1) || 'invalid'
+    : 'invalid';
+
+  return {
+    nameLength: input.name.length,
+    emailDomain: emailDomain.toLowerCase(),
+  };
+}
+
 export async function submitGuideForm(
   context: RequestContext,
   body: unknown,
 ): Promise<ServiceResult<GuideSubmissionServiceResponse>> {
-  const rateLimitError = checkRateLimit(context);
+  const rateLimitError = await checkRateLimit(context);
   if (rateLimitError) {
     return rateLimitError;
   }
@@ -66,11 +77,13 @@ export async function submitGuideForm(
         event,
       });
     } catch (dbError) {
-      console.error(
-        'DB log failed for guide submission - entry:',
-        JSON.stringify(entry),
-        dbError,
-      );
+      const err = dbError instanceof Error ? dbError : new Error(String(dbError));
+      console.error('Guide submission persistence failed.', {
+        requestId: context.requestId,
+        input: redactGuideLogPayload(entry),
+        errorName: err.name,
+        errorMessage: err.message,
+      });
       return fail(500, { message: 'Unable to save your submission. Please try again.', requestId: context.requestId });
     }
 

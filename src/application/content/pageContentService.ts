@@ -21,7 +21,7 @@ export async function getContentPageBySlug(
   slug: string,
   repository: ContentRepository,
 ): Promise<ServiceResult<ContentPageServiceResponse>> {
-  const rateLimitError = checkRateLimit(context);
+  const rateLimitError = await checkRateLimit(context);
   if (rateLimitError) {
     return rateLimitError;
   }
@@ -45,7 +45,7 @@ export async function getContentNavigation(
   context: RequestContext,
   repository: ContentRepository,
 ): Promise<ServiceResult<ContentNavigationServiceResponse>> {
-  const rateLimitError = checkRateLimit(context);
+  const rateLimitError = await checkRateLimit(context);
   if (rateLimitError) {
     return rateLimitError;
   }
