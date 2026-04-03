@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PageChromeOverrides from '@/components/PageChromeOverrides';
-import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import CmsPreviewDiffBanner from '@/components/CmsPreviewDiffBanner';
+import UniversalSections from '@/components/cms/UniversalSections';
+import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
 import { resolveServicesPageData } from '@/lib/page-content/services';
 import { resolveSiteName, resolveSiteUrl } from '@/lib/site-config';
@@ -59,6 +61,7 @@ const listItem = (text: string) => (
 );
 
 export default async function ServicesPage() {
+  const useUniversalRenderer = process.env.CMS_CORE_PAGE_RENDER_MODE === 'universal';
   const cmsReadOptions = await getCmsReadOptions();
   const [sitePage, siteSettings] = await Promise.all([
     getSitePageBySlug('services', cmsReadOptions),
@@ -69,6 +72,24 @@ export default async function ServicesPage() {
     notFound();
   }
 
+  if (useUniversalRenderer) {
+    const collectionData = await getCollectionData(cmsReadOptions);
+    return (
+      <>
+        <PageChromeOverrides page={sitePage} />
+        <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
+        <UniversalSections
+          documentId={sitePage.id || 'services'}
+          documentType="site-pages"
+          sections={sitePage.sections}
+          collections={collectionData}
+          guideFormLabels={siteSettings?.guideForm}
+          inquiryFormLabels={siteSettings?.inquiryForm}
+        />
+      </>
+    );
+  }
+
   const d = resolveServicesPageData(sitePage.sections);
   const siteName = resolveSiteName(siteSettings);
   const siteUrl = resolveSiteUrl(siteSettings);
@@ -76,6 +97,7 @@ export default async function ServicesPage() {
   return (
     <>
       <PageChromeOverrides page={sitePage} />
+      <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

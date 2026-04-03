@@ -7,6 +7,7 @@ import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
 import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
+import { ensureLocalizationBeforeChange, localizationFields } from '../fields/localization.ts';
 
 export const Testimonials: CollectionConfig = {
   slug: 'testimonials',
@@ -24,7 +25,12 @@ export const Testimonials: CollectionConfig = {
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   hooks: {
-    beforeChange: [stampCreatedByBeforeChange, normalizeSlugBeforeChange, workflowBeforeChange],
+    beforeChange: [
+      stampCreatedByBeforeChange,
+      normalizeSlugBeforeChange,
+      ensureLocalizationBeforeChange,
+      workflowBeforeChange,
+    ],
     afterChange: [workflowAfterChange, auditAfterChange],
     afterDelete: [auditAfterDelete],
   },
@@ -105,6 +111,7 @@ export const Testimonials: CollectionConfig = {
         },
       ],
     },
+    ...localizationFields,
     createdByField,
     workflowStatusField,
     ...workflowApprovalFields,

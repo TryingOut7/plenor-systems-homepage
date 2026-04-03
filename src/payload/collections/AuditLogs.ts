@@ -5,7 +5,7 @@ export const AuditLogs: CollectionConfig = {
   slug: 'audit-logs',
   admin: {
     useAsTitle: 'summary',
-    defaultColumns: ['summary', 'action', 'collection', 'user', 'createdAt'],
+    defaultColumns: ['summary', 'riskTier', 'action', 'collection', 'fieldPath', 'user', 'createdAt'],
     group: 'System',
   },
   access: {
@@ -31,11 +31,13 @@ export const AuditLogs: CollectionConfig = {
     {
       name: 'documentId',
       type: 'text',
+      required: true,
       admin: { position: 'sidebar' },
     },
     {
       name: 'documentTitle',
       type: 'text',
+      required: true,
     },
     {
       name: 'user',
@@ -43,12 +45,58 @@ export const AuditLogs: CollectionConfig = {
       relationTo: 'users',
     },
     {
+      name: 'actorId',
+      type: 'text',
+      required: true,
+      admin: { position: 'sidebar' },
+    },
+    {
       name: 'userEmail',
       type: 'text',
     },
     {
+      name: 'actorRole',
+      type: 'text',
+      required: true,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'fieldPath',
+      type: 'text',
+      required: true,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'oldValueSummary',
+      type: 'textarea',
+      required: true,
+    },
+    {
+      name: 'newValueSummary',
+      type: 'textarea',
+      required: true,
+    },
+    {
+      name: 'riskTier',
+      type: 'select',
+      options: [
+        { label: 'Routine', value: 'routine' },
+        { label: 'System', value: 'system' },
+      ],
+      defaultValue: 'routine',
+      required: true,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'changedAt',
+      type: 'date',
+      required: true,
+      admin: { position: 'sidebar' },
+    },
+    {
       name: 'summary',
       type: 'text',
+      required: true,
       admin: { readOnly: true },
     },
   ],

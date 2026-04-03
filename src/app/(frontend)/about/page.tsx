@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PageChromeOverrides from '@/components/PageChromeOverrides';
-import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import CmsPreviewDiffBanner from '@/components/CmsPreviewDiffBanner';
+import UniversalSections from '@/components/cms/UniversalSections';
+import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
 import { resolveAboutPageData } from '@/lib/page-content/about';
 import { resolveSiteName } from '@/lib/site-config';
@@ -31,6 +33,7 @@ const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 const narrow: React.CSSProperties = { maxWidth: '760px', margin: '0 auto' };
 
 export default async function AboutPage() {
+  const useUniversalRenderer = process.env.CMS_CORE_PAGE_RENDER_MODE === 'universal';
   const cmsReadOptions = await getCmsReadOptions();
   const [sitePage, siteSettings] = await Promise.all([
     getSitePageBySlug('about', cmsReadOptions),
@@ -41,12 +44,31 @@ export default async function AboutPage() {
     notFound();
   }
 
+  if (useUniversalRenderer) {
+    const collectionData = await getCollectionData(cmsReadOptions);
+    return (
+      <>
+        <PageChromeOverrides page={sitePage} />
+        <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
+        <UniversalSections
+          documentId={sitePage.id || 'about'}
+          documentType="site-pages"
+          sections={sitePage.sections}
+          collections={collectionData}
+          guideFormLabels={siteSettings?.guideForm}
+          inquiryFormLabels={siteSettings?.inquiryForm}
+        />
+      </>
+    );
+  }
+
   const d = resolveAboutPageData(sitePage.sections);
   const siteName = resolveSiteName(siteSettings);
 
   return (
     <>
       <PageChromeOverrides page={sitePage} />
+      <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
       <section
         aria-labelledby="about-hero-heading"
         style={{

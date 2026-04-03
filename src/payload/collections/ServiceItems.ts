@@ -6,6 +6,7 @@ import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
+import { ensureLocalizationBeforeChange, localizationFields } from '../fields/localization.ts';
 
 export const ServiceItems: CollectionConfig = {
   slug: 'service-items',
@@ -23,7 +24,7 @@ export const ServiceItems: CollectionConfig = {
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   hooks: {
-    beforeChange: [stampCreatedByBeforeChange, workflowBeforeChange],
+    beforeChange: [stampCreatedByBeforeChange, ensureLocalizationBeforeChange, workflowBeforeChange],
     afterChange: [workflowAfterChange, auditAfterChange],
     afterDelete: [auditAfterDelete],
   },
@@ -96,6 +97,7 @@ export const ServiceItems: CollectionConfig = {
         },
       ],
     },
+    ...localizationFields,
     createdByField,
     workflowStatusField,
     ...workflowApprovalFields,

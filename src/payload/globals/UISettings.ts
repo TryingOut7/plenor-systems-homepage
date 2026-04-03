@@ -1,4 +1,6 @@
 import type { GlobalConfig } from 'payload';
+import { withFieldTier } from '../fields/fieldTier.ts';
+import { auditGlobalAfterChange } from '../hooks/auditLog.ts';
 
 const cssValueHint =
   'Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).';
@@ -16,6 +18,9 @@ export const UISettings: GlobalConfig = {
         interval: 1000,
       },
     },
+  },
+  hooks: {
+    afterChange: [auditGlobalAfterChange],
   },
   admin: {
     group: 'Site',
@@ -100,16 +105,16 @@ export const UISettings: GlobalConfig = {
                   defaultValue: '0.12em',
                   admin: { description: cssValueHint },
                 },
-                {
+                withFieldTier({
                   name: 'headingFontUrl',
                   type: 'text',
                   admin: { description: 'Google Fonts or external URL to load heading/display font (e.g. https://fonts.googleapis.com/css2?family=...)' },
-                },
-                {
+                }, 'system'),
+                withFieldTier({
                   name: 'bodyFontUrl',
                   type: 'text',
                   admin: { description: 'Google Fonts or external URL to load body font' },
-                },
+                }, 'system'),
               ],
             },
           ],

@@ -1,6 +1,13 @@
 import type { Field } from 'payload';
+import { withFieldTier } from './fieldTier.ts';
 
-export const seoFields: Field[] = [
+type BuildSeoFieldsOptions = {
+  canonicalSystemTier?: boolean;
+};
+
+export function buildSeoFields(options: BuildSeoFieldsOptions = {}): Field[] {
+  const canonicalTier = options.canonicalSystemTier ? 'system' : 'routine';
+  return [
   {
     name: 'seo',
     type: 'group',
@@ -29,25 +36,28 @@ export const seoFields: Field[] = [
         type: 'upload',
         relationTo: 'media',
       },
-      {
+      withFieldTier({
         name: 'canonicalUrl',
         type: 'text',
-      },
-      {
+      }, canonicalTier),
+      withFieldTier({
         name: 'noindex',
         type: 'checkbox',
         defaultValue: false,
-      },
-      {
+      }, canonicalTier),
+      withFieldTier({
         name: 'nofollow',
         type: 'checkbox',
         defaultValue: false,
-      },
-      {
+      }, canonicalTier),
+      withFieldTier({
         name: 'includeInSitemap',
         type: 'checkbox',
         defaultValue: true,
-      },
+      }, canonicalTier),
     ],
   },
 ];
+}
+
+export const seoFields: Field[] = buildSeoFields();

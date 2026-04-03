@@ -1,5 +1,5 @@
 import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload';
-import { seoFields } from '../fields/seo.ts';
+import { buildSeoFields } from '../fields/seo.ts';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
 import { createdByField } from '../fields/ownership.ts';
 import { pageSectionBlocks } from '../blocks/pageSections.ts';
@@ -9,6 +9,9 @@ import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts'
 import { applyCorePresetSections } from '../hooks/sitePagePreset.ts';
 import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
+import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigration.ts';
+import { sitePagePublishGuardsBeforeChange } from '../hooks/sitePageGuards.ts';
+import { withFieldTier } from '../fields/fieldTier.ts';
 
 const corePresetValues = ['home', 'services', 'about', 'pricing', 'contact'] as const;
 
@@ -115,6 +118,8 @@ export const SitePages: CollectionConfig = {
       normalizeSlugBeforeChange,
       workflowBeforeChange,
       applyCorePresetSections,
+      migrateLegacySectionsBeforeChange,
+      sitePagePublishGuardsBeforeChange,
       enforceSitePageActivationRules,
     ],
     afterChange: [workflowAfterChange, auditAfterChange],
@@ -221,22 +226,22 @@ export const SitePages: CollectionConfig = {
         description: 'Hide the footer on this page',
       },
     },
-    {
+    withFieldTier({
       name: 'pageBackgroundColor',
       type: 'text',
       admin: {
         position: 'sidebar',
         description: 'Override page background color (CSS value, e.g. #F5F5F5)',
       },
-    },
-    {
+    }, 'advanced'),
+    withFieldTier({
       name: 'customHeadScripts',
       type: 'textarea',
       admin: {
         position: 'sidebar',
         description: 'Custom <script> or <link> tags to inject in <head> for this page only',
       },
-    },
+    }, 'system'),
     {
       name: 'sections',
       type: 'blocks',
@@ -245,11 +250,57 @@ export const SitePages: CollectionConfig = {
         condition: () => true,
         description:
           'For core presets, structure is locked to template and only text content changes are kept.',
+        components: {
+          beforeInput: ['@/payload/admin/components/CmsEditorTrainingHint'],
+        },
+      },
+    },
+    {
+      name: 'publishQualityScore',
+      type: 'number',
+      defaultValue: 100,
+      access: {
+        update: () => false,
+      },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Automated quality score (0-100) derived from structural and publish guard checks.',
+      },
+    },
+    {
+      name: 'publishQualityLevel',
+      type: 'select',
+      defaultValue: 'excellent',
+      options: [
+        { label: 'Excellent', value: 'excellent' },
+        { label: 'Good', value: 'good' },
+        { label: 'Needs Attention', value: 'needs_attention' },
+        { label: 'Blocked', value: 'blocked' },
+      ],
+      access: {
+        update: () => false,
+      },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'previewDiffSummary',
+      type: 'json',
+      access: {
+        update: () => false,
+      },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Template-vs-document diff summary for QA on core preset pages.',
       },
     },
     createdByField,
     workflowStatusField,
     ...workflowApprovalFields,
-    ...seoFields,
+    ...buildSeoFields({ canonicalSystemTier: true }),
   ],
 };

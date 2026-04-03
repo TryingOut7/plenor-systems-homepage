@@ -1,4 +1,6 @@
 import type { GlobalConfig } from 'payload';
+import { withFieldTier } from '../fields/fieldTier.ts';
+import { auditGlobalAfterChange } from '../hooks/auditLog.ts';
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -13,6 +15,9 @@ export const SiteSettings: GlobalConfig = {
         interval: 1000,
       },
     },
+  },
+  hooks: {
+    afterChange: [auditGlobalAfterChange],
   },
   fields: [
     // ─── Branding ─────────────────────────────────────────────────────────
@@ -212,10 +217,10 @@ export const SiteSettings: GlobalConfig = {
         { name: 'ogTitle', type: 'text' },
         { name: 'ogDescription', type: 'textarea' },
         { name: 'ogImage', type: 'upload', relationTo: 'media' },
-        { name: 'canonicalUrl', type: 'text' },
-        { name: 'noindex', type: 'checkbox', defaultValue: false },
-        { name: 'nofollow', type: 'checkbox', defaultValue: false },
-        { name: 'includeInSitemap', type: 'checkbox', defaultValue: true },
+        withFieldTier({ name: 'canonicalUrl', type: 'text' }, 'system'),
+        withFieldTier({ name: 'noindex', type: 'checkbox', defaultValue: false }, 'system'),
+        withFieldTier({ name: 'nofollow', type: 'checkbox', defaultValue: false }, 'system'),
+        withFieldTier({ name: 'includeInSitemap', type: 'checkbox', defaultValue: true }, 'system'),
       ],
     },
     {
@@ -320,12 +325,12 @@ export const SiteSettings: GlobalConfig = {
     },
 
     // ─── Analytics ────────────────────────────────────────────────────────
-    {
+    withFieldTier({
       name: 'analyticsId',
       type: 'text',
       admin: {
         description: 'Cloudflare Web Analytics token or similar',
       },
-    },
+    }, 'system'),
   ],
 };

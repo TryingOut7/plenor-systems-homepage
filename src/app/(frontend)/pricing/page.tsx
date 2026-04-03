@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PageChromeOverrides from '@/components/PageChromeOverrides';
-import { getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import CmsPreviewDiffBanner from '@/components/CmsPreviewDiffBanner';
+import UniversalSections from '@/components/cms/UniversalSections';
+import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
 import { resolvePricingPageData } from '@/lib/page-content/pricing';
 import { resolveSiteName } from '@/lib/site-config';
@@ -30,11 +32,33 @@ export async function generateMetadata(): Promise<Metadata> {
 const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' };
 
 export default async function PricingPage() {
+  const useUniversalRenderer = process.env.CMS_CORE_PAGE_RENDER_MODE === 'universal';
   const cmsReadOptions = await getCmsReadOptions();
-  const sitePage = await getSitePageBySlug('pricing', cmsReadOptions);
+  const [sitePage, siteSettings] = await Promise.all([
+    getSitePageBySlug('pricing', cmsReadOptions),
+    getSiteSettings(cmsReadOptions),
+  ]);
 
   if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {
     notFound();
+  }
+
+  if (useUniversalRenderer) {
+    const collectionData = await getCollectionData(cmsReadOptions);
+    return (
+      <>
+        <PageChromeOverrides page={sitePage} />
+        <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
+        <UniversalSections
+          documentId={sitePage.id || 'pricing'}
+          documentType="site-pages"
+          sections={sitePage.sections}
+          collections={collectionData}
+          guideFormLabels={siteSettings?.guideForm}
+          inquiryFormLabels={siteSettings?.inquiryForm}
+        />
+      </>
+    );
   }
 
   const d = resolvePricingPageData(sitePage.sections);
@@ -42,6 +66,7 @@ export default async function PricingPage() {
   return (
     <>
       <PageChromeOverrides page={sitePage} />
+      <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
       <section
         aria-labelledby="pricing-hero-heading"
         style={{

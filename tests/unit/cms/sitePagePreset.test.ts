@@ -48,6 +48,7 @@ describe('applyCorePresetSections — custom preset', () => {
   it('returns an equivalent new object for presetKey=custom', () => {
     const data: Record<string, unknown> = {
       presetKey: 'custom',
+      pageMode: 'builder',
       sections: [{ blockType: 'heroSection', heading: 'My custom page' }],
     };
     const result = applyCorePresetSections(makeHookArgs(data) as never);
@@ -55,11 +56,27 @@ describe('applyCorePresetSections — custom preset', () => {
     expect(result).toEqual(data);
   });
 
-  it('falls back to custom as an equivalent new object when no preset key is resolvable', () => {
+  it('falls back to custom and defaults pageMode to builder when no preset key is resolvable', () => {
     const data: Record<string, unknown> = { presetKey: 'unknown', sections: [] };
     const result = applyCorePresetSections(makeHookArgs(data) as never) as Record<string, unknown>;
     expect(result).not.toBe(data);
-    expect(result).toEqual(data);
+    expect(result.presetKey).toBe('unknown');
+    expect(result.pageMode).toBe('builder');
+  });
+});
+
+describe('applyCorePresetSections — preset-safe page mode', () => {
+  it('forces core preset pages into template mode', () => {
+    const result = applyCorePresetSections(
+      makeHookArgs({
+        slug: 'home',
+        presetKey: 'home',
+        pageMode: 'builder',
+        sections: [],
+      }) as never,
+    ) as Record<string, unknown>;
+
+    expect(result.pageMode).toBe('template');
   });
 });
 
@@ -69,12 +86,12 @@ describe('applyCorePresetSections — custom preset', () => {
 
 describe('applyCorePresetSections — structuralKey lookup', () => {
   it('merges text from incoming section matched by structuralKey, not index', () => {
-    // Home preset has two simpleTableSection blocks (home.table-stages at index 3,
-    // home.table-audiences at index 4). This test proves that sending them in
+    // Home preset has two simpleTableSection blocks (home-table-stages at index 3,
+    // home-table-audiences at index 4). This test proves that sending them in
     // reverse order still routes each section's text to the correct template slot.
     const audiencesSectionFirst: Record<string, unknown> = {
       blockType: 'simpleTableSection',
-      structuralKey: 'home.table-audiences',
+      structuralKey: 'home-table-audiences',
       sectionLabel: 'Who this is for',
       heading: 'Audience heading from CMS',
       columns: [],
@@ -84,7 +101,7 @@ describe('applyCorePresetSections — structuralKey lookup', () => {
     };
     const stagesSectionSecond: Record<string, unknown> = {
       blockType: 'simpleTableSection',
-      structuralKey: 'home.table-stages',
+      structuralKey: 'home-table-stages',
       sectionLabel: '',
       heading: 'Stage heading from CMS',
       columns: [],
@@ -106,8 +123,8 @@ describe('applyCorePresetSections — structuralKey lookup', () => {
     const result = applyCorePresetSections(makeHookArgs(data) as never) as Record<string, unknown>;
     const sections = result.sections as Array<Record<string, unknown>>;
 
-    const stagesSection = sections.find((s) => s.structuralKey === 'home.table-stages');
-    const audiencesSection = sections.find((s) => s.structuralKey === 'home.table-audiences');
+    const stagesSection = sections.find((s) => s.structuralKey === 'home-table-stages');
+    const audiencesSection = sections.find((s) => s.structuralKey === 'home-table-audiences');
 
     expect(stagesSection).toBeDefined();
     expect(audiencesSection).toBeDefined();
@@ -133,7 +150,7 @@ describe('applyCorePresetSections — structuralKey lookup', () => {
 
     const result = applyCorePresetSections(makeHookArgs(data) as never) as Record<string, unknown>;
     const sections = result.sections as Array<Record<string, unknown>>;
-    const hero = sections.find((s) => s.structuralKey === 'about.hero');
+    const hero = sections.find((s) => s.structuralKey === 'about-hero');
     expect(hero).toBeDefined();
     expect((hero as Record<string, unknown>).heading).toBe('Legacy hero heading');
   });
@@ -152,7 +169,7 @@ describe('applyCorePresetSections — text merging', () => {
       sections: [
         {
           blockType: 'heroSection',
-          structuralKey: 'about.hero',
+          structuralKey: 'about-hero',
           eyebrow: 'Custom eyebrow',
           heading: 'Custom about heading',
           subheading: 'Custom subheading',
@@ -164,7 +181,7 @@ describe('applyCorePresetSections — text merging', () => {
 
     const result = applyCorePresetSections(makeHookArgs(data) as never) as Record<string, unknown>;
     const sections = result.sections as Array<Record<string, unknown>>;
-    const hero = sections.find((s) => s.structuralKey === 'about.hero') as Record<string, unknown>;
+    const hero = sections.find((s) => s.structuralKey === 'about-hero') as Record<string, unknown>;
 
     expect(hero.eyebrow).toBe('Custom eyebrow');
     expect(hero.heading).toBe('Custom about heading');
@@ -181,7 +198,7 @@ describe('applyCorePresetSections — text merging', () => {
       sections: [
         {
           blockType: 'ctaSection',
-          structuralKey: 'about.cta',
+          structuralKey: 'about-cta',
           heading: 'Custom CTA heading',
           body: 'Custom CTA body',
           buttonLabel: 'Go',
@@ -192,7 +209,7 @@ describe('applyCorePresetSections — text merging', () => {
 
     const result = applyCorePresetSections(makeHookArgs(data) as never) as Record<string, unknown>;
     const sections = result.sections as Array<Record<string, unknown>>;
-    const cta = sections.find((s) => s.structuralKey === 'about.cta') as Record<string, unknown>;
+    const cta = sections.find((s) => s.structuralKey === 'about-cta') as Record<string, unknown>;
 
     expect(cta.heading).toBe('Custom CTA heading');
     expect(cta.body).toBe('Custom CTA body');
@@ -214,10 +231,10 @@ describe('applyCorePresetSections — text merging', () => {
 
     // All 4 contact sections must exist with their structural keys
     expect(sections.map((s) => s.structuralKey)).toEqual([
-      'contact.hero',
-      'contact.guide-form',
-      'contact.inquiry-form',
-      'contact.privacy-note',
+      'contact-hero',
+      'contact-guide-form',
+      'contact-inquiry-form',
+      'contact-privacy-note',
     ]);
   });
 
@@ -269,7 +286,7 @@ describe('applyCorePresetSections — slug-based preset resolution', () => {
     expect(result.presetKey).toBe('services');
     const sections = result.sections as Array<Record<string, unknown>>;
     expect(sections.length).toBeGreaterThan(0);
-    expect(sections[0].structuralKey).toBe('services.hero');
+    expect(sections[0].structuralKey).toBe('services-hero');
   });
 
   it('does not resolve preset from slug on update (only on create)', () => {
@@ -282,9 +299,12 @@ describe('applyCorePresetSections — slug-based preset resolution', () => {
     // update operation — should fall back to custom because no presetKey in data or originalDoc
     const result = applyCorePresetSections(
       makeHookArgs(data, {}, 'update') as never,
-    );
+    ) as Record<string, unknown>;
     // falls back to custom and returns equivalent data without in-place mutation
     expect(result).not.toBe(data);
-    expect(result).toEqual(data);
+    expect(result.slug).toBe('services');
+    expect(result.presetContent).toEqual({});
+    expect(result.sections).toEqual([]);
+    expect(result.pageMode).toBe('builder');
   });
 });

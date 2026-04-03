@@ -44,6 +44,56 @@ export const workflowStatusField: Field = {
 
 export const workflowApprovalFields: Field[] = [
   {
+    name: 'reviewChecklistComplete',
+    type: 'checkbox',
+    defaultValue: false,
+    admin: {
+      position: 'sidebar',
+      condition: (data) =>
+        data?.workflowStatus === 'in_review' ||
+        data?.workflowStatus === 'approved' ||
+        data?.workflowStatus === 'published',
+      description: 'Confirm required review checklist has been completed before approval/publish.',
+    },
+  },
+  {
+    name: 'reviewSummary',
+    type: 'textarea',
+    admin: {
+      position: 'sidebar',
+      condition: (data) =>
+        data?.workflowStatus === 'in_review' ||
+        data?.workflowStatus === 'approved' ||
+        data?.workflowStatus === 'published',
+      description: 'Reviewer notes summarizing quality checks and decision rationale.',
+    },
+  },
+  {
+    name: 'reviewedBy',
+    type: 'relationship',
+    relationTo: 'users',
+    access: {
+      update: () => false,
+    },
+    admin: {
+      position: 'sidebar',
+      readOnly: true,
+      condition: (data) => data?.workflowStatus === 'approved' || data?.workflowStatus === 'published',
+    },
+  },
+  {
+    name: 'reviewedAt',
+    type: 'date',
+    access: {
+      update: () => false,
+    },
+    admin: {
+      position: 'sidebar',
+      readOnly: true,
+      condition: (data) => data?.workflowStatus === 'approved' || data?.workflowStatus === 'published',
+    },
+  },
+  {
     name: 'approvedBy',
     type: 'relationship',
     relationTo: 'users',

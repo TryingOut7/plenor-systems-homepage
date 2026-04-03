@@ -11,6 +11,10 @@ function getUserRole(req: { user?: unknown }): string | null {
   return (user?.role as string) || null;
 }
 
+function readTrimmedString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
 /**
  * Allowed state transitions per role.
  * Each key is a "from" status mapping to which statuses each role may move to.
@@ -81,15 +85,35 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
 
   // Stamp approval metadata
   if (newStatus === 'approved' || newStatus === 'published') {
+    const reviewSummary = readTrimmedString(data.reviewSummary);
+    if (reviewSummary.length < 10) {
+      throw new Error(
+        'Workflow: reviewSummary must contain at least 10 characters before approval/publish.',
+      );
+    }
+
+    if (data.reviewChecklistComplete !== true) {
+      throw new Error(
+        'Workflow: reviewChecklistComplete must be confirmed before approval/publish.',
+      );
+    }
+
     const user = req.user as UserRecord | undefined;
     data.approvedBy = user?.id || null;
     data.approvedAt = new Date().toISOString();
+    data.reviewedBy = user?.id || null;
+    data.reviewedAt = new Date().toISOString();
   }
 
   // Clear approval fields when moving back to draft or rejected
   if (newStatus === 'draft' || newStatus === 'rejected') {
     data.approvedBy = null;
     data.approvedAt = null;
+    data.reviewedBy = null;
+    data.reviewedAt = null;
+    if (newStatus === 'draft') {
+      data.reviewChecklistComplete = false;
+    }
   }
 
   return data;

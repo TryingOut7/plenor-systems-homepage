@@ -416,7 +416,12 @@ export default buildConfig({
         // need to resolve user documents for all authenticated CMS users.
         read: ({ req }) => !!req.user,
         create: ({ req }) => userHasAnyRole(req, ['admin']),
-        update: ({ req }) => userHasAnyRole(req, ['admin']),
+        update: ({ req }) => {
+          if (userHasAnyRole(req, ['admin'])) return true;
+          const userId = (req.user as Record<string, unknown> | undefined)?.id;
+          if (typeof userId !== 'string' && typeof userId !== 'number') return false;
+          return { id: { equals: String(userId) } };
+        },
         delete: ({ req }) => userHasAnyRole(req, ['admin']),
       },
       admin: {
@@ -442,6 +447,41 @@ export default buildConfig({
           },
           admin: {
             position: 'sidebar',
+          },
+        },
+        {
+          name: 'cmsLanePreference',
+          type: 'select',
+          defaultValue: 'simple',
+          options: [
+            { label: 'Simple', value: 'simple' },
+            { label: 'Advanced', value: 'advanced' },
+          ],
+          admin: {
+            position: 'sidebar',
+            description: 'Editor lane preference. You can change this at any time.',
+          },
+        },
+        {
+          name: 'canManageSystemFields',
+          type: 'checkbox',
+          defaultValue: false,
+          access: {
+            update: ({ req }) => userHasAnyRole(req, ['admin']),
+          },
+          admin: {
+            position: 'sidebar',
+            description:
+              'Trusted editor capability for system-level fields (for example redirects and script/canonical controls).',
+          },
+        },
+        {
+          name: 'showCmsTrainingHints',
+          type: 'checkbox',
+          defaultValue: true,
+          admin: {
+            position: 'sidebar',
+            description: 'Show inline training hints in editor forms.',
           },
         },
       ],

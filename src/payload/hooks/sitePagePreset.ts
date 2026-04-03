@@ -35,8 +35,11 @@ function pickSectionByKey(
   fallbackIndex: number,
   blockType: string,
 ): Record<string, unknown> {
+  const normalizedTargetKey = structuralKey.replace(/\./g, '-');
   const byKey = sections.find(
-    (s) => typeof s.structuralKey === 'string' && s.structuralKey === structuralKey,
+    (s) =>
+      typeof s.structuralKey === 'string' &&
+      s.structuralKey.replace(/\./g, '-') === normalizedTargetKey,
   );
   if (byKey) return byKey;
   const candidate = asObject(sections[fallbackIndex]);
@@ -221,7 +224,12 @@ export const applyCorePresetSections: CollectionBeforeChangeHook = ({ data, orig
   const incoming = cloneValue(data as Record<string, unknown>);
   const original = asObject(originalDoc);
   const presetKey = resolvePresetKey(incoming, original, operation);
-  if (presetKey === 'custom') return incoming;
+  if (presetKey === 'custom') {
+    if (incoming.pageMode !== 'template' && incoming.pageMode !== 'builder') {
+      incoming.pageMode = 'builder';
+    }
+    return incoming;
+  }
 
   const incomingRoot = asObject(incoming.presetContent);
   const existingRoot = asObject(original.presetContent);
@@ -241,6 +249,7 @@ export const applyCorePresetSections: CollectionBeforeChangeHook = ({ data, orig
     ...incoming,
     presetContent: mergedRoot,
     presetKey,
+    pageMode: 'template',
     sections: mergePresetTextIntoTemplateSections(templateSections, incomingSections, originalSections),
   };
 };

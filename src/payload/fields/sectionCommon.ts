@@ -1,4 +1,15 @@
 import type { Field } from 'payload';
+import { withFieldTier } from './fieldTier.ts';
+
+export const structuralKeyField: Field = {
+  name: 'structuralKey',
+  type: 'text',
+  admin: {
+    readOnly: true,
+    condition: () => false,
+    description: 'System-managed structural identity key for preset and migrated sections.',
+  },
+};
 
 export const themeField: Field = {
   name: 'theme',
@@ -16,7 +27,7 @@ export const themeField: Field = {
   },
 };
 
-export const backgroundColorField: Field = {
+export const backgroundColorField: Field = withFieldTier({
   name: 'backgroundColor',
   type: 'text',
   admin: {
@@ -26,7 +37,7 @@ export const backgroundColorField: Field = {
       beforeInput: ['@/payload/admin/components/SectionBackgroundColorPicker'],
     },
   },
-};
+}, 'advanced');
 
 export const sizeField: Field = {
   name: 'size',
@@ -39,21 +50,21 @@ export const sizeField: Field = {
   ],
 };
 
-export const anchorIdField: Field = {
+export const anchorIdField: Field = withFieldTier({
   name: 'anchorId',
   type: 'text',
   admin: {
     description: 'Optional anchor ID for in-page links',
   },
-};
+}, 'advanced');
 
-export const customClassNameField: Field = {
+export const customClassNameField: Field = withFieldTier({
   name: 'customClassName',
   type: 'text',
   admin: {
     description: 'Optional CSS class name',
   },
-};
+}, 'advanced');
 
 export const isHiddenField: Field = {
   name: 'isHidden',
@@ -82,7 +93,7 @@ export const visibleUntilField: Field = {
   },
 };
 
-export const headingSizeField: Field = {
+export const headingSizeField: Field = withFieldTier({
   name: 'headingSize',
   type: 'select',
   admin: {
@@ -95,9 +106,9 @@ export const headingSizeField: Field = {
     { label: 'Large', value: 'lg' },
     { label: 'Extra Large', value: 'xl' },
   ],
-};
+}, 'advanced');
 
-export const textAlignField: Field = {
+export const textAlignField: Field = withFieldTier({
   name: 'textAlign',
   type: 'select',
   admin: {
@@ -108,9 +119,9 @@ export const textAlignField: Field = {
     { label: 'Center', value: 'center' },
     { label: 'Right', value: 'right' },
   ],
-};
+}, 'advanced');
 
-export const headingTagField: Field = {
+export const headingTagField: Field = withFieldTier({
   name: 'headingTag',
   type: 'select',
   admin: {
@@ -122,7 +133,7 @@ export const headingTagField: Field = {
     { label: 'H3', value: 'h3' },
     { label: 'H4', value: 'h4' },
   ],
-};
+}, 'advanced');
 
 export const sectionLabelField: Field = {
   name: 'sectionLabel',
@@ -133,6 +144,7 @@ export const sectionLabelField: Field = {
 };
 
 export const sectionCommonFields: Field[] = [
+  structuralKeyField,
   themeField,
   sectionLabelField,
   backgroundColorField,
