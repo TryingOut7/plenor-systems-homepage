@@ -4,17 +4,13 @@ import { evaluateLegacyCutoverReport } from '../src/payload/cms/legacyCutoverGat
 
 function parseArgs(argv) {
   const args = {
-    reportPath: '',
+    reportPath: '.tmp/legacy-migration-report.json',
   };
 
   for (const raw of argv.slice(2)) {
     if (raw.startsWith('--report=')) {
       args.reportPath = raw.slice('--report='.length).trim();
     }
-  }
-
-  if (!args.reportPath) {
-    throw new Error('Missing --report=<path> for cutover gate check.');
   }
 
   return args;
@@ -25,6 +21,12 @@ async function run() {
   const absolute = path.isAbsolute(args.reportPath)
     ? args.reportPath
     : path.join(process.cwd(), args.reportPath);
+
+  if (!fs.existsSync(absolute)) {
+    throw new Error(
+      `Missing migration report at ${absolute}. Run "npm run migrate:legacy-sections" first or pass --report=<path>.`,
+    );
+  }
 
   const raw = fs.readFileSync(absolute, 'utf8');
   const report = JSON.parse(raw);

@@ -39,9 +39,9 @@
     "payload": "payload",
     "generate:types": "payload generate:types",
     "seed:site-pages": "node scripts/seed-site-pages.mjs",
-    "migrate:legacy-sections": "node --import tsx scripts/migrate-legacy-sections.mjs",
-    "migrate:legacy-sections:apply": "node --import tsx scripts/migrate-legacy-sections.mjs --apply",
-    "migrate:legacy-sections:cutover-check": "node --import tsx scripts/check-legacy-cutover.mjs",
+    "migrate:legacy-sections": "node --import tsx scripts/migrate-legacy-sections.mjs --report=.tmp/legacy-migration-report.json",
+    "migrate:legacy-sections:apply": "node --import tsx scripts/migrate-legacy-sections.mjs --apply --report=.tmp/legacy-migration-report.json",
+    "migrate:legacy-sections:cutover-check": "node --import tsx scripts/check-legacy-cutover.mjs --report=.tmp/legacy-migration-report.json",
     "cms:audit:dashboard": "npx -y node@20 --import tsx scripts/generate-audit-dashboard.mjs",
     "cms:schema:check": "npx -y node@20 --import tsx scripts/check-cms-schema-governance.mjs",
     "backup": "bash scripts/backup.sh"
