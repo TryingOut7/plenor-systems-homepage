@@ -41,6 +41,7 @@ const COLLECTION_TABLES_WITH_CREATED_BY = [
 
 const REQUIRED_TABLES = [
   'reuse_sec',
+  'audit_logs',
   ...BLOCK_TABLES_WITH_SECTION_LABEL,
   ...COLLECTION_TABLES_WITH_CREATED_BY,
   'ui_settings',
@@ -54,6 +55,32 @@ const REQUIRED_TABLES = [
 ];
 
 const REQUIRED_COLUMNS = {
+  audit_logs: [
+    'actor_id',
+    'user_email',
+    'actor_role',
+    'field_path',
+    'old_value_summary',
+    'new_value_summary',
+    'risk_tier',
+    'changed_at',
+  ],
+  reuse_sec: [
+    'library_category',
+    'library_version',
+    'library_change_summary',
+    'is_deprecated',
+    'locale',
+    'translation_group_id',
+    'workflow_status',
+    'review_checklist_complete',
+    'review_summary',
+    'reviewed_by_id',
+    'reviewed_at',
+    'approved_by_id',
+    'approved_at',
+    'rejection_reason',
+  ],
   ui_settings: [
     'colors_nav_background',
     'colors_nav_scrolled_background',
@@ -226,6 +253,23 @@ const READ_PATH_CHECKS = [
       SELECT id, created_by_id
       FROM public.site_pages
       WHERE deleted_at IS NULL
+      ORDER BY created_at DESC
+      LIMIT 1;
+    `,
+  },
+  {
+    name: 'audit_logs_list_view_path',
+    sql: `
+      SELECT id,
+        actor_id,
+        user_email,
+        actor_role,
+        field_path,
+        old_value_summary,
+        new_value_summary,
+        risk_tier,
+        changed_at
+      FROM public.audit_logs
       ORDER BY created_at DESC
       LIMIT 1;
     `,

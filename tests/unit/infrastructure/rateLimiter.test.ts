@@ -46,4 +46,26 @@ describe('rate limiter fallback behavior', () => {
     expect(limited?.status).toBe(429);
     expect(limited?.headers?.['Retry-After']).toBeTruthy();
   });
+
+  it('uses a higher limit for draft-mode enable to avoid breaking live preview', async () => {
+    const env = process.env as Record<string, string | undefined>;
+    delete env.SUPABASE_URL;
+    delete env.SUPABASE_SERVICE_ROLE_KEY;
+
+    const mod = await import('@/infrastructure/security/rateLimiter');
+    const { checkRateLimit } = mod;
+
+    for (let i = 0; i < 60; i += 1) {
+      const result = await checkRateLimit(
+        context({ path: '/api/draft-mode/enable', url: 'http://localhost:3000/api/draft-mode/enable' }),
+      );
+      expect(result).toBeNull();
+    }
+
+    const limited = await checkRateLimit(
+      context({ path: '/api/draft-mode/enable', url: 'http://localhost:3000/api/draft-mode/enable' }),
+    );
+    expect(limited?.status).toBe(429);
+    expect(limited?.headers?.['Retry-After']).toBeTruthy();
+  });
 });

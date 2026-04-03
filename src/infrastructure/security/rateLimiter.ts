@@ -7,12 +7,42 @@ interface Entry {
   resetAt: number;
 }
 
-const WINDOW_MS = 60_000;
-const MAX_REQUESTS = 5;
+const DEFAULT_WINDOW_MS = 60_000;
+const DEFAULT_MAX_REQUESTS = 5;
 const MAX_STORE_SIZE = 10_000;
 const store = new Map<string, Entry>();
 let warnedPersistentFallback = false;
 let warnedPersistentError = false;
+
+type RateLimitPolicy = {
+  windowMs: number;
+  maxRequests: number;
+};
+
+const routePolicies: Array<{ path: string; policy: RateLimitPolicy }> = [
+  {
+    path: '/api/draft-mode/enable',
+    policy: {
+      // Live preview can open multiple tabs/iframes and re-trigger preview enables.
+      // Keep this route protected, but avoid blocking normal editorial usage.
+      windowMs: 60_000,
+      maxRequests: 60,
+    },
+  },
+];
+
+function resolveRateLimitPolicy(path: string): RateLimitPolicy {
+  for (const rule of routePolicies) {
+    if (path === rule.path) {
+      return rule.policy;
+    }
+  }
+
+  return {
+    windowMs: DEFAULT_WINDOW_MS,
+    maxRequests: DEFAULT_MAX_REQUESTS,
+  };
+}
 
 type RateLimitRpcRow = {
   allowed: boolean;
@@ -153,14 +183,15 @@ export async function consumeRateLimitBucket(params: {
 export async function checkRateLimit(
   context: RequestContext,
 ): Promise<ServiceResult<{ message: string }> | null> {
+  const policy = resolveRateLimitPolicy(context.path);
   const key = `${getClientIp(context)}:${context.path}`;
 
   let result: { limited: boolean; retryAfterSeconds: number };
   try {
     result = await consumeRateLimitBucket({
       key,
-      windowMs: WINDOW_MS,
-      maxRequests: MAX_REQUESTS,
+      windowMs: policy.windowMs,
+      maxRequests: policy.maxRequests,
     });
   } catch (error) {
     if (!warnedPersistentError) {
@@ -170,7 +201,7 @@ export async function checkRateLimit(
       });
     }
     warnPersistentFallbackOnce();
-    result = consumeInMemory(key, WINDOW_MS, MAX_REQUESTS);
+    result = consumeInMemory(key, policy.windowMs, policy.maxRequests);
   }
 
   if (result.limited) {

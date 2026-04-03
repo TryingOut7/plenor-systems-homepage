@@ -164,6 +164,36 @@ async function run() {
       );
 
       await client.query(`
+        ALTER TABLE IF EXISTS public.audit_logs
+          ADD COLUMN IF NOT EXISTS actor_id character varying,
+          ADD COLUMN IF NOT EXISTS user_email character varying,
+          ADD COLUMN IF NOT EXISTS actor_role character varying,
+          ADD COLUMN IF NOT EXISTS field_path character varying,
+          ADD COLUMN IF NOT EXISTS old_value_summary text,
+          ADD COLUMN IF NOT EXISTS new_value_summary text,
+          ADD COLUMN IF NOT EXISTS risk_tier character varying DEFAULT 'routine',
+          ADD COLUMN IF NOT EXISTS changed_at timestamptz;
+      `);
+
+      await client.query(`
+        ALTER TABLE IF EXISTS public.reuse_sec
+          ADD COLUMN IF NOT EXISTS library_category character varying DEFAULT 'general',
+          ADD COLUMN IF NOT EXISTS library_version numeric DEFAULT 1,
+          ADD COLUMN IF NOT EXISTS library_change_summary text,
+          ADD COLUMN IF NOT EXISTS is_deprecated boolean DEFAULT false,
+          ADD COLUMN IF NOT EXISTS locale character varying DEFAULT 'en',
+          ADD COLUMN IF NOT EXISTS translation_group_id character varying,
+          ADD COLUMN IF NOT EXISTS workflow_status character varying DEFAULT 'draft',
+          ADD COLUMN IF NOT EXISTS review_checklist_complete boolean DEFAULT false,
+          ADD COLUMN IF NOT EXISTS review_summary text,
+          ADD COLUMN IF NOT EXISTS reviewed_by_id integer,
+          ADD COLUMN IF NOT EXISTS reviewed_at timestamptz,
+          ADD COLUMN IF NOT EXISTS approved_by_id integer,
+          ADD COLUMN IF NOT EXISTS approved_at timestamptz,
+          ADD COLUMN IF NOT EXISTS rejection_reason text;
+      `);
+
+      await client.query(`
         CREATE TABLE IF NOT EXISTS public.nav_children (
           _order integer NOT NULL,
           _parent_id character varying NOT NULL,
