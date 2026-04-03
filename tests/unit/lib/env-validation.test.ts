@@ -74,7 +74,7 @@ describe('validateEnv', () => {
       NEXT_PUBLIC_SERVER_URL: undefined,
     });
     expect(() => validateEnv()).toThrow(
-      'Missing required environment variables: DATABASE_URI, PAYLOAD_SECRET, NEXT_PUBLIC_SERVER_URL',
+      'Missing required environment variables: DATABASE_URI (or DATABASE_URL), PAYLOAD_SECRET, NEXT_PUBLIC_SERVER_URL',
     );
   });
 });

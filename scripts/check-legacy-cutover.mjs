@@ -1,49 +1,42 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { evaluateLegacyCutoverReport } from '../src/payload/cms/legacyCutoverGate.ts';
+import {
+  parseStringOption,
+  readJsonFile,
+  resolvePathFromCwd,
+  runCli,
+} from './lib/cli-utils.mjs';
 
-function parseArgs(argv) {
-  const args = {
-    reportPath: '.tmp/legacy-migration-report.json',
-  };
-
-  for (const raw of argv.slice(2)) {
-    if (raw.startsWith('--report=')) {
-      args.reportPath = raw.slice('--report='.length).trim();
-    }
-  }
-
-  return args;
-}
+const DEFAULT_REPORT_PATH = '.tmp/legacy-migration-report.json';
 
 async function run() {
-  const args = parseArgs(process.argv);
-  const absolute = path.isAbsolute(args.reportPath)
-    ? args.reportPath
-    : path.join(process.cwd(), args.reportPath);
+  const reportPath = parseStringOption(process.argv, '--report', DEFAULT_REPORT_PATH);
+  const absolute = resolvePathFromCwd(reportPath);
 
-  if (!fs.existsSync(absolute)) {
+  try {
+    const report = readJsonFile(reportPath);
+    const evaluation = evaluateLegacyCutoverReport(report);
+
+    if (!evaluation.ready) {
+      console.error('Legacy cutover gate failed.');
+      for (const blocker of evaluation.blockers) {
+        console.error(`- ${blocker}`);
+      }
+      process.exit(2);
+    }
+
+    console.log('Legacy cutover gate passed: unresolved parity queue is zero.');
+  } catch (error) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
+      throw new Error(
+        `Missing migration report at ${absolute}. Run "npm run migrate:legacy-sections" first or pass --report=<path>.`,
+      );
+    }
     throw new Error(
-      `Missing migration report at ${absolute}. Run "npm run migrate:legacy-sections" first or pass --report=<path>.`,
+      `Failed to read migration report at ${absolute}: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
     );
   }
-
-  const raw = fs.readFileSync(absolute, 'utf8');
-  const report = JSON.parse(raw);
-  const evaluation = evaluateLegacyCutoverReport(report);
-
-  if (!evaluation.ready) {
-    console.error('Legacy cutover gate failed.');
-    for (const blocker of evaluation.blockers) {
-      console.error(`- ${blocker}`);
-    }
-    process.exit(2);
-  }
-
-  console.log('Legacy cutover gate passed: unresolved parity queue is zero.');
 }
 
-run().catch((error) => {
-  console.error('Legacy cutover gate check failed:', error);
-  process.exit(1);
-});
+runCli(run, 'Legacy cutover gate check failed:');

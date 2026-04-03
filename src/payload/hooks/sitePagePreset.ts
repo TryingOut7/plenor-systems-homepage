@@ -1,6 +1,39 @@
 import type { CollectionBeforeChangeHook } from 'payload';
 import { buildCorePresetSections, type CorePresetKey } from '../presets/corePagePresets.ts';
 
+const KNOWN_CORE_PRESETS = ['home', 'services', 'about', 'pricing', 'contact'] as const;
+
+const STRING_MERGE_FIELDS_BY_BLOCK_TYPE: Record<string, readonly string[]> = {
+  heroSection: [
+    'sectionLabel',
+    'eyebrow',
+    'heading',
+    'subheading',
+    'primaryCtaLabel',
+    'primaryCtaHref',
+  ],
+  ctaSection: ['sectionLabel', 'heading', 'body', 'buttonLabel', 'buttonHref'],
+  guideFormSection: ['sectionLabel', 'label', 'heading', 'highlightText', 'body'],
+  inquiryFormSection: [
+    'sectionLabel',
+    'label',
+    'heading',
+    'subtext',
+    'nextStepsLabel',
+    'nextStepsBody',
+    'directEmailLabel',
+    'emailAddress',
+    'linkedinLabel',
+    'linkedinHref',
+  ],
+  privacyNoteSection: ['sectionLabel', 'label', 'policyLinkLabel', 'policyLinkHref'],
+  richTextSection: ['sectionLabel', 'heading'],
+};
+
+const OBJECT_MERGE_FIELDS_BY_BLOCK_TYPE: Record<string, readonly string[]> = {
+  richTextSection: ['content'],
+};
+
 function cloneValue<T>(value: T): T {
   if (Array.isArray(value)) {
     return value.map((entry) => cloneValue(entry)) as T;
@@ -29,17 +62,25 @@ function asObjectArray(value: unknown): Array<Record<string, unknown>> {
     .filter((entry) => Object.keys(entry).length > 0);
 }
 
+function hasOwnKeys(value: Record<string, unknown>): boolean {
+  return Object.keys(value).length > 0;
+}
+
+function normalizeStructuralKey(value: string): string {
+  return value.replace(/\./g, '-');
+}
+
 function pickSectionByKey(
   sections: Array<Record<string, unknown>>,
   structuralKey: string,
   fallbackIndex: number,
   blockType: string,
 ): Record<string, unknown> {
-  const normalizedTargetKey = structuralKey.replace(/\./g, '-');
+  const normalizedTargetKey = normalizeStructuralKey(structuralKey);
   const byKey = sections.find(
     (s) =>
       typeof s.structuralKey === 'string' &&
-      s.structuralKey.replace(/\./g, '-') === normalizedTargetKey,
+      normalizeStructuralKey(s.structuralKey) === normalizedTargetKey,
   );
   if (byKey) return byKey;
   const candidate = asObject(sections[fallbackIndex]);
@@ -57,6 +98,22 @@ function setObjectField(target: Record<string, unknown>, source: Record<string, 
   if (source[field] && typeof source[field] === 'object' && !Array.isArray(source[field])) {
     target[field] = cloneValue(source[field]);
   }
+}
+
+function mergeFields(
+  templateSection: Record<string, unknown>,
+  sourceSection: Record<string, unknown>,
+  stringFields: readonly string[],
+  objectFields: readonly string[],
+): Record<string, unknown> {
+  const next = { ...templateSection };
+  for (const field of stringFields) {
+    setStringField(next, sourceSection, field);
+  }
+  for (const field of objectFields) {
+    setObjectField(next, sourceSection, field);
+  }
+  return next;
 }
 
 function mergeSimpleTableSectionText(
@@ -110,74 +167,17 @@ function mergePresetTextIntoTemplateSections(
     const structuralKey = typeof templateSection.structuralKey === 'string' ? templateSection.structuralKey : '';
     const incomingSection = pickSectionByKey(incomingSections, structuralKey, index, blockType);
     const originalSection = pickSectionByKey(originalSections, structuralKey, index, blockType);
-    const sourceSection = Object.keys(incomingSection).length > 0 ? incomingSection : originalSection;
-    if (Object.keys(sourceSection).length === 0) return templateSection;
-
-    if (blockType === 'heroSection') {
-      const next = { ...templateSection };
-      setStringField(next, sourceSection, 'sectionLabel');
-      setStringField(next, sourceSection, 'eyebrow');
-      setStringField(next, sourceSection, 'heading');
-      setStringField(next, sourceSection, 'subheading');
-      setStringField(next, sourceSection, 'primaryCtaLabel');
-      setStringField(next, sourceSection, 'primaryCtaHref');
-      return next;
-    }
-
-    if (blockType === 'richTextSection') {
-      const next = { ...templateSection };
-      setStringField(next, sourceSection, 'sectionLabel');
-      setStringField(next, sourceSection, 'heading');
-      setObjectField(next, sourceSection, 'content');
-      return next;
-    }
-
-    if (blockType === 'ctaSection') {
-      const next = { ...templateSection };
-      setStringField(next, sourceSection, 'sectionLabel');
-      setStringField(next, sourceSection, 'heading');
-      setStringField(next, sourceSection, 'body');
-      setStringField(next, sourceSection, 'buttonLabel');
-      setStringField(next, sourceSection, 'buttonHref');
-      return next;
-    }
-
-    if (blockType === 'guideFormSection') {
-      const next = { ...templateSection };
-      setStringField(next, sourceSection, 'sectionLabel');
-      setStringField(next, sourceSection, 'label');
-      setStringField(next, sourceSection, 'heading');
-      setStringField(next, sourceSection, 'highlightText');
-      setStringField(next, sourceSection, 'body');
-      return next;
-    }
-
-    if (blockType === 'inquiryFormSection') {
-      const next = { ...templateSection };
-      setStringField(next, sourceSection, 'sectionLabel');
-      setStringField(next, sourceSection, 'label');
-      setStringField(next, sourceSection, 'heading');
-      setStringField(next, sourceSection, 'subtext');
-      setStringField(next, sourceSection, 'nextStepsLabel');
-      setStringField(next, sourceSection, 'nextStepsBody');
-      setStringField(next, sourceSection, 'directEmailLabel');
-      setStringField(next, sourceSection, 'emailAddress');
-      setStringField(next, sourceSection, 'linkedinLabel');
-      setStringField(next, sourceSection, 'linkedinHref');
-      return next;
-    }
-
-    if (blockType === 'privacyNoteSection') {
-      const next = { ...templateSection };
-      setStringField(next, sourceSection, 'sectionLabel');
-      setStringField(next, sourceSection, 'label');
-      setStringField(next, sourceSection, 'policyLinkLabel');
-      setStringField(next, sourceSection, 'policyLinkHref');
-      return next;
-    }
+    const sourceSection = hasOwnKeys(incomingSection) ? incomingSection : originalSection;
+    if (!hasOwnKeys(sourceSection)) return templateSection;
 
     if (blockType === 'simpleTableSection') {
       return mergeSimpleTableSectionText(templateSection, sourceSection);
+    }
+
+    const stringFields = STRING_MERGE_FIELDS_BY_BLOCK_TYPE[blockType] ?? [];
+    const objectFields = OBJECT_MERGE_FIELDS_BY_BLOCK_TYPE[blockType] ?? [];
+    if (stringFields.length > 0 || objectFields.length > 0) {
+      return mergeFields(templateSection, sourceSection, stringFields, objectFields);
     }
 
     return templateSection;
@@ -185,8 +185,8 @@ function mergePresetTextIntoTemplateSections(
 }
 
 function resolveKnownPreset(value: unknown): CorePresetKey | null {
-  if (value === 'home' || value === 'services' || value === 'about' || value === 'pricing' || value === 'contact') {
-    return value;
+  if (typeof value === 'string' && (KNOWN_CORE_PRESETS as readonly string[]).includes(value)) {
+    return value as CorePresetKey;
   }
   return null;
 }

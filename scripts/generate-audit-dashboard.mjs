@@ -1,33 +1,17 @@
 import { buildAuditDashboardSummary } from '../src/payload/cms/auditDashboard.ts';
-import { ensurePayloadNextEnvCompat } from './payload-next-env-compat.mjs';
+import { parseNumberOption, runCli } from './lib/cli-utils.mjs';
+import { withPayloadClient } from './lib/payload-cli.mjs';
 
 function parseArgs(argv) {
-  const args = {
-    days: 30,
-    limit: 1000,
+  return {
+    days: parseNumberOption(argv, '--days', 30),
+    limit: parseNumberOption(argv, '--limit', 1000),
   };
-
-  for (const raw of argv.slice(2)) {
-    if (raw.startsWith('--days=')) {
-      const parsed = Number(raw.slice('--days='.length));
-      if (Number.isFinite(parsed) && parsed > 0) args.days = parsed;
-      continue;
-    }
-    if (raw.startsWith('--limit=')) {
-      const parsed = Number(raw.slice('--limit='.length));
-      if (Number.isFinite(parsed) && parsed > 0) args.limit = parsed;
-    }
-  }
-
-  return args;
 }
 
 async function run() {
   const args = parseArgs(process.argv);
-  ensurePayloadNextEnvCompat();
-  const { getPayload } = await import('../src/payload/client.ts');
-  const payload = await getPayload();
-  try {
+  await withPayloadClient(async (payload) => {
     const since = new Date(Date.now() - args.days * 24 * 60 * 60 * 1000).toISOString();
     const logs = await payload.find({
       collection: 'audit-logs',
@@ -55,16 +39,7 @@ async function run() {
         2,
       ),
     );
-  } finally {
-    await payload.destroy();
-  }
+  });
 }
 
-run()
-  .then(() => {
-    process.exit(process.exitCode ?? 0);
-  })
-  .catch((error) => {
-    console.error('Failed to generate audit dashboard summary:', error);
-    process.exit(1);
-  });
+runCli(run, 'Failed to generate audit dashboard summary:');

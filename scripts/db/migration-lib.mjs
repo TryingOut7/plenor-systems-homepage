@@ -148,6 +148,11 @@ export async function listAppliedMigrations(client) {
   }));
 }
 
+export function listPendingMigrations(available, applied) {
+  const appliedVersions = new Set(applied.map((migration) => migration.version));
+  return available.filter((migration) => !appliedVersions.has(migration.version));
+}
+
 export async function applyMigration(client, migration) {
   const sql = await readMigrationSql(migration.upFile);
   await client.query('BEGIN');

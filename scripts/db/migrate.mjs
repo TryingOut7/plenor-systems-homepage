@@ -4,6 +4,7 @@ import {
   formatMigrationId,
   listAppliedMigrations,
   listAvailableMigrations,
+  listPendingMigrations,
   withDatabaseClient,
 } from './migration-lib.mjs';
 
@@ -13,11 +14,7 @@ async function main() {
   await withDatabaseClient(async (client) => {
     await ensureMigrationsTable(client);
     const applied = await listAppliedMigrations(client);
-    const appliedVersions = new Set(applied.map((migration) => migration.version));
-
-    const pending = available.filter(
-      (migration) => !appliedVersions.has(migration.version),
-    );
+    const pending = listPendingMigrations(available, applied);
 
     if (pending.length === 0) {
       console.log('No pending migrations.');

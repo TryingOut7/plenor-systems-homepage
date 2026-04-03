@@ -3,21 +3,19 @@ import {
   formatMigrationId,
   listAppliedMigrations,
   listAvailableMigrations,
+  listPendingMigrations,
   withDatabaseClient,
 } from './migration-lib.mjs';
+import { parseFlag } from '../lib/cli-utils.mjs';
 
 async function main() {
-  const checkOnly = process.argv.includes('--check');
+  const checkOnly = parseFlag(process.argv, '--check');
   const available = await listAvailableMigrations();
 
   await withDatabaseClient(async (client) => {
     await ensureMigrationsTable(client);
     const applied = await listAppliedMigrations(client);
-    const appliedVersions = new Set(applied.map((migration) => migration.version));
-
-    const pending = available.filter(
-      (migration) => !appliedVersions.has(migration.version),
-    );
+    const pending = listPendingMigrations(available, applied);
 
     console.log(`Available migrations: ${available.length}`);
     console.log(`Applied migrations: ${applied.length}`);

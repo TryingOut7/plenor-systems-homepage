@@ -1,48 +1,29 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import {
   INTERPRETIVE_LEGACY_BLOCK_TYPES,
   migrateLegacySections,
 } from '../src/payload/hooks/legacySectionMigration.ts';
-import { ensurePayloadNextEnvCompat } from './payload-next-env-compat.mjs';
+import {
+  parseFlag,
+  parseNumberOption,
+  parseStringOption,
+  readJsonFile,
+  runCli,
+  writeJsonFile,
+} from './lib/cli-utils.mjs';
+import { withPayloadClient } from './lib/payload-cli.mjs';
 
 function parseArgs(argv) {
-  const args = {
-    apply: false,
-    limit: 500,
-    reportPath: '.tmp/legacy-migration-report.json',
-    approvalsPath: '',
+  return {
+    apply: parseFlag(argv, '--apply'),
+    limit: parseNumberOption(argv, '--limit', 500),
+    reportPath: parseStringOption(argv, '--report', '.tmp/legacy-migration-report.json'),
+    approvalsPath: parseStringOption(argv, '--approvals', ''),
   };
-
-  for (const raw of argv.slice(2)) {
-    if (raw === '--apply') {
-      args.apply = true;
-      continue;
-    }
-    if (raw.startsWith('--limit=')) {
-      const parsed = Number(raw.slice('--limit='.length));
-      if (Number.isFinite(parsed) && parsed > 0) args.limit = parsed;
-      continue;
-    }
-    if (raw.startsWith('--report=')) {
-      args.reportPath = raw.slice('--report='.length).trim();
-      continue;
-    }
-    if (raw.startsWith('--approvals=')) {
-      args.approvalsPath = raw.slice('--approvals='.length).trim();
-    }
-  }
-
-  return args;
 }
 
 function readApprovalsMap(approvalsPath) {
   if (!approvalsPath) return {};
-  const absolute = path.isAbsolute(approvalsPath)
-    ? approvalsPath
-    : path.join(process.cwd(), approvalsPath);
-  const raw = fs.readFileSync(absolute, 'utf8');
-  const parsed = JSON.parse(raw);
+  const parsed = readJsonFile(approvalsPath);
   if (!parsed || typeof parsed !== 'object') return {};
   if (parsed.docs && typeof parsed.docs === 'object') {
     return parsed.docs;
@@ -52,11 +33,7 @@ function readApprovalsMap(approvalsPath) {
 
 function writeReport(reportPath, report) {
   if (!reportPath) return;
-  const absolute = path.isAbsolute(reportPath)
-    ? reportPath
-    : path.join(process.cwd(), reportPath);
-  fs.mkdirSync(path.dirname(absolute), { recursive: true });
-  fs.writeFileSync(absolute, JSON.stringify(report, null, 2));
+  const absolute = writeJsonFile(reportPath, report);
   console.log(`Wrote migration report to ${absolute}`);
 }
 
@@ -75,10 +52,7 @@ function hasInterpretiveLegacySections(sectionsInput) {
 
 async function run() {
   const args = parseArgs(process.argv);
-  ensurePayloadNextEnvCompat();
-  const { getPayload } = await import('../src/payload/client.ts');
-  const payload = await getPayload();
-  try {
+  await withPayloadClient(async (payload) => {
     const approvalsByDocId = readApprovalsMap(args.approvalsPath);
 
     const pages = await payload.find({
@@ -183,16 +157,7 @@ async function run() {
     if (unresolvedParityFailures > 0) {
       process.exitCode = 2;
     }
-  } finally {
-    await payload.destroy();
-  }
+  });
 }
 
-run()
-  .then(() => {
-    process.exit(process.exitCode ?? 0);
-  })
-  .catch((error) => {
-    console.error('Legacy migration failed:', error);
-    process.exit(1);
-  });
+runCli(run, 'Legacy migration failed:');
