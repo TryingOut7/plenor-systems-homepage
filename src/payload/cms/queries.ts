@@ -89,6 +89,9 @@ export const getSiteSettings = cache(async function getSiteSettings(
       contactEmail: d.contactEmail as string | undefined,
       headerButtons: d.headerButtons as SiteSettings['headerButtons'],
       twitterHandle: d.twitterHandle as string | undefined,
+      contentRouting: d.contentRouting as SiteSettings['contentRouting'],
+      emailDefaults: d.emailDefaults as SiteSettings['emailDefaults'],
+      corePresetContent: d.corePresetContent as SiteSettings['corePresetContent'],
       defaultSeo: normalizeSeo(d.defaultSeo),
       defaultMetaDescription: d.defaultMetaDescription as string | undefined,
       navigationLinks: d.navigationLinks as SiteSettings['navigationLinks'],
@@ -143,6 +146,7 @@ export const getUISettings = cache(async function getUISettings(
       typography: d.typography as UISettings['typography'],
       layout: d.layout as UISettings['layout'],
       buttons: d.buttons as UISettings['buttons'],
+      emailPalette: d.emailPalette as UISettings['emailPalette'],
     };
 
     return draft ? normalized : setCache(uiSettingsCache, normalized);

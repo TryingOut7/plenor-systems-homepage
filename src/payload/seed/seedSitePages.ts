@@ -80,6 +80,12 @@ function buildPresetRoot(
 
 export async function seedSitePages(): Promise<SeedSitePagesResult> {
   const payload = await getPayload();
+  const siteSettings = await payload.findGlobal({
+    slug: 'site-settings',
+    depth: 0,
+    overrideAccess: true,
+  });
+  const globalPresetRoot = asObject((siteSettings as Record<string, unknown>)?.corePresetContent);
 
   const items: SeedResultItem[] = [];
   let created = 0;
@@ -100,7 +106,12 @@ export async function seedSitePages(): Promise<SeedSitePagesResult> {
       presetContent?: unknown;
     } | undefined;
 
-    const presetRoot = buildPresetRoot(current?.presetContent, page.presetKey, page.presetContent);
+    const globalPresetContent = asObject(globalPresetRoot[page.presetKey]);
+    const presetRoot = buildPresetRoot(
+      current?.presetContent,
+      page.presetKey,
+      { ...globalPresetContent, ...page.presetContent },
+    );
     const generatedSections = buildCorePresetSections(page.presetKey, asObject(presetRoot[page.presetKey]));
 
     if (current?.id) {

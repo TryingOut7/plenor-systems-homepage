@@ -70,8 +70,8 @@ See `.env.example` for all variables:
 |---|---|
 | `RESEND_API_KEY` | Transactional email sending |
 | `RESEND_FROM_EMAIL` | Sender address (must be verified in Resend) |
-| `CONTACT_EMAIL` | Internal inbox for inquiry notifications |
-| `GUIDE_PDF_URL` | Secure URL for the downloadable guide PDF |
+| `CONTACT_EMAIL` | Optional legacy fallback; primary contact routing now lives in Site Settings |
+| `GUIDE_PDF_URL` | Optional legacy fallback; guide links now live in Site Settings |
 | `PAYLOAD_SECRET` | Payload auth secret |
 | `PAYLOAD_PREVIEW_SECRET` | Optional dedicated secret for Payload live preview draft-mode URLs (falls back to `PAYLOAD_SECRET`) |
 | `PAYLOAD_SEED_SECRET` | Optional dedicated seed secret (falls back to `PAYLOAD_SECRET`) |
@@ -207,5 +207,5 @@ Notes:
 
 - [ ] Update founder name, role, and bio (About page)
 - [ ] Verify `plenor.ai` sending domain in Resend dashboard (SPF, DKIM, DMARC)
-- [ ] Set `GUIDE_PDF_URL` to the real PDF storage URL
+- [ ] Set Site Settings → Content Routing → `guidePdfUrl` to the real PDF storage URL
 - [ ] Set all production env vars in Vercel dashboard

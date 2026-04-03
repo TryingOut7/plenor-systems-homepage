@@ -8,6 +8,7 @@ export const SYSTEM_FIELD_PATHS = [
   'site-settings.defaultSeo.noindex',
   'site-settings.defaultSeo.nofollow',
   'site-settings.defaultSeo.includeInSitemap',
+  'site-settings.contentRouting.workflowNotifyEmail',
   'ui-settings.typography.headingFontUrl',
   'ui-settings.typography.bodyFontUrl',
   'redirect-rules.fromPath',

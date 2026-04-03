@@ -28,6 +28,31 @@ export type SiteSettings = {
     isVisible?: boolean;
   }>;
   twitterHandle?: string;
+  contentRouting?: {
+    guideTitle?: string;
+    guidePdfUrl?: string;
+    guidePageUrl?: string;
+    privacyPolicyUrl?: string;
+    workflowNotifyEmail?: string;
+  };
+  emailDefaults?: {
+    brandName?: string;
+    guideSubject?: string;
+    guideHeading?: string;
+    guideBody?: string;
+    guideButtonLabel?: string;
+    inquiryNotificationSubject?: string;
+    inquiryAckSubject?: string;
+    inquiryAckHeading?: string;
+    inquiryAckBody?: string;
+  };
+  corePresetContent?: {
+    home?: Record<string, unknown>;
+    services?: Record<string, unknown>;
+    about?: Record<string, unknown>;
+    pricing?: Record<string, unknown>;
+    contact?: Record<string, unknown>;
+  };
   defaultSeo?: SeoFields;
   defaultMetaDescription?: string;
   navigationLinks?: Array<{
@@ -171,6 +196,15 @@ export type UISettings = {
     navBackground?: string;
     navBackgroundHover?: string;
     navText?: string;
+  };
+  emailPalette?: {
+    primary?: string;
+    muted?: string;
+    text?: string;
+    background?: string;
+    white?: string;
+    border?: string;
+    error?: string;
   };
 };
 

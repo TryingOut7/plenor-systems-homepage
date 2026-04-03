@@ -230,6 +230,28 @@ export const UISettings: GlobalConfig = {
             },
           ],
         },
+        {
+          label: 'Email',
+          fields: [
+            {
+              name: 'emailPalette',
+              type: 'group',
+              admin: {
+                description:
+                  'Transactional email palette used for guide and inquiry notifications.',
+              },
+              fields: [
+                { name: 'primary', type: 'text', defaultValue: '#1B2D4F', admin: { description: cssValueHint } },
+                { name: 'muted', type: 'text', defaultValue: '#6B7280', admin: { description: cssValueHint } },
+                { name: 'text', type: 'text', defaultValue: '#1A1A1A', admin: { description: cssValueHint } },
+                { name: 'background', type: 'text', defaultValue: '#F8F9FA', admin: { description: cssValueHint } },
+                { name: 'white', type: 'text', defaultValue: '#FFFFFF', admin: { description: cssValueHint } },
+                { name: 'border', type: 'text', defaultValue: '#E5E7EB', admin: { description: cssValueHint } },
+                { name: 'error', type: 'text', defaultValue: '#DC2626', admin: { description: cssValueHint } },
+              ],
+            },
+          ],
+        },
       ],
     },
   ],

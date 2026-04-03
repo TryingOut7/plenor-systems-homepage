@@ -1,4 +1,7 @@
 import { Resend } from 'resend';
+import { getPayload } from '@/payload/client';
+import type { SiteSettings, UISettings } from '@/payload/cms';
+import { resolveSiteUrl } from './site-config';
 import { escapeHtml } from './sanitize';
 
 // Resend client — instantiated lazily so missing env vars only throw at send time.
@@ -9,38 +12,202 @@ function getResend(): Resend {
 }
 
 const FROM = `${process.env.RESEND_FROM_NAME ?? 'Website'} <${process.env.RESEND_FROM_EMAIL ?? 'noreply@example.com'}>`;
-const REPLY_TO = process.env.CONTACT_EMAIL ?? 'contact@example.com';
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? 'contact@example.com';
-const GUIDE_PDF_URL = process.env.GUIDE_PDF_URL ?? '';
-const SITE_URL = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SERVER_URL ?? '').replace(/\/$/, '');
-const PRIVACY_POLICY_URL = process.env.PRIVACY_POLICY_URL ?? (SITE_URL ? `${SITE_URL}/privacy` : '/privacy');
-const GUIDE_PAGE_URL = process.env.GUIDE_PAGE_URL ?? (SITE_URL ? `${SITE_URL}/contact#guide` : '/contact#guide');
-
-// Brand copy — configurable via env vars so changes don't require code edits.
-const BRAND_NAME = process.env.RESEND_FROM_NAME ?? 'Website';
-const GUIDE_TITLE = process.env.GUIDE_TITLE ?? 'The 7 Most Common Product Development Mistakes — and How to Avoid Them';
 const CURRENT_YEAR = new Date().getFullYear();
 
-function siteHostLabel(): string {
-  if (!SITE_URL) return 'this website';
+const DEFAULT_GUIDE_TITLE = 'The 7 Most Common Product Development Mistakes — and How to Avoid Them';
+const DEFAULT_EMAIL_BRAND = process.env.RESEND_FROM_NAME ?? 'Website';
+const DEFAULT_CONTACT_EMAIL = 'contact@example.com';
+const DEFAULT_GUIDE_BODY =
+  'The guide covers the specific errors teams make in Testing & QA and Launch & Go-to-Market, and what to do instead.';
+const DEFAULT_GUIDE_SUBJECT = 'Your free guide from {brandName}';
+const DEFAULT_GUIDE_HEADING = "Here's your guide, {name}.";
+const DEFAULT_GUIDE_BUTTON_LABEL = 'Download the guide';
+const DEFAULT_INQUIRY_NOTIFICATION_SUBJECT = 'New inquiry from {name} ({company})';
+const DEFAULT_INQUIRY_ACK_SUBJECT = 'We received your inquiry — {brandName}';
+const DEFAULT_INQUIRY_ACK_HEADING = 'We received your inquiry, {name}.';
+const DEFAULT_INQUIRY_ACK_BODY =
+  'We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.';
+
+type EmailPalette = {
+  primary: string;
+  muted: string;
+  text: string;
+  background: string;
+  white: string;
+  border: string;
+  error: string;
+};
+
+type EmailRuntimeConfig = {
+  siteUrl: string;
+  brandName: string;
+  contactEmail: string;
+  replyTo: string;
+  guideTitle: string;
+  guidePdfUrl: string;
+  guidePageUrl: string;
+  privacyPolicyUrl: string;
+  guideSubject: string;
+  guideHeading: string;
+  guideBody: string;
+  guideButtonLabel: string;
+  inquiryNotificationSubject: string;
+  inquiryAckSubject: string;
+  inquiryAckHeading: string;
+  inquiryAckBody: string;
+  palette: EmailPalette;
+};
+
+const DEFAULT_PALETTE: EmailPalette = {
+  primary: '#1B2D4F',
+  muted: '#6B7280',
+  text: '#1A1A1A',
+  background: '#F8F9FA',
+  white: '#FFFFFF',
+  border: '#E5E7EB',
+  error: '#DC2626',
+};
+
+const EMAIL_SETTINGS_CACHE_TTL_MS = 30_000;
+let runtimeConfigCache: { expiresAt: number; value: EmailRuntimeConfig } | null = null;
+
+function readTrimmedString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function applyTemplate(template: string, variables: Record<string, string>): string {
+  return Object.entries(variables).reduce((result, [key, value]) => {
+    return result.replaceAll(`{${key}}`, value);
+  }, template);
+}
+
+function resolveUrlLike(value: string, siteUrl: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (trimmed.startsWith('/')) return siteUrl ? `${siteUrl}${trimmed}` : trimmed;
+  return trimmed;
+}
+
+function buildFallbackRuntimeConfig(): EmailRuntimeConfig {
+  const envSiteUrl = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SERVER_URL ?? '').replace(/\/$/, '');
+  const privacyFromEnv = readTrimmedString(process.env.PRIVACY_POLICY_URL);
+  const guidePageFromEnv = readTrimmedString(process.env.GUIDE_PAGE_URL);
+  const guidePdfFromEnv = readTrimmedString(process.env.GUIDE_PDF_URL);
+
+  return {
+    siteUrl: envSiteUrl,
+    brandName: DEFAULT_EMAIL_BRAND,
+    contactEmail: DEFAULT_CONTACT_EMAIL,
+    replyTo: DEFAULT_CONTACT_EMAIL,
+    guideTitle: readTrimmedString(process.env.GUIDE_TITLE) || DEFAULT_GUIDE_TITLE,
+    guidePdfUrl: resolveUrlLike(guidePdfFromEnv, envSiteUrl),
+    guidePageUrl: resolveUrlLike(guidePageFromEnv || '/contact#guide', envSiteUrl),
+    privacyPolicyUrl: resolveUrlLike(privacyFromEnv || '/privacy', envSiteUrl),
+    guideSubject: DEFAULT_GUIDE_SUBJECT,
+    guideHeading: DEFAULT_GUIDE_HEADING,
+    guideBody: DEFAULT_GUIDE_BODY,
+    guideButtonLabel: DEFAULT_GUIDE_BUTTON_LABEL,
+    inquiryNotificationSubject: DEFAULT_INQUIRY_NOTIFICATION_SUBJECT,
+    inquiryAckSubject: DEFAULT_INQUIRY_ACK_SUBJECT,
+    inquiryAckHeading: DEFAULT_INQUIRY_ACK_HEADING,
+    inquiryAckBody: DEFAULT_INQUIRY_ACK_BODY,
+    palette: DEFAULT_PALETTE,
+  };
+}
+
+async function loadRuntimeConfigFromCms(): Promise<Partial<EmailRuntimeConfig>> {
+  const payload = await getPayload();
+  const [siteSettingsRaw, uiSettingsRaw] = await Promise.all([
+    payload.findGlobal({
+      slug: 'site-settings',
+      depth: 0,
+      overrideAccess: true,
+    }),
+    payload.findGlobal({
+      slug: 'ui-settings',
+      depth: 0,
+      overrideAccess: true,
+    }),
+  ]);
+
+  const siteSettings = (siteSettingsRaw as SiteSettings | null) ?? null;
+  const uiSettings = (uiSettingsRaw as UISettings | null) ?? null;
+  const routing = siteSettings?.contentRouting;
+  const emailDefaults = siteSettings?.emailDefaults;
+  const siteUrl = resolveSiteUrl(siteSettings);
+
+  const contactEmail = readTrimmedString(siteSettings?.contactEmail) || DEFAULT_CONTACT_EMAIL;
+  const brandName =
+    readTrimmedString(emailDefaults?.brandName) ||
+    readTrimmedString(siteSettings?.siteName) ||
+    DEFAULT_EMAIL_BRAND;
+
+  const nextPalette = uiSettings?.emailPalette ?? {};
+  const palette: EmailPalette = {
+    primary: readTrimmedString(nextPalette.primary) || DEFAULT_PALETTE.primary,
+    muted: readTrimmedString(nextPalette.muted) || DEFAULT_PALETTE.muted,
+    text: readTrimmedString(nextPalette.text) || DEFAULT_PALETTE.text,
+    background: readTrimmedString(nextPalette.background) || DEFAULT_PALETTE.background,
+    white: readTrimmedString(nextPalette.white) || DEFAULT_PALETTE.white,
+    border: readTrimmedString(nextPalette.border) || DEFAULT_PALETTE.border,
+    error: readTrimmedString(nextPalette.error) || DEFAULT_PALETTE.error,
+  };
+
+  return {
+    siteUrl,
+    brandName,
+    contactEmail,
+    replyTo: contactEmail,
+    guideTitle: readTrimmedString(routing?.guideTitle) || DEFAULT_GUIDE_TITLE,
+    guidePdfUrl: resolveUrlLike(readTrimmedString(routing?.guidePdfUrl), siteUrl),
+    guidePageUrl: resolveUrlLike(readTrimmedString(routing?.guidePageUrl) || '/contact#guide', siteUrl),
+    privacyPolicyUrl: resolveUrlLike(readTrimmedString(routing?.privacyPolicyUrl) || '/privacy', siteUrl),
+    guideSubject: readTrimmedString(emailDefaults?.guideSubject) || DEFAULT_GUIDE_SUBJECT,
+    guideHeading: readTrimmedString(emailDefaults?.guideHeading) || DEFAULT_GUIDE_HEADING,
+    guideBody: readTrimmedString(emailDefaults?.guideBody) || DEFAULT_GUIDE_BODY,
+    guideButtonLabel: readTrimmedString(emailDefaults?.guideButtonLabel) || DEFAULT_GUIDE_BUTTON_LABEL,
+    inquiryNotificationSubject:
+      readTrimmedString(emailDefaults?.inquiryNotificationSubject) || DEFAULT_INQUIRY_NOTIFICATION_SUBJECT,
+    inquiryAckSubject: readTrimmedString(emailDefaults?.inquiryAckSubject) || DEFAULT_INQUIRY_ACK_SUBJECT,
+    inquiryAckHeading: readTrimmedString(emailDefaults?.inquiryAckHeading) || DEFAULT_INQUIRY_ACK_HEADING,
+    inquiryAckBody: readTrimmedString(emailDefaults?.inquiryAckBody) || DEFAULT_INQUIRY_ACK_BODY,
+    palette,
+  };
+}
+
+async function getRuntimeConfig(): Promise<EmailRuntimeConfig> {
+  if (runtimeConfigCache && runtimeConfigCache.expiresAt > Date.now()) {
+    return runtimeConfigCache.value;
+  }
+
+  const fallback = buildFallbackRuntimeConfig();
   try {
-    return new URL(SITE_URL).host;
+    const cms = await loadRuntimeConfigFromCms();
+    const merged: EmailRuntimeConfig = {
+      ...fallback,
+      ...cms,
+      palette: {
+        ...fallback.palette,
+        ...(cms.palette || {}),
+      },
+    };
+    runtimeConfigCache = { value: merged, expiresAt: Date.now() + EMAIL_SETTINGS_CACHE_TTL_MS };
+    return merged;
   } catch {
-    return SITE_URL;
+    runtimeConfigCache = { value: fallback, expiresAt: Date.now() + EMAIL_SETTINGS_CACHE_TTL_MS };
+    return fallback;
   }
 }
 
-// Email-safe color palette. CSS variables cannot be used in email HTML (client
-// support is near-zero), so colors are centralised here instead.
-const C = {
-  primary: '#1B2D4F',
-  muted:   '#6B7280',
-  text:    '#1A1A1A',
-  bg:      '#F8F9FA',
-  white:   '#ffffff',
-  border:  '#E5E7EB',
-  error:   '#DC2626',
-} as const;
+function siteHostLabel(siteUrl: string): string {
+  if (!siteUrl) return 'this website';
+  try {
+    return new URL(siteUrl).host;
+  } catch {
+    return siteUrl;
+  }
+}
 
 /** Strip CR/LF to prevent email header injection. */
 function sanitizeHeaderValue(value: string): string {
@@ -69,9 +236,11 @@ export async function sendGuideEmail({
   template?: GuideEmailTemplate;
 }) {
   const resend = getResend();
+  const config = await getRuntimeConfig();
 
-  const buttonUrl = template?.buttonUrl || GUIDE_PDF_URL;
-  const buttonLabel = template?.buttonLabel || 'Download the guide';
+  const buttonUrl = resolveUrlLike(template?.buttonUrl || config.guidePdfUrl, config.siteUrl);
+  const buttonLabel = template?.buttonLabel || config.guideButtonLabel;
+  const C = config.palette;
 
   const pdfLine = buttonUrl
     ? `<p style="margin:0 0 24px;">
@@ -87,20 +256,29 @@ export async function sendGuideEmail({
        </p>`
     : `<p style="margin:0 0 16px;color:${C.error};font-size:14px;">
          <strong>Note:</strong> The guide PDF link has not been configured yet.
-         Please contact ${CONTACT_EMAIL} to receive the guide.
+         Please contact ${config.contactEmail} to receive the guide.
        </p>`;
 
   await resend.emails.send({
     from: FROM,
     to: email,
-    replyTo: template?.replyTo || REPLY_TO,
-    subject: template?.subject || `Your free guide from ${BRAND_NAME}`,
+    replyTo: template?.replyTo || config.replyTo,
+    subject:
+      template?.subject ||
+      sanitizeHeaderValue(
+        applyTemplate(config.guideSubject, {
+          brandName: config.brandName,
+          name,
+          company: '',
+        }),
+      ),
     html: guideEmailHtml({
       name,
       pdfLine,
       heading: template?.heading,
       highlightTitle: template?.highlightTitle,
       bodyText: template?.body,
+      config,
     }),
   });
 }
@@ -111,16 +289,27 @@ function guideEmailHtml({
   heading,
   highlightTitle,
   bodyText,
+  config,
 }: {
   name: string;
   pdfLine: string;
   heading?: string;
   highlightTitle?: string;
   bodyText?: string;
+  config: EmailRuntimeConfig;
 }) {
+  const C = config.palette;
   const resolvedHeading = heading
-    ? escapeHtml(heading).replace(/\{name\}/g, escapeHtml(name))
-    : `Here's your guide, ${escapeHtml(name)}.`;
+    ? escapeHtml(
+      applyTemplate(heading, { name, brandName: config.brandName, company: '' }),
+    )
+    : escapeHtml(
+      applyTemplate(config.guideHeading, {
+        name,
+        brandName: config.brandName,
+        company: '',
+      }),
+    );
 
   const bodyBlock = highlightTitle || bodyText
     ? `<p style="margin:0 0 24px;font-size:16px;color:${C.muted};line-height:1.6;">
@@ -128,9 +317,8 @@ function guideEmailHtml({
         ${bodyText ? `${highlightTitle ? '<br/>' : ''}${escapeHtml(bodyText)}` : ''}
        </p>`
     : `<p style="margin:0 0 24px;font-size:16px;color:${C.muted};line-height:1.6;">
-        <strong style="color:${C.text};">${escapeHtml(GUIDE_TITLE)}</strong>
-        covers the specific errors teams make in Testing &amp; QA and Launch &amp; Go-to-Market,
-        and what to do instead.
+        <strong style="color:${C.text};">${escapeHtml(config.guideTitle)}</strong>
+        ${escapeHtml(config.guideBody)}
        </p>`;
 
   return `<!DOCTYPE html>
@@ -138,17 +326,17 @@ function guideEmailHtml({
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Your free guide from ${BRAND_NAME}</title>
+  <title>${escapeHtml(applyTemplate(config.guideSubject, { name, brandName: config.brandName, company: '' }))}</title>
 </head>
-<body style="margin:0;padding:0;background:${C.bg};font-family:system-ui,-apple-system,sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.bg};">
+<body style="margin:0;padding:0;background:${C.background};font-family:system-ui,-apple-system,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.background};">
     <tr>
       <td align="center" style="padding:40px 16px;">
         <table role="presentation" width="100%" style="max-width:560px;background:${C.white};border-radius:8px;border:1px solid ${C.border};">
           <tr>
             <td style="padding:32px 40px 0;">
               <p style="margin:0 0 24px;font-size:18px;font-weight:700;color:${C.primary};">
-                ${BRAND_NAME}
+                ${escapeHtml(config.brandName)}
               </p>
               <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:${C.text};line-height:1.3;">
                 ${resolvedHeading}
@@ -158,18 +346,18 @@ function guideEmailHtml({
               <p style="margin:0 0 16px;font-size:15px;color:${C.muted};line-height:1.6;">
                 If you have questions about anything in the guide, or want to talk about how the
                 framework applies to your product, reply to this email or contact us at
-                <a href="mailto:${REPLY_TO}" style="color:${C.primary};">${REPLY_TO}</a>.
+                <a href="mailto:${escapeHtml(config.replyTo)}" style="color:${C.primary};">${escapeHtml(config.replyTo)}</a>.
               </p>
             </td>
           </tr>
           <tr>
             <td style="padding:24px 40px 32px;border-top:1px solid ${C.border};margin-top:32px;">
               <p style="margin:0;font-size:13px;color:${C.muted};line-height:1.5;">
-                You received this email because you requested the free guide at ${escapeHtml(siteHostLabel())}.
+                You received this email because you requested the free guide at ${escapeHtml(siteHostLabel(config.siteUrl))}.
                 This is a one-time delivery — you have not been subscribed to any mailing list.
                 <br/>
-                © ${CURRENT_YEAR} ${BRAND_NAME}.
-                <a href="${PRIVACY_POLICY_URL}" style="color:${C.muted};">Privacy Policy</a>
+                © ${CURRENT_YEAR} ${escapeHtml(config.brandName)}.
+                <a href="${escapeHtml(config.privacyPolicyUrl)}" style="color:${C.muted};">Privacy Policy</a>
               </p>
             </td>
           </tr>
@@ -195,23 +383,37 @@ export async function sendInquiryEmails({
   challenge: string;
 }) {
   const resend = getResend();
+  const config = await getRuntimeConfig();
+  const C = config.palette;
 
   // 1. Notify primary inbox
   await resend.emails.send({
     from: FROM,
-    to: CONTACT_EMAIL,
+    to: config.contactEmail,
     replyTo: sanitizeHeaderValue(email),
-    subject: sanitizeHeaderValue(`New inquiry from ${name} (${company})`),
-    html: inquiryNotificationHtml({ name, email, company, challenge }),
+    subject: sanitizeHeaderValue(
+      applyTemplate(config.inquiryNotificationSubject, {
+        name,
+        company,
+        brandName: config.brandName,
+      }),
+    ),
+    html: inquiryNotificationHtml({ name, email, company, challenge, palette: C }),
   });
 
   // 2. Acknowledgment to visitor
   await resend.emails.send({
     from: FROM,
     to: email,
-    replyTo: REPLY_TO,
-    subject: `We received your inquiry — ${BRAND_NAME}`,
-    html: inquiryAckHtml({ name }),
+    replyTo: config.replyTo,
+    subject: sanitizeHeaderValue(
+      applyTemplate(config.inquiryAckSubject, {
+        name,
+        company,
+        brandName: config.brandName,
+      }),
+    ),
+    html: inquiryAckHtml({ name, config }),
   });
 }
 
@@ -220,24 +422,27 @@ function inquiryNotificationHtml({
   email,
   company,
   challenge,
+  palette,
 }: {
   name: string;
   email: string;
   company: string;
   challenge: string;
+  palette: EmailPalette;
 }) {
+  const C = palette;
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"/><title>New inquiry</title></head>
-<body style="margin:0;padding:32px;font-family:system-ui,-apple-system,sans-serif;background:${C.bg};">
+<body style="margin:0;padding:32px;font-family:system-ui,-apple-system,sans-serif;background:${C.background};">
   <table role="presentation" width="100%" style="max-width:560px;background:${C.white};border-radius:8px;border:1px solid ${C.border};padding:32px;">
     <tr><td>
       <h1 style="margin:0 0 24px;font-size:20px;font-weight:700;color:${C.primary};">New inquiry</h1>
       <table role="presentation" width="100%" style="border-collapse:collapse;">
-        ${row('Name', escapeHtml(name))}
-        ${row('Email', `<a href="mailto:${escapeHtml(email)}" style="color:${C.primary};">${escapeHtml(email)}</a>`)}
-        ${row('Company', escapeHtml(company))}
-        ${row('Challenge', escapeHtml(challenge).replace(/\n/g, '<br/>'))}
+        ${row('Name', escapeHtml(name), C)}
+        ${row('Email', `<a href="mailto:${escapeHtml(email)}" style="color:${C.primary};">${escapeHtml(email)}</a>`, C)}
+        ${row('Company', escapeHtml(company), C)}
+        ${row('Challenge', escapeHtml(challenge).replace(/\n/g, '<br/>'), C)}
       </table>
       <p style="margin:24px 0 0;font-size:13px;color:${C.muted};">
         Submitted: ${new Date().toUTCString()}
@@ -248,40 +453,52 @@ function inquiryNotificationHtml({
 </html>`;
 }
 
-function row(label: string, value: string) {
+function row(label: string, value: string, palette: EmailPalette) {
   return `<tr>
-    <td style="padding:8px 0;font-size:14px;font-weight:600;color:${C.text};width:100px;vertical-align:top;">${label}</td>
-    <td style="padding:8px 0;font-size:14px;color:${C.muted};line-height:1.5;">${value}</td>
+    <td style="padding:8px 0;font-size:14px;font-weight:600;color:${palette.text};width:100px;vertical-align:top;">${label}</td>
+    <td style="padding:8px 0;font-size:14px;color:${palette.muted};line-height:1.5;">${value}</td>
   </tr>`;
 }
 
-function inquiryAckHtml({ name }: { name: string }) {
+function inquiryAckHtml({
+  name,
+  config,
+}: {
+  name: string;
+  config: EmailRuntimeConfig;
+}) {
+  const C = config.palette;
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"/><title>We received your inquiry</title></head>
-<body style="margin:0;padding:0;background:${C.bg};font-family:system-ui,-apple-system,sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.bg};">
+<body style="margin:0;padding:0;background:${C.background};font-family:system-ui,-apple-system,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.background};">
     <tr>
       <td align="center" style="padding:40px 16px;">
         <table role="presentation" width="100%" style="max-width:560px;background:${C.white};border-radius:8px;border:1px solid ${C.border};">
           <tr>
             <td style="padding:32px 40px 0;">
               <p style="margin:0 0 24px;font-size:18px;font-weight:700;color:${C.primary};">
-                ${BRAND_NAME}
+                ${escapeHtml(config.brandName)}
               </p>
               <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:${C.text};line-height:1.3;">
-                We received your inquiry, ${escapeHtml(name)}.
+                ${escapeHtml(
+                  applyTemplate(config.inquiryAckHeading, {
+                    name,
+                    company: '',
+                    brandName: config.brandName,
+                  }),
+                )}
               </h1>
               <p style="margin:0 0 16px;font-size:16px;color:${C.muted};line-height:1.6;">
-                We review every inquiry and respond within 2 business days with initial thoughts
-                or a proposal request.
+                ${escapeHtml(config.inquiryAckBody)}
               </p>
               <p style="margin:0 0 16px;font-size:16px;color:${C.muted};line-height:1.6;">
                 In the meantime, if you haven't already, the free guide covers the specific
                 mistakes the framework is designed to prevent:
               </p>
               <p style="margin:0 0 24px;">
-                <a href="${GUIDE_PAGE_URL}"
+                <a href="${escapeHtml(config.guidePageUrl)}"
                    style="display:inline-block;background:${C.primary};color:${C.white};font-weight:700;
                           font-size:15px;padding:12px 24px;border-radius:6px;text-decoration:none;">
                   Get the free guide
@@ -292,8 +509,8 @@ function inquiryAckHtml({ name }: { name: string }) {
           <tr>
             <td style="padding:24px 40px 32px;border-top:1px solid ${C.border};">
               <p style="margin:0;font-size:13px;color:${C.muted};line-height:1.5;">
-                © ${CURRENT_YEAR} ${BRAND_NAME}.
-                <a href="${PRIVACY_POLICY_URL}" style="color:${C.muted};">Privacy Policy</a>
+                © ${CURRENT_YEAR} ${escapeHtml(config.brandName)}.
+                <a href="${escapeHtml(config.privacyPolicyUrl)}" style="color:${C.muted};">Privacy Policy</a>
               </p>
             </td>
           </tr>
@@ -304,4 +521,3 @@ function inquiryAckHtml({ name }: { name: string }) {
 </body>
 </html>`;
 }
-

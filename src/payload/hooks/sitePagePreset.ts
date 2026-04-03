@@ -62,6 +62,35 @@ function asObjectArray(value: unknown): Array<Record<string, unknown>> {
     .filter((entry) => Object.keys(entry).length > 0);
 }
 
+async function readGlobalPresetContent(
+  req: {
+    payload?: {
+      findGlobal?: (options: {
+        slug: 'site-settings';
+        depth: number;
+        overrideAccess: boolean;
+      }) => Promise<unknown>;
+    };
+  },
+  presetKey: CorePresetKey,
+): Promise<Record<string, unknown>> {
+  if (presetKey === 'custom') return {};
+  const findGlobal = req.payload?.findGlobal;
+  if (!findGlobal) return {};
+
+  try {
+    const globalDoc = await findGlobal({
+      slug: 'site-settings',
+      depth: 0,
+      overrideAccess: true,
+    });
+    const root = asObject((globalDoc as Record<string, unknown>)?.corePresetContent);
+    return asObject(root[presetKey]);
+  } catch {
+    return {};
+  }
+}
+
 function readSectionStructureSignature(
   sections: Array<Record<string, unknown>>,
 ): string[] {
@@ -242,7 +271,12 @@ function resolvePresetKey(
   return 'custom';
 }
 
-export const applyCorePresetSections: CollectionBeforeChangeHook = ({ data, originalDoc, operation }) => {
+export const applyCorePresetSections: CollectionBeforeChangeHook = async ({
+  data,
+  originalDoc,
+  operation,
+  req,
+}) => {
   if (!data || typeof data !== 'object') return data;
 
   const incoming = cloneValue(data as Record<string, unknown>);
@@ -259,9 +293,10 @@ export const applyCorePresetSections: CollectionBeforeChangeHook = ({ data, orig
   const existingRoot = asObject(original.presetContent);
   const mergedRoot = { ...existingRoot, ...incomingRoot };
 
+  const globalPreset = await readGlobalPresetContent(req, presetKey);
   const incomingPreset = asObject(incomingRoot[presetKey]);
   const existingPreset = asObject(existingRoot[presetKey]);
-  const mergedPreset = { ...existingPreset, ...incomingPreset };
+  const mergedPreset = { ...globalPreset, ...existingPreset, ...incomingPreset };
 
   mergedRoot[presetKey] = mergedPreset;
 

@@ -15,6 +15,38 @@ function readTrimmedString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function asObject(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return value as Record<string, unknown>;
+}
+
+async function resolveWorkflowNotifyEmail(req: {
+  payload?: {
+    findGlobal?: (args: { slug: string; depth: number; overrideAccess: boolean }) => Promise<unknown>;
+  };
+}): Promise<string> {
+  const findGlobal = req.payload?.findGlobal;
+  try {
+    const siteSettings = findGlobal
+      ? await findGlobal({
+      slug: 'site-settings',
+      depth: 0,
+      overrideAccess: true,
+        })
+      : null;
+    const contentRouting = asObject((siteSettings as Record<string, unknown>)?.contentRouting);
+    const fromSettings = readTrimmedString(contentRouting.workflowNotifyEmail);
+    if (fromSettings) return fromSettings;
+  } catch {
+    // Ignore CMS read failures and fall back to environment-level defaults.
+  }
+
+  return (
+    readTrimmedString(process.env.WORKFLOW_NOTIFY_EMAIL) ||
+    readTrimmedString(process.env.RESEND_FROM_EMAIL)
+  );
+}
+
 /**
  * Allowed state transitions per role.
  * Each key is a "from" status mapping to which statuses each role may move to.
@@ -166,7 +198,7 @@ export const workflowAfterChange: CollectionAfterChangeHook = async ({
     .join('\n');
 
   try {
-    const adminEmail = process.env.WORKFLOW_NOTIFY_EMAIL || process.env.RESEND_FROM_EMAIL;
+    const adminEmail = await resolveWorkflowNotifyEmail(req);
     if (!adminEmail) return doc;
 
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@example.com';

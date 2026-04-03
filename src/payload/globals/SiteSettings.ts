@@ -99,6 +99,175 @@ export const SiteSettings: GlobalConfig = {
       name: 'twitterHandle',
       type: 'text',
     },
+    {
+      name: 'contentRouting',
+      label: 'Content Routing',
+      type: 'group',
+      admin: {
+        description:
+          'Central URLs and email routing used across guide delivery, legal links, and workflow notifications.',
+      },
+      fields: [
+        {
+          name: 'guideTitle',
+          type: 'text',
+          defaultValue: 'The 7 Most Common Product Development Mistakes — and How to Avoid Them',
+        },
+        {
+          name: 'guidePdfUrl',
+          type: 'text',
+          validate: validatePathOrHttpUrl,
+          admin: {
+            description: 'PDF download URL used by guide delivery emails.',
+          },
+        },
+        {
+          name: 'guidePageUrl',
+          type: 'text',
+          defaultValue: '/contact#guide',
+          validate: validatePathOrHttpUrl,
+          admin: {
+            description: 'Guide landing URL used in acknowledgement emails.',
+          },
+        },
+        {
+          name: 'privacyPolicyUrl',
+          type: 'text',
+          defaultValue: '/privacy',
+          validate: validatePathOrHttpUrl,
+          admin: {
+            description: 'Privacy policy URL used in transactional emails and legal links.',
+          },
+        },
+        withFieldTier({
+          name: 'workflowNotifyEmail',
+          type: 'email',
+          admin: {
+            description: 'Optional inbox for workflow status notifications (review/approve/publish/reject).',
+          },
+        }, 'system'),
+      ],
+    },
+    {
+      name: 'emailDefaults',
+      label: 'Email Defaults',
+      type: 'group',
+      admin: {
+        description:
+          'Fallback copy for transactional emails when a section-specific template is not selected.',
+      },
+      fields: [
+        { name: 'brandName', type: 'text', admin: { description: 'Optional override for brand name in emails.' } },
+        {
+          name: 'guideSubject',
+          type: 'text',
+          defaultValue: 'Your free guide from {brandName}',
+          admin: {
+            description: 'Guide delivery subject. Supported tokens: {brandName}, {name}.',
+          },
+        },
+        {
+          name: 'guideHeading',
+          type: 'text',
+          defaultValue: "Here's your guide, {name}.",
+          admin: {
+            description: 'Guide delivery heading. Supported tokens: {brandName}, {name}.',
+          },
+        },
+        {
+          name: 'guideBody',
+          type: 'textarea',
+          defaultValue:
+            'The guide covers the specific errors teams make in Testing & QA and Launch & Go-to-Market, and what to do instead.',
+        },
+        {
+          name: 'guideButtonLabel',
+          type: 'text',
+          defaultValue: 'Download the guide',
+        },
+        {
+          name: 'inquiryNotificationSubject',
+          type: 'text',
+          defaultValue: 'New inquiry from {name} ({company})',
+          admin: {
+            description: 'Internal inquiry alert subject. Supported tokens: {name}, {company}.',
+          },
+        },
+        {
+          name: 'inquiryAckSubject',
+          type: 'text',
+          defaultValue: 'We received your inquiry — {brandName}',
+          admin: {
+            description: 'Inquiry acknowledgment subject. Supported tokens: {brandName}, {name}.',
+          },
+        },
+        {
+          name: 'inquiryAckHeading',
+          type: 'text',
+          defaultValue: 'We received your inquiry, {name}.',
+          admin: {
+            description: 'Inquiry acknowledgment heading. Supported tokens: {brandName}, {name}.',
+          },
+        },
+        {
+          name: 'inquiryAckBody',
+          type: 'textarea',
+          defaultValue:
+            'We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.',
+        },
+      ],
+    },
+    {
+      name: 'corePresetContent',
+      label: 'Core Page Preset Content',
+      type: 'group',
+      admin: {
+        description:
+          'Global source of truth for Home/Services/About/Pricing/Contact fixed-template copy. Individual pages can still keep local overrides.',
+      },
+      fields: [
+        {
+          name: 'home',
+          type: 'json',
+          defaultValue: {},
+          admin: {
+            description: 'Key-value overrides for Home preset copy.',
+          },
+        },
+        {
+          name: 'services',
+          type: 'json',
+          defaultValue: {},
+          admin: {
+            description: 'Key-value overrides for Services preset copy.',
+          },
+        },
+        {
+          name: 'about',
+          type: 'json',
+          defaultValue: {},
+          admin: {
+            description: 'Key-value overrides for About preset copy.',
+          },
+        },
+        {
+          name: 'pricing',
+          type: 'json',
+          defaultValue: {},
+          admin: {
+            description: 'Key-value overrides for Pricing preset copy.',
+          },
+        },
+        {
+          name: 'contact',
+          type: 'json',
+          defaultValue: {},
+          admin: {
+            description: 'Key-value overrides for Contact preset copy.',
+          },
+        },
+      ],
+    },
 
     // ─── Navigation ───────────────────────────────────────────────────────
     {

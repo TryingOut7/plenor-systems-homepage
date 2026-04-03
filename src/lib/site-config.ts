@@ -4,7 +4,7 @@ const DEFAULT_SITE_NAME = 'Website';
 const DEFAULT_SITE_URL = stripTrailingSlash(
   process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000',
 );
-const DEFAULT_CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'contact@example.com';
+const DEFAULT_CONTACT_EMAIL = 'contact@example.com';
 
 function asNonEmptyString(value: unknown): string | null {
   if (typeof value !== 'string') return null;
@@ -34,6 +34,5 @@ export function resolveTwitterHandle(
   settings?: Pick<SiteSettings, 'twitterHandle'> | null,
 ): string | undefined {
   const fromSettings = asNonEmptyString(settings?.twitterHandle);
-  const fromEnv = asNonEmptyString(process.env.NEXT_PUBLIC_TWITTER_HANDLE);
-  return fromSettings || fromEnv || undefined;
+  return fromSettings || undefined;
 }
