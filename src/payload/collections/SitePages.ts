@@ -2,7 +2,10 @@ import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload';
 import { buildSeoFields } from '../fields/seo.ts';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
 import { createdByField } from '../fields/ownership.ts';
-import { pageSectionBlocks } from '../blocks/pageSections.ts';
+import {
+  modernPageSectionBlockSlugs,
+  pageSectionBlocks,
+} from '../blocks/pageSections.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
@@ -102,6 +105,8 @@ export const SitePages: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'presetKey', 'workflowStatus', 'isActive'],
+    group: 'Pages',
+    description: 'Main website pages. Core preset pages use a fixed layout; custom pages use the section builder.',
   },
   access: {
     read: ({ req }) => {
@@ -147,11 +152,12 @@ export const SitePages: CollectionConfig = {
       type: 'select',
       defaultValue: 'builder',
       options: [
-        { label: 'Builder', value: 'builder' },
-        { label: 'Template', value: 'template' },
+        { label: 'Layout: Custom', value: 'builder' },
+        { label: 'Layout: Fixed', value: 'template' },
       ],
       admin: {
         position: 'sidebar',
+        description: 'Choose custom layout controls or fixed template layout.',
         condition: (data) => !isCorePreset(data),
       },
     },
@@ -246,10 +252,11 @@ export const SitePages: CollectionConfig = {
       name: 'sections',
       type: 'blocks',
       blocks: pageSectionBlocks,
+      filterOptions: modernPageSectionBlockSlugs,
       admin: {
         condition: () => true,
         description:
-          'For core presets, structure is locked to template and only text content changes are kept.',
+          'For fixed preset pages, section structure is managed automatically. Edit text/images inside each locked section.',
         components: {
           beforeInput: ['@/payload/admin/components/CmsEditorTrainingHint'],
         },
@@ -265,7 +272,10 @@ export const SitePages: CollectionConfig = {
       admin: {
         position: 'sidebar',
         readOnly: true,
-        description: 'Automated quality score (0-100) derived from structural and publish guard checks.',
+        description: 'Quality score for this draft. See checklist below for what to fix before publishing.',
+        components: {
+          beforeInput: ['@/payload/admin/components/SitePageQualityChecklistHint'],
+        },
       },
     },
     {

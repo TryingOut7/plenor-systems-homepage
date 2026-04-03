@@ -25,6 +25,7 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { CleanPasteFeatureClient as CleanPasteFeatureClient_f44e8d1f62274a4ca0d5479a1f4ea6b2 } from '@/payload/editor/features/cleanPasteFeature.client'
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
@@ -58,6 +59,10 @@ import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_0127ca5c
 import { default as default_4de2b5b97b2b4bb1c1c999625da7722f } from '@/payload/admin/components/SectionBackgroundColorPicker'
 import { default as default_9a31a4f5f65b4f0a95f17bc2d9c63531 } from '@/payload/admin/components/CmsFieldTierHint'
 import { default as default_5c79fd1d22e84403ae8277006693a13e } from '@/payload/admin/components/CmsEditorTrainingHint'
+import { default as default_20e4ea7a8cbf4feba0f34f3ed8dbd75c } from '@/payload/admin/components/WorkflowStatusBanner'
+import { default as default_9f2ff87a7f9a4875a6eef5af7efc2d64 } from '@/payload/admin/components/SitePageQualityChecklistHint'
+import { default as default_560b1f5f5438454f9fbe7f37f8572dfa } from '@/payload/admin/components/SectionBlockRowLabel'
+import { default as default_9af8b74157f94922a26fd8b5295e28ed } from '@/payload/admin/components/MediaApprovalStatusField'
 
 export const importMap = {
   "@payloadcms/next/rsc#FolderTableCell": FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1,
@@ -87,6 +92,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@/payload/editor/features/cleanPasteFeature.client#CleanPasteFeatureClient": CleanPasteFeatureClient_f44e8d1f62274a4ca0d5479a1f4ea6b2,
   "@payloadcms/plugin-seo/client#OverviewComponent": OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaTitleComponent": MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaDescriptionComponent": MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
@@ -119,5 +125,9 @@ export const importMap = {
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_0127ca5cb5544af3ad1a6a5999faa7b0,
   "@/payload/admin/components/SectionBackgroundColorPicker#default": default_4de2b5b97b2b4bb1c1c999625da7722f,
   "@/payload/admin/components/CmsFieldTierHint#default": default_9a31a4f5f65b4f0a95f17bc2d9c63531,
-  "@/payload/admin/components/CmsEditorTrainingHint#default": default_5c79fd1d22e84403ae8277006693a13e
+  "@/payload/admin/components/CmsEditorTrainingHint#default": default_5c79fd1d22e84403ae8277006693a13e,
+  "@/payload/admin/components/WorkflowStatusBanner#default": default_20e4ea7a8cbf4feba0f34f3ed8dbd75c,
+  "@/payload/admin/components/SitePageQualityChecklistHint#default": default_9f2ff87a7f9a4875a6eef5af7efc2d64,
+  "@/payload/admin/components/SectionBlockRowLabel#default": default_560b1f5f5438454f9fbe7f37f8572dfa,
+  "@/payload/admin/components/MediaApprovalStatusField#default": default_9af8b74157f94922a26fd8b5295e28ed
 }

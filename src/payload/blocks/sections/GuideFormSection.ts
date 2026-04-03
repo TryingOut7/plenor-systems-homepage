@@ -4,10 +4,17 @@ import { sectionCommonFields } from '../../fields/sectionCommon.ts';
 export const GuideFormSection: Block = {
   slug: 'guideFormSection',
   dbName: 'guide_form',
-  labels: { singular: 'Guide Form Section', plural: 'Guide Form Sections' },
+  labels: { singular: 'Guide Signup Form', plural: 'Guide Signup Forms' },
   fields: [
     ...sectionCommonFields,
-    { name: 'label', type: 'text', defaultValue: 'Free resource' },
+    {
+      name: 'label',
+      type: 'text',
+      defaultValue: 'Free resource',
+      admin: {
+        description: 'Global default labels are in Site Settings → Guide Form Defaults.',
+      },
+    },
     { name: 'heading', type: 'text', defaultValue: 'Get the free guide' },
     {
       name: 'highlightText',

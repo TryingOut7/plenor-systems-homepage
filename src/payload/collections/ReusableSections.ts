@@ -1,5 +1,8 @@
 import type { CollectionConfig } from 'payload';
-import { pageSectionBlocks } from '../blocks/pageSections.ts';
+import {
+  modernPageSectionBlockSlugs,
+  pageSectionBlocks,
+} from '../blocks/pageSections.ts';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
@@ -10,17 +13,23 @@ import { reusableSectionVersioningBeforeChange } from '../hooks/reusableSectionV
 export const ReusableSections: CollectionConfig = {
   slug: 'reusable-sections',
   dbName: 'reuse_sec',
+  labels: {
+    singular: 'Section Library Item',
+    plural: 'Section Library',
+  },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'libraryVersion', 'libraryCategory', 'workflowStatus'],
+    group: 'System',
+    description: 'Shared content blocks reused across pages. Intended for admins and editors.',
   },
   access: {
     read: ({ req }) => {
-      if (req.user) return true;
-      return false;
+      const role = (req.user as Record<string, unknown> | undefined)?.role as string | undefined;
+      return role === 'admin' || role === 'editor';
     },
-    create: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
-    update: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
+    create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
+    update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   hooks: {
@@ -51,6 +60,7 @@ export const ReusableSections: CollectionConfig = {
       name: 'sections',
       type: 'blocks',
       blocks: pageSectionBlocks,
+      filterOptions: modernPageSectionBlockSlugs,
       admin: {
         components: {
           beforeInput: ['@/payload/admin/components/CmsEditorTrainingHint'],

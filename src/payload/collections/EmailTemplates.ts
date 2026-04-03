@@ -5,6 +5,7 @@ export const EmailTemplates: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'subject', 'updatedAt'],
+    group: 'Settings',
     description: 'Reusable email messages for guides, whitepapers, and other downloadable resources. Link a template to a guide form section so each "Send me the guide" button delivers the right content.',
   },
   access: {

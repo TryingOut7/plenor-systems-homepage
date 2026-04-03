@@ -5,6 +5,7 @@ export const structuralKeyField: Field = {
   name: 'structuralKey',
   type: 'text',
   admin: {
+    hidden: true,
     readOnly: true,
     condition: () => false,
     description: 'System-managed structural identity key for preset and migrated sections.',

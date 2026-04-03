@@ -6,7 +6,9 @@ import { withFieldTier } from '../fields/fieldTier.ts';
 export const Media: CollectionConfig = {
   slug: 'media',
   admin: {
-    defaultColumns: ['filename', 'alt', 'mediaQaStatus', 'usageScope', 'updatedAt'],
+    defaultColumns: ['filename', 'alt', 'mediaQaStatus', 'updatedAt'],
+    group: 'Content',
+    description: 'Upload and manage website images/documents. Most editors only need alt text and optional captions.',
   },
   upload: {
     mimeTypes: ['image/*', 'application/pdf'],
@@ -59,7 +61,7 @@ export const Media: CollectionConfig = {
         description: 'Optional caption or credit for the media',
       },
     },
-    {
+    withFieldTier({
       name: 'usageScope',
       type: 'select',
       required: true,
@@ -71,8 +73,9 @@ export const Media: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
+        description: 'Advanced governance setting. Leave as "Site only" for normal uploads.',
       },
-    },
+    }, 'advanced'),
     withFieldTier({
       name: 'licenseSource',
       type: 'text',
@@ -109,6 +112,7 @@ export const Media: CollectionConfig = {
     },
     {
       name: 'mediaQaStatus',
+      label: 'Approval Status',
       type: 'select',
       defaultValue: 'pending',
       options: [
@@ -118,6 +122,10 @@ export const Media: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
+        readOnly: true,
+        components: {
+          Field: '@/payload/admin/components/MediaApprovalStatusField',
+        },
       },
     },
     {

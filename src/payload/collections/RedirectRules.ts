@@ -8,6 +8,8 @@ export const RedirectRules: CollectionConfig = {
   admin: {
     useAsTitle: 'fromPath',
     defaultColumns: ['fromPath', 'toPath', 'isPermanent', 'enabled'],
+    group: 'Settings',
+    description: 'URL redirects managed as policy-controlled rules.',
   },
   access: {
     read: ({ req }) => {

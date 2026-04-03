@@ -508,7 +508,9 @@ export const sitePagePublishGuardsBeforeChange: CollectionBeforeChangeHook = ({
   }
 
   if (publishPath && completeness.ERROR_PUBLISH.length > 0) {
-    throw new Error(`[ERROR_PUBLISH] ${completeness.ERROR_PUBLISH.join(' | ')}`);
+    throw new Error(
+      `[ERROR_PUBLISH] A few things need attention before this page can go live. ${completeness.ERROR_PUBLISH.join(' | ')}`,
+    );
   }
 
   if (completeness.WARN.length > 0) {

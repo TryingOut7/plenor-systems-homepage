@@ -15,11 +15,11 @@ const TierHint: FieldLabelClientComponent = ({ field }) => {
   if (tier === 'routine' || !tier) return null;
 
   const tone = tier === 'advanced' ? '#1D4ED8' : '#991B1B';
-  const title = tier === 'advanced' ? 'Advanced field' : 'System field';
+  const title = tier === 'advanced' ? 'Advanced setting' : 'System setting';
   const body =
     tier === 'advanced'
-      ? 'Visible in advanced lane. Changes here can affect layout and presentation quality.'
-      : 'Restricted to admins/trusted editors. Changes can impact redirects, indexing, and runtime behavior.';
+      ? 'Visible in Advanced settings mode. Changes here can affect layout consistency and visual quality.'
+      : 'Restricted to admins/trusted editors. Changes here can impact redirects, indexing, security, or runtime behavior.';
 
   return (
     <div

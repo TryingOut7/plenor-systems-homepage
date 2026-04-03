@@ -7,7 +7,19 @@ import { acceptedLanguages, type AcceptedLanguages } from '@payloadcms/translati
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import { postgresAdapter } from '@payloadcms/db-postgres';
-import { lexicalEditor } from '@payloadcms/richtext-lexical';
+import {
+  BoldFeature,
+  HeadingFeature,
+  InlineToolbarFeature,
+  ItalicFeature,
+  lexicalEditor,
+  LinkFeature,
+  OrderedListFeature,
+  ParagraphFeature,
+  StrikethroughFeature,
+  UnderlineFeature,
+  UnorderedListFeature,
+} from '@payloadcms/richtext-lexical';
 import sharp from 'sharp';
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
@@ -15,7 +27,6 @@ import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob';
 
 // ─── Plugins ──────────────────────────────────────────────────────────────────
 import { seoPlugin } from '@payloadcms/plugin-seo';
-import { redirectsPlugin } from '@payloadcms/plugin-redirects';
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs';
 import { searchPlugin } from '@payloadcms/plugin-search';
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder';
@@ -39,6 +50,7 @@ import { Logos } from './payload/collections/Logos.ts';
 import { EmailTemplates } from './payload/collections/EmailTemplates.ts';
 import { SiteSettings } from './payload/globals/SiteSettings.ts';
 import { UISettings } from './payload/globals/UISettings.ts';
+import { CleanPasteFeature } from './payload/editor/features/cleanPasteFeature.ts';
 
 validateEnv();
 
@@ -462,12 +474,16 @@ export default buildConfig({
           type: 'select',
           defaultValue: 'simple',
           options: [
-            { label: 'Simple', value: 'simple' },
-            { label: 'Advanced', value: 'advanced' },
+            { label: 'Simple (Recommended)', value: 'simple' },
+            { label: 'Advanced settings (use with caution)', value: 'advanced' },
           ],
+          access: {
+            update: ({ req }) => userHasAnyRole(req, ['admin']),
+          },
           admin: {
             position: 'sidebar',
-            description: 'Editor lane preference. You can change this at any time.',
+            description:
+              'Controls field visibility in the CMS. Admin-only setting to prevent accidental exposure of advanced/system fields.',
           },
         },
         {
@@ -508,7 +524,21 @@ export default buildConfig({
     EmailTemplates,
   ],
   globals: [SiteSettings, UISettings],
-  editor: lexicalEditor(),
+  editor: lexicalEditor({
+    features: () => [
+      BoldFeature(),
+      ItalicFeature(),
+      UnderlineFeature(),
+      StrikethroughFeature(),
+      ParagraphFeature(),
+      HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
+      UnorderedListFeature(),
+      OrderedListFeature(),
+      LinkFeature({ disableAutoLinks: 'creationOnly' }),
+      CleanPasteFeature(),
+      InlineToolbarFeature(),
+    ],
+  }),
   db: postgresAdapter({
     push: dbPushSchema,
     pool: {
@@ -568,14 +598,8 @@ export default buildConfig({
       },
     }),
 
-    // ── Redirects Plugin ──────────────────────────────────────────────────────
-    // Manages URL redirects from the admin panel
-    redirectsPlugin({
-      collections: ['site-pages', 'service-items', 'blog-posts', 'testimonials'],
-      overrides: {
-        slug: 'payload-redirects',
-      },
-    }),
+    // NOTE: We intentionally use the custom `redirect-rules` collection as the
+    // single source of truth for redirects and keep plugin-based redirects off.
 
     ...(enableNestedDocsPlugin
       ? [
@@ -622,9 +646,15 @@ export default buildConfig({
       },
       formOverrides: {
         slug: 'forms',
+        admin: {
+          group: 'Leads',
+        },
       },
       formSubmissionOverrides: {
         slug: 'form-submissions',
+        admin: {
+          group: 'Leads',
+        },
         hooks: {
           beforeChange: [
             async ({ data, req }) => {

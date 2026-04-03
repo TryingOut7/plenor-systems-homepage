@@ -1,4 +1,15 @@
 import type { CollectionConfig } from 'payload';
+import {
+  BoldFeature,
+  InlineToolbarFeature,
+  ItalicFeature,
+  lexicalEditor,
+  LinkFeature,
+  OrderedListFeature,
+  ParagraphFeature,
+  UnderlineFeature,
+  UnorderedListFeature,
+} from '@payloadcms/richtext-lexical';
 import { seoFields } from '../fields/seo.ts';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
 import { createdByField } from '../fields/ownership.ts';
@@ -8,12 +19,28 @@ import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
 import { ensureLocalizationBeforeChange, localizationFields } from '../fields/localization.ts';
+import { CleanPasteFeature } from '../editor/features/cleanPasteFeature.ts';
+
+const detailsEditor = lexicalEditor({
+  features: () => [
+    BoldFeature(),
+    ItalicFeature(),
+    UnderlineFeature(),
+    ParagraphFeature(),
+    UnorderedListFeature(),
+    OrderedListFeature(),
+    LinkFeature({ disableAutoLinks: 'creationOnly' }),
+    CleanPasteFeature(),
+    InlineToolbarFeature(),
+  ],
+});
 
 export const Testimonials: CollectionConfig = {
   slug: 'testimonials',
   admin: {
     useAsTitle: 'personName',
     defaultColumns: ['personName', 'company', 'isFeatured', 'rating'],
+    group: 'Content',
   },
   access: {
     read: ({ req }) => {
@@ -81,6 +108,7 @@ export const Testimonials: CollectionConfig = {
     {
       name: 'details',
       type: 'richText',
+      editor: detailsEditor,
       admin: {
         description: 'Extended testimonial details',
       },

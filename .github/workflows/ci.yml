@@ -42,6 +42,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run DB Migrations
+        run: npm run db:migrate
+
+      - name: Migration Status Check
+        run: npm run db:migrate:status -- --check
+
       - name: Predeploy Guardrails
         run: npm run predeploy:guardrails
 
@@ -50,12 +56,6 @@ jobs:
 
       - name: Architecture Boundaries
         run: npm run lint:architecture
-
-      - name: Run DB Migrations
-        run: npm run db:migrate
-
-      - name: Migration Status Check
-        run: npm run db:migrate:status -- --check
 
       - name: OpenAPI Contract Check
         run: npm run openapi:check

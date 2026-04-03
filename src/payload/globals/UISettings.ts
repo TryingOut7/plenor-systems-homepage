@@ -5,6 +5,26 @@ import { auditGlobalAfterChange } from '../hooks/auditLog.ts';
 const cssValueHint =
   'Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).';
 
+function validateExternalFontUrl(value: unknown): true | string {
+  if (typeof value !== 'string' || !value.trim()) return true;
+  const trimmed = value.trim();
+
+  if (trimmed.startsWith('/')) return true;
+
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== 'https:') {
+      return 'Font URLs must use HTTPS.';
+    }
+    if (parsed.username || parsed.password) {
+      return 'Font URLs cannot include embedded credentials.';
+    }
+    return true;
+  } catch {
+    return 'Enter a valid HTTPS URL (or a relative /path).';
+  }
+}
+
 export const UISettings: GlobalConfig = {
   slug: 'ui-settings',
   access: {
@@ -108,11 +128,13 @@ export const UISettings: GlobalConfig = {
                 withFieldTier({
                   name: 'headingFontUrl',
                   type: 'text',
+                  validate: validateExternalFontUrl,
                   admin: { description: 'Google Fonts or external URL to load heading/display font (e.g. https://fonts.googleapis.com/css2?family=...)' },
                 }, 'system'),
                 withFieldTier({
                   name: 'bodyFontUrl',
                   type: 'text',
+                  validate: validateExternalFontUrl,
                   admin: { description: 'Google Fonts or external URL to load body font' },
                 }, 'system'),
               ],

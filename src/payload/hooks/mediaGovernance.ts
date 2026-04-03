@@ -70,8 +70,20 @@ export const mediaGovernanceBeforeChange: CollectionBeforeChangeHook = ({
   const expiresAtRaw = readString(incoming.licenseExpiresAt) || readString(original.licenseExpiresAt);
   if (expiresAtRaw) {
     const expiresAt = new Date(expiresAtRaw);
-    if (!Number.isNaN(expiresAt.getTime()) && expiresAt.getTime() < Date.now()) {
-      incoming.mediaQaStatus = 'restricted';
+    if (!Number.isNaN(expiresAt.getTime())) {
+      const msUntilExpiry = expiresAt.getTime() - Date.now();
+      const expiresInDays = Math.ceil(msUntilExpiry / (1000 * 60 * 60 * 24));
+
+      if (expiresInDays < 0) {
+        incoming.mediaQaStatus = 'restricted';
+      } else if (expiresInDays <= 30) {
+        req.payload.logger.warn({
+          msg: 'Media governance: license will expire within 30 days.',
+          mediaId: incoming.id || original.id || null,
+          expiresAt: expiresAt.toISOString(),
+          daysRemaining: expiresInDays,
+        });
+      }
     }
   }
 

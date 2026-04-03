@@ -43,6 +43,12 @@ const COLLECTION_TABLES_WITH_CREATED_BY = [
   'site_pages',
 ];
 
+const COLLECTION_TABLES_WITH_WORKFLOW_REVIEW = [
+  'blog_categories',
+  'team_members',
+  'logos',
+];
+
 function createAddVarcharColumnSql(tableNames, columnName) {
   const quotedNames = tableNames.map((name) => `'${name}'`).join(', ');
   return `
@@ -74,6 +80,45 @@ BEGIN
       'ALTER TABLE IF EXISTS public.%I ADD COLUMN IF NOT EXISTS %I integer',
       target_table,
       '${columnName}'
+    );
+  END LOOP;
+END;
+$$;
+`;
+}
+
+function createAddWorkflowReviewColumnsSql(tableNames) {
+  const quotedNames = tableNames.map((name) => `'${name}'`).join(', ');
+  return `
+DO $$
+DECLARE
+  target_table TEXT;
+BEGIN
+  FOREACH target_table IN ARRAY ARRAY[${quotedNames}] LOOP
+    EXECUTE format(
+      'ALTER TABLE IF EXISTS public.%I
+         ADD COLUMN IF NOT EXISTS deleted_at timestamptz,
+         ADD COLUMN IF NOT EXISTS workflow_status character varying DEFAULT ''draft'',
+         ADD COLUMN IF NOT EXISTS review_checklist_complete boolean DEFAULT false,
+         ADD COLUMN IF NOT EXISTS review_summary text,
+         ADD COLUMN IF NOT EXISTS reviewed_by_id integer,
+         ADD COLUMN IF NOT EXISTS reviewed_at timestamptz,
+         ADD COLUMN IF NOT EXISTS approved_by_id integer,
+         ADD COLUMN IF NOT EXISTS approved_at timestamptz,
+         ADD COLUMN IF NOT EXISTS rejection_reason text',
+      target_table
+    );
+
+    EXECUTE format(
+      'CREATE INDEX IF NOT EXISTS %I ON public.%I USING btree (workflow_status)',
+      target_table || '_workflow_status_idx',
+      target_table
+    );
+
+    EXECUTE format(
+      'CREATE INDEX IF NOT EXISTS %I ON public.%I USING btree (deleted_at)',
+      target_table || '_deleted_at_idx',
+      target_table
     );
   END LOOP;
 END;
@@ -192,6 +237,9 @@ async function run() {
           ADD COLUMN IF NOT EXISTS approved_at timestamptz,
           ADD COLUMN IF NOT EXISTS rejection_reason text;
       `);
+      await client.query(
+        createAddWorkflowReviewColumnsSql(COLLECTION_TABLES_WITH_WORKFLOW_REVIEW),
+      );
 
       await client.query(`
         CREATE TABLE IF NOT EXISTS public.nav_children (
@@ -290,6 +338,63 @@ BEGIN
     ALTER TABLE public.${tableName}
       ADD CONSTRAINT ${constraintName}
       FOREIGN KEY (created_by_id)
+      REFERENCES public.users(id)
+      ON DELETE SET NULL;
+  END IF;
+END;
+$$;
+        `);
+      }
+
+      for (const tableName of COLLECTION_TABLES_WITH_WORKFLOW_REVIEW) {
+        const reviewedConstraintName = `${tableName}_reviewed_by_id_users_id_fk`;
+        const approvedConstraintName = `${tableName}_approved_by_id_users_id_fk`;
+
+        await client.query(`
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = '${tableName}'
+  ) AND EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'users'
+  ) AND NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = '${reviewedConstraintName}'
+  ) THEN
+    ALTER TABLE public.${tableName}
+      ADD CONSTRAINT ${reviewedConstraintName}
+      FOREIGN KEY (reviewed_by_id)
+      REFERENCES public.users(id)
+      ON DELETE SET NULL;
+  END IF;
+END;
+$$;
+        `);
+
+        await client.query(`
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = '${tableName}'
+  ) AND EXISTS (
+    SELECT 1
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'users'
+  ) AND NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = '${approvedConstraintName}'
+  ) THEN
+    ALTER TABLE public.${tableName}
+      ADD CONSTRAINT ${approvedConstraintName}
+      FOREIGN KEY (approved_by_id)
       REFERENCES public.users(id)
       ON DELETE SET NULL;
   END IF;

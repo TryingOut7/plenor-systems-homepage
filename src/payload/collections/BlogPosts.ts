@@ -1,4 +1,15 @@
 import type { CollectionConfig } from 'payload';
+import {
+  BoldFeature,
+  InlineToolbarFeature,
+  ItalicFeature,
+  lexicalEditor,
+  LinkFeature,
+  OrderedListFeature,
+  ParagraphFeature,
+  UnderlineFeature,
+  UnorderedListFeature,
+} from '@payloadcms/richtext-lexical';
 import { seoFields } from '../fields/seo.ts';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
 import { createdByField } from '../fields/ownership.ts';
@@ -8,12 +19,29 @@ import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
 import { ensureLocalizationBeforeChange, localizationFields } from '../fields/localization.ts';
+import { CleanPasteFeature } from '../editor/features/cleanPasteFeature.ts';
+
+const bodyEditor = lexicalEditor({
+  features: () => [
+    BoldFeature(),
+    ItalicFeature(),
+    UnderlineFeature(),
+    ParagraphFeature(),
+    UnorderedListFeature(),
+    OrderedListFeature(),
+    LinkFeature({ disableAutoLinks: 'creationOnly' }),
+    CleanPasteFeature(),
+    InlineToolbarFeature(),
+  ],
+});
 
 export const BlogPosts: CollectionConfig = {
   slug: 'blog-posts',
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'workflowStatus', 'isFeatured', 'publishedAt'],
+    group: 'Content',
+    description: 'Long-form blog content. Use excerpt for card previews and search snippets.',
   },
   access: {
     read: ({ req }) => {
@@ -54,6 +82,10 @@ export const BlogPosts: CollectionConfig = {
     {
       name: 'excerpt',
       type: 'textarea',
+      maxLength: 320,
+      admin: {
+        description: 'Recommended 140-320 characters for previews and SEO snippets.',
+      },
     },
     {
       name: 'coverImage',
@@ -63,6 +95,7 @@ export const BlogPosts: CollectionConfig = {
     {
       name: 'body',
       type: 'richText',
+      editor: bodyEditor,
     },
     {
       name: 'publishedAt',

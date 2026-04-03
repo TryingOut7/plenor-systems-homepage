@@ -39,11 +39,30 @@ const COLLECTION_TABLES_WITH_CREATED_BY = [
   'site_pages',
 ];
 
+const COLLECTION_TABLES_WITH_WORKFLOW_REVIEW = [
+  'blog_categories',
+  'team_members',
+  'logos',
+];
+
+const WORKFLOW_REVIEW_COLUMNS = [
+  'deleted_at',
+  'workflow_status',
+  'review_checklist_complete',
+  'review_summary',
+  'reviewed_by_id',
+  'reviewed_at',
+  'approved_by_id',
+  'approved_at',
+  'rejection_reason',
+];
+
 const REQUIRED_TABLES = [
   'reuse_sec',
   'audit_logs',
   ...BLOCK_TABLES_WITH_SECTION_LABEL,
   ...COLLECTION_TABLES_WITH_CREATED_BY,
+  ...COLLECTION_TABLES_WITH_WORKFLOW_REVIEW,
   'ui_settings',
   '_ui_settings_v',
   'site_settings',
@@ -134,6 +153,9 @@ const REQUIRED_COLUMNS = {
   ...Object.fromEntries(
     COLLECTION_TABLES_WITH_CREATED_BY.map((tableName) => [tableName, ['created_by_id']]),
   ),
+  ...Object.fromEntries(
+    COLLECTION_TABLES_WITH_WORKFLOW_REVIEW.map((tableName) => [tableName, WORKFLOW_REVIEW_COLUMNS]),
+  ),
   nav_children: ['_order', '_parent_id', 'id', 'label', 'href'],
   _nav_children_v: ['_order', '_parent_id', 'id', 'label', 'href', '_uuid'],
 };
@@ -143,6 +165,16 @@ const REQUIRED_CONSTRAINTS = [
     table: tableName,
     name: `${tableName}_created_by_id_fkey`,
   })),
+  ...COLLECTION_TABLES_WITH_WORKFLOW_REVIEW.flatMap((tableName) => ([
+    {
+      table: tableName,
+      name: `${tableName}_reviewed_by_id_users_id_fk`,
+    },
+    {
+      table: tableName,
+      name: `${tableName}_approved_by_id_users_id_fk`,
+    },
+  ])),
   { table: 'site_settings', name: 'site_settings_logo_image_id_media_id_fk' },
   {
     table: '_site_settings_v',
@@ -252,6 +284,48 @@ const READ_PATH_CHECKS = [
     sql: `
       SELECT id, created_by_id
       FROM public.site_pages
+      WHERE deleted_at IS NULL
+      ORDER BY created_at DESC
+      LIMIT 1;
+    `,
+  },
+  {
+    name: 'blog_categories_list_view_path',
+    sql: `
+      SELECT id,
+        workflow_status,
+        review_checklist_complete,
+        reviewed_by_id,
+        approved_by_id
+      FROM public.blog_categories
+      WHERE deleted_at IS NULL
+      ORDER BY created_at DESC
+      LIMIT 1;
+    `,
+  },
+  {
+    name: 'team_members_list_view_path',
+    sql: `
+      SELECT id,
+        workflow_status,
+        review_checklist_complete,
+        reviewed_by_id,
+        approved_by_id
+      FROM public.team_members
+      WHERE deleted_at IS NULL
+      ORDER BY created_at DESC
+      LIMIT 1;
+    `,
+  },
+  {
+    name: 'logos_list_view_path',
+    sql: `
+      SELECT id,
+        workflow_status,
+        review_checklist_complete,
+        reviewed_by_id,
+        approved_by_id
+      FROM public.logos
       WHERE deleted_at IS NULL
       ORDER BY created_at DESC
       LIMIT 1;

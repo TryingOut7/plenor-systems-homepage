@@ -25,20 +25,23 @@ export type WorkflowStatus = (typeof workflowStatuses)[number];
 
 export const workflowStatusField: Field = {
   name: 'workflowStatus',
-  label: 'Workflow',
+  label: 'Publication Status',
   type: 'select',
   defaultValue: 'draft',
   options: [
     { label: 'Draft', value: 'draft' },
-    { label: 'Submit for Review', value: 'in_review' },
+    { label: 'Awaiting Review', value: 'in_review' },
     { label: 'Approved', value: 'approved' },
-    { label: 'Rejected — Needs Revision', value: 'rejected' },
-    { label: 'Published', value: 'published' },
+    { label: 'Changes Requested', value: 'rejected' },
+    { label: 'Live', value: 'published' },
   ],
   admin: {
     position: 'sidebar',
     description:
-      'Authors: set to "Submit for Review" when ready. Editors: approve or reject. Admins: publish.',
+      'Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.',
+    components: {
+      beforeInput: ['@/payload/admin/components/WorkflowStatusBanner'],
+    },
   },
 };
 

@@ -13,6 +13,8 @@ export const ServiceItems: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'isFeatured', 'priceFrom'],
+    group: 'Pages',
+    description: 'Service landing pages and offerings shown on the website.',
   },
   access: {
     read: ({ req }) => {
@@ -48,6 +50,10 @@ export const ServiceItems: CollectionConfig = {
     {
       name: 'summary',
       type: 'textarea',
+      maxLength: 320,
+      admin: {
+        description: 'Short summary shown in cards and SEO snippets (recommended under 320 characters).',
+      },
     },
     {
       name: 'heroImage',

@@ -2,7 +2,13 @@
 
 import type { FieldLabelClientComponent } from 'payload';
 
-const CmsEditorTrainingHint: FieldLabelClientComponent = () => {
+const corePresetKeys = new Set(['home', 'services', 'about', 'pricing', 'contact']);
+
+const CmsEditorTrainingHint: FieldLabelClientComponent = (props) => {
+  const data = (props as { data?: Record<string, unknown> }).data;
+  const presetKey = typeof data?.presetKey === 'string' ? data.presetKey : 'custom';
+  const presetLocked = corePresetKeys.has(presetKey);
+
   return (
     <details
       style={{
@@ -16,6 +22,22 @@ const CmsEditorTrainingHint: FieldLabelClientComponent = () => {
       <summary style={{ cursor: 'pointer', fontWeight: 600, color: '#0F172A' }}>
         Editor guidance
       </summary>
+      {presetLocked ? (
+        <div
+          style={{
+            margin: '8px 0 0',
+            padding: '8px 10px',
+            border: '1px solid #F59E0B55',
+            borderRadius: '6px',
+            background: '#FFFBEB',
+            color: '#92400E',
+            fontSize: '12px',
+            lineHeight: 1.45,
+          }}
+        >
+          This page uses a fixed preset layout. You can edit text and media inside sections, but section structure is locked and managed automatically.
+        </div>
+      ) : null}
       <ul style={{ margin: '8px 0 0 18px', color: '#334155', fontSize: '12px', lineHeight: 1.5 }}>
         <li>Use existing preset section order and avoid replacing block types on core pages.</li>
         <li>Prefer updating copy and links before changing layout controls.</li>
