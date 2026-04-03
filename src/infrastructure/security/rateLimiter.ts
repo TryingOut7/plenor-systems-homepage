@@ -89,6 +89,9 @@ function getClientIp(context: RequestContext): string {
 }
 
 function allowInMemoryFallback(): boolean {
+  if (process.env.ALLOW_IN_MEMORY_RATE_LIMIT_FALLBACK === 'true') {
+    return true;
+  }
   return process.env.NODE_ENV !== 'production';
 }
 
@@ -99,6 +102,10 @@ function warnPersistentFallbackOnce(): void {
       '[rate-limit] Persistent shared rate limiter is unavailable; using process-local fallback.',
     );
   }
+}
+
+function strictPersistentRateLimitMessage(reason: string): string {
+  return `[rate-limit] Persistent shared rate limiter is required in this environment (${reason}).`;
 }
 
 function consumeInMemory(
@@ -166,17 +173,30 @@ export async function consumeRateLimitBucket(params: {
         });
       }
 
+      if (!allowInMemoryFallback()) {
+        throw new Error(
+          strictPersistentRateLimitMessage(result.error.message),
+        );
+      }
+
       if (process.env.NODE_ENV === 'production' && !isMissingRateLimitSchemaError(result.error.message)) {
-        // In production, transient DB errors should not open a hard block path.
-        // We degrade to process-local limiting while preserving availability.
+        // In production with explicit fallback enabled, transient DB errors
+        // can use process-local limiting to preserve availability.
       }
     }
+  } else if (!allowInMemoryFallback()) {
+    throw new Error(
+      strictPersistentRateLimitMessage(
+        'missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY',
+      ),
+    );
   }
 
   if (!allowInMemoryFallback()) {
-    warnPersistentFallbackOnce();
+    throw new Error(strictPersistentRateLimitMessage('fallback disabled'));
   }
 
+  warnPersistentFallbackOnce();
   return consumeInMemory(params.key, params.windowMs, params.maxRequests);
 }
 
@@ -198,6 +218,11 @@ export async function checkRateLimit(
       warnedPersistentError = true;
       console.error('[rate-limit] Rate limit consume threw unexpectedly.', {
         errorMessage: error instanceof Error ? error.message : String(error),
+      });
+    }
+    if (!allowInMemoryFallback()) {
+      return fail(503, {
+        message: 'Rate limiting service unavailable. Please try again shortly.',
       });
     }
     warnPersistentFallbackOnce();

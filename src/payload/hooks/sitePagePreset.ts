@@ -62,6 +62,30 @@ function asObjectArray(value: unknown): Array<Record<string, unknown>> {
     .filter((entry) => Object.keys(entry).length > 0);
 }
 
+function readSectionStructureSignature(
+  sections: Array<Record<string, unknown>>,
+): string[] {
+  return sections.map((section) => {
+    const blockType =
+      typeof section.blockType === 'string' ? section.blockType : '';
+    const structuralKey =
+      typeof section.structuralKey === 'string'
+        ? normalizeStructuralKey(section.structuralKey)
+        : '';
+    return `${blockType}::${structuralKey}`;
+  });
+}
+
+function didPresetStructureChange(
+  incomingSections: Array<Record<string, unknown>>,
+  originalSections: Array<Record<string, unknown>>,
+): boolean {
+  const incomingSignature = readSectionStructureSignature(incomingSections);
+  const originalSignature = readSectionStructureSignature(originalSections);
+  if (incomingSignature.length !== originalSignature.length) return true;
+  return incomingSignature.some((entry, index) => entry !== originalSignature[index]);
+}
+
 function hasOwnKeys(value: Record<string, unknown>): boolean {
   return Object.keys(value).length > 0;
 }
@@ -244,6 +268,16 @@ export const applyCorePresetSections: CollectionBeforeChangeHook = ({ data, orig
   const templateSections = buildCorePresetSections(presetKey, mergedPreset);
   const incomingSections = asObjectArray(incoming.sections);
   const originalSections = asObjectArray(original.sections);
+
+  if (
+    operation === 'update' &&
+    Array.isArray((data as Record<string, unknown>).sections) &&
+    didPresetStructureChange(incomingSections, originalSections)
+  ) {
+    throw new Error(
+      'Preset page structure is locked. You can edit text and media inside sections, but cannot add, remove, reorder, or swap section types.',
+    );
+  }
 
   return {
     ...incoming,

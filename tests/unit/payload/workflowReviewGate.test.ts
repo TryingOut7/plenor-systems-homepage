@@ -60,4 +60,23 @@ describe('workflow review gates', () => {
     expect(result.approvedBy).toBe('u1');
     expect(typeof result.approvedAt).toBe('string');
   });
+
+  it('blocks editors from publishing directly', async () => {
+    await expect(
+      workflowBeforeChange({
+        operation: 'update',
+        data: {
+          workflowStatus: 'published',
+          reviewChecklistComplete: true,
+          reviewSummary: 'Detailed review summary text',
+        },
+        originalDoc: {
+          workflowStatus: 'approved',
+        },
+        req: {
+          user: { id: 'u1', role: 'editor' },
+        },
+      } as never),
+    ).rejects.toThrow('cannot move');
+  });
 });

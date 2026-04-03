@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
+import { validateHttpUrl } from '../validation/url.ts';
 
 export const TeamMembers: CollectionConfig = {
   slug: 'team-members',
@@ -12,7 +13,10 @@ export const TeamMembers: CollectionConfig = {
     description: 'People shown in team sections across the website.',
   },
   access: {
-    read: () => true,
+    read: ({ req }) => {
+      if (req.user) return true;
+      return { workflowStatus: { equals: 'published' } };
+    },
     create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
     delete: ({ req }) => !!req.user && ['admin'].includes((req.user as Record<string, unknown>).role as string),
@@ -29,8 +33,8 @@ export const TeamMembers: CollectionConfig = {
     { name: 'role', type: 'text', required: true, admin: { description: 'Job title or role' } },
     { name: 'bio', type: 'textarea' },
     { name: 'photo', type: 'upload', relationTo: 'media' },
-    { name: 'linkedinUrl', type: 'text', admin: { description: 'LinkedIn profile URL' } },
-    { name: 'twitterUrl', type: 'text', admin: { description: 'Twitter/X profile URL' } },
+    { name: 'linkedinUrl', type: 'text', validate: validateHttpUrl, admin: { description: 'LinkedIn profile URL' } },
+    { name: 'twitterUrl', type: 'text', validate: validateHttpUrl, admin: { description: 'Twitter/X profile URL' } },
     {
       name: 'order',
       type: 'number',

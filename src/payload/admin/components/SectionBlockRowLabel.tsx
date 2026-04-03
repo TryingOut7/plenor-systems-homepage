@@ -1,21 +1,34 @@
 'use client';
 
 import React from 'react';
+import { getSectionSingularLabel } from '../../blocks/sectionUiMeta.ts';
 
 type BlockLabelProps = {
+  blockType?: string;
   rowLabel?: string;
   data?: Record<string, unknown>;
 };
 
 const corePresetKeys = new Set(['home', 'services', 'about', 'pricing', 'contact']);
 
-const SectionBlockRowLabel: React.FC<BlockLabelProps> = ({ rowLabel, data }) => {
+function readDisplayLabel(blockType: string | undefined, rowLabel: string | undefined): string {
+  const preferred = getSectionSingularLabel(blockType, '');
+  if (preferred) return preferred;
+
+  const trimmedRowLabel = typeof rowLabel === 'string' ? rowLabel.trim() : '';
+  if (trimmedRowLabel && trimmedRowLabel.toLowerCase() !== 'section') return trimmedRowLabel;
+
+  return 'Section';
+}
+
+const SectionBlockRowLabel: React.FC<BlockLabelProps> = ({ blockType, rowLabel, data }) => {
   const presetKey = typeof data?.presetKey === 'string' ? data.presetKey : 'custom';
   const isLockedLayout = corePresetKeys.has(presetKey);
+  const displayLabel = readDisplayLabel(blockType, rowLabel);
 
   return (
     <span style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
-      <span>{rowLabel || 'Section'}</span>
+      <span>{displayLabel}</span>
       {isLockedLayout ? (
         <span
           style={{

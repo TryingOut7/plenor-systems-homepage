@@ -80,6 +80,28 @@ describe('applyCorePresetSections — preset-safe page mode', () => {
   });
 });
 
+describe('applyCorePresetSections — fixed layout guardrails', () => {
+  it('blocks structural edits on preset pages during update', () => {
+    const originalDoc: Record<string, unknown> = {
+      presetKey: 'home',
+      sections: [
+        { blockType: 'heroSection', structuralKey: 'home-hero' },
+        { blockType: 'richTextSection', structuralKey: 'home-why' },
+      ],
+    };
+
+    const data: Record<string, unknown> = {
+      presetKey: 'home',
+      // Editor attempts to remove one section and reorder.
+      sections: [{ blockType: 'richTextSection', structuralKey: 'home-why' }],
+    };
+
+    expect(() =>
+      applyCorePresetSections(makeHookArgs(data, originalDoc, 'update') as never),
+    ).toThrow('Preset page structure is locked');
+  });
+});
+
 // ---------------------------------------------------------------------------
 // structuralKey — key-based section lookup
 // ---------------------------------------------------------------------------

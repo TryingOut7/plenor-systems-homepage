@@ -47,6 +47,32 @@ function normalizePath(path: string): string {
   return clean;
 }
 
+function isValidRedirectPath(path: string, allowWildcard: boolean): boolean {
+  const trimmed = path.trim();
+  if (!trimmed) return false;
+  const lower = trimmed.toLowerCase();
+  if (
+    lower.startsWith('javascript:') ||
+    lower.startsWith('data:') ||
+    lower.startsWith('vbscript:') ||
+    trimmed.startsWith('//')
+  ) {
+    return false;
+  }
+
+  if (!trimmed.startsWith('/')) return false;
+  if (/\s/.test(trimmed)) return false;
+  if (trimmed.includes('?') || trimmed.includes('#')) return false;
+
+  const wildcardCount = (trimmed.match(/\*/g) || []).length;
+  if (!allowWildcard && wildcardCount > 0) return false;
+  if (allowWildcard && wildcardCount > 0) {
+    if (!trimmed.endsWith('/*') || wildcardCount > 1) return false;
+  }
+
+  return true;
+}
+
 async function loadRedirectRules(): Promise<RedirectRule[]> {
   const enableDevRedirects = process.env.ENABLE_DEV_REDIRECT_RULES === 'true';
   if (process.env.NODE_ENV !== 'production' && !enableDevRedirects) {
@@ -113,6 +139,9 @@ function findRedirectMatch(
     (rule) =>
       typeof rule.fromPath === 'string' &&
       typeof rule.toPath === 'string' &&
+      isValidRedirectPath(rule.fromPath, true) &&
+      isValidRedirectPath(rule.toPath, true) &&
+      (!rule.toPath.includes('*') || rule.fromPath.endsWith('/*')) &&
       matchesFromPath(rule.fromPath, normalizedPath),
   );
 }
@@ -175,6 +204,9 @@ export async function proxy(request: NextRequest) {
 
   if (match?.toPath) {
     const resolvedTo = resolveRedirectTarget(match.fromPath ?? '', match.toPath, normalizedPath);
+    if (!isValidRedirectPath(resolvedTo, false)) {
+      return NextResponse.next();
+    }
     const toPath = normalizePath(resolvedTo);
     if (toPath !== normalizedPath) {
       const url = request.nextUrl.clone();

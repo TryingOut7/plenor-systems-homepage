@@ -183,6 +183,7 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(
         },
         limit: 1,
         depth: 1,
+        overrideAccess: draft,
         ...(draft ? { draft: true } : {}),
       }),
       `find:site-pages:${normalizedSlug}`,

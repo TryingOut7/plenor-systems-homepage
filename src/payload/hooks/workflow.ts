@@ -22,7 +22,7 @@ function readTrimmedString(value: unknown): string {
 const transitions: Record<WorkflowStatus, Partial<Record<string, WorkflowStatus[]>>> = {
   draft: {
     author: ['in_review'],
-    editor: ['in_review', 'approved', 'published'],
+    editor: ['in_review', 'approved'],
     admin: ['in_review', 'approved', 'published'],
   },
   in_review: {
@@ -32,7 +32,7 @@ const transitions: Record<WorkflowStatus, Partial<Record<string, WorkflowStatus[
   },
   approved: {
     author: [],
-    editor: ['published', 'draft'],
+    editor: ['draft'],
     admin: ['published', 'draft'],
   },
   rejected: {

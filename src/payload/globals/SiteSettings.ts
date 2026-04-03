@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload';
 import { withFieldTier } from '../fields/fieldTier.ts';
 import { auditGlobalAfterChange } from '../hooks/auditLog.ts';
+import { validateHttpUrl, validatePathOrHttpUrl } from '../validation/url.ts';
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -57,6 +58,7 @@ export const SiteSettings: GlobalConfig = {
       name: 'siteUrl',
       type: 'text',
       defaultValue: 'https://example.com',
+      validate: validateHttpUrl,
     },
     {
       name: 'contactEmail',
@@ -80,7 +82,7 @@ export const SiteSettings: GlobalConfig = {
       },
       fields: [
         { name: 'label', type: 'text', required: true },
-        { name: 'href', type: 'text', required: true },
+        { name: 'href', type: 'text', required: true, validate: validatePathOrHttpUrl },
         {
           name: 'variant',
           type: 'select',
@@ -111,7 +113,7 @@ export const SiteSettings: GlobalConfig = {
       ],
       fields: [
         { name: 'label', type: 'text', required: true },
-        { name: 'href', type: 'text', required: true },
+        { name: 'href', type: 'text', required: true, validate: validatePathOrHttpUrl },
         { name: 'isVisible', type: 'checkbox', defaultValue: true },
         {
           name: 'children',
@@ -120,7 +122,7 @@ export const SiteSettings: GlobalConfig = {
           admin: { description: 'Optional dropdown links shown on hover' },
           fields: [
             { name: 'label', type: 'text', required: true },
-            { name: 'href', type: 'text', required: true },
+            { name: 'href', type: 'text', required: true, validate: validatePathOrHttpUrl },
           ],
         },
       ],
@@ -134,7 +136,7 @@ export const SiteSettings: GlobalConfig = {
         { name: 'enabled', type: 'checkbox', defaultValue: false },
         { name: 'text', type: 'text' },
         { name: 'linkLabel', type: 'text' },
-        { name: 'linkHref', type: 'text' },
+        { name: 'linkHref', type: 'text', validate: validatePathOrHttpUrl },
         { name: 'backgroundColor', type: 'text', defaultValue: '#1B2D4F', admin: { description: 'Hex, rgb, or CSS value' } },
         { name: 'textColor', type: 'text', defaultValue: '#FFFFFF', admin: { description: 'Hex, rgb, or CSS value' } },
       ],
@@ -164,7 +166,7 @@ export const SiteSettings: GlobalConfig = {
           type: 'array',
           fields: [
             { name: 'label', type: 'text', required: true },
-            { name: 'href', type: 'text', required: true },
+            { name: 'href', type: 'text', required: true, validate: validatePathOrHttpUrl },
           ],
         },
       ],
@@ -175,7 +177,7 @@ export const SiteSettings: GlobalConfig = {
       defaultValue: [],
       fields: [
         { name: 'label', type: 'text', required: true },
-        { name: 'url', type: 'text', required: true },
+        { name: 'url', type: 'text', required: true, validate: validateHttpUrl },
       ],
     },
     {
@@ -192,6 +194,7 @@ export const SiteSettings: GlobalConfig = {
       name: 'footerLegalHref',
       type: 'text',
       defaultValue: '/privacy',
+      validate: validatePathOrHttpUrl,
     },
 
     // ─── Default SEO ──────────────────────────────────────────────────────
@@ -204,7 +207,7 @@ export const SiteSettings: GlobalConfig = {
         { name: 'ogTitle', type: 'text' },
         { name: 'ogDescription', type: 'textarea' },
         { name: 'ogImage', type: 'upload', relationTo: 'media' },
-        withFieldTier({ name: 'canonicalUrl', type: 'text' }, 'system'),
+        withFieldTier({ name: 'canonicalUrl', type: 'text', validate: validateHttpUrl }, 'system'),
         withFieldTier({ name: 'noindex', type: 'checkbox', defaultValue: false }, 'system'),
         withFieldTier({ name: 'nofollow', type: 'checkbox', defaultValue: false }, 'system'),
         withFieldTier({ name: 'includeInSitemap', type: 'checkbox', defaultValue: true }, 'system'),
@@ -221,12 +224,12 @@ export const SiteSettings: GlobalConfig = {
       type: 'group',
       fields: [
         { name: 'organizationName', type: 'text' },
-        { name: 'organizationUrl', type: 'text' },
+        { name: 'organizationUrl', type: 'text', validate: validateHttpUrl },
         { name: 'organizationEmail', type: 'email' },
         {
           name: 'sameAs',
           type: 'array',
-          fields: [{ name: 'url', type: 'text', required: true }],
+          fields: [{ name: 'url', type: 'text', required: true, validate: validateHttpUrl }],
         },
       ],
     },
@@ -247,7 +250,7 @@ export const SiteSettings: GlobalConfig = {
         { name: 'successBody', type: 'text' },
         { name: 'footerText', type: 'text' },
         { name: 'privacyLabel', type: 'text', defaultValue: 'Privacy Policy' },
-        { name: 'privacyHref', type: 'text', defaultValue: '/privacy' },
+        { name: 'privacyHref', type: 'text', defaultValue: '/privacy', validate: validatePathOrHttpUrl },
         { name: 'namePlaceholder', type: 'text' },
         { name: 'emailPlaceholder', type: 'text' },
       ],
@@ -262,7 +265,7 @@ export const SiteSettings: GlobalConfig = {
         { name: 'successBody', type: 'text' },
         { name: 'consentText', type: 'text' },
         { name: 'privacyLabel', type: 'text', defaultValue: 'Privacy Policy' },
-        { name: 'privacyHref', type: 'text', defaultValue: '/privacy' },
+        { name: 'privacyHref', type: 'text', defaultValue: '/privacy', validate: validatePathOrHttpUrl },
         { name: 'namePlaceholder', type: 'text' },
         { name: 'emailPlaceholder', type: 'text' },
         { name: 'companyPlaceholder', type: 'text' },
@@ -284,7 +287,7 @@ export const SiteSettings: GlobalConfig = {
         { name: 'acceptLabel', type: 'text', defaultValue: 'Accept' },
         { name: 'declineLabel', type: 'text', defaultValue: 'Decline' },
         { name: 'privacyLabel', type: 'text', defaultValue: 'Privacy Policy' },
-        { name: 'privacyHref', type: 'text', defaultValue: '/privacy' },
+        { name: 'privacyHref', type: 'text', defaultValue: '/privacy', validate: validatePathOrHttpUrl },
       ],
     },
 
@@ -312,7 +315,7 @@ export const SiteSettings: GlobalConfig = {
         { name: 'heading', type: 'text' },
         { name: 'body', type: 'textarea' },
         { name: 'buttonLabel', type: 'text' },
-        { name: 'buttonHref', type: 'text' },
+        { name: 'buttonHref', type: 'text', validate: validatePathOrHttpUrl },
       ],
     },
 

@@ -25,8 +25,8 @@ export const ReusableSections: CollectionConfig = {
   },
   access: {
     read: ({ req }) => {
-      const role = (req.user as Record<string, unknown> | undefined)?.role as string | undefined;
-      return role === 'admin' || role === 'editor';
+      if (req.user) return true;
+      return { workflowStatus: { equals: 'published' } };
     },
     create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),

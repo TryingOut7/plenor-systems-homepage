@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { canManageRedirectRules } from '../access/editorLanes.ts';
 import { withFieldTier } from '../fields/fieldTier.ts';
+import { validateRedirectFromPath, validateRedirectToPath } from '../validation/url.ts';
 
 export const RedirectRules: CollectionConfig = {
   slug: 'redirect-rules',
@@ -31,6 +32,7 @@ export const RedirectRules: CollectionConfig = {
       name: 'fromPath',
       type: 'text',
       required: true,
+      validate: validateRedirectFromPath,
       admin: {
         description: 'Source path (e.g. /old-page or /old-blog/*)',
       },
@@ -39,6 +41,7 @@ export const RedirectRules: CollectionConfig = {
       name: 'toPath',
       type: 'text',
       required: true,
+      validate: validateRedirectToPath,
       admin: {
         description: 'Destination path (e.g. /new-page)',
       },

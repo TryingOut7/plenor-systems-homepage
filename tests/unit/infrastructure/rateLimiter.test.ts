@@ -68,4 +68,19 @@ describe('rate limiter fallback behavior', () => {
     expect(limited?.status).toBe(429);
     expect(limited?.headers?.['Retry-After']).toBeTruthy();
   });
+
+  it('fails closed in production when persistent limiter is unavailable', async () => {
+    const env = process.env as Record<string, string | undefined>;
+    env.NODE_ENV = 'production';
+    delete env.SUPABASE_URL;
+    delete env.SUPABASE_SERVICE_ROLE_KEY;
+    delete env.ALLOW_IN_MEMORY_RATE_LIMIT_FALLBACK;
+
+    const mod = await import('@/infrastructure/security/rateLimiter');
+    const { checkRateLimit } = mod;
+
+    const result = await checkRateLimit(context());
+    expect(result?.status).toBe(503);
+    expect(result?.body?.message).toContain('Rate limiting service unavailable');
+  });
 });
