@@ -14,6 +14,7 @@
     "check:payload-importmap": "node scripts/check-payload-importmap.mjs",
     "predeploy:guardrails": "npm run check:runtime && npm run cms:schema:check && npm run check:payload-importmap && npm run check:type",
     "dev": "next dev --turbopack",
+    "dev:schema-push": "PAYLOAD_DB_PUSH=true PAYLOAD_CONFIRM_SCHEMA_PUSH=true next dev --turbopack",
     "build": "npm run check:runtime && npm run check:payload-importmap && next build",
     "start": "next start",
     "lint": "eslint",

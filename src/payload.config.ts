@@ -63,8 +63,16 @@ const blobReadWriteToken = process.env.BLOB_READ_WRITE_TOKEN;
 const hasBlobReadWriteToken =
   typeof blobReadWriteToken === 'string' && blobReadWriteToken.length > 0;
 const dbRejectUnauthorized = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true';
-const dbPushSchema =
-  process.env.PAYLOAD_DB_PUSH === 'true';
+const dbPushRequested = process.env.PAYLOAD_DB_PUSH === 'true';
+const dbPushConfirmed = process.env.PAYLOAD_CONFIRM_SCHEMA_PUSH === 'true';
+const dbPushSchema = dbPushRequested && dbPushConfirmed;
+
+if (dbPushRequested && !dbPushConfirmed) {
+  console.warn(
+    'PAYLOAD_DB_PUSH=true ignored because PAYLOAD_CONFIRM_SCHEMA_PUSH is not set to true. ' +
+      'Set both env vars to opt into schema push explicitly.',
+  );
+}
 const enableNestedDocsPlugin = process.env.PAYLOAD_ENABLE_NESTED_DOCS === 'true';
 const adminThemeValues = ['all', 'dark', 'light'] as const;
 const adminAvatarValues = ['default', 'gravatar'] as const;
