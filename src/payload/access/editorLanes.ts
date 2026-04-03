@@ -26,7 +26,8 @@ export function canManageSystemFields(user: unknown): boolean {
 export function canEditAdvancedTier(user: unknown): boolean {
   const role = resolveUserRole(user);
   if (!role) return false;
-  if (!['admin', 'editor', 'author'].includes(role)) return false;
+  if (role === 'admin' || role === 'editor') return true;
+  if (role !== 'author') return false;
   return isAdvancedLane(user);
 }
 

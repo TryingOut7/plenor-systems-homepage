@@ -46,7 +46,7 @@ export const RedirectRules: CollectionConfig = {
     withFieldTier({
       name: 'isPermanent',
       type: 'checkbox',
-      defaultValue: true,
+      defaultValue: false,
       admin: {
         description: 'Use 308 permanent redirect (otherwise 307 temporary)',
       },

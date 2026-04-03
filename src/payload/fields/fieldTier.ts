@@ -87,6 +87,27 @@ function mergeUpdateAccess(existing: unknown, tier: CmsFieldTier) {
   };
 }
 
+function mergeCreateAccess(existing: unknown, tier: CmsFieldTier) {
+  const previous =
+    typeof existing === 'function'
+      ? (existing as (args: unknown) => unknown)
+      : null;
+
+  return async (args: unknown) => {
+    const previousResult = previous ? await previous(args) : true;
+    if (previousResult !== true) return false;
+
+    const request =
+      args && typeof args === 'object'
+        ? ((args as Record<string, unknown>).req as Record<string, unknown> | undefined)
+        : undefined;
+    const user = request?.user;
+    if (tier === 'routine') return true;
+    if (tier === 'advanced') return canEditAdvancedTier(user);
+    return canManageSystemFields(user);
+  };
+}
+
 export function withFieldTier(field: Field, tier: CmsFieldTier): Field {
   const input = field as Field & {
     admin?: Record<string, unknown>;
@@ -113,6 +134,7 @@ export function withFieldTier(field: Field, tier: CmsFieldTier): Field {
     },
     access: {
       ...(input.access || {}),
+      create: mergeCreateAccess(input.access?.create, tier),
       update: mergeUpdateAccess(input.access?.update, tier),
     },
   };

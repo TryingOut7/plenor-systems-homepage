@@ -67,6 +67,7 @@ export const ServiceItems: CollectionConfig = {
     {
       name: 'priceFrom',
       type: 'number',
+      min: 0,
       admin: {
         position: 'sidebar',
       },

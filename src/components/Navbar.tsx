@@ -43,8 +43,6 @@ type HeaderButton = {
 
 interface NavbarProps {
   siteName?: string;
-  primaryCtaLabel?: string;
-  primaryCtaHref?: string;
   navigationLinks?: NavigationLink[];
   headerButtons?: HeaderButtonConfig[];
   logoImage?: { url?: string; alt?: string; width?: number; height?: number };
@@ -53,8 +51,6 @@ interface NavbarProps {
 
 export default function Navbar({
   siteName = 'Website',
-  primaryCtaLabel,
-  primaryCtaHref,
   navigationLinks,
   headerButtons,
   logoImage,
@@ -98,12 +94,6 @@ export default function Navbar({
 
     if (normalized.length) return normalized;
     if (hasHeaderButtonsField) return [];
-
-    const legacyLabel = primaryCtaLabel?.trim();
-    const legacyHref = primaryCtaHref?.trim();
-    if (legacyLabel && legacyHref) {
-      return [{ label: legacyLabel, href: legacyHref, variant: 'primary' }];
-    }
 
     return [];
   })();

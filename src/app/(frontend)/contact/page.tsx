@@ -52,8 +52,6 @@ export default async function ContactPage() {
         <PageChromeOverrides page={sitePage} />
         <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
         <UniversalSections
-          documentId={sitePage.id || 'contact'}
-          documentType="site-pages"
           sections={sitePage.sections}
           collections={collectionData}
           guideFormLabels={siteSettings?.guideForm}

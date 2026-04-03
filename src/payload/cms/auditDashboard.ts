@@ -4,6 +4,9 @@ type AuditLogRecord = {
   action?: string;
   collection?: string;
   actorRole?: string;
+  user?: {
+    role?: string;
+  } | string | number | null;
   fieldPath?: string;
 };
 
@@ -40,7 +43,11 @@ export function buildAuditDashboardSummary(logs: AuditLogRecord[]): AuditDashboa
   for (const log of logs) {
     const collection = typeof log.collection === 'string' ? log.collection : 'unknown';
     const action = typeof log.action === 'string' ? log.action : 'unknown';
-    const role = typeof log.actorRole === 'string' ? log.actorRole : 'unknown';
+    const role = typeof log.actorRole === 'string'
+      ? log.actorRole
+      : (log.user && typeof log.user === 'object' && typeof log.user.role === 'string')
+        ? log.user.role
+        : 'unknown';
     const fieldPath = typeof log.fieldPath === 'string' ? log.fieldPath : '';
 
     incrementCounter(collectionCounts, collection);

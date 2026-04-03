@@ -1,60 +1,6 @@
-import type { GlobalBeforeChangeHook, GlobalConfig } from 'payload';
+import type { GlobalConfig } from 'payload';
 import { withFieldTier } from '../fields/fieldTier.ts';
 import { auditGlobalAfterChange } from '../hooks/auditLog.ts';
-
-type RecordValue = Record<string, unknown>;
-
-function readTrimmedString(value: unknown): string {
-  return typeof value === 'string' ? value.trim() : '';
-}
-
-function asRecord(value: unknown): RecordValue {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
-  return value as RecordValue;
-}
-
-function normalizeHeaderButtons(value: unknown): Array<RecordValue> {
-  if (!Array.isArray(value)) return [];
-  return value
-    .filter((entry) => !!entry && typeof entry === 'object' && !Array.isArray(entry))
-    .map((entry) => entry as RecordValue)
-    .filter((entry) => readTrimmedString(entry.label) && readTrimmedString(entry.href));
-}
-
-const migrateLegacyPrimaryCtaBeforeChange: GlobalBeforeChangeHook = ({
-  data,
-  originalDoc,
-}) => {
-  if (!data || typeof data !== 'object') return data;
-
-  const incoming = { ...(data as RecordValue) };
-  const original = asRecord(originalDoc);
-  const incomingButtons = normalizeHeaderButtons(incoming.headerButtons);
-
-  if (incomingButtons.length > 0) return incoming;
-
-  const existingButtons = normalizeHeaderButtons(original.headerButtons);
-  if (existingButtons.length > 0) {
-    incoming.headerButtons = original.headerButtons;
-    return incoming;
-  }
-
-  const legacyLabel = readTrimmedString(incoming.primaryCtaLabel) || readTrimmedString(original.primaryCtaLabel);
-  const legacyHref = readTrimmedString(incoming.primaryCtaHref) || readTrimmedString(original.primaryCtaHref);
-
-  if (!legacyLabel || !legacyHref) return incoming;
-
-  incoming.headerButtons = [
-    {
-      label: legacyLabel,
-      href: legacyHref,
-      variant: 'primary',
-      isVisible: true,
-    },
-  ];
-
-  return incoming;
-};
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -74,7 +20,6 @@ export const SiteSettings: GlobalConfig = {
     },
   },
   hooks: {
-    beforeChange: [migrateLegacyPrimaryCtaBeforeChange],
     afterChange: [auditGlobalAfterChange],
   },
   fields: [
@@ -117,30 +62,6 @@ export const SiteSettings: GlobalConfig = {
       name: 'contactEmail',
       type: 'email',
       defaultValue: 'contact@example.com',
-    },
-    {
-      name: 'primaryCtaLabel',
-      type: 'text',
-      defaultValue: 'Get the Free Guide',
-      access: {
-        update: () => false,
-      },
-      admin: {
-        condition: () => false,
-        description: 'Legacy single CTA label. Use Header Buttons below for flexible add/remove controls.',
-      },
-    },
-    {
-      name: 'primaryCtaHref',
-      type: 'text',
-      defaultValue: '/contact#guide',
-      access: {
-        update: () => false,
-      },
-      admin: {
-        condition: () => false,
-        description: 'Legacy single CTA link. Use Header Buttons below for flexible add/remove controls.',
-      },
     },
     {
       name: 'headerButtons',

@@ -27,7 +27,7 @@ export const Logos: CollectionConfig = {
   fields: [
     { name: 'name', type: 'text', required: true, admin: { description: 'Company or partner name' } },
     { name: 'image', type: 'upload', relationTo: 'media', required: true },
-    { name: 'href', type: 'text', admin: { description: 'Optional link URL when logo is clicked' } },
+    { name: 'url', type: 'text', admin: { description: 'Optional link URL when logo is clicked' } },
     {
       name: 'order',
       type: 'number',

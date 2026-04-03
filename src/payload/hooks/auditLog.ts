@@ -12,12 +12,27 @@ type UserRecord = Record<string, unknown>;
 function getDocTitle(doc: Record<string, unknown>): string {
   return (
     (doc.title as string) ||
-    (doc.personName as string) ||
     (doc.name as string) ||
+    (doc.personName as string) ||
     (doc.fromPath as string) ||
     (doc.slug as string) ||
     String(doc.id || 'unknown')
   );
+}
+
+function extractIpAddress(req: { headers?: unknown; ip?: unknown }): string | undefined {
+  const headers = req.headers;
+  if (headers && typeof headers === 'object') {
+    const forwarded =
+      (headers as Record<string, unknown>)['x-forwarded-for'] ||
+      (headers as Record<string, unknown>)['X-Forwarded-For'];
+    if (typeof forwarded === 'string' && forwarded.trim()) {
+      const first = forwarded.split(',')[0]?.trim();
+      if (first) return first;
+    }
+  }
+
+  return typeof req.ip === 'string' && req.ip.trim() ? req.ip.trim() : undefined;
 }
 
 function getPathValue(input: unknown, path: string): unknown {
@@ -153,13 +168,13 @@ function buildAuditEntryData(args: {
   documentId: string;
   documentTitle: string;
   userRecord: UserRecord;
-  role: string;
   fieldPath: string;
   oldValueSummary: string;
   newValueSummary: string;
   riskTier: AuditRiskTier;
+  ipAddress?: string;
 }): Record<string, unknown> {
-  const { action, collection, documentId, documentTitle, userRecord, role, fieldPath, oldValueSummary, newValueSummary, riskTier } = args;
+  const { action, collection, documentId, documentTitle, userRecord, fieldPath, oldValueSummary, newValueSummary, riskTier, ipAddress } = args;
   return {
     action,
     collection,
@@ -169,12 +184,7 @@ function buildAuditEntryData(args: {
       typeof userRecord.id === 'string' || typeof userRecord.id === 'number'
         ? userRecord.id
         : undefined,
-    actorId:
-      typeof userRecord.id === 'string' || typeof userRecord.id === 'number'
-        ? String(userRecord.id)
-        : 'system',
-    userEmail: (userRecord.email as string) || undefined,
-    actorRole: role,
+    ipAddress,
     fieldPath,
     oldValueSummary,
     newValueSummary,
@@ -204,7 +214,7 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
   if (context?.autosave) return doc;
 
   const userRecord = req.user as UserRecord;
-  const role = typeof userRecord.role === 'string' ? userRecord.role : 'unknown';
+  const ipAddress = extractIpAddress(req);
   const title = getDocTitle(doc as Record<string, unknown>);
   const action = operation === 'create' ? AUDIT_ACTIONS.CREATE : AUDIT_ACTIONS.UPDATE;
   const collectionRiskTier: AuditRiskTier = isSystemRiskCollection(collection.slug)
@@ -221,11 +231,11 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
         documentId: String(doc.id),
         documentTitle: title,
         userRecord,
-        role,
         fieldPath: '*',
         oldValueSummary: operation === 'create' ? '(new document)' : '(document updated)',
         newValueSummary: operation === 'create' ? '(created)' : '(updated)',
         riskTier: collectionRiskTier,
+        ipAddress,
       }),
     });
 
@@ -252,11 +262,11 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
             documentId: String(doc.id),
             documentTitle: title,
             userRecord,
-            role,
             fieldPath: path,
             oldValueSummary: oldSummary,
             newValueSummary: newSummary,
             riskTier: 'system',
+            ipAddress,
           }),
         });
       }
@@ -277,7 +287,7 @@ export const auditAfterDelete: CollectionAfterDeleteHook = async ({
   if (!req.user) return doc;
 
   const userRecord = req.user as UserRecord;
-  const role = typeof userRecord.role === 'string' ? userRecord.role : 'unknown';
+  const ipAddress = extractIpAddress(req);
   const title = getDocTitle(doc as Record<string, unknown>);
   const riskTier: AuditRiskTier = isSystemRiskCollection(collection.slug)
     ? 'system'
@@ -293,11 +303,11 @@ export const auditAfterDelete: CollectionAfterDeleteHook = async ({
         documentId: String(doc.id),
         documentTitle: title,
         userRecord,
-        role,
         fieldPath: '*',
         oldValueSummary: '(existing document)',
         newValueSummary: '(deleted)',
         riskTier,
+        ipAddress,
       }),
     });
   } catch (err) {
@@ -318,7 +328,7 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
   if (context?.autosave) return doc;
 
   const userRecord = req.user as UserRecord;
-  const role = typeof userRecord.role === 'string' ? userRecord.role : 'unknown';
+  const ipAddress = extractIpAddress(req);
   const title = global.slug;
   const action = AUDIT_ACTIONS.UPDATE;
   const globalRiskTier: AuditRiskTier = isSystemRiskCollection(global.slug)
@@ -335,11 +345,11 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
         documentId: global.slug,
         documentTitle: title,
         userRecord,
-        role,
         fieldPath: '*',
         oldValueSummary: '(global updated)',
         newValueSummary: '(updated)',
         riskTier: globalRiskTier,
+        ipAddress,
       }),
     });
 
@@ -366,11 +376,11 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
             documentId: global.slug,
             documentTitle: title,
             userRecord,
-            role,
             fieldPath: path,
             oldValueSummary: oldSummary,
             newValueSummary: newSummary,
             riskTier: 'system',
+            ipAddress,
           }),
         });
       }

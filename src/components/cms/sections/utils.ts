@@ -452,7 +452,7 @@ export function renderDynamicListItem(
   if (source === 'testimonial') {
     const testimonial = item as Testimonial;
     return {
-      title: testimonial.personName || 'Anonymous',
+      title: testimonial.name || 'Anonymous',
       description: testimonial.quote || '',
       href: '#',
       meta: [testimonial.role, testimonial.company].filter(Boolean).join(', '),

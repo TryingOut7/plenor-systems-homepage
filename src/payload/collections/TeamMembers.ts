@@ -29,8 +29,8 @@ export const TeamMembers: CollectionConfig = {
     { name: 'role', type: 'text', required: true, admin: { description: 'Job title or role' } },
     { name: 'bio', type: 'textarea' },
     { name: 'photo', type: 'upload', relationTo: 'media' },
-    { name: 'linkedinHref', type: 'text', admin: { description: 'LinkedIn profile URL' } },
-    { name: 'twitterHref', type: 'text', admin: { description: 'Twitter/X profile URL' } },
+    { name: 'linkedinUrl', type: 'text', admin: { description: 'LinkedIn profile URL' } },
+    { name: 'twitterUrl', type: 'text', admin: { description: 'Twitter/X profile URL' } },
     {
       name: 'order',
       type: 'number',

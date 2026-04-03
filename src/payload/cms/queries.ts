@@ -35,6 +35,24 @@ import type {
   UISettings,
 } from './types.ts';
 
+const PAYLOAD_QUERY_TIMEOUT_MS = 8000;
+
+async function withPayloadTimeout<T>(promise: Promise<T>, label: string): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeout = setTimeout(() => {
+          reject(new Error(`Payload query timeout after ${PAYLOAD_QUERY_TIMEOUT_MS}ms (${label})`));
+        }, PAYLOAD_QUERY_TIMEOUT_MS);
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+}
+
 function isDraftRead(options?: CmsReadOptions): boolean {
   return options?.draft === true;
 }
@@ -52,10 +70,13 @@ export const getSiteSettings = cache(async function getSiteSettings(
 
   try {
     const payload = await getPayload();
-    const data = await payload.findGlobal({
-      slug: 'site-settings',
-      ...(draft ? { draft: true } : {}),
-    });
+    const data = await withPayloadTimeout(
+      payload.findGlobal({
+        slug: 'site-settings',
+        ...(draft ? { draft: true } : {}),
+      }),
+      'findGlobal:site-settings',
+    );
     if (!data) {
       return draft ? null : setCache(siteSettingsCache, null);
     }
@@ -66,8 +87,6 @@ export const getSiteSettings = cache(async function getSiteSettings(
       brandTagline: d.brandTagline as string | undefined,
       siteUrl: d.siteUrl as string | undefined,
       contactEmail: d.contactEmail as string | undefined,
-      primaryCtaLabel: d.primaryCtaLabel as string | undefined,
-      primaryCtaHref: d.primaryCtaHref as string | undefined,
       headerButtons: d.headerButtons as SiteSettings['headerButtons'],
       twitterHandle: d.twitterHandle as string | undefined,
       defaultSeo: normalizeSeo(d.defaultSeo),
@@ -109,10 +128,13 @@ export const getUISettings = cache(async function getUISettings(
 
   try {
     const payload = await getPayload();
-    const data = await payload.findGlobal({
-      slug: 'ui-settings',
-      ...(draft ? { draft: true } : {}),
-    });
+    const data = await withPayloadTimeout(
+      payload.findGlobal({
+        slug: 'ui-settings',
+        ...(draft ? { draft: true } : {}),
+      }),
+      'findGlobal:ui-settings',
+    );
     if (!data) return draft ? null : setCache(uiSettingsCache, null);
 
     const d = data as Record<string, unknown>;
@@ -147,21 +169,24 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(
 
   try {
     const payload = await getPayload();
-    const result = await payload.find({
-      collection: 'site-pages',
-      where: {
-        slug: { equals: normalizedSlug },
-        ...(draft
-          ? {}
-          : {
-              isActive: { equals: true },
-              workflowStatus: { equals: 'published' },
-            }),
-      },
-      limit: 1,
-      depth: 1,
-      ...(draft ? { draft: true } : {}),
-    });
+    const result = await withPayloadTimeout(
+      payload.find({
+        collection: 'site-pages',
+        where: {
+          slug: { equals: normalizedSlug },
+          ...(draft
+            ? {}
+            : {
+                isActive: { equals: true },
+                workflowStatus: { equals: 'published' },
+              }),
+        },
+        limit: 1,
+        depth: 1,
+        ...(draft ? { draft: true } : {}),
+      }),
+      `find:site-pages:${normalizedSlug}`,
+    );
     const doc = result.docs[0];
     if (!doc) {
       if (draft) return null;
@@ -213,30 +238,39 @@ export const getCollectionData = cache(async function getCollectionData(
     const payload = await getPayload();
     const publishedFilter = { workflowStatus: { equals: 'published' } };
     const [serviceResult, blogResult, testimonialResult] = await Promise.all([
-      payload.find({
-        collection: 'service-items',
-        ...(draft ? {} : { where: publishedFilter }),
-        sort: '-updatedAt',
-        limit: 100,
-        depth: 1,
-        ...(draft ? { draft: true } : {}),
-      }),
-      payload.find({
-        collection: 'blog-posts',
-        ...(draft ? {} : { where: publishedFilter }),
-        sort: '-publishedAt',
-        limit: 100,
-        depth: 1,
-        ...(draft ? { draft: true } : {}),
-      }),
-      payload.find({
-        collection: 'testimonials',
-        ...(draft ? {} : { where: publishedFilter }),
-        sort: '-publishedAt',
-        limit: 100,
-        depth: 1,
-        ...(draft ? { draft: true } : {}),
-      }),
+      withPayloadTimeout(
+        payload.find({
+          collection: 'service-items',
+          ...(draft ? {} : { where: publishedFilter }),
+          sort: '-updatedAt',
+          limit: 100,
+          depth: 1,
+          ...(draft ? { draft: true } : {}),
+        }),
+        'find:service-items',
+      ),
+      withPayloadTimeout(
+        payload.find({
+          collection: 'blog-posts',
+          ...(draft ? {} : { where: publishedFilter }),
+          sort: '-publishedAt',
+          limit: 100,
+          depth: 1,
+          ...(draft ? { draft: true } : {}),
+        }),
+        'find:blog-posts',
+      ),
+      withPayloadTimeout(
+        payload.find({
+          collection: 'testimonials',
+          ...(draft ? {} : { where: publishedFilter }),
+          sort: '-publishedAt',
+          limit: 100,
+          depth: 1,
+          ...(draft ? { draft: true } : {}),
+        }),
+        'find:testimonials',
+      ),
     ]);
 
     const normalized: CollectionData = {
@@ -267,16 +301,19 @@ export const getServiceItemBySlug = cache(async function getServiceItemBySlug(
 
   try {
     const payload = await getPayload();
-    const result = await payload.find({
-      collection: 'service-items',
-      where: {
-        slug: { equals: normalizedSlug },
-        ...(draft ? {} : { workflowStatus: { equals: 'published' } }),
-      },
-      limit: 1,
-      depth: 1,
-      ...(draft ? { draft: true } : {}),
-    });
+    const result = await withPayloadTimeout(
+      payload.find({
+        collection: 'service-items',
+        where: {
+          slug: { equals: normalizedSlug },
+          ...(draft ? {} : { workflowStatus: { equals: 'published' } }),
+        },
+        limit: 1,
+        depth: 1,
+        ...(draft ? { draft: true } : {}),
+      }),
+      `find:service-items:${normalizedSlug}`,
+    );
     const doc = result.docs[0];
     if (!doc) return draft ? null : setMapCache(serviceItemCache, normalizedSlug, null);
 
@@ -303,8 +340,14 @@ export const getSitemapSlugs = cache(async function getSitemapSlugs(): Promise<S
   try {
     const payload = await getPayload();
     const [pages, services] = await Promise.all([
-      payload.find({ collection: 'site-pages', where: { isActive: { equals: true }, workflowStatus: { equals: 'published' } }, limit: 500 }),
-      payload.find({ collection: 'service-items', where: { workflowStatus: { equals: 'published' } }, limit: 500 }),
+      withPayloadTimeout(
+        payload.find({ collection: 'site-pages', where: { isActive: { equals: true }, workflowStatus: { equals: 'published' } }, limit: 500 }),
+        'find:site-pages:sitemap',
+      ),
+      withPayloadTimeout(
+        payload.find({ collection: 'service-items', where: { workflowStatus: { equals: 'published' } }, limit: 500 }),
+        'find:service-items:sitemap',
+      ),
     ]);
 
     const mapDoc = (d: Record<string, unknown>) => ({
@@ -334,11 +377,14 @@ export const getRedirectRules = cache(async function getRedirectRules(): Promise
 
   try {
     const payload = await getPayload();
-    const result = await payload.find({
-      collection: 'redirect-rules',
-      where: { enabled: { equals: true } },
-      limit: 500,
-    });
+    const result = await withPayloadTimeout(
+      payload.find({
+        collection: 'redirect-rules',
+        where: { enabled: { equals: true } },
+        limit: 500,
+      }),
+      'find:redirect-rules',
+    );
     return setCache(
       redirectRulesCache,
       result.docs.map((d) => {

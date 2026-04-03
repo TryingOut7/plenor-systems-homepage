@@ -50,8 +50,6 @@ export default async function PricingPage() {
         <PageChromeOverrides page={sitePage} />
         <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
         <UniversalSections
-          documentId={sitePage.id || 'pricing'}
-          documentType="site-pages"
           sections={sitePage.sections}
           collections={collectionData}
           guideFormLabels={siteSettings?.guideForm}

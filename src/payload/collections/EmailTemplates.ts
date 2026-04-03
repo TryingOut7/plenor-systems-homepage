@@ -1,5 +1,29 @@
 import type { CollectionConfig } from 'payload';
 
+function validateEmailButtonUrl(value: unknown): true | string {
+  if (typeof value !== 'string' || !value.trim()) return true;
+  const trimmed = value.trim();
+  const lower = trimmed.toLowerCase();
+
+  if (lower.startsWith('javascript:') || lower.startsWith('data:')) {
+    return 'Button URL cannot use javascript: or data: schemes.';
+  }
+
+  if (trimmed.startsWith('/')) return true;
+
+  try {
+    // Require valid absolute URLs for non-relative values.
+    // This rejects plain relative strings like "docs/file.pdf".
+    const parsed = new URL(trimmed);
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      return 'Use an http(s) URL or a path that starts with /.';
+    }
+    return true;
+  } catch {
+    return 'Enter an absolute URL or a path that starts with /.';
+  }
+}
+
 export const EmailTemplates: CollectionConfig = {
   slug: 'email-templates',
   admin: {
@@ -71,6 +95,7 @@ export const EmailTemplates: CollectionConfig = {
     {
       name: 'buttonUrl',
       type: 'text',
+      validate: validateEmailButtonUrl,
       admin: {
         description: 'URL the button links to — typically a direct link to the PDF or landing page.',
       },

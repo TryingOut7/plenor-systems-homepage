@@ -33,8 +33,6 @@ export type InquiryFormLabels = {
 };
 
 export interface UniversalSectionsProps {
-  documentId: string;
-  documentType: string;
   sections: PageSection[];
   collections: CollectionData;
   guideFormLabels?: GuideFormLabels;

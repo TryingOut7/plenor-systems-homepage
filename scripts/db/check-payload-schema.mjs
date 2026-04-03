@@ -75,9 +75,8 @@ const REQUIRED_TABLES = [
 
 const REQUIRED_COLUMNS = {
   audit_logs: [
-    'actor_id',
-    'user_email',
-    'actor_role',
+    'user_id',
+    'ip_address',
     'field_path',
     'old_value_summary',
     'new_value_summary',
@@ -156,6 +155,9 @@ const REQUIRED_COLUMNS = {
   ...Object.fromEntries(
     COLLECTION_TABLES_WITH_WORKFLOW_REVIEW.map((tableName) => [tableName, WORKFLOW_REVIEW_COLUMNS]),
   ),
+  testimonials: ['created_by_id', 'name'],
+  team_members: [...WORKFLOW_REVIEW_COLUMNS, 'linkedin_url', 'twitter_url'],
+  logos: [...WORKFLOW_REVIEW_COLUMNS, 'url'],
   nav_children: ['_order', '_parent_id', 'id', 'label', 'href'],
   _nav_children_v: ['_order', '_parent_id', 'id', 'label', 'href', '_uuid'],
 };
@@ -335,9 +337,8 @@ const READ_PATH_CHECKS = [
     name: 'audit_logs_list_view_path',
     sql: `
       SELECT id,
-        actor_id,
-        user_email,
-        actor_role,
+        user_id,
+        ip_address,
         field_path,
         old_value_summary,
         new_value_summary,

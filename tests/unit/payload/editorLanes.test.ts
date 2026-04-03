@@ -7,12 +7,21 @@ import {
 } from '@/payload/access/editorLanes';
 
 describe('editor lane access', () => {
-  it('requires advanced lane for advanced-tier editing', () => {
+  it('allows advanced-tier editing for admin/editor and requires advanced lane for authors', () => {
     expect(
       canEditAdvancedTier({ role: 'editor', cmsLanePreference: 'simple' }),
-    ).toBe(false);
+    ).toBe(true);
+    expect(
+      canEditAdvancedTier({ role: 'admin', cmsLanePreference: 'simple' }),
+    ).toBe(true);
     expect(
       canEditAdvancedTier({ role: 'editor', cmsLanePreference: 'advanced' }),
+    ).toBe(true);
+    expect(
+      canEditAdvancedTier({ role: 'author', cmsLanePreference: 'simple' }),
+    ).toBe(false);
+    expect(
+      canEditAdvancedTier({ role: 'author', cmsLanePreference: 'advanced' }),
     ).toBe(true);
     expect(isAdvancedLane({ cmsLanePreference: 'advanced' })).toBe(true);
   });

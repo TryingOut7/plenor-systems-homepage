@@ -38,8 +38,8 @@ const detailsEditor = lexicalEditor({
 export const Testimonials: CollectionConfig = {
   slug: 'testimonials',
   admin: {
-    useAsTitle: 'personName',
-    defaultColumns: ['personName', 'company', 'isFeatured', 'rating'],
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'company', 'isFeatured', 'rating'],
     group: 'Content',
   },
   access: {
@@ -65,7 +65,7 @@ export const Testimonials: CollectionConfig = {
   enableQueryPresets: true,
   fields: [
     {
-      name: 'personName',
+      name: 'name',
       type: 'text',
       required: true,
     },

@@ -79,8 +79,6 @@ export default async function ServicesPage() {
         <PageChromeOverrides page={sitePage} />
         <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
         <UniversalSections
-          documentId={sitePage.id || 'services'}
-          documentType="site-pages"
           sections={sitePage.sections}
           collections={collectionData}
           guideFormLabels={siteSettings?.guideForm}

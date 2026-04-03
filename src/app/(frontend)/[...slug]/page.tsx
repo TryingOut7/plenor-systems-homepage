@@ -90,8 +90,6 @@ export default async function CmsDynamicPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
       />
       <UniversalSections
-        documentId={page.id || 'sitePage'}
-        documentType="site-pages"
         sections={page.sections}
         collections={collectionData}
         guideFormLabels={siteSettings?.guideForm}

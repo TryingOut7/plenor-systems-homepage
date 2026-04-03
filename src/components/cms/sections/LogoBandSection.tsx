@@ -29,8 +29,13 @@ export default function LogoBandSection({
         : typeof l.name === 'string'
           ? l.name
           : '';
-      const href = typeof l.href === 'string' ? l.href : '';
-      return { url, alt, href };
+      const linkUrl =
+        typeof l.url === 'string'
+          ? l.url
+          : typeof l.href === 'string'
+            ? l.href
+            : '';
+      return { url, alt, href: linkUrl };
     })
     .filter((logo) => !!logo.url);
 

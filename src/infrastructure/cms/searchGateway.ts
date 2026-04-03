@@ -24,7 +24,7 @@ async function findPublishedDocuments(params: {
 
     if (params.collection === 'testimonials') {
       where.or = [
-        { personName: likeQuery },
+        { name: likeQuery },
         { company: likeQuery },
         { quote: likeQuery },
       ];
@@ -61,8 +61,12 @@ export const payloadSearchRepository: SearchRepository = {
           ? doc.id
           : '',
       title: typeof doc.title === 'string' ? doc.title : undefined,
-      personName:
-        typeof doc.personName === 'string' ? doc.personName : undefined,
+      name:
+        typeof doc.name === 'string'
+          ? doc.name
+          : typeof doc.personName === 'string'
+            ? doc.personName
+            : undefined,
       slug: typeof doc.slug === 'string' ? doc.slug : undefined,
       excerpt: typeof doc.excerpt === 'string' ? doc.excerpt : undefined,
       summary: typeof doc.summary === 'string' ? doc.summary : undefined,

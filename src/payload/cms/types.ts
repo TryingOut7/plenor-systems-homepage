@@ -20,8 +20,6 @@ export type SiteSettings = {
   contactEmail?: string;
   logoImage?: { url?: string; alt?: string; width?: number; height?: number };
   logoWidth?: number;
-  primaryCtaLabel?: string;
-  primaryCtaHref?: string;
   headerButtons?: Array<{
     id?: string;
     label?: string;
@@ -229,8 +227,8 @@ export type TeamMember = {
   role?: string;
   bio?: string;
   photo?: { url?: string; alt?: string };
-  linkedinHref?: string;
-  twitterHref?: string;
+  linkedinUrl?: string;
+  twitterUrl?: string;
   order?: number;
 };
 
@@ -238,7 +236,7 @@ export type Logo = {
   id?: string;
   name?: string;
   image?: { url?: string; alt?: string };
-  href?: string;
+  url?: string;
   order?: number;
 };
 
@@ -263,7 +261,7 @@ export type BlogPost = {
 
 export type Testimonial = {
   id?: string;
-  personName?: string;
+  name?: string;
   slug?: string;
   role?: string;
   company?: string;

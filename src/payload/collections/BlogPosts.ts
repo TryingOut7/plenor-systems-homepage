@@ -120,6 +120,7 @@ export const BlogPosts: CollectionConfig = {
       type: 'number',
       admin: {
         position: 'sidebar',
+        description: 'Estimated reading time in minutes. Manually entered — roughly 1 minute per 200 words.',
       },
     },
     {
@@ -137,6 +138,7 @@ export const BlogPosts: CollectionConfig = {
       name: 'category',
       type: 'relationship',
       relationTo: 'blog-categories',
+      required: true,
       admin: {
         position: 'sidebar',
       },

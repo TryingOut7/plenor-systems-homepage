@@ -3,7 +3,7 @@ import type { SearchableCollection } from '@/domain/search/searchQuery';
 export interface SearchDocument {
   id: string | number;
   title?: string;
-  personName?: string;
+  name?: string;
   slug?: string;
   excerpt?: string;
   summary?: string;

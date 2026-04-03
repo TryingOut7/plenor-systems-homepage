@@ -69,6 +69,8 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
   }
 
   const oldStatus = (originalDoc?.workflowStatus as WorkflowStatus) || 'draft';
+  // Intentionally short-circuit when status is unchanged: metadata stamping and
+  // transition validation only run on explicit status transitions.
   if (newStatus === oldStatus) return data;
 
   const role = getUserRole(req);
@@ -83,7 +85,14 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
     );
   }
 
-  // Stamp approval metadata
+  // Stamp review metadata when moving into review.
+  if (newStatus === 'in_review') {
+    const user = req.user as UserRecord | undefined;
+    data.reviewedBy = user?.id || null;
+    data.reviewedAt = new Date().toISOString();
+  }
+
+  // Stamp approval metadata.
   if (newStatus === 'approved' || newStatus === 'published') {
     const reviewSummary = readTrimmedString(data.reviewSummary);
     if (reviewSummary.length < 10) {
@@ -101,8 +110,6 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
     const user = req.user as UserRecord | undefined;
     data.approvedBy = user?.id || null;
     data.approvedAt = new Date().toISOString();
-    data.reviewedBy = user?.id || null;
-    data.reviewedAt = new Date().toISOString();
   }
 
   // Clear approval fields when moving back to draft or rejected
@@ -141,6 +148,7 @@ export const workflowAfterChange: CollectionAfterChangeHook = async ({
   const actor = req.user as UserRecord | undefined;
   const actorEmail = (actor?.email as string) || 'System';
   const docTitle = (doc as Record<string, unknown>).title ||
+    (doc as Record<string, unknown>).name ||
     (doc as Record<string, unknown>).personName ||
     String((doc as Record<string, unknown>).id);
 

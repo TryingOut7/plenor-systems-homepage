@@ -124,9 +124,9 @@ export default function TeamSection({
                     </p>
                   ) : null}
                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '8px' }}>
-                    {m.linkedinHref ? (
+                    {(m.linkedinUrl || m.linkedinHref) ? (
                       <a
-                        href={String(m.linkedinHref)}
+                        href={String(m.linkedinUrl || m.linkedinHref)}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ color: 'var(--ui-color-link)', fontSize: '13px' }}
@@ -134,9 +134,9 @@ export default function TeamSection({
                         LinkedIn
                       </a>
                     ) : null}
-                    {m.twitterHref ? (
+                    {(m.twitterUrl || m.twitterHref) ? (
                       <a
-                        href={String(m.twitterHref)}
+                        href={String(m.twitterUrl || m.twitterHref)}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ color: 'var(--ui-color-link)', fontSize: '13px' }}

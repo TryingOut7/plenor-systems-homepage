@@ -95,8 +95,8 @@ export async function searchSiteContent(
           title:
             (typeof doc.title === 'string'
               ? doc.title
-              : typeof doc.personName === 'string'
-                ? doc.personName
+              : typeof doc.name === 'string'
+                ? doc.name
                 : '') || '',
           slug: typeof doc.slug === 'string' ? doc.slug : undefined,
           excerpt:

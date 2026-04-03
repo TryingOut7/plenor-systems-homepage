@@ -90,6 +90,7 @@ export const ReusableSections: CollectionConfig = {
       admin: {
         position: 'sidebar',
         readOnly: true,
+        description: 'Auto-incremented system version for this library item.',
       },
     },
     {

@@ -111,7 +111,7 @@ export function normalizeBlogPost(doc: Record<string, unknown>): BlogPost {
 export function normalizeTestimonial(doc: Record<string, unknown>): Testimonial {
   return {
     id: String(doc.id),
-    personName: doc.personName as string | undefined,
+    name: (doc.name as string | undefined) || (doc.personName as string | undefined),
     slug: doc.slug as string | undefined,
     role: doc.role as string | undefined,
     company: doc.company as string | undefined,

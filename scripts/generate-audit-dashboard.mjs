@@ -21,7 +21,7 @@ async function run() {
         },
       },
       limit: args.limit,
-      depth: 0,
+      depth: 1,
       overrideAccess: true,
     });
 

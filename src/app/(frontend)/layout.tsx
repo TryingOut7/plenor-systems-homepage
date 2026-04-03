@@ -225,8 +225,6 @@ export default async function RootLayout({
         <Navbar
           siteName={siteSettings?.siteName}
           navigationLinks={siteSettings?.navigationLinks}
-          primaryCtaLabel={siteSettings?.primaryCtaLabel}
-          primaryCtaHref={siteSettings?.primaryCtaHref}
           headerButtons={siteSettings?.headerButtons}
           logoImage={siteSettings?.logoImage as { url?: string; alt?: string; width?: number; height?: number } | undefined}
           logoWidth={siteSettings?.logoWidth}

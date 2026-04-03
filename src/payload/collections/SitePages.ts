@@ -294,6 +294,7 @@ export const SitePages: CollectionConfig = {
       admin: {
         position: 'sidebar',
         readOnly: true,
+        description: 'Quality level derived from publish score thresholds (excellent/good/needs-attention/blocked).',
       },
     },
     {
