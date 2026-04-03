@@ -89,6 +89,12 @@ export function resolveHomePageData(
   sections: PageSection[] | null | undefined,
 ): Required<HomePageData> {
   const safeSections = Array.isArray(sections) ? sections : [];
+  const guideFormSection =
+    safeSections.find(
+      (section) =>
+        section.blockType === 'formSection' &&
+        String(section.structuralKey || '').trim() === 'home-guide-form',
+    ) || findSection(safeSections, 'guideFormSection');
 
   const hero = findSection(safeSections, 'heroSection');
   const problem =
@@ -107,7 +113,6 @@ export function resolveHomePageData(
         section.blockType === 'simpleTableSection' &&
         String(section.heading || '').trim() !== String(whatWeDo?.heading || '').trim(),
     );
-  const guide = findSection(safeSections, 'guideFormSection');
 
   const problemParagraphs = getRichTextParagraphs(problem);
   const whatRows = getRows(whatWeDo);
@@ -152,10 +157,18 @@ export function resolveHomePageData(
     whoLabel: whoLabel || HOME_PAGE_DEFAULTS.whoLabel,
     whoHeading: whoHeading || HOME_PAGE_DEFAULTS.whoHeading,
     audiences: mappedAudiences.length ? mappedAudiences : HOME_PAGE_DEFAULTS.audiences,
-    guideLabel: asTrimmedString(guide?.label) || HOME_PAGE_DEFAULTS.guideLabel,
-    guideCTAHeading: asTrimmedString(guide?.heading) || HOME_PAGE_DEFAULTS.guideCTAHeading,
+    guideLabel:
+      asTrimmedString(guideFormSection?.sectionLabel) ||
+      asTrimmedString(guideFormSection?.label) ||
+      HOME_PAGE_DEFAULTS.guideLabel,
+    guideCTAHeading: asTrimmedString(guideFormSection?.heading) || HOME_PAGE_DEFAULTS.guideCTAHeading,
     guideHighlightText:
-      asTrimmedString(guide?.highlightText) || HOME_PAGE_DEFAULTS.guideHighlightText,
-    guideCTABody: asTrimmedString(guide?.body) || HOME_PAGE_DEFAULTS.guideCTABody,
+      asTrimmedString(guideFormSection?.highlightText) ||
+      asTrimmedString(String(guideFormSection?.subheading || '').split('\n\n')[0]) ||
+      HOME_PAGE_DEFAULTS.guideHighlightText,
+    guideCTABody:
+      asTrimmedString(guideFormSection?.body) ||
+      asTrimmedString(String(guideFormSection?.subheading || '').split('\n\n').slice(1).join('\n\n')) ||
+      HOME_PAGE_DEFAULTS.guideCTABody,
   };
 }

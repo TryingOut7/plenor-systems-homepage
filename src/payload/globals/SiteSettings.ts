@@ -410,7 +410,7 @@ export const SiteSettings: GlobalConfig = {
       type: 'group',
       admin: {
         description:
-          'Default labels/messages for guide forms. Individual pages can override content in their Guide Form section.',
+          'Default labels/messages for guide forms. Individual pages can override content in their Form Embed section.',
       },
       fields: [
         { name: 'submitLabel', type: 'text' },

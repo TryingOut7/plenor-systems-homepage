@@ -4,6 +4,7 @@ import { createdByField } from '../fields/ownership.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
 import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigration.ts';
+import { migrateGuideInquirySectionsBeforeChange } from '../hooks/guideInquirySectionMigration.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
 
 export const PagePlaygrounds: CollectionConfig = {
@@ -27,7 +28,11 @@ export const PagePlaygrounds: CollectionConfig = {
     delete: authorScopedUpdate,
   },
   hooks: {
-    beforeChange: [stampCreatedByBeforeChange, migrateLegacySectionsBeforeChange],
+    beforeChange: [
+      stampCreatedByBeforeChange,
+      migrateGuideInquirySectionsBeforeChange,
+      migrateLegacySectionsBeforeChange,
+    ],
     afterChange: [auditAfterChange],
     afterDelete: [auditAfterDelete],
   },
@@ -83,6 +88,8 @@ export const PagePlaygrounds: CollectionConfig = {
       blocks: pageSectionBlocks,
       filterOptions: modernPageSectionBlockSlugs,
       admin: {
+        description:
+          'Manage forms in the Forms collection and place them using Form Embed sections.',
         components: {
           beforeInput: ['@/payload/admin/components/CmsEditorTrainingHint'],
         },

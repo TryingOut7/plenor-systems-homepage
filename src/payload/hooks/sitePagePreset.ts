@@ -13,19 +13,7 @@ const STRING_MERGE_FIELDS_BY_BLOCK_TYPE: Record<string, readonly string[]> = {
     'primaryCtaHref',
   ],
   ctaSection: ['sectionLabel', 'heading', 'body', 'buttonLabel', 'buttonHref'],
-  guideFormSection: ['sectionLabel', 'label', 'heading', 'highlightText', 'body'],
-  inquiryFormSection: [
-    'sectionLabel',
-    'label',
-    'heading',
-    'subtext',
-    'nextStepsLabel',
-    'nextStepsBody',
-    'directEmailLabel',
-    'emailAddress',
-    'linkedinLabel',
-    'linkedinHref',
-  ],
+  formSection: ['sectionLabel', 'heading', 'subheading'],
   privacyNoteSection: ['sectionLabel', 'label', 'policyLinkLabel', 'policyLinkHref'],
   richTextSection: ['sectionLabel', 'heading'],
 };
@@ -237,6 +225,61 @@ function mergePresetTextIntoTemplateSections(
   });
 }
 
+async function resolveDefaultFormIds(): Promise<{
+  guideFormId: number | string;
+  inquiryFormId: number | string;
+}> {
+  const [{ getGuideFormId, getInquiryFormId }] = await Promise.all([
+    import('../../lib/payload-form-stubs.ts'),
+  ]);
+
+  const [guideFormId, inquiryFormId] = await Promise.all([
+    getGuideFormId(),
+    getInquiryFormId(),
+  ]);
+
+  return { guideFormId, inquiryFormId };
+}
+
+async function resolvePresetFormAliases(
+  sections: Array<Record<string, unknown>>,
+  req: unknown,
+): Promise<Array<Record<string, unknown>>> {
+  if (!req || typeof req !== 'object' || !('payload' in (req as Record<string, unknown>))) {
+    return sections;
+  }
+
+  const requiresGuide = sections.some((section) => section.blockType === 'formSection' && section.form === 'guide');
+  const requiresInquiry = sections.some(
+    (section) => section.blockType === 'formSection' && section.form === 'inquiry',
+  );
+
+  if (!requiresGuide && !requiresInquiry) return sections;
+
+  let guideFormId: number | string;
+  let inquiryFormId: number | string;
+  try {
+    const resolved = await resolveDefaultFormIds();
+    guideFormId = resolved.guideFormId;
+    inquiryFormId = resolved.inquiryFormId;
+  } catch {
+    // In test and offline contexts we keep aliases as-is. Runtime saves with
+    // a healthy DB will resolve these IDs normally.
+    return sections;
+  }
+
+  return sections.map((section) => {
+    if (section.blockType !== 'formSection') return section;
+    if (section.form === 'guide') {
+      return { ...section, form: guideFormId };
+    }
+    if (section.form === 'inquiry') {
+      return { ...section, form: inquiryFormId };
+    }
+    return section;
+  });
+}
+
 function resolveKnownPreset(value: unknown): CorePresetKey | null {
   if (typeof value === 'string' && (KNOWN_CORE_PRESETS as readonly string[]).includes(value)) {
     return value as CorePresetKey;
@@ -300,7 +343,8 @@ export const applyCorePresetSections: CollectionBeforeChangeHook = async ({
 
   mergedRoot[presetKey] = mergedPreset;
 
-  const templateSections = buildCorePresetSections(presetKey, mergedPreset);
+  const templateSectionsWithAliases = buildCorePresetSections(presetKey, mergedPreset);
+  const templateSections = await resolvePresetFormAliases(templateSectionsWithAliases, req);
   const incomingSections = asObjectArray(incoming.sections);
   const originalSections = asObjectArray(original.sections);
 

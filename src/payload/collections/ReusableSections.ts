@@ -9,6 +9,7 @@ import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { ensureLocalizationBeforeChange, localizationFields } from '../fields/localization.ts';
 import { reusableSectionVersioningBeforeChange } from '../hooks/reusableSectionVersioning.ts';
+import { migrateGuideInquirySectionsBeforeChange } from '../hooks/guideInquirySectionMigration.ts';
 
 export const ReusableSections: CollectionConfig = {
   slug: 'reusable-sections',
@@ -38,6 +39,7 @@ export const ReusableSections: CollectionConfig = {
       ensureLocalizationBeforeChange,
       reusableSectionVersioningBeforeChange,
       workflowBeforeChange,
+      migrateGuideInquirySectionsBeforeChange,
     ],
     afterChange: [workflowAfterChange, auditAfterChange],
     afterDelete: [auditAfterDelete],

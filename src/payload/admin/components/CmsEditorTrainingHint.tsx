@@ -55,6 +55,7 @@ const CmsEditorTrainingHint: FieldLabelClientComponent = (props) => {
       <ul style={{ margin: '8px 0 0 18px', color: '#334155', fontSize: '12px', lineHeight: 1.5 }}>
         <li>Use existing preset section order and avoid replacing block types on core pages.</li>
         <li>Prefer updating copy and links before changing layout controls.</li>
+        <li>Create forms in Forms first, then use Form Embed sections to place them on pages.</li>
         <li>Use reusable sections for repeatable content patterns across pages.</li>
       </ul>
     </details>

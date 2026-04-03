@@ -4,7 +4,7 @@ import { sectionCommonFields } from '../../fields/sectionCommon.ts';
 export const FormSection: Block = {
   slug: 'formSection',
   dbName: 'form_sec',
-  labels: { singular: 'Form Section', plural: 'Form Sections' },
+  labels: { singular: 'Form Embed', plural: 'Form Embeds' },
   fields: [
     ...sectionCommonFields,
     { name: 'heading', type: 'text' },
@@ -14,6 +14,9 @@ export const FormSection: Block = {
       type: 'relationship',
       relationTo: 'forms',
       required: true,
+      admin: {
+        description: 'Create and manage forms in the Forms collection, then select one here.',
+      },
     },
     {
       name: 'successMessage',

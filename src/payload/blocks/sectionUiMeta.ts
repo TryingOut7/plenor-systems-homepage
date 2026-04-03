@@ -18,8 +18,6 @@ export const MODERN_SECTION_UI: Record<string, SectionUiMeta> = {
   logoBandSection: { singular: 'Logo Strip', plural: 'Logo Strips', group: 'Media', color: '#334155', icon: 'L' },
   quoteSection: { singular: 'Quote', plural: 'Quote Blocks', group: 'Text', color: '#475569', icon: '"' },
   tabsSection: { singular: 'Tabbed Content', plural: 'Tabbed Content Blocks', group: 'Layout', color: '#1E40AF', icon: 'T' },
-  guideFormSection: { singular: 'Guide Signup Form', plural: 'Guide Signup Forms', group: 'Forms', color: '#A21CAF', icon: 'G' },
-  inquiryFormSection: { singular: 'Inquiry Form', plural: 'Inquiry Forms', group: 'Forms', color: '#9D174D', icon: 'I' },
   privacyNoteSection: { singular: 'Privacy Note', plural: 'Privacy Notes', group: 'Forms', color: '#0F766E', icon: 'P' },
   imageSection: { singular: 'Image Gallery', plural: 'Image Galleries', group: 'Media', color: '#0284C7', icon: 'I' },
   videoSection: { singular: 'Video', plural: 'Video Blocks', group: 'Media', color: '#DC2626', icon: 'V' },

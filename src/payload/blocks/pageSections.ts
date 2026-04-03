@@ -10,8 +10,6 @@ import { TeamSection } from './sections/TeamSection.ts';
 import { LogoBandSection } from './sections/LogoBandSection.ts';
 import { QuoteSection } from './sections/QuoteSection.ts';
 import { TabsSection } from './sections/TabsSection.ts';
-import { GuideFormSection } from './sections/GuideFormSection.ts';
-import { InquiryFormSection } from './sections/InquiryFormSection.ts';
 import { PrivacyNoteSection } from './sections/PrivacyNoteSection.ts';
 import { ImageSection } from './sections/ImageSection.ts';
 import { VideoSection } from './sections/VideoSection.ts';
@@ -88,8 +86,6 @@ export const modernPageSectionBlocks: Block[] = [
   LogoBandSection,
   QuoteSection,
   TabsSection,
-  GuideFormSection,
-  InquiryFormSection,
   PrivacyNoteSection,
   ImageSection,
   VideoSection,

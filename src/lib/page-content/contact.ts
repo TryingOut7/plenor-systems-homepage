@@ -52,9 +52,17 @@ export function resolveContactPageData(
   sections: PageSection[] | null | undefined,
 ): Required<ContactPageData> {
   const safeSections = Array.isArray(sections) ? sections : [];
+  const guide = safeSections.find(
+    (section) =>
+      section.blockType === 'formSection' &&
+      String(section.structuralKey || '').trim() === 'contact-guide-form',
+  ) || findSection(safeSections, 'guideFormSection');
+  const inquiry = safeSections.find(
+    (section) =>
+      section.blockType === 'formSection' &&
+      String(section.structuralKey || '').trim() === 'contact-inquiry-form',
+  ) || findSection(safeSections, 'inquiryFormSection');
   const hero = findSection(safeSections, 'heroSection');
-  const guide = findSection(safeSections, 'guideFormSection');
-  const inquiry = findSection(safeSections, 'inquiryFormSection');
   const privacyNote = findSection(safeSections, 'privacyNoteSection');
 
   return {
@@ -62,19 +70,34 @@ export function resolveContactPageData(
     heroLabel: asTrimmedString(hero?.eyebrow) || CONTACT_PAGE_DEFAULTS.heroLabel,
     heroHeading: asTrimmedString(hero?.heading) || CONTACT_PAGE_DEFAULTS.heroHeading,
     heroSubtext: asTrimmedString(hero?.subheading) || CONTACT_PAGE_DEFAULTS.heroSubtext,
-    guideLabel: asTrimmedString(guide?.label) || CONTACT_PAGE_DEFAULTS.guideLabel,
+    guideLabel:
+      asTrimmedString(guide?.sectionLabel) ||
+      asTrimmedString(guide?.label) ||
+      CONTACT_PAGE_DEFAULTS.guideLabel,
     guideHeading: asTrimmedString(guide?.heading) || CONTACT_PAGE_DEFAULTS.guideHeading,
     guideHighlightText:
-      asTrimmedString(guide?.highlightText) || CONTACT_PAGE_DEFAULTS.guideHighlightText,
-    guideBody: asTrimmedString(guide?.body) || CONTACT_PAGE_DEFAULTS.guideBody,
-    inquiryLabel: asTrimmedString(inquiry?.label) || CONTACT_PAGE_DEFAULTS.inquiryLabel,
+      asTrimmedString(guide?.highlightText) ||
+      asTrimmedString(String(guide?.subheading || '').split('\n\n')[0]) ||
+      CONTACT_PAGE_DEFAULTS.guideHighlightText,
+    guideBody:
+      asTrimmedString(guide?.body) ||
+      asTrimmedString(String(guide?.subheading || '').split('\n\n').slice(1).join('\n\n')) ||
+      CONTACT_PAGE_DEFAULTS.guideBody,
+    inquiryLabel:
+      asTrimmedString(inquiry?.sectionLabel) ||
+      asTrimmedString(inquiry?.label) ||
+      CONTACT_PAGE_DEFAULTS.inquiryLabel,
     inquiryHeading: asTrimmedString(inquiry?.heading) || CONTACT_PAGE_DEFAULTS.inquiryHeading,
-    inquirySubtext: asTrimmedString(inquiry?.subtext) || CONTACT_PAGE_DEFAULTS.inquirySubtext,
-    nextStepsLabel:
-      asTrimmedString(inquiry?.nextStepsLabel) || CONTACT_PAGE_DEFAULTS.nextStepsLabel,
-    nextStepsBody: asTrimmedString(inquiry?.nextStepsBody) || CONTACT_PAGE_DEFAULTS.nextStepsBody,
-    directEmailLabel:
-      asTrimmedString(inquiry?.directEmailLabel) || CONTACT_PAGE_DEFAULTS.directEmailLabel,
+    inquirySubtext:
+      asTrimmedString(inquiry?.subtext) ||
+      asTrimmedString(String(inquiry?.subheading || '').split('\n\n')[0]) ||
+      CONTACT_PAGE_DEFAULTS.inquirySubtext,
+    nextStepsLabel: asTrimmedString(inquiry?.nextStepsLabel) || CONTACT_PAGE_DEFAULTS.nextStepsLabel,
+    nextStepsBody:
+      asTrimmedString(inquiry?.nextStepsBody) ||
+      asTrimmedString(String(inquiry?.subheading || '').split('\n\n')[1]) ||
+      CONTACT_PAGE_DEFAULTS.nextStepsBody,
+    directEmailLabel: asTrimmedString(inquiry?.directEmailLabel) || CONTACT_PAGE_DEFAULTS.directEmailLabel,
     emailAddress: asTrimmedString(inquiry?.emailAddress) || CONTACT_PAGE_DEFAULTS.emailAddress,
     linkedinLabel: asTrimmedString(inquiry?.linkedinLabel) || CONTACT_PAGE_DEFAULTS.linkedinLabel,
     linkedinHref: asTrimmedString(inquiry?.linkedinHref) || CONTACT_PAGE_DEFAULTS.linkedinHref,

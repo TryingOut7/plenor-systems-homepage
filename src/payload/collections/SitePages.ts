@@ -13,6 +13,7 @@ import { applyCorePresetSections } from '../hooks/sitePagePreset.ts';
 import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
 import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigration.ts';
+import { migrateGuideInquirySectionsBeforeChange } from '../hooks/guideInquirySectionMigration.ts';
 import { sitePagePublishGuardsBeforeChange } from '../hooks/sitePageGuards.ts';
 import { withFieldTier } from '../fields/fieldTier.ts';
 
@@ -152,6 +153,7 @@ export const SitePages: CollectionConfig = {
       normalizeSlugBeforeChange,
       workflowBeforeChange,
       applyCorePresetSections,
+      migrateGuideInquirySectionsBeforeChange,
       migrateLegacySectionsBeforeChange,
       sitePagePublishGuardsBeforeChange,
       enforceSitePageActivationRules,
@@ -323,7 +325,7 @@ export const SitePages: CollectionConfig = {
       admin: {
         condition: () => true,
         description:
-          'For fixed preset pages, section structure is managed automatically. Edit text/images inside each locked section.',
+          'For fixed preset pages, section structure is managed automatically. Edit text/images inside each locked section. Manage forms in the Forms collection and place them using Form Embed sections.',
         components: {
           beforeInput: ['@/payload/admin/components/CmsEditorTrainingHint'],
         },

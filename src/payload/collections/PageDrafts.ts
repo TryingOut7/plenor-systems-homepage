@@ -7,6 +7,7 @@ import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
 import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigration.ts';
+import { migrateGuideInquirySectionsBeforeChange } from '../hooks/guideInquirySectionMigration.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
 
 const normalizeTargetSlugBeforeChange: CollectionBeforeChangeHook = ({ data }) => {
@@ -57,6 +58,7 @@ export const PageDrafts: CollectionConfig = {
       stampCreatedByBeforeChange,
       normalizeTargetSlugBeforeChange,
       workflowBeforeChange,
+      migrateGuideInquirySectionsBeforeChange,
       migrateLegacySectionsBeforeChange,
     ],
     afterChange: [workflowAfterChange, auditAfterChange],
@@ -161,6 +163,8 @@ export const PageDrafts: CollectionConfig = {
       blocks: pageSectionBlocks,
       filterOptions: modernPageSectionBlockSlugs,
       admin: {
+        description:
+          'Manage forms in the Forms collection and place them using Form Embed sections.',
         components: {
           beforeInput: ['@/payload/admin/components/CmsEditorTrainingHint'],
         },

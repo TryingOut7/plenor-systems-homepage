@@ -6,10 +6,8 @@ import DynamicListSection from './DynamicListSection';
 import FaqSection from './FaqSection';
 import FeatureGridSection from './FeatureGridSection';
 import FormSection from './FormSection';
-import GuideFormSection from './GuideFormSection';
 import HeroSection from './HeroSection';
 import ImageSection from './ImageSection';
-import InquiryFormSection from './InquiryFormSection';
 import LegacyAudienceGridSection from './LegacyAudienceGridSection';
 import LegacyCenteredCtaSection from './LegacyCenteredCtaSection';
 import LegacyChecklistSection from './LegacyChecklistSection';
@@ -42,8 +40,6 @@ export const SECTION_RENDERERS: Record<string, SectionRenderer> = {
   logoBandSection: LogoBandSection,
   quoteSection: QuoteSection,
   tabsSection: TabsSection,
-  guideFormSection: GuideFormSection,
-  inquiryFormSection: InquiryFormSection,
   privacyNoteSection: PrivacyNoteSection,
   imageSection: ImageSection,
   videoSection: VideoSection,

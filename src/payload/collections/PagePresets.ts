@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload';
 import { pageSectionBlocks, modernPageSectionBlockSlugs } from '../blocks/pageSections.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
+import { migrateGuideInquirySectionsBeforeChange } from '../hooks/guideInquirySectionMigration.ts';
 import { createdByField } from '../fields/ownership.ts';
 
 export const PagePresets: CollectionConfig = {
@@ -26,7 +27,7 @@ export const PagePresets: CollectionConfig = {
       !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   hooks: {
-    beforeChange: [stampCreatedByBeforeChange],
+    beforeChange: [stampCreatedByBeforeChange, migrateGuideInquirySectionsBeforeChange],
     afterChange: [auditAfterChange],
     afterDelete: [auditAfterDelete],
   },
@@ -121,6 +122,8 @@ export const PagePresets: CollectionConfig = {
       blocks: pageSectionBlocks,
       filterOptions: modernPageSectionBlockSlugs,
       admin: {
+        description:
+          'Manage forms in the Forms collection and place them using Form Embed sections.',
         components: {
           beforeInput: ['@/payload/admin/components/CmsEditorTrainingHint'],
         },

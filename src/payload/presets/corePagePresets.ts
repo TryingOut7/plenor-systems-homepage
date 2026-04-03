@@ -150,6 +150,10 @@ function richTextFromParagraphs(paragraphs: string[]): Record<string, unknown> {
   };
 }
 
+function joinParagraphs(paragraphs: string[]): string {
+  return paragraphs.map((paragraph) => paragraph.trim()).filter(Boolean).join('\n\n');
+}
+
 function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
   const heroHeading = asString(
     content.heroHeading,
@@ -249,14 +253,14 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
       })),
     },
     {
-      blockType: 'guideFormSection',
+      blockType: 'formSection',
       structuralKey: 'home-guide-form',
       theme: 'navy',
       anchorId: 'guide',
-      label: 'Free resource',
+      sectionLabel: 'Free resource',
       heading: guideCTAHeading,
-      highlightText: guideHighlightText,
-      body: guideCTABody,
+      subheading: joinParagraphs([guideHighlightText, guideCTABody]),
+      form: 'guide',
     },
   ];
 }
@@ -548,28 +552,28 @@ function buildContactSections(content: PresetContent): Record<string, unknown>[]
       subheading: heroSubtext,
     },
     {
-      blockType: 'guideFormSection',
+      blockType: 'formSection',
       structuralKey: 'contact-guide-form',
       theme: 'light',
       anchorId: 'guide',
-      label: 'Free resource',
+      sectionLabel: 'Free resource',
       heading: 'Get the free guide',
-      highlightText: guideHighlightText,
-      body: guideBody,
+      subheading: joinParagraphs([guideHighlightText, guideBody]),
+      form: 'guide',
     },
     {
-      blockType: 'inquiryFormSection',
+      blockType: 'formSection',
       structuralKey: 'contact-inquiry-form',
       theme: 'white',
-      label: 'Send an inquiry',
+      sectionLabel: 'Send an inquiry',
       heading: inquiryHeading,
-      subtext: inquirySubtext,
-      nextStepsLabel,
-      nextStepsBody,
-      directEmailLabel,
-      emailAddress,
-      linkedinLabel,
-      linkedinHref,
+      subheading: joinParagraphs([
+        inquirySubtext,
+        `${nextStepsLabel}: ${nextStepsBody}`,
+        `${directEmailLabel}: ${emailAddress}`,
+        linkedinHref ? `${linkedinLabel}: ${linkedinHref}` : '',
+      ]),
+      form: 'inquiry',
     },
     {
       blockType: 'privacyNoteSection',
