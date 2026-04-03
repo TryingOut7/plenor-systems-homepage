@@ -1,0 +1,176 @@
+import type { CollectionSlug, Payload, TypedUser } from 'payload';
+
+const PRESET_CATEGORIES = new Set(['core', 'landing', 'campaign', 'internal', 'custom']);
+
+type UnknownRecord = Record<string, unknown>;
+
+export type PresetMetaInput = {
+  name?: unknown;
+  category?: unknown;
+  description?: unknown;
+  thumbnailId?: unknown;
+  tags?: unknown;
+};
+
+type PresetSourceType = 'from-live' | 'from-draft';
+
+type SourceDoc = {
+  id: number | string;
+  title?: string;
+  sections?: unknown;
+  editorNotes?: unknown;
+};
+
+function asRecord(value: unknown): UnknownRecord {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return value as UnknownRecord;
+}
+
+function cloneValue<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((entry) => cloneValue(entry)) as T;
+  }
+
+  if (value && typeof value === 'object') {
+    const cloned: UnknownRecord = {};
+    for (const [key, nestedValue] of Object.entries(value as UnknownRecord)) {
+      cloned[key] = cloneValue(nestedValue);
+    }
+    return cloned as T;
+  }
+
+  return value;
+}
+
+function readTrimmedString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function normalizeTags(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+    .filter(Boolean);
+}
+
+function sanitizeMeta(meta: PresetMetaInput, fallbackName: string, fallbackDescription: string): {
+  category: string;
+  description?: string;
+  name: string;
+  tags: string[];
+  thumbnailId?: string;
+} {
+  const name = readTrimmedString(meta.name) || fallbackName;
+  const rawCategory = readTrimmedString(meta.category).toLowerCase();
+  const category = PRESET_CATEGORIES.has(rawCategory) ? rawCategory : 'custom';
+  const description = readTrimmedString(meta.description) || fallbackDescription;
+  const thumbnailIdRaw = readTrimmedString(meta.thumbnailId);
+  const tags = normalizeTags(meta.tags);
+
+  return {
+    name,
+    category,
+    ...(description ? { description } : {}),
+    ...(thumbnailIdRaw ? { thumbnailId: thumbnailIdRaw } : {}),
+    tags,
+  };
+}
+
+async function loadSourceDoc(
+  payload: Payload,
+  collection: CollectionSlug,
+  id: number | string,
+  user: TypedUser,
+): Promise<SourceDoc> {
+  const source = await payload.findByID({
+    collection,
+    id,
+    depth: 0,
+    overrideAccess: false,
+    user,
+  });
+  return source as SourceDoc;
+}
+
+async function createPresetFromSource(args: {
+  payload: Payload;
+  presetMeta: PresetMetaInput;
+  sourceCollection: 'page-drafts' | 'site-pages';
+  sourceId: number | string;
+  sourceType: PresetSourceType;
+  user: TypedUser;
+}): Promise<{ id: number | string; name: string }> {
+  const { payload, presetMeta, sourceCollection, sourceId, sourceType, user } = args;
+  const source = await loadSourceDoc(payload, sourceCollection, sourceId, user);
+  const sourceData = asRecord(source);
+  const sourceTitle = readTrimmedString(sourceData.title) || 'Untitled';
+  const fallbackDescription =
+    sourceType === 'from-draft' ? readTrimmedString(sourceData.editorNotes) : '';
+  const normalizedMeta = sanitizeMeta(
+    presetMeta,
+    `${sourceTitle} Preset`,
+    fallbackDescription,
+  );
+
+  const sections = Array.isArray(sourceData.sections)
+    ? cloneValue(sourceData.sections)
+    : [];
+
+  const created = await payload.create({
+    collection: 'page-presets',
+    depth: 0,
+    overrideAccess: false,
+    user,
+    data: {
+      name: normalizedMeta.name,
+      category: normalizedMeta.category,
+      description: normalizedMeta.description,
+      thumbnail: normalizedMeta.thumbnailId,
+      tags: normalizedMeta.tags.map((tag) => ({ tag })),
+      structureMode: 'editable',
+      sections,
+      sourceType,
+      sourceLivePage: sourceType === 'from-live' ? source.id : undefined,
+      sourceDraft: sourceType === 'from-draft' ? source.id : undefined,
+      createdFromSnapshotAt: new Date().toISOString(),
+    },
+  });
+
+  const createdRecord = created as UnknownRecord;
+  return {
+    id: (createdRecord.id as string | number) ?? '',
+    name: readTrimmedString(createdRecord.name) || normalizedMeta.name,
+  };
+}
+
+export async function createPresetFromLivePage(args: {
+  livePageId: number | string;
+  payload: Payload;
+  presetMeta: PresetMetaInput;
+  user: TypedUser;
+}): Promise<{ id: number | string; name: string }> {
+  return createPresetFromSource({
+    payload: args.payload,
+    sourceCollection: 'site-pages',
+    sourceId: args.livePageId,
+    sourceType: 'from-live',
+    presetMeta: args.presetMeta,
+    user: args.user,
+  });
+}
+
+export async function createPresetFromDraft(args: {
+  draftId: number | string;
+  payload: Payload;
+  presetMeta: PresetMetaInput;
+  user: TypedUser;
+}): Promise<{ id: number | string; name: string }> {
+  return createPresetFromSource({
+    payload: args.payload,
+    sourceCollection: 'page-drafts',
+    sourceId: args.draftId,
+    sourceType: 'from-draft',
+    presetMeta: args.presetMeta,
+    user: args.user,
+  });
+}

@@ -63,6 +63,12 @@ import { default as default_20e4ea7a8cbf4feba0f34f3ed8dbd75c } from '@/payload/a
 import { default as default_9f2ff87a7f9a4875a6eef5af7efc2d64 } from '@/payload/admin/components/SitePageQualityChecklistHint'
 import { default as default_560b1f5f5438454f9fbe7f37f8572dfa } from '@/payload/admin/components/SectionBlockRowLabel'
 import { default as default_9af8b74157f94922a26fd8b5295e28ed } from '@/payload/admin/components/MediaApprovalStatusField'
+import { default as default_08f21402e4af4f71a0adf74d28db7262 } from '@/payload/admin/components/CreatePresetFromDocumentButton'
+import { default as default_9fc507db18c44f358fae2c1674ef66c8 } from '@/payload/admin/components/CreatePresetFromRowCell'
+import { default as default_22503d84cb22426ab09cb334e6618cec } from '@/payload/admin/components/HiddenUIField'
+import { default as default_8f85ddff8f5e42c98701ed7607114f17 } from '@/payload/admin/components/LifecycleBadgeCell'
+import { default as default_91c89d638a2249deaf4454c7543617a0 } from '@/payload/admin/components/WorkspaceBadgeCell'
+import { default as default_7bb00ae65ff7453f9e8de2f40422b2b7, PresetSourceBadgeCell as PresetSourceBadgeCell_7bb00ae65ff7453f9e8de2f40422b2b7 } from '@/payload/admin/components/PresetSourceBadge'
 
 export const importMap = {
   "@payloadcms/next/rsc#FolderTableCell": FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1,
@@ -129,5 +135,12 @@ export const importMap = {
   "@/payload/admin/components/WorkflowStatusBanner#default": default_20e4ea7a8cbf4feba0f34f3ed8dbd75c,
   "@/payload/admin/components/SitePageQualityChecklistHint#default": default_9f2ff87a7f9a4875a6eef5af7efc2d64,
   "@/payload/admin/components/SectionBlockRowLabel#default": default_560b1f5f5438454f9fbe7f37f8572dfa,
-  "@/payload/admin/components/MediaApprovalStatusField#default": default_9af8b74157f94922a26fd8b5295e28ed
+  "@/payload/admin/components/MediaApprovalStatusField#default": default_9af8b74157f94922a26fd8b5295e28ed,
+  "@/payload/admin/components/CreatePresetFromDocumentButton#default": default_08f21402e4af4f71a0adf74d28db7262,
+  "@/payload/admin/components/CreatePresetFromRowCell#default": default_9fc507db18c44f358fae2c1674ef66c8,
+  "@/payload/admin/components/HiddenUIField#default": default_22503d84cb22426ab09cb334e6618cec,
+  "@/payload/admin/components/LifecycleBadgeCell#default": default_8f85ddff8f5e42c98701ed7607114f17,
+  "@/payload/admin/components/WorkspaceBadgeCell#default": default_91c89d638a2249deaf4454c7543617a0,
+  "@/payload/admin/components/PresetSourceBadge#default": default_7bb00ae65ff7453f9e8de2f40422b2b7,
+  "@/payload/admin/components/PresetSourceBadge#PresetSourceBadgeCell": PresetSourceBadgeCell_7bb00ae65ff7453f9e8de2f40422b2b7
 }

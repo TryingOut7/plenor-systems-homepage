@@ -39,6 +39,9 @@ import { resendAdapter } from '@payloadcms/email-resend';
 import { Media } from './payload/collections/Media.ts';
 import { ServiceItems } from './payload/collections/ServiceItems.ts';
 import { SitePages } from './payload/collections/SitePages.ts';
+import { PageDrafts } from './payload/collections/PageDrafts.ts';
+import { PagePresets } from './payload/collections/PagePresets.ts';
+import { PagePlaygrounds } from './payload/collections/PagePlaygrounds.ts';
 import { ReusableSections } from './payload/collections/ReusableSections.ts';
 import { RedirectRules } from './payload/collections/RedirectRules.ts';
 import { BlogPosts } from './payload/collections/BlogPosts.ts';
@@ -152,10 +155,16 @@ function resolveCollectionLivePreviewPath(
   if (!collectionSlug) return null;
 
   const slug = normalizePreviewSlug(data?.slug);
+  const targetSlug = normalizePreviewSlug(data?.targetSlug);
 
   if (collectionSlug === 'site-pages') {
     if (!slug || slug === 'home') return '/';
     return `/${slug}`;
+  }
+
+  if (collectionSlug === 'page-drafts') {
+    if (!targetSlug || targetSlug === 'home') return '/';
+    return `/${targetSlug}`;
   }
 
   if (collectionSlug === 'service-items') {
@@ -381,7 +390,7 @@ export default buildConfig({
     },
     livePreview: {
       url: resolveLivePreviewURL,
-      collections: ['site-pages', 'service-items'],
+      collections: ['site-pages', 'page-drafts', 'service-items'],
       globals: ['site-settings', 'ui-settings'],
       breakpoints: [
         { label: 'Mobile', name: 'mobile', width: 375, height: 667 },
@@ -513,6 +522,9 @@ export default buildConfig({
     Media,
     ServiceItems,
     SitePages,
+    PageDrafts,
+    PagePresets,
+    PagePlaygrounds,
     ReusableSections,
     RedirectRules,
     BlogPosts,

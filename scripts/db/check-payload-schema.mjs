@@ -37,12 +37,16 @@ const COLLECTION_TABLES_WITH_CREATED_BY = [
   'blog_posts',
   'testimonials',
   'site_pages',
+  'page_drafts',
+  'page_presets',
+  'page_playgrounds',
 ];
 
 const COLLECTION_TABLES_WITH_WORKFLOW_REVIEW = [
   'blog_categories',
   'team_members',
   'logos',
+  'page_drafts',
 ];
 
 const WORKFLOW_REVIEW_COLUMNS = [
@@ -60,6 +64,7 @@ const WORKFLOW_REVIEW_COLUMNS = [
 const REQUIRED_TABLES = [
   'reuse_sec',
   'audit_logs',
+  'page_presets_tags',
   ...BLOCK_TABLES_WITH_SECTION_LABEL,
   ...COLLECTION_TABLES_WITH_CREATED_BY,
   ...COLLECTION_TABLES_WITH_WORKFLOW_REVIEW,
@@ -155,6 +160,55 @@ const REQUIRED_COLUMNS = {
   ...Object.fromEntries(
     COLLECTION_TABLES_WITH_WORKFLOW_REVIEW.map((tableName) => [tableName, WORKFLOW_REVIEW_COLUMNS]),
   ),
+  page_drafts: [
+    'target_slug',
+    'source_type',
+    'source_page_id',
+    'source_preset_id',
+    'source_playground_id',
+    'editor_notes',
+    'created_by_id',
+    'workflow_status',
+    'review_checklist_complete',
+    'review_summary',
+    'reviewed_by_id',
+    'reviewed_at',
+    'approved_by_id',
+    'approved_at',
+    'rejection_reason',
+    'seo_meta_title',
+    'seo_meta_description',
+    'seo_og_title',
+    'seo_og_description',
+    'seo_og_image_id',
+    'seo_canonical_url',
+    'seo_noindex',
+    'seo_nofollow',
+    'seo_include_in_sitemap',
+    'deleted_at',
+  ],
+  page_presets: [
+    'name',
+    'category',
+    'description',
+    'thumbnail_id',
+    'structure_mode',
+    'source_type',
+    'source_live_page_id',
+    'source_draft_id',
+    'created_from_snapshot_at',
+    'created_by_id',
+    'deleted_at',
+  ],
+  page_playgrounds: [
+    'name',
+    'visibility',
+    'expires_at',
+    'notes',
+    'created_by_id',
+    'deleted_at',
+  ],
+  page_presets_tags: ['_order', '_parent_id', 'id', 'tag'],
   testimonials: ['created_by_id', 'name'],
   team_members: [...WORKFLOW_REVIEW_COLUMNS, 'linkedin_url', 'twitter_url'],
   logos: [...WORKFLOW_REVIEW_COLUMNS, 'url'],
@@ -178,6 +232,13 @@ const REQUIRED_CONSTRAINTS = [
     },
   ])),
   { table: 'site_settings', name: 'site_settings_logo_image_id_media_id_fk' },
+  { table: 'page_drafts', name: 'page_drafts_source_page_id_site_pages_id_fk' },
+  { table: 'page_drafts', name: 'page_drafts_source_preset_id_page_presets_id_fk' },
+  { table: 'page_drafts', name: 'page_drafts_source_playground_id_page_playgrounds_id_fk' },
+  { table: 'page_presets', name: 'page_presets_thumbnail_id_media_id_fk' },
+  { table: 'page_presets', name: 'page_presets_source_live_page_id_site_pages_id_fk' },
+  { table: 'page_presets', name: 'page_presets_source_draft_id_page_drafts_id_fk' },
+  { table: 'page_presets_tags', name: 'page_presets_tags_parent_id_fk' },
   {
     table: '_site_settings_v',
     name: '_site_settings_v_version_logo_image_id_media_id_fk',
@@ -201,6 +262,49 @@ const READ_PATH_CHECKS = [
       FROM public._ui_settings_v
       WHERE version__status = 'draft'
       ORDER BY updated_at DESC, created_at DESC
+      LIMIT 1;
+    `,
+  },
+  {
+    name: 'page_drafts_list_view_path',
+    sql: `
+      SELECT id,
+        target_slug,
+        source_type,
+        workflow_status,
+        review_checklist_complete
+      FROM public.page_drafts
+      WHERE deleted_at IS NULL
+      ORDER BY created_at DESC
+      LIMIT 1;
+    `,
+  },
+  {
+    name: 'page_presets_list_view_path',
+    sql: `
+      SELECT p.id,
+        p.name,
+        p.category,
+        p.source_type,
+        t.id AS tag_id
+      FROM public.page_presets AS p
+      LEFT JOIN public.page_presets_tags AS t
+        ON t._parent_id = p.id
+      WHERE p.deleted_at IS NULL
+      ORDER BY p.created_at DESC
+      LIMIT 1;
+    `,
+  },
+  {
+    name: 'page_playgrounds_list_view_path',
+    sql: `
+      SELECT id,
+        name,
+        visibility,
+        expires_at
+      FROM public.page_playgrounds
+      WHERE deleted_at IS NULL
+      ORDER BY created_at DESC
       LIMIT 1;
     `,
   },

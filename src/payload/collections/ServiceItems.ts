@@ -13,7 +13,7 @@ export const ServiceItems: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'isFeatured', 'priceFrom'],
-    group: 'Pages',
+    group: 'Content',
     description: 'Service landing pages and offerings shown on the website.',
   },
   access: {

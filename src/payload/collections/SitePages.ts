@@ -44,6 +44,16 @@ function readEffectivePresetKey(incoming: Record<string, unknown>, original: Rec
   return 'custom';
 }
 
+function readEffectiveSlug(incoming: Record<string, unknown>, original: Record<string, unknown>): string {
+  const incomingSlug = incoming.slug;
+  if (typeof incomingSlug === 'string') return incomingSlug.trim().replace(/^\/+|\/+$/g, '');
+
+  const originalSlug = original.slug;
+  if (typeof originalSlug === 'string') return originalSlug.trim().replace(/^\/+|\/+$/g, '');
+
+  return '';
+}
+
 function readEffectiveIsActive(
   incoming: Record<string, unknown>,
   original: Record<string, unknown>,
@@ -68,8 +78,9 @@ const enforceSitePageActivationRules: CollectionBeforeChangeHook = async ({
   if (operation !== 'create' && operation !== 'update') return incoming;
 
   const nextPresetKey = readEffectivePresetKey(incoming, original);
+  const nextSlug = readEffectiveSlug(incoming, original);
   const nextIsActive = readEffectiveIsActive(incoming, original, operation);
-  if (nextPresetKey !== 'home' || !nextIsActive) return incoming;
+  if (nextPresetKey !== 'home' || nextSlug !== 'home' || !nextIsActive) return incoming;
 
   const currentId = incoming.id ?? original.id;
   const excludeSelf =
@@ -93,7 +104,7 @@ const enforceSitePageActivationRules: CollectionBeforeChangeHook = async ({
 
   if (result.docs.length > 0) {
     throw new Error(
-      'Only one Home preset page can be active at a time. Deactivate the other active Home page first.',
+      'Only one active page can use slug "home". Deactivate the current Home page first.',
     );
   }
 
@@ -102,11 +113,29 @@ const enforceSitePageActivationRules: CollectionBeforeChangeHook = async ({
 
 export const SitePages: CollectionConfig = {
   slug: 'site-pages',
+  labels: {
+    singular: 'Live Page',
+    plural: 'Live Pages',
+  },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'presetKey', 'workflowStatus', 'isActive'],
+    defaultColumns: [
+      'workspaceBadge',
+      'lifecycleBadge',
+      'title',
+      'slug',
+      'presetKey',
+      'workflowStatus',
+      'isActive',
+      'createPresetAction',
+    ],
     group: 'Pages',
     description: 'Main website pages. Core preset pages use a fixed layout; custom pages use the section builder.',
+    components: {
+      edit: {
+        beforeDocumentControls: ['@/payload/admin/components/CreatePresetFromDocumentButton'],
+      },
+    },
   },
   access: {
     read: ({ req }) => {
@@ -133,6 +162,43 @@ export const SitePages: CollectionConfig = {
   trash: true,
   enableQueryPresets: true,
   fields: [
+    {
+      name: 'workspaceBadge',
+      type: 'ui',
+      admin: {
+        disableBulkEdit: true,
+        disableListColumn: false,
+        components: {
+          Cell: '@/payload/admin/components/WorkspaceBadgeCell',
+          Field: '@/payload/admin/components/HiddenUIField',
+        },
+      },
+    },
+    {
+      name: 'lifecycleBadge',
+      type: 'ui',
+      admin: {
+        disableBulkEdit: true,
+        disableListColumn: false,
+        components: {
+          Cell: '@/payload/admin/components/LifecycleBadgeCell',
+          Field: '@/payload/admin/components/HiddenUIField',
+        },
+      },
+    },
+    {
+      name: 'createPresetAction',
+      label: 'Create Preset',
+      type: 'ui',
+      admin: {
+        disableBulkEdit: true,
+        disableListColumn: false,
+        components: {
+          Cell: '@/payload/admin/components/CreatePresetFromRowCell',
+          Field: '@/payload/admin/components/HiddenUIField',
+        },
+      },
+    },
     {
       name: 'title',
       type: 'text',
@@ -189,7 +255,8 @@ export const SitePages: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
-        description: 'Use a core preset to lock page structure and edit text content.',
+        description:
+          'Use a core preset to create a ready-made fixed layout (great for duplicating core page styles). You can create multiple pages from the same preset by using a unique slug.',
       },
     },
     {
