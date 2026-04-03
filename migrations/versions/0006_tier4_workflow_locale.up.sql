@@ -53,7 +53,7 @@ ALTER TABLE _testimonials_v
 -- PAYLOAD_DB_PUSH=true (now the default on Vercel). Run these after the first
 -- deploy so the version tables exist:
 
-ALTER TABLE _site_pages_v
+ALTER TABLE IF EXISTS _site_pages_v
   ADD COLUMN IF NOT EXISTS version_workflow_status varchar DEFAULT 'draft',
   ADD COLUMN IF NOT EXISTS version_approved_by_id integer REFERENCES users(id) ON DELETE SET NULL,
   ADD COLUMN IF NOT EXISTS version_approved_at timestamptz,
@@ -65,4 +65,3 @@ CREATE INDEX IF NOT EXISTS site_pages_workflow_status_idx ON site_pages (workflo
 CREATE INDEX IF NOT EXISTS blog_posts_workflow_status_idx ON blog_posts (workflow_status);
 CREATE INDEX IF NOT EXISTS service_items_workflow_status_idx ON service_items (workflow_status);
 CREATE INDEX IF NOT EXISTS testimonials_workflow_status_idx ON testimonials (workflow_status);
-

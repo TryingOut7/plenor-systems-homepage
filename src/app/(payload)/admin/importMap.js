@@ -56,6 +56,8 @@ import { ImportExportProvider as ImportExportProvider_cdf7e044479f899a31f804427d
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_0127ca5cb5544af3ad1a6a5999faa7b0 } from '@payloadcms/storage-vercel-blob/client'
 import { default as default_4de2b5b97b2b4bb1c1c999625da7722f } from '@/payload/admin/components/SectionBackgroundColorPicker'
+import { default as default_9a31a4f5f65b4f0a95f17bc2d9c63531 } from '@/payload/admin/components/CmsFieldTierHint'
+import { default as default_5c79fd1d22e84403ae8277006693a13e } from '@/payload/admin/components/CmsEditorTrainingHint'
 
 export const importMap = {
   "@payloadcms/next/rsc#FolderTableCell": FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1,
@@ -115,5 +117,7 @@ export const importMap = {
   "@payloadcms/plugin-import-export/rsc#ImportExportProvider": ImportExportProvider_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_0127ca5cb5544af3ad1a6a5999faa7b0,
-  "@/payload/admin/components/SectionBackgroundColorPicker#default": default_4de2b5b97b2b4bb1c1c999625da7722f
+  "@/payload/admin/components/SectionBackgroundColorPicker#default": default_4de2b5b97b2b4bb1c1c999625da7722f,
+  "@/payload/admin/components/CmsFieldTierHint#default": default_9a31a4f5f65b4f0a95f17bc2d9c63531,
+  "@/payload/admin/components/CmsEditorTrainingHint#default": default_5c79fd1d22e84403ae8277006693a13e
 }

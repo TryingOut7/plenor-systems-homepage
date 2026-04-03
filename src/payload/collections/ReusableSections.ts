@@ -14,14 +14,6 @@ export const ReusableSections: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'libraryVersion', 'libraryCategory', 'workflowStatus'],
   },
-  versions: {
-    maxPerDoc: 40,
-    drafts: {
-      autosave: {
-        interval: 1200,
-      },
-    },
-  },
   access: {
     read: ({ req }) => {
       if (req.user) return true;
