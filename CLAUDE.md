@@ -60,45 +60,49 @@ Hook config lives in `.claude/hooks/config.json`. The `settings.local.json` adds
 ## Commands
 
 ```bash
+# ── Dev ───────────────────────────────────────────────────────────────────────
 npm run dev              # Start dev server with Turbopack (localhost:3000)
-npm run build            # Production build
-npm run lint             # ESLint check
-npm run lint:architecture # Enforce architecture boundary imports
-npm run check:type       # Repository typecheck (excludes .next noise)
-npm run openapi:generate # Generate typed API definitions from OpenAPI
-npm run openapi:check    # Verify generated OpenAPI types are up to date
-npm run dev              # Start dev server (Turbopack, localhost:3000)
 npm run dev:schema-push  # Dev server with Payload auto-push enabled (use when adding new fields/collections)
 
 # ── Schema / Migrations ────────────────────────────────────────────────────────
 npm run generate:migration          # Auto-generate a CMS migration after adding/changing collections or fields
-npm run db:migrate:cms              # Apply pending CMS migrations (migrations/payload/)
-npm run db:migrate:cms:status       # Show applied/pending CMS migrations
+npm run generate:types              # Generate Payload TypeScript types
 npm run db:migrate                  # Apply backend table migrations (migrations/versions/)
 npm run db:migrate:status           # Show applied/pending backend migrations
 npm run db:migrate:rollback         # Roll back the latest backend migration
+npm run db:migrate:cms              # Apply pending CMS migrations (migrations/payload/)
+npm run db:migrate:cms:status       # Show applied/pending CMS migrations
 npm run db:check:payload            # Check Payload schema against actual DB
 npm run db:repair:payload           # Repair Payload schema drift in the DB
+npm run db:schema:drift             # Check schema manifest vs live DB; auto-generate repair migration if needed
+npm run db:schema:drift:check       # Check only, no file write
+npm run hooks:install               # Wire up .githooks/ into .git/hooks/ (run once after cloning)
 npm run backup                      # Run database backup script
 
-# ── Build / Lint / Test ────────────────────────────────────────────────────────
+# ── Build / Lint / Type ────────────────────────────────────────────────────────
 npm run build            # Production build
 npm run lint             # ESLint check
 npm run lint:architecture # Enforce architecture boundary imports
 npm run check:type       # Repository typecheck (excludes .next noise)
 npm run openapi:generate # Generate typed API definitions from OpenAPI
 npm run openapi:check    # Verify generated OpenAPI types are up to date
+
+# ── Test ──────────────────────────────────────────────────────────────────────
 npm run test:unit        # Domain/application unit tests
 npm run test:integration # Fastify route integration tests
 npm run test:e2e         # Typed-client smoke tests against live backend instance
 npm run test:ci          # Run unit + integration + e2e suites
+
+# ── Backend ───────────────────────────────────────────────────────────────────
 npm run backend:dev      # Backend watch mode
 npm run backend:start    # Start backend server
 npm run backend:lint     # Lint backend app
 npm run backend:typecheck # Typecheck backend app
-npm run payload          # Payload CLI
-npm run generate:types   # Generate Payload TypeScript types
+
+# ── Seed / Data ───────────────────────────────────────────────────────────────
 npm run seed:site-pages  # Seed site-pages collection
+npm run seed:forms       # Seed form templates
+npm run payload          # Payload CLI passthrough
 ```
 
 ## Adding a New Field or Collection (Schema Change Workflow)
@@ -137,6 +141,67 @@ These tables are **not** Payload-managed. Write `.up.sql` and `.down.sql` files 
 |--------|-----------|--------|
 | Payload (`db:migrate:cms`) | `migrations/payload/` | All CMS collections: site_pages, testimonials, blog_posts, media, users, etc. |
 | Custom runner (`db:migrate`) | `migrations/versions/` | Backend ops: guide_submissions, inquiry_submissions, backend_outbox_jobs, backend_idempotency_keys, backend_rate_limit_counters, schema_migrations, audit_logs |
+
+## Schema Drift Detection (Pre-Push Hook)
+
+A pre-push git hook automatically checks the live database for schema drift before every push. This prevents the DB and TypeScript schema from silently diverging.
+
+### How it works
+
+1. **Schema manifest** — `scripts/db/schema-manifest.mjs` is the single source of truth for all expected columns across every table (Payload-managed and custom). It declares column names and SQL types.
+2. **Drift detector** — `scripts/db/schema-drift.mjs` queries `information_schema.columns`, diffs against the manifest, and reports any missing columns.
+3. **Pre-push hook** — `.githooks/pre-push` runs two checks before every `git push`:
+   - Pending SQL migrations (blocks if any `migrations/versions/` file hasn't been applied)
+   - Schema drift (blocks if any manifest column is missing from the DB)
+
+### When the hook blocks a push
+
+If drift is detected, the hook auto-generates a numbered repair migration and prints instructions:
+
+```
+❌ Schema drift: N missing column(s)
+📄 Repair migration generated:
+   migrations/versions/NNNN_auto_schema_drift.up.sql
+   migrations/versions/NNNN_auto_schema_drift.down.sql
+
+⚠️  NEXT STEPS:
+   1. Review the generated migration (check types and defaults)
+   2. git add migrations/versions/NNNN_auto_schema_drift.{up,down}.sql
+   3. git commit -m "fix: repair schema drift"
+   4. npm run db:migrate   ← apply it locally first
+   5. Push again
+```
+
+The migration uses `ADD COLUMN IF NOT EXISTS` only — additive, never destructive. Missing tables are reported but never auto-created.
+
+### Adding a new field to the manifest
+
+When you add a column to a Payload collection/global or a custom table, also add it to `scripts/db/schema-manifest.mjs`:
+
+```js
+// In SCHEMA_MANIFEST, under the relevant table:
+my_table: {
+  existing_col: 'character varying',
+  new_col: 'character varying',   // ← add this
+},
+```
+
+If the manifest is out of date, the hook will generate spurious repair migrations.
+
+### Hook installation (after cloning)
+
+The hook file lives in `.githooks/pre-push` (committed to the repo). It must be wired up once per clone:
+
+```bash
+npm run hooks:install
+```
+
+### Manual drift check
+
+```bash
+npm run db:schema:drift          # check + auto-generate migration if needed
+npm run db:schema:drift:check    # check only, no file write
+```
 
 ## Environment Variables
 
@@ -214,8 +279,8 @@ Import boundaries are enforced by ESLint via `lint:architecture`.
   - POST idempotency support via `Idempotency-Key`
   - persistent outbox pipeline with retry/dead-letter state
   - shared DB-backed edge rate limiting middleware (`apps/backend/src/middleware/rateLimit.ts`)
-- Next API routes (`/api/search`, `/api/guide`, `/api/inquiry`, `/api/internal/seed-site-pages`, `/api/content/*`, `/api/admin/submissions*`, `/api/integrations/status`) are **proxy-first fail-closed** when `BACKEND_INTERNAL_URL` is set.
-- Draft mode routes remain local in Next (`/api/draft-mode/*`) because they depend on Next draft cookie APIs.
+- Next API routes that proxy to the backend when `BACKEND_INTERNAL_URL` is set (**proxy-first fail-closed**): `/api/search`, `/api/guide`, `/api/inquiry`, `/api/internal/seed-site-pages`, `/api/content/*`, `/api/admin/submissions*`, `/api/integrations/status`.
+- Routes that are **always local** in Next (no proxy): `/api/draft-mode/*` (Next draft cookies), `/api/pages/*` (workspace actions: playground→draft/preset, draft→live), `/api/forms/templates/*` (form template seeding), `/api/internal/cron/*` (Vercel Cron jobs: outbox-tick, backup), `/api/internal/seed-forms`.
 
 ### Contracts and API Schema
 
@@ -276,16 +341,19 @@ Key frontend routes:
 
 ## CI Pipeline
 
-CI workflow (`.github/workflows/ci.yml`) runs:
-1. `npm ci`
-2. `npm run lint`
-3. `npm run lint:architecture`
-4. `npm run check:type`
-5. `npm run db:migrate`
-6. `npm run db:migrate:status -- --check`
-7. `npm run openapi:check`
-8. `npm run test:ci`
-9. `npm run build`
+CI workflow (`.github/workflows/ci.yml`) runs against a local Postgres 16 container:
+1. `npm run check:runtime`
+2. `npm ci`
+3. `npm run db:migrate` — apply backend table migrations
+4. `npm run db:migrate:status -- --check` — fail if any backend migrations are pending
+5. `npm run db:migrate:cms` — apply CMS migrations
+6. `npm run db:migrate:cms:status` — fail if any CMS migrations are pending
+7. `npm run predeploy:guardrails` — runtime check + Payload schema check + CMS governance check + type check + importmap check
+8. `npm run lint`
+9. `npm run lint:architecture`
+10. `npm run openapi:check`
+11. `npm run test:ci`
+12. `npm run build`
 
 ## Operational Notes
 
