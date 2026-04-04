@@ -37,7 +37,7 @@ export function cloneDefaultSitePage(slug: string): SitePage | null {
   };
 }
 
-export function normalizeMedia(media: unknown): { url?: string; alt?: string } | undefined {
+function normalizeMedia(media: unknown): { url?: string; alt?: string } | undefined {
   if (!media || typeof media !== 'object') return undefined;
   const m = media as Record<string, unknown>;
   return {

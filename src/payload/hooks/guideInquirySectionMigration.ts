@@ -93,7 +93,7 @@ function convertInquiryToFormSection(
   return next;
 }
 
-export function hasGuideInquirySections(sectionsInput: unknown): boolean {
+function hasGuideInquirySections(sectionsInput: unknown): boolean {
   const sections = asSectionArray(sectionsInput);
   return sections.some((section) => {
     const blockType = readString(section.blockType);
@@ -101,7 +101,7 @@ export function hasGuideInquirySections(sectionsInput: unknown): boolean {
   });
 }
 
-export function migrateGuideInquirySections(
+function migrateGuideInquirySections(
   sectionsInput: unknown,
   formIds: {
     guideFormId: number | string;
@@ -146,7 +146,7 @@ async function resolveDefaultFormIds(): Promise<{
   return { guideFormId, inquiryFormId };
 }
 
-export async function migrateGuideInquirySectionsWithDefaultForms(
+async function migrateGuideInquirySectionsWithDefaultForms(
   sectionsInput: unknown,
 ): Promise<{
   sections: SectionRecord[];

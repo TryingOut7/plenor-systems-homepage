@@ -1,8 +1,8 @@
-export type CmsLanePreference = 'simple' | 'advanced';
+type CmsLanePreference = 'simple' | 'advanced';
 
 type UserRecord = Record<string, unknown>;
 
-export function resolveUserRole(user: unknown): string | null {
+function resolveUserRole(user: unknown): string | null {
   if (!user || typeof user !== 'object') return null;
   const role = (user as UserRecord).role;
   return typeof role === 'string' ? role : null;
