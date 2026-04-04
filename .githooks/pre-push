@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Pre-push hook: catches schema drift before it reaches production.
+#
+# Runs two checks:
+#   1. Pending SQL migrations (migrations/versions/) — ensures nothing was
+#      committed to the migration directory but not yet applied.
+#   2. Column-level schema drift — compares schema-manifest.mjs against the
+#      actual database and auto-generates a repair migration if needed.
+#
+# To install: npm run hooks:install
+# To skip (emergency only): git push --no-verify
+
+set -euo pipefail
+
+# ── Resolve project root ─────────────────────────────────────────────────────
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+# ── Load environment variables ───────────────────────────────────────────────
+if [ -f ".env.local" ]; then
+  set -a
+  # shellcheck source=/dev/null
+  source .env.local
+  set +a
+elif [ -f ".env" ]; then
+  set -a
+  # shellcheck source=/dev/null
+  source .env
+  set +a
+fi
+
+# ── Verify DB connectivity is available ─────────────────────────────────────
+if [ -z "${DATABASE_URI:-}" ] && [ -z "${DATABASE_URL:-}" ]; then
+  echo "⚠️  pre-push: DATABASE_URI / DATABASE_URL not set — skipping schema checks."
+  echo "   Add DATABASE_URI to .env.local to enable schema drift detection."
+  exit 0
+fi
+
+echo "🔍 [pre-push] Checking for pending backend migrations..."
+if ! node scripts/db/migrate-status.mjs --check 2>&1; then
+  echo ""
+  echo "❌ [pre-push] Pending migrations found. Either:"
+  echo "   • Run 'npm run db:migrate' to apply them locally, OR"
+  echo "   • Commit missing migration files before pushing."
+  exit 1
+fi
+echo "   ✓ No pending migrations."
+
+echo ""
+echo "🔍 [pre-push] Checking for schema drift..."
+if ! node scripts/db/schema-drift.mjs 2>&1; then
+  echo ""
+  echo "❌ [pre-push] Schema drift detected."
+  echo "   A repair migration was generated. Review it, commit it, then push again."
+  echo "   (See instructions above for the exact git commands.)"
+  exit 1
+fi
+echo "   ✓ Schema is up to date."
+
+echo ""
+echo "✅ [pre-push] All schema checks passed."
+exit 0
