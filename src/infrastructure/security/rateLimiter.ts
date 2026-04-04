@@ -8,7 +8,7 @@ interface Entry {
 }
 
 const DEFAULT_WINDOW_MS = 60_000;
-const DEFAULT_MAX_REQUESTS = 5;
+const DEFAULT_MAX_REQUESTS = 20;
 const MAX_STORE_SIZE = 10_000;
 const store = new Map<string, Entry>();
 let warnedPersistentFallback = false;

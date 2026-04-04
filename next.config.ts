@@ -32,7 +32,7 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // Payload admin panel — allow same-origin framing
+      // Payload admin panel — allow same-origin framing, relaxed script/style for CMS editor
       {
         source: "/admin/:path*",
         headers: [
@@ -42,6 +42,19 @@ const nextConfig: NextConfig = {
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
+          },
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' https: data: blob:",
+              "font-src 'self' https: data:",
+              "connect-src 'self' https: wss:",
+              "worker-src 'self' blob:",
+              "frame-ancestors 'self'",
+            ].join("; "),
           },
         ],
       },

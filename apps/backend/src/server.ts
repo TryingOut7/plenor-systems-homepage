@@ -9,8 +9,6 @@ import { tryHandleIdempotentReplay, persistIdempotentResult } from './middleware
 import { createRateLimitHook } from './middleware/rateLimit';
 import { requireApiRole } from './middleware/requireRole';
 import { getBackendMetricsSnapshot, recordBackendRequest } from './observability/metricsRegistry';
-import type { RequestContext } from '../../../src/application/shared/requestContext';
-import type { ServiceResult } from '../../../src/application/shared/serviceResult';
 import { getIntegrationStatus } from '../../../src/application/integrations/integrationStatusService';
 import { payloadContentRepository } from '../../../src/infrastructure/cms/contentGateway';
 import { payloadSeedRepository } from '../../../src/infrastructure/cms/seedGateway';
@@ -20,21 +18,19 @@ import {
   isPersistentStoreConfigured,
   refreshPersistenceCapabilityState,
 } from '../../../src/infrastructure/persistence/backendStore';
-
-function pickExport<T>(mod: Record<string, unknown>, name: string): T {
-  const named = mod[name];
-  const fallback =
-    mod.default && typeof mod.default === 'object'
-      ? (mod.default as Record<string, unknown>)[name]
-      : undefined;
-  const value = named ?? fallback;
-
-  if (typeof value !== 'function') {
-    throw new Error(`Missing export "${name}" on module.`);
-  }
-
-  return value as T;
-}
+import { searchSiteContent } from '../../../src/application/search/searchService';
+import { submitGuideForm } from '../../../src/application/forms/guideSubmissionService';
+import { submitInquiryForm } from '../../../src/application/forms/inquirySubmissionService';
+import { seedSitePagesForRequest } from '../../../src/application/internal/seedSitePagesService';
+import {
+  getContentPageBySlug,
+  getContentNavigation,
+} from '../../../src/application/content/pageContentService';
+import {
+  listAdminSubmissions,
+  getAdminSubmissionById,
+  replaySubmissionSideEffects,
+} from '../../../src/application/admin/submissionsService';
 
 export function buildBackendServer(): FastifyInstance {
   const rateLimitMax = Number(process.env.BACKEND_RATE_LIMIT_MAX || '120');
@@ -152,11 +148,7 @@ export function buildBackendServer(): FastifyInstance {
 
     if (process.env.CMS_SKIP_PAYLOAD !== 'true') {
       try {
-        const mod = (await import('../../../src/payload/client')) as Record<
-          string,
-          unknown
-        >;
-        const getPayload = pickExport<() => Promise<unknown>>(mod, 'getPayload');
+        const { getPayload } = await import('../../../src/payload/client');
         await getPayload();
       } catch (error) {
         cmsReady = false;
@@ -226,16 +218,6 @@ export function buildBackendServer(): FastifyInstance {
   });
 
   app.get('/v1/search', async (request, reply) => {
-    const mod = (await import(
-      '../../../src/application/search/searchService'
-    )) as Record<string, unknown>;
-    const searchSiteContent = pickExport<
-      (
-        context: RequestContext,
-        repository: typeof payloadSearchRepository,
-      ) => Promise<ServiceResult<unknown>>
-    >(mod, 'searchSiteContent');
-
     const result = await searchSiteContent(
       toRequestContext(request),
       payloadSearchRepository,
@@ -252,16 +234,6 @@ export function buildBackendServer(): FastifyInstance {
     if (idempotency.kind === 'handled') {
       return reply;
     }
-
-    const mod = (await import(
-      '../../../src/application/forms/guideSubmissionService'
-    )) as Record<string, unknown>;
-    const submitGuideForm = pickExport<
-      (
-        context: RequestContext,
-        body: unknown,
-      ) => Promise<ServiceResult<unknown>>
-    >(mod, 'submitGuideForm');
 
     const result = await submitGuideForm(toRequestContext(request), request.body);
     const responseBody =
@@ -296,16 +268,6 @@ export function buildBackendServer(): FastifyInstance {
       return reply;
     }
 
-    const mod = (await import(
-      '../../../src/application/forms/inquirySubmissionService'
-    )) as Record<string, unknown>;
-    const submitInquiryForm = pickExport<
-      (
-        context: RequestContext,
-        body: unknown,
-      ) => Promise<ServiceResult<unknown>>
-    >(mod, 'submitInquiryForm');
-
     const result = await submitInquiryForm(toRequestContext(request), request.body);
     const responseBody =
       result.status >= 400
@@ -331,21 +293,18 @@ export function buildBackendServer(): FastifyInstance {
 
   app.post('/v1/internal/seed-site-pages', async (request, reply) => {
     const context = toRequestContext(request);
-    const hasLegacyBearer = !!context.authorization;
-    if (!hasLegacyBearer) {
-      const auth = requireApiRole(context.apiKey, ['internal', 'admin']);
-      if (!auth.ok) {
-        return reply.status(auth.status).send(
-          toBackendErrorResponse({
-            status: auth.status,
-            requestId: request.id,
-            body: {
-              code: auth.code,
-              message: auth.message,
-            },
-          }),
-        );
-      }
+    const auth = requireApiRole(context.apiKey, ['internal', 'admin']);
+    if (!auth.ok) {
+      return reply.status(auth.status).send(
+        toBackendErrorResponse({
+          status: auth.status,
+          requestId: request.id,
+          body: {
+            code: auth.code,
+            message: auth.message,
+          },
+        }),
+      );
     }
 
     const idempotency = await tryHandleIdempotentReplay({
@@ -356,16 +315,6 @@ export function buildBackendServer(): FastifyInstance {
     if (idempotency.kind === 'handled') {
       return reply;
     }
-
-    const mod = (await import(
-      '../../../src/application/internal/seedSitePagesService'
-    )) as Record<string, unknown>;
-    const seedSitePagesForRequest = pickExport<
-      (
-        context: RequestContext,
-        repository: typeof payloadSeedRepository,
-      ) => Promise<ServiceResult<unknown>>
-    >(mod, 'seedSitePagesForRequest');
 
     const result = await seedSitePagesForRequest(
       context,
@@ -395,17 +344,6 @@ export function buildBackendServer(): FastifyInstance {
 
   app.get('/v1/content/pages/:slug', async (request, reply) => {
     const slug = String((request.params as Record<string, unknown>).slug || '');
-    const mod = (await import(
-      '../../../src/application/content/pageContentService'
-    )) as Record<string, unknown>;
-    const getContentPageBySlug = pickExport<
-      (
-        context: RequestContext,
-        slug: string,
-        repository: typeof payloadContentRepository,
-      ) => Promise<ServiceResult<unknown>>
-    >(mod, 'getContentPageBySlug');
-
     const result = await getContentPageBySlug(
       toRequestContext(request),
       slug,
@@ -415,16 +353,6 @@ export function buildBackendServer(): FastifyInstance {
   });
 
   app.get('/v1/content/navigation', async (request, reply) => {
-    const mod = (await import(
-      '../../../src/application/content/pageContentService'
-    )) as Record<string, unknown>;
-    const getContentNavigation = pickExport<
-      (
-        context: RequestContext,
-        repository: typeof payloadContentRepository,
-      ) => Promise<ServiceResult<unknown>>
-    >(mod, 'getContentNavigation');
-
     const result = await getContentNavigation(
       toRequestContext(request),
       payloadContentRepository,
@@ -450,13 +378,6 @@ export function buildBackendServer(): FastifyInstance {
       );
     }
 
-    const mod = (await import(
-      '../../../src/application/admin/submissionsService'
-    )) as Record<string, unknown>;
-    const listAdminSubmissions = pickExport<
-      (context: RequestContext) => Promise<ServiceResult<unknown>>
-    >(mod, 'listAdminSubmissions');
-
     const result = await listAdminSubmissions(toRequestContext(request));
     return sendServiceResult(reply, result, request.id);
   });
@@ -480,13 +401,6 @@ export function buildBackendServer(): FastifyInstance {
     }
 
     const submissionId = String((request.params as Record<string, unknown>).id || '');
-    const mod = (await import(
-      '../../../src/application/admin/submissionsService'
-    )) as Record<string, unknown>;
-    const getAdminSubmissionById = pickExport<
-      (submissionId: string) => Promise<ServiceResult<unknown>>
-    >(mod, 'getAdminSubmissionById');
-
     const result = await getAdminSubmissionById(submissionId);
     return sendServiceResult(reply, result, request.id);
   });
@@ -519,13 +433,6 @@ export function buildBackendServer(): FastifyInstance {
     }
 
     const submissionId = String((request.params as Record<string, unknown>).id || '');
-    const mod = (await import(
-      '../../../src/application/admin/submissionsService'
-    )) as Record<string, unknown>;
-    const replaySubmissionSideEffects = pickExport<
-      (submissionId: string) => Promise<ServiceResult<unknown>>
-    >(mod, 'replaySubmissionSideEffects');
-
     const result = await replaySubmissionSideEffects(submissionId);
 
     const responseBody =

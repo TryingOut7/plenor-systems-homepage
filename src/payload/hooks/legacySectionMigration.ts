@@ -147,6 +147,40 @@ function lexicalRichTextFromParagraphs(paragraphs: string[]): Record<string, unk
   };
 }
 
+function lexicalLinkParagraph(label: string, href: string): Record<string, unknown> {
+  return {
+    type: 'paragraph',
+    format: '',
+    indent: 0,
+    version: 1,
+    direction: 'ltr',
+    textFormat: 0,
+    textStyle: '',
+    children: [
+      {
+        type: 'link',
+        version: 1,
+        rel: 'noreferrer',
+        target: null,
+        title: null,
+        url: href,
+        fields: { url: href, linkType: 'custom' },
+        children: [
+          {
+            type: 'text',
+            version: 1,
+            text: label,
+            detail: 0,
+            mode: 'normal',
+            style: '',
+            format: 0,
+          },
+        ],
+      },
+    ],
+  };
+}
+
 function readString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
@@ -367,12 +401,24 @@ function convertLegacySection(section: SectionRecord): SectionRecord {
       .filter(Boolean);
     const linkLabel = readString(section.linkLabel);
     const linkHref = readString(section.linkHref);
-    if (linkLabel && linkHref) paragraphs.push(`${linkLabel}: ${linkHref}`);
+    const base = lexicalRichTextFromParagraphs(paragraphs);
+    const content =
+      linkLabel && linkHref
+        ? {
+            root: {
+              ...(base.root as Record<string, unknown>),
+              children: [
+                ...((base.root as Record<string, unknown>).children as unknown[]),
+                lexicalLinkParagraph(linkLabel, linkHref),
+              ],
+            },
+          }
+        : base;
     return {
       ...common,
       blockType: 'richTextSection',
       heading: section.heading,
-      content: lexicalRichTextFromParagraphs(paragraphs),
+      content,
     };
   }
 

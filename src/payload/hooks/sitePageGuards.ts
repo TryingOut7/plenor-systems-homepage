@@ -116,13 +116,13 @@ function normalizeSectionStructuralKeys(sections: SectionRecord[]): SectionRecor
 function applyTemplateStructuralKeys(
   preset: SitePagePreset,
   sections: SectionRecord[],
+  precomputedTemplateSections?: unknown[],
 ): SectionRecord[] {
   if (!corePresets.includes(preset as Exclude<SitePagePreset, 'custom'>)) return sections;
 
-  const templateSections = buildCorePresetSections(
-    preset as Exclude<SitePagePreset, 'custom'>,
-    {},
-  );
+  const templateSections =
+    precomputedTemplateSections ??
+    buildCorePresetSections(preset as Exclude<SitePagePreset, 'custom'>, {});
 
   return sections.map((section, index) => {
     const currentKey =
@@ -243,6 +243,7 @@ function validateStructuralKeys(
   sections: SectionRecord[],
   originalSections: SectionRecord[],
   preset: SitePagePreset,
+  precomputedTemplateSections?: unknown[],
 ): string[] {
   const errors: string[] = [];
   const seen = new Set<string>();
@@ -294,10 +295,9 @@ function validateStructuralKeys(
 
   if (!corePresets.includes(preset as Exclude<SitePagePreset, 'custom'>)) return errors;
 
-  const templateSections = buildCorePresetSections(
-    preset as Exclude<SitePagePreset, 'custom'>,
-    {},
-  );
+  const templateSections =
+    precomputedTemplateSections ??
+    buildCorePresetSections(preset as Exclude<SitePagePreset, 'custom'>, {});
   const expectedKeys = new Set(
     templateSections
       .map((section) =>
@@ -364,6 +364,7 @@ function runCompletenessRules(
 function buildPreviewDiffSummary(
   preset: SitePagePreset,
   sections: SectionRecord[],
+  precomputedTemplateSections?: unknown[],
 ): Record<string, unknown> {
   if (!corePresets.includes(preset as Exclude<SitePagePreset, 'custom'>)) {
     return {
@@ -375,10 +376,9 @@ function buildPreviewDiffSummary(
     };
   }
 
-  const templateSections = buildCorePresetSections(
-    preset as Exclude<SitePagePreset, 'custom'>,
-    {},
-  );
+  const templateSections =
+    precomputedTemplateSections ??
+    buildCorePresetSections(preset as Exclude<SitePagePreset, 'custom'>, {});
   const expectedByKey = new Map<string, string>();
   for (const section of templateSections) {
     const record = section as SectionRecord;
@@ -465,9 +465,14 @@ export const sitePagePublishGuardsBeforeChange: CollectionBeforeChangeHook = ({
   const original = asObject(originalDoc);
   const preset = resolvePresetKey(incoming, original);
 
+  const templateSections = corePresets.includes(preset as Exclude<SitePagePreset, 'custom'>)
+    ? buildCorePresetSections(preset as Exclude<SitePagePreset, 'custom'>, {})
+    : undefined;
+
   const sections = applyTemplateStructuralKeys(
     preset,
     normalizeSectionStructuralKeys(asSectionArray(incoming.sections)),
+    templateSections,
   );
   const originalSections = normalizeSectionStructuralKeys(asSectionArray(original.sections));
   incoming.sections = sections;
@@ -476,7 +481,7 @@ export const sitePagePublishGuardsBeforeChange: CollectionBeforeChangeHook = ({
     throw new Error('Legacy sections cannot be saved. Convert the document before persisting changes.');
   }
 
-  const structuralErrors = validateStructuralKeys(sections, originalSections, preset);
+  const structuralErrors = validateStructuralKeys(sections, originalSections, preset, templateSections);
   const completeness = runCompletenessRules(preset, sections);
   const quality = buildPublishQualityScore({
     structuralErrors,
@@ -485,7 +490,7 @@ export const sitePagePublishGuardsBeforeChange: CollectionBeforeChangeHook = ({
 
   incoming.publishQualityScore = quality.score;
   incoming.publishQualityLevel = quality.level;
-  incoming.previewDiffSummary = buildPreviewDiffSummary(preset, sections);
+  incoming.previewDiffSummary = buildPreviewDiffSummary(preset, sections, templateSections);
 
   if (structuralErrors.length > 0) {
     throw new Error(`[ERROR_SAVE] ${structuralErrors.join(' | ')}`);

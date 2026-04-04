@@ -84,10 +84,14 @@ export interface OutboxJob {
   updatedAt: string;
 }
 
+// How long (ms) a table is assumed missing before the store re-probes it.
+const TABLE_MISSING_TTL_MS = 60_000;
+
 interface SupabaseStore {
   enabled: boolean;
   client: ReturnType<typeof createClient> | null;
-  tableMissing: Set<string>;
+  /** Maps table name to the timestamp (ms) after which it should be re-probed. */
+  tableMissingUntil: Map<string, number>;
 }
 
 const supabase: SupabaseStore = {
@@ -100,7 +104,7 @@ const supabase: SupabaseStore = {
           process.env.SUPABASE_SERVICE_ROLE_KEY,
         )
       : null,
-  tableMissing: new Set(),
+  tableMissingUntil: new Map(),
 };
 
 const inMemory = {
@@ -136,16 +140,22 @@ function isMissingTableError(message: string): boolean {
 }
 
 function markMissingTable(table: string): void {
-  if (!supabase.tableMissing.has(table)) {
-    supabase.tableMissing.add(table);
-    console.warn(
-      `[backend-store] Missing table "${table}".`,
-    );
+  const alreadyKnown = supabase.tableMissingUntil.has(table);
+  supabase.tableMissingUntil.set(table, Date.now() + TABLE_MISSING_TTL_MS);
+  if (!alreadyKnown) {
+    console.warn(`[backend-store] Missing table "${table}". Will re-probe in ${TABLE_MISSING_TTL_MS / 1000}s.`);
   }
 }
 
 function tableAvailable(table: string): boolean {
-  return supabase.enabled && !!supabase.client && !supabase.tableMissing.has(table);
+  if (!supabase.enabled || !supabase.client) return false;
+  const missingUntil = supabase.tableMissingUntil.get(table);
+  if (missingUntil === undefined) return true;
+  if (Date.now() >= missingUntil) {
+    supabase.tableMissingUntil.delete(table);
+    return true;
+  }
+  return false;
 }
 
 interface DbError {
@@ -205,10 +215,6 @@ export async function refreshPersistenceCapabilityState(): Promise<void> {
   }
 
   for (const table of REQUIRED_PERSISTENCE_TABLES) {
-    if (supabase.tableMissing.has(table)) {
-      continue;
-    }
-
     const { error } = await executeQuery<unknown[]>(
       db().from(table).select('*').limit(1),
     );
@@ -219,6 +225,9 @@ export async function refreshPersistenceCapabilityState(): Promise<void> {
       throw new Error(
         `[backend-store] Failed to verify persistence table "${table}": ${error.message}`,
       );
+    } else {
+      // Table confirmed available — clear any stale missing state.
+      supabase.tableMissingUntil.delete(table);
     }
   }
 }
