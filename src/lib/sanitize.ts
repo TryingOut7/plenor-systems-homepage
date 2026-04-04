@@ -24,7 +24,3 @@ export function stripTags(value: string): string {
   } while (result !== prev);
   return result;
 }
-
-export function sanitizeTextField(value: string): string {
-  return escapeHtml(stripTags(value));
-}

@@ -326,31 +326,31 @@ export function getImageUrl(media: unknown): string | undefined {
   return typeof m.url === 'string' ? m.url : undefined;
 }
 
-export function getImageAlt(media: unknown): string {
+function getImageAlt(media: unknown): string {
   if (!media || typeof media !== 'object') return '';
   return String((media as Record<string, unknown>).alt || '');
 }
 
-export function readArrayEntries(value: unknown): Array<Record<string, unknown>> {
+function readArrayEntries(value: unknown): Array<Record<string, unknown>> {
   if (!Array.isArray(value)) return [];
   return value.filter(
     (entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object'
   );
 }
 
-export function readParagraphArray(value: unknown): string[] {
+function readParagraphArray(value: unknown): string[] {
   return readArrayEntries(value)
     .map((entry) => (typeof entry.paragraph === 'string' ? entry.paragraph.trim() : ''))
     .filter(Boolean);
 }
 
-export function readItemArray(value: unknown): string[] {
+function readItemArray(value: unknown): string[] {
   return readArrayEntries(value)
     .map((entry) => (typeof entry.item === 'string' ? entry.item.trim() : ''))
     .filter(Boolean);
 }
 
-export function readAudienceArray(value: unknown): Array<{ label: string; copy: string }> {
+function readAudienceArray(value: unknown): Array<{ label: string; copy: string }> {
   return readArrayEntries(value)
     .map((entry) => {
       const label = typeof entry.label === 'string' ? entry.label.trim() : '';
@@ -360,7 +360,7 @@ export function readAudienceArray(value: unknown): Array<{ label: string; copy: 
     .filter((entry) => entry.label && entry.copy);
 }
 
-export function readChecklistArray(
+function readChecklistArray(
   value: unknown
 ): Array<{ title: string; description: string }> {
   return readArrayEntries(value)

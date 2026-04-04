@@ -39,7 +39,7 @@ function resolveSsl(connectionString) {
   };
 }
 
-export function getDatabaseUri() {
+function getDatabaseUri() {
   const databaseUri =
     process.env.DATABASE_URI?.trim() || process.env.DATABASE_URL?.trim();
   if (!databaseUri) {
@@ -128,7 +128,7 @@ export async function listAvailableMigrations() {
   return migrations;
 }
 
-export async function readMigrationSql(filePath) {
+async function readMigrationSql(filePath) {
   return fs.readFile(filePath, 'utf8');
 }
 
