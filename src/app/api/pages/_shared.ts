@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import type { TypedUser } from 'payload';
+import { inferWorkspaceErrorStatus } from '@/application/workspaces/workspaceErrorStatus';
 import { getPayloadRouteSession } from '@/infrastructure/http/payloadRouteAuth';
 
 export async function requirePresetCreatorUser(request: NextRequest): Promise<{
@@ -87,7 +88,6 @@ export async function requireWorkspaceUser(request: NextRequest): Promise<{
 
 export function toApiErrorResponse(error: unknown, defaultMessage = 'Operation failed.'): NextResponse {
   const message = error instanceof Error ? error.message : defaultMessage;
-  const lowered = message.toLowerCase();
-  const status = lowered.includes('not found') ? 404 : 400;
+  const status = inferWorkspaceErrorStatus(message);
   return NextResponse.json({ success: false, message }, { status });
 }

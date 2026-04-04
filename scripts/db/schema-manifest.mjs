@@ -335,6 +335,7 @@ export const SCHEMA_ENUM_MANIFEST = {
   'public.enum_payload_query_presets_related_collection': [
     'users',
     'media',
+    'forms',
     'service-items',
     'site-pages',
     'reusable-sections',

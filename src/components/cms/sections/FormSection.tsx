@@ -14,6 +14,8 @@ export default function FormSection({
   innerStyle,
   resolvedHeadingColor,
   resolvedBodyColor,
+  guideFormLabels,
+  inquiryFormLabels,
 }: SectionRendererProps) {
   const sectionRecord = asSectionRecord(section);
   const formId =
@@ -65,6 +67,8 @@ export default function FormSection({
                 : undefined
             }
             theme={theme}
+            guideFormLabels={guideFormLabels}
+            inquiryFormLabels={inquiryFormLabels}
           />
         ) : (
           <p style={{ color: resolvedBodyColor }}>No form selected.</p>

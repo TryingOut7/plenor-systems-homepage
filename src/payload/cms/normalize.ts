@@ -1,5 +1,14 @@
 import { buildCorePresetSections, type CorePresetKey } from '../presets/corePagePresets.ts';
-import type { BlogPost, PageSection, SeoFields, ServiceItem, SitePage, Testimonial } from './types.ts';
+import type {
+  BlogPost,
+  Logo,
+  PageSection,
+  SeoFields,
+  ServiceItem,
+  SitePage,
+  TeamMember,
+  Testimonial,
+} from './types.ts';
 
 type CorePagePreset = Exclude<CorePresetKey, 'custom'>;
 
@@ -123,5 +132,28 @@ export function normalizeTestimonial(doc: Record<string, unknown>): Testimonial 
     publishedAt: doc.publishedAt as string | undefined,
     tags: doc.tags as Testimonial['tags'],
     seo: normalizeSeo(doc.seo),
+  };
+}
+
+export function normalizeTeamMember(doc: Record<string, unknown>): TeamMember {
+  return {
+    id: String(doc.id),
+    name: doc.name as string | undefined,
+    role: doc.role as string | undefined,
+    bio: doc.bio as string | undefined,
+    photo: normalizeMedia(doc.photo),
+    linkedinUrl: doc.linkedinUrl as string | undefined,
+    twitterUrl: doc.twitterUrl as string | undefined,
+    order: doc.order as number | undefined,
+  };
+}
+
+export function normalizeLogo(doc: Record<string, unknown>): Logo {
+  return {
+    id: String(doc.id),
+    name: doc.name as string | undefined,
+    image: normalizeMedia(doc.image),
+    url: doc.url as string | undefined,
+    order: doc.order as number | undefined,
   };
 }

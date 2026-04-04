@@ -1,7 +1,63 @@
 import Image from 'next/image';
+import type { TeamMember } from '@/payload/cms';
 import SectionHeading from './shared/SectionHeading';
 import type { SectionRendererProps } from './types';
 import { asSectionRecord } from './utils';
+
+type TeamMemberLike = TeamMember & {
+  linkedinHref?: string;
+  twitterHref?: string;
+};
+
+function readId(value: unknown): string {
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  return '';
+}
+
+function readString(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value : undefined;
+}
+
+function readPhoto(value: unknown): TeamMember['photo'] {
+  if (!value || typeof value !== 'object') return undefined;
+  const record = value as Record<string, unknown>;
+  const url = readString(record.url);
+  const alt = readString(record.alt);
+  if (!url && !alt) return undefined;
+  return { url, alt };
+}
+
+function resolveMember(
+  value: unknown,
+  memberById: ReadonlyMap<string, TeamMemberLike>,
+): TeamMemberLike | null {
+  if (typeof value === 'string' || typeof value === 'number') {
+    return memberById.get(String(value)) ?? null;
+  }
+
+  if (!value || typeof value !== 'object') return null;
+
+  const record = value as Record<string, unknown>;
+  const id = readId(record.id);
+  const base = id ? memberById.get(id) : undefined;
+
+  return {
+    id: id || base?.id,
+    name: readString(record.name) ?? base?.name,
+    role: readString(record.role) ?? base?.role,
+    bio: readString(record.bio) ?? base?.bio,
+    photo: readPhoto(record.photo) ?? base?.photo,
+    linkedinUrl:
+      readString(record.linkedinUrl) ?? readString(record.linkedinHref) ?? base?.linkedinUrl,
+    linkedinHref:
+      readString(record.linkedinHref) ?? readString(record.linkedinUrl) ?? base?.linkedinHref,
+    twitterUrl:
+      readString(record.twitterUrl) ?? readString(record.twitterHref) ?? base?.twitterUrl,
+    twitterHref:
+      readString(record.twitterHref) ?? readString(record.twitterUrl) ?? base?.twitterHref,
+    order: typeof record.order === 'number' ? record.order : base?.order,
+  };
+}
 
 export default function TeamSection({
   section,
@@ -13,9 +69,29 @@ export default function TeamSection({
   resolvedHeadingColor,
   resolvedBodyColor,
   resolvedMutedColor,
+  collections,
 }: SectionRendererProps) {
   const sectionRecord = asSectionRecord(section);
-  const members = Array.isArray(sectionRecord.members) ? sectionRecord.members : [];
+  const selectedMembers = Array.isArray(sectionRecord.members)
+    ? (sectionRecord.members as unknown[])
+    : [];
+
+  const memberById = new Map<string, TeamMemberLike>(
+    (collections.teamMembers || [])
+      .map((member) => {
+        if (!member.id) return null;
+        return [String(member.id), member as TeamMemberLike] as const;
+      })
+      .filter((entry): entry is readonly [string, TeamMemberLike] => !!entry),
+  );
+
+  const memberSource =
+    selectedMembers.length > 0 ? selectedMembers : (collections.teamMembers as unknown[]);
+
+  const members = memberSource
+    .map((member) => resolveMember(member, memberById))
+    .filter((member): member is TeamMemberLike => !!member);
+
   const colsMap: Record<string, string> = {
     '2': 'repeat(2, 1fr)',
     '3': 'repeat(3, 1fr)',
@@ -57,20 +133,12 @@ export default function TeamSection({
         ) : null}
 
         <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: '32px' }}>
-          {members.map((member: unknown, memberIndex: number) => {
-            const m =
-              member && typeof member === 'object'
-                ? (member as Record<string, unknown>)
-                : {};
-            const photo =
-              m.photo && typeof m.photo === 'object'
-                ? (m.photo as Record<string, unknown>)
-                : null;
-            const photoUrl = photo ? (typeof photo.url === 'string' ? photo.url : '') : '';
+          {members.map((member, memberIndex: number) => {
+            const photoUrl = member.photo?.url || '';
 
             return (
               <div
-                key={`${sectionKey}-member-${memberIndex}`}
+                key={`${sectionKey}-member-${member.id || memberIndex}`}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -90,7 +158,7 @@ export default function TeamSection({
                   >
                     <Image
                       src={photoUrl}
-                      alt={typeof m.name === 'string' ? m.name : ''}
+                      alt={member.photo?.alt || member.name || ''}
                       width={96}
                       height={96}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -108,25 +176,27 @@ export default function TeamSection({
                   />
                 )}
                 <div style={{ textAlign: 'center' }}>
-                  {m.name ? (
+                  {member.name ? (
                     <p style={{ fontWeight: 600, color: resolvedHeadingColor, margin: 0 }}>
-                      {String(m.name)}
+                      {member.name}
                     </p>
                   ) : null}
-                  {m.role ? (
+                  {member.role ? (
                     <p style={{ fontSize: '14px', color: resolvedMutedColor, margin: '4px 0 0' }}>
-                      {String(m.role)}
+                      {member.role}
                     </p>
                   ) : null}
-                  {m.bio ? (
+                  {member.bio ? (
                     <p style={{ fontSize: '14px', color: resolvedBodyColor, marginTop: '8px' }}>
-                      {String(m.bio)}
+                      {member.bio}
                     </p>
                   ) : null}
-                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '8px' }}>
-                    {(m.linkedinUrl || m.linkedinHref) ? (
+                  <div
+                    style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '8px' }}
+                  >
+                    {member.linkedinUrl || member.linkedinHref ? (
                       <a
-                        href={String(m.linkedinUrl || m.linkedinHref)}
+                        href={member.linkedinUrl || member.linkedinHref}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ color: 'var(--ui-color-link)', fontSize: '13px' }}
@@ -134,9 +204,9 @@ export default function TeamSection({
                         LinkedIn
                       </a>
                     ) : null}
-                    {(m.twitterUrl || m.twitterHref) ? (
+                    {member.twitterUrl || member.twitterHref ? (
                       <a
-                        href={String(m.twitterUrl || m.twitterHref)}
+                        href={member.twitterUrl || member.twitterHref}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ color: 'var(--ui-color-link)', fontSize: '13px' }}

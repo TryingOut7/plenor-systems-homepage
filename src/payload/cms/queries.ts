@@ -19,8 +19,10 @@ import {
   cloneDefaultSitePage,
   DEFAULT_SITE_PAGE_SLUGS,
   normalizeBlogPost,
+  normalizeLogo,
   normalizeSection,
   normalizeServiceItem,
+  normalizeTeamMember,
   normalizeTestimonial,
   normalizeSeo,
 } from './normalize.ts';
@@ -236,13 +238,20 @@ export const getCollectionData = cache(async function getCollectionData(
     const cached = getFromCache(collectionDataCache.entry);
     if (cached !== undefined) return cached;
   }
-  const emptyData: CollectionData = { serviceItems: [], blogPosts: [], testimonials: [] };
+  const emptyData: CollectionData = {
+    serviceItems: [],
+    blogPosts: [],
+    testimonials: [],
+    teamMembers: [],
+    logos: [],
+  };
   if (!draft && shouldSkipPayload()) return setCache(collectionDataCache, emptyData, 10_000);
 
   try {
     const payload = await getPayload();
     const publishedFilter = { workflowStatus: { equals: 'published' } };
-    const [serviceResult, blogResult, testimonialResult] = await Promise.all([
+    const [serviceResult, blogResult, testimonialResult, teamResult, logosResult] =
+      await Promise.all([
       withPayloadTimeout(
         payload.find({
           collection: 'service-items',
@@ -276,12 +285,38 @@ export const getCollectionData = cache(async function getCollectionData(
         }),
         'find:testimonials',
       ),
+      withPayloadTimeout(
+        payload.find({
+          collection: 'team-members',
+          ...(draft ? {} : { where: publishedFilter }),
+          sort: 'order',
+          limit: 200,
+          depth: 1,
+          ...(draft ? { draft: true } : {}),
+        }),
+        'find:team-members',
+      ),
+      withPayloadTimeout(
+        payload.find({
+          collection: 'logos',
+          ...(draft ? {} : { where: publishedFilter }),
+          sort: 'order',
+          limit: 200,
+          depth: 1,
+          ...(draft ? { draft: true } : {}),
+        }),
+        'find:logos',
+      ),
     ]);
 
     const normalized: CollectionData = {
       serviceItems: serviceResult.docs.map((d) => normalizeServiceItem(d as unknown as Record<string, unknown>)),
       blogPosts: blogResult.docs.map((d) => normalizeBlogPost(d as unknown as Record<string, unknown>)),
       testimonials: testimonialResult.docs.map((d) => normalizeTestimonial(d as unknown as Record<string, unknown>)),
+      teamMembers: teamResult.docs.map((d) =>
+        normalizeTeamMember(d as unknown as Record<string, unknown>),
+      ),
+      logos: logosResult.docs.map((d) => normalizeLogo(d as unknown as Record<string, unknown>)),
     };
 
     return draft ? normalized : setCache(collectionDataCache, normalized);

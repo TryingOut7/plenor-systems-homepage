@@ -1,6 +1,50 @@
 import Image from 'next/image';
+import type { Logo } from '@/payload/cms';
 import type { SectionRendererProps } from './types';
 import { asSectionRecord } from './utils';
+
+type LogoLike = Logo & {
+  href?: string;
+};
+
+function readId(value: unknown): string {
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  return '';
+}
+
+function readString(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value : undefined;
+}
+
+function readImage(value: unknown): Logo['image'] {
+  if (!value || typeof value !== 'object') return undefined;
+  const record = value as Record<string, unknown>;
+  const url = readString(record.url);
+  const alt = readString(record.alt);
+  if (!url && !alt) return undefined;
+  return { url, alt };
+}
+
+function resolveLogo(value: unknown, logoById: ReadonlyMap<string, LogoLike>): LogoLike | null {
+  if (typeof value === 'string' || typeof value === 'number') {
+    return logoById.get(String(value)) ?? null;
+  }
+
+  if (!value || typeof value !== 'object') return null;
+
+  const record = value as Record<string, unknown>;
+  const id = readId(record.id);
+  const base = id ? logoById.get(id) : undefined;
+
+  return {
+    id: id || base?.id,
+    name: readString(record.name) ?? base?.name,
+    image: readImage(record.image) ?? base?.image,
+    url: readString(record.url) ?? readString(record.href) ?? base?.url,
+    href: readString(record.href) ?? readString(record.url) ?? base?.href,
+    order: typeof record.order === 'number' ? record.order : base?.order,
+  };
+}
 
 export default function LogoBandSection({
   section,
@@ -8,9 +52,28 @@ export default function LogoBandSection({
   sectionStyle,
   innerStyle,
   resolvedMutedColor,
+  collections,
 }: SectionRendererProps) {
   const sectionRecord = asSectionRecord(section);
-  const logos = Array.isArray(sectionRecord.logos) ? sectionRecord.logos : [];
+  const selectedLogos = Array.isArray(sectionRecord.logos)
+    ? (sectionRecord.logos as unknown[])
+    : [];
+
+  const logoById = new Map<string, LogoLike>(
+    (collections.logos || [])
+      .map((logo) => {
+        if (!logo.id) return null;
+        return [String(logo.id), logo as LogoLike] as const;
+      })
+      .filter((entry): entry is readonly [string, LogoLike] => !!entry),
+  );
+
+  const logoSource = selectedLogos.length > 0 ? selectedLogos : (collections.logos as unknown[]);
+
+  const logos = logoSource
+    .map((logo) => resolveLogo(logo, logoById))
+    .filter((logo): logo is LogoLike => !!logo);
+
   const displayMode = sectionRecord.displayMode === 'marquee' ? 'marquee' : 'static';
   const logoHeight =
     typeof sectionRecord.logoHeight === 'number' && sectionRecord.logoHeight > 0
@@ -18,23 +81,10 @@ export default function LogoBandSection({
       : 40;
 
   const logoItems = logos
-    .map((logo: unknown) => {
-      const l = logo && typeof logo === 'object' ? (logo as Record<string, unknown>) : {};
-      const img = l.image && typeof l.image === 'object' ? (l.image as Record<string, unknown>) : null;
-      const url = img ? (typeof img.url === 'string' ? img.url : '') : '';
-      const alt = img
-        ? typeof img.alt === 'string'
-          ? img.alt
-          : ''
-        : typeof l.name === 'string'
-          ? l.name
-          : '';
-      const linkUrl =
-        typeof l.url === 'string'
-          ? l.url
-          : typeof l.href === 'string'
-            ? l.href
-            : '';
+    .map((logo) => {
+      const url = logo.image?.url || '';
+      const alt = logo.image?.alt || logo.name || '';
+      const linkUrl = logo.url || logo.href || '';
       return { url, alt, href: linkUrl };
     })
     .filter((logo) => !!logo.url);

@@ -39,6 +39,7 @@ import {
   createPresetFromPlayground as createPresetFromPlaygroundWorkspace,
   promoteDraftToLive as promoteDraftToLiveWorkspace,
 } from '@/application/workspaces/workspaceMutationService';
+import { inferWorkspaceErrorStatus } from '@/application/workspaces/workspaceErrorStatus';
 import {
   getContentPageBySlug,
   getContentNavigation,
@@ -67,14 +68,6 @@ function readParamId(params: unknown): string {
 
 function readTrimmedString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
-}
-
-function toWorkspaceErrorStatus(message: string): number {
-  const lowered = message.toLowerCase();
-  if (lowered.includes('not found')) return 404;
-  if (lowered.includes('forbidden') || lowered.includes('permission')) return 403;
-  if (lowered.includes('unauthorized') || lowered.includes('authentication')) return 401;
-  return 400;
 }
 
 export function buildBackendServer(): FastifyInstance {
@@ -442,7 +435,7 @@ export function buildBackendServer(): FastifyInstance {
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to create form template.';
-      const status = toWorkspaceErrorStatus(message);
+      const status = inferWorkspaceErrorStatus(message);
       return reply.status(status).send(
         toBackendErrorResponse({
           status,
@@ -493,7 +486,7 @@ export function buildBackendServer(): FastifyInstance {
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Operation failed.';
-      const status = toWorkspaceErrorStatus(message);
+      const status = inferWorkspaceErrorStatus(message);
       return reply.status(status).send(
         toBackendErrorResponse({
           status,
@@ -544,7 +537,7 @@ export function buildBackendServer(): FastifyInstance {
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Operation failed.';
-      const status = toWorkspaceErrorStatus(message);
+      const status = inferWorkspaceErrorStatus(message);
       return reply.status(status).send(
         toBackendErrorResponse({
           status,
@@ -594,7 +587,7 @@ export function buildBackendServer(): FastifyInstance {
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to promote draft to live.';
-      const status = toWorkspaceErrorStatus(message);
+      const status = inferWorkspaceErrorStatus(message);
       return reply.status(status).send(
         toBackendErrorResponse({
           status,
@@ -662,7 +655,7 @@ export function buildBackendServer(): FastifyInstance {
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to create draft.';
-      const status = toWorkspaceErrorStatus(message);
+      const status = inferWorkspaceErrorStatus(message);
       return reply.status(status).send(
         toBackendErrorResponse({
           status,
@@ -713,7 +706,7 @@ export function buildBackendServer(): FastifyInstance {
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to create preset.';
-      const status = toWorkspaceErrorStatus(message);
+      const status = inferWorkspaceErrorStatus(message);
       return reply.status(status).send(
         toBackendErrorResponse({
           status,

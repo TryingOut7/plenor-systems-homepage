@@ -323,6 +323,8 @@ export type CollectionData = {
   serviceItems: ServiceItem[];
   blogPosts: BlogPost[];
   testimonials: Testimonial[];
+  teamMembers: TeamMember[];
+  logos: Logo[];
 };
 
 export type SitemapQueryResult = {
