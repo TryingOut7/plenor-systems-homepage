@@ -65,6 +65,7 @@ import { default as default_560b1f5f5438454f9fbe7f37f8572dfa } from '@/payload/a
 import { default as default_9af8b74157f94922a26fd8b5295e28ed } from '@/payload/admin/components/MediaApprovalStatusField'
 import { default as default_08f21402e4af4f71a0adf74d28db7262 } from '@/payload/admin/components/CreatePresetFromDocumentButton'
 import { default as default_9fc507db18c44f358fae2c1674ef66c8 } from '@/payload/admin/components/CreatePresetFromRowCell'
+import { default as default_2f93ec6eec0f469fb0f819872d0ebdf2 } from '@/payload/admin/components/CreateFormTemplateActions'
 import { default as default_22503d84cb22426ab09cb334e6618cec } from '@/payload/admin/components/HiddenUIField'
 import { default as default_8f85ddff8f5e42c98701ed7607114f17 } from '@/payload/admin/components/LifecycleBadgeCell'
 import { default as default_91c89d638a2249deaf4454c7543617a0 } from '@/payload/admin/components/WorkspaceBadgeCell'
@@ -138,6 +139,7 @@ export const importMap = {
   "@/payload/admin/components/MediaApprovalStatusField#default": default_9af8b74157f94922a26fd8b5295e28ed,
   "@/payload/admin/components/CreatePresetFromDocumentButton#default": default_08f21402e4af4f71a0adf74d28db7262,
   "@/payload/admin/components/CreatePresetFromRowCell#default": default_9fc507db18c44f358fae2c1674ef66c8,
+  "@/payload/admin/components/CreateFormTemplateActions#default": default_2f93ec6eec0f469fb0f819872d0ebdf2,
   "@/payload/admin/components/HiddenUIField#default": default_22503d84cb22426ab09cb334e6618cec,
   "@/payload/admin/components/LifecycleBadgeCell#default": default_8f85ddff8f5e42c98701ed7607114f17,
   "@/payload/admin/components/WorkspaceBadgeCell#default": default_91c89d638a2249deaf4454c7543617a0,

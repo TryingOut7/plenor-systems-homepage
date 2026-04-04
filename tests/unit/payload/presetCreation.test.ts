@@ -102,4 +102,69 @@ describe('presetCreation workspace service', () => {
       'Base this preset on the draft structure used for service pages.',
     );
   });
+
+  it('coerces numeric source ids before loading the source doc', async () => {
+    const payload = buildMockPayload({
+      id: 5,
+      title: 'Home',
+      sections: [],
+    });
+
+    await createPresetFromLivePage({
+      payload: payload as unknown as Payload,
+      livePageId: '5',
+      presetMeta: {
+        name: 'Numeric ID Preset',
+      },
+      user: { id: 'user_3', role: 'editor' } as unknown as TypedUser,
+    });
+
+    expect(payload.findByID).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'site-pages',
+        id: 5,
+      }),
+    );
+  });
+
+  it('strips nested payload row ids from copied sections', async () => {
+    const payload = buildMockPayload({
+      id: 'live_nested',
+      title: 'Nested',
+      sections: [
+        {
+          id: 'block_row',
+          blockType: 'tabsSection',
+          structuralKey: 'tabs-key',
+          tabs: [
+            { id: 'tab_row', title: 'Tab One', body: 'One' },
+            { id: 'tab_row_2', title: 'Tab Two', body: 'Two' },
+          ],
+        },
+      ],
+    });
+
+    await createPresetFromLivePage({
+      payload: payload as unknown as Payload,
+      livePageId: 'live_nested',
+      presetMeta: {
+        name: 'Nested ID Cleanup',
+      },
+      user: { id: 'user_4', role: 'editor' } as unknown as TypedUser,
+    });
+
+    const createArgs = payload.create.mock.calls[0][0];
+    const data = createArgs.data as Record<string, unknown>;
+
+    expect(data.sections).toEqual([
+      {
+        blockType: 'tabsSection',
+        structuralKey: 'tabs-key',
+        tabs: [
+          { title: 'Tab One', body: 'One' },
+          { title: 'Tab Two', body: 'Two' },
+        ],
+      },
+    ]);
+  });
 });

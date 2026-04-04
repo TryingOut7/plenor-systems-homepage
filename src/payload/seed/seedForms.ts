@@ -1,4 +1,5 @@
 import { getPayload } from '@/payload/client';
+import { FORM_TEMPLATES } from '@/payload/forms/formTemplates';
 
 type SeedFormItem = {
   title: string;
@@ -11,76 +12,6 @@ export type SeedFormsResult = {
   existing: number;
   items: SeedFormItem[];
 };
-
-function lexicalParagraph(text: string): object {
-  return {
-    root: {
-      type: 'root',
-      format: '',
-      indent: 0,
-      version: 1,
-      children: [
-        {
-          type: 'paragraph',
-          format: '',
-          indent: 0,
-          version: 1,
-          direction: 'ltr',
-          children: [
-            {
-              type: 'text',
-              format: 0,
-              style: '',
-              mode: 'normal',
-              detail: 0,
-              text,
-              version: 1,
-            },
-          ],
-        },
-      ],
-    },
-  };
-}
-
-type FormTemplate = {
-  title: string;
-  fields: object[];
-  submitButtonLabel: string;
-  confirmationMessage: object;
-};
-
-const FORM_TEMPLATES: FormTemplate[] = [
-  {
-    title: 'guide',
-    fields: [
-      { blockType: 'text', name: 'firstName', label: 'First Name', required: true },
-      { blockType: 'email', name: 'email', label: 'Email Address', required: true },
-    ],
-    submitButtonLabel: 'Get My Free Guide',
-    confirmationMessage: lexicalParagraph(
-      "Thanks! Your guide is on its way to your inbox.",
-    ),
-  },
-  {
-    title: 'inquiry',
-    fields: [
-      { blockType: 'text', name: 'name', label: 'Full Name', required: true },
-      { blockType: 'email', name: 'email', label: 'Email Address', required: true },
-      { blockType: 'text', name: 'company', label: 'Company', required: false },
-      {
-        blockType: 'textarea',
-        name: 'challenge',
-        label: 'What challenge are you solving?',
-        required: false,
-      },
-    ],
-    submitButtonLabel: 'Send Message',
-    confirmationMessage: lexicalParagraph(
-      "Thanks for reaching out! We'll be in touch shortly.",
-    ),
-  },
-];
 
 export async function seedForms(): Promise<SeedFormsResult> {
   const payload = await getPayload();

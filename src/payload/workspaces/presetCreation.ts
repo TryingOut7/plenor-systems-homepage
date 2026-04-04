@@ -49,11 +49,41 @@ function cloneValue<T>(value: T): T {
   return value;
 }
 
+function normalizeDocId(id: number | string): number | string {
+  if (typeof id === 'number') return id;
+
+  const trimmed = id.trim();
+  if (!trimmed) {
+    throw new Error('id is required.');
+  }
+
+  if (/^-?\d+$/.test(trimmed)) {
+    const parsed = Number(trimmed);
+    if (Number.isSafeInteger(parsed)) return parsed;
+  }
+
+  return trimmed;
+}
+
+function cloneValueWithoutIds<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((entry) => cloneValueWithoutIds(entry)) as T;
+  }
+
+  if (value && typeof value === 'object') {
+    const cloned: UnknownRecord = {};
+    for (const [key, nestedValue] of Object.entries(value as UnknownRecord)) {
+      if (key === 'id') continue;
+      cloned[key] = cloneValueWithoutIds(nestedValue);
+    }
+    return cloned as T;
+  }
+
+  return value;
+}
+
 function cloneSections(sections: unknown[]): UnknownRecord[] {
-  return cloneValue(sections).map((block) => {
-    const { id: _id, ...rest } = block as UnknownRecord;
-    return rest;
-  });
+  return cloneValueWithoutIds(sections) as UnknownRecord[];
 }
 
 function readTrimmedString(value: unknown): string {
@@ -98,7 +128,7 @@ async function loadSourceDoc(
 ): Promise<SourceDoc> {
   const source = await payload.findByID({
     collection,
-    id,
+    id: normalizeDocId(id),
     depth: 0,
     overrideAccess: false,
     user,

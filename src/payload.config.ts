@@ -659,8 +659,14 @@ export default buildConfig({
       },
       formOverrides: {
         slug: 'forms',
+        enableQueryPresets: true,
         admin: {
           group: 'Leads',
+          components: {
+            beforeList: [
+              '@/payload/admin/components/CreateFormTemplateActions',
+            ],
+          },
         },
       },
       formSubmissionOverrides: {
