@@ -89,12 +89,11 @@ export function resolveHomePageData(
   sections: PageSection[] | null | undefined,
 ): Required<HomePageData> {
   const safeSections = Array.isArray(sections) ? sections : [];
-  const guideFormSection =
-    safeSections.find(
-      (section) =>
-        section.blockType === 'formSection' &&
-        String(section.structuralKey || '').trim() === 'home-guide-form',
-    ) || findSection(safeSections, 'guideFormSection');
+  const guideFormSection = safeSections.find(
+    (section) =>
+      section.blockType === 'formSection' &&
+      String(section.structuralKey || '').trim() === 'home-guide-form',
+  );
 
   const hero = findSection(safeSections, 'heroSection');
   const problem =
