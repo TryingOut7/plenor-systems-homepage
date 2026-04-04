@@ -1,3 +1,11 @@
+export type OutboxProvider =
+  | 'crm'
+  | 'webhook'
+  | 'email.guide'
+  | 'email.inquiry'
+  | 'payload.forms.guide'
+  | 'payload.forms.inquiry';
+
 export type OutboundEventType =
   | 'submission.guide.created'
   | 'submission.inquiry.created';

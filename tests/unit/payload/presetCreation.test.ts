@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import type { Payload, TypedUser } from 'payload';
 import { createPresetFromDraft, createPresetFromLivePage } from '@/payload/workspaces/presetCreation';
 
 type MockPayload = {
@@ -35,14 +36,14 @@ describe('presetCreation workspace service', () => {
     });
 
     await createPresetFromLivePage({
-      payload: payload as never,
+      payload: payload as unknown as Payload,
       livePageId: 'live_1',
       presetMeta: {
         name: 'Homepage Blueprint',
         category: 'landing',
         tags: ['home', 'core'],
       },
-      user: { id: 'user_1', role: 'editor' } as never,
+      user: { id: 'user_1', role: 'editor' } as unknown as TypedUser,
     });
 
     expect(payload.findByID).toHaveBeenCalledWith(
@@ -82,13 +83,13 @@ describe('presetCreation workspace service', () => {
     });
 
     await createPresetFromDraft({
-      payload: payload as never,
+      payload: payload as unknown as Payload,
       draftId: 'draft_1',
       presetMeta: {
         name: 'Service Draft Blueprint',
         category: 'custom',
       },
-      user: { id: 'user_2', role: 'editor' } as never,
+      user: { id: 'user_2', role: 'editor' } as unknown as TypedUser,
     });
 
     const createArgs = payload.create.mock.calls[0][0];

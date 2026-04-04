@@ -12,6 +12,10 @@
     {
       "path": "/api/internal/cron/backup",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/internal/cron/outbox-tick",
+      "schedule": "* * * * *"
     }
   ]
 }

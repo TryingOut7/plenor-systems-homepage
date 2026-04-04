@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { OutboundEventV1 } from '@plenor/contracts/events';
+import type { OutboundEventV1, OutboxProvider } from '@plenor/contracts/events';
 import type { StoredSubmission } from '@/infrastructure/persistence/backendStore';
 
 interface BaseSubmissionPayload {
@@ -60,7 +60,7 @@ export function buildInquirySubmissionEvent(input: {
 export function mapEventToOutboxJobs(
   event: OutboundEventV1<unknown>,
 ): Array<{
-  provider: string;
+  provider: OutboxProvider;
   payload: Record<string, unknown>;
 }> {
   const base = {

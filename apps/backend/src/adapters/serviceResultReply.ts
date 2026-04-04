@@ -1,5 +1,5 @@
 import type { FastifyReply } from 'fastify';
-import type { ServiceResult } from '../../../../src/application/shared/serviceResult';
+import type { ServiceResult } from '@/application/shared/serviceResult';
 import { toBackendErrorResponse } from './errorEnvelope';
 
 export function sendServiceResult<T>(

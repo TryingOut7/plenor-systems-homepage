@@ -37,6 +37,10 @@ export async function proxyRequestToBackend(
   request: NextRequest,
   backendPath: string,
 ): Promise<NextResponse | null> {
+  if (process.env.NEXT_PUBLIC_MONOLITH_MODE === 'true') {
+    return null;
+  }
+
   const backendBase = process.env.BACKEND_INTERNAL_URL?.trim();
   if (!backendBase) {
     return null;

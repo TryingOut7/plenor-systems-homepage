@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { toBackendErrorResponse } from '../adapters/errorEnvelope';
-import { consumeRateLimitBucket } from '../../../../src/infrastructure/security/rateLimiter';
+import { consumeRateLimitBucket } from '@/infrastructure/security/rateLimiter';
 
 export interface RateLimitOptions {
   windowMs: number;

@@ -1,5 +1,5 @@
 import type { FastifyRequest } from 'fastify';
-import type { RequestContext } from '../../../../src/application/shared/requestContext';
+import type { RequestContext } from '@/application/shared/requestContext';
 
 function firstHeader(value: string | string[] | undefined): string | null {
   if (typeof value === 'string') return value;

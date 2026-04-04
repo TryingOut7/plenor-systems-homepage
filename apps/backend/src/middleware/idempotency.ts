@@ -3,7 +3,7 @@ import {
   buildIdempotencyFingerprint,
   getIdempotencyReplay,
   storeIdempotencyResult,
-} from '../../../../src/infrastructure/persistence/idempotencyService';
+} from '@/infrastructure/persistence/idempotencyService';
 
 function firstHeader(value: string | string[] | undefined): string | null {
   if (typeof value === 'string') return value;

@@ -3,7 +3,6 @@ import { pageSectionBlocks, modernPageSectionBlockSlugs } from '../blocks/pageSe
 import { createdByField } from '../fields/ownership.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
-import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigration.ts';
 import { migrateGuideInquirySectionsBeforeChange } from '../hooks/guideInquirySectionMigration.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
 
@@ -39,7 +38,6 @@ export const PagePlaygrounds: CollectionConfig = {
     beforeChange: [
       stampCreatedByBeforeChange,
       migrateGuideInquirySectionsBeforeChange,
-      migrateLegacySectionsBeforeChange,
     ],
     afterChange: [auditAfterChange],
     afterDelete: [auditAfterDelete],

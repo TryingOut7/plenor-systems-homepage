@@ -367,3 +367,122 @@ a {
   clip: rect(0, 0, 0, 0);
   border: 0;
 }
+
+/* Footer */
+.footer {
+  background-color: var(--ui-color-footer-bg);
+  padding: 64px 32px 40px;
+}
+
+.footer-inner {
+  max-width: var(--ui-layout-container-max-width);
+  margin: 0 auto;
+}
+
+.footer-top-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 48px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 48px;
+}
+
+.footer-brand {
+  max-width: 280px;
+}
+
+.footer-brand-link {
+  font-family: var(--ui-font-display);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.03em;
+  color: var(--ui-color-footer-text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-brand-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--ui-color-footer-muted);
+  flex-shrink: 0;
+}
+
+.footer-tagline {
+  color: var(--ui-color-footer-muted);
+  font-size: 14px;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+.footer-column-heading {
+  font-family: var(--ui-font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ui-color-footer-muted);
+  margin-bottom: 16px;
+}
+
+.footer-column-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-link {
+  font-size: 14px;
+  color: var(--ui-color-footer-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+  color: var(--ui-color-footer-text);
+}
+
+.footer-contact-link {
+  display: block;
+}
+
+.footer-social-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-bottom-bar {
+  border-top: 1px solid var(--ui-color-footer-muted);
+  padding-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-copyright {
+  color: var(--ui-color-footer-muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.footer-legal-link {
+  font-size: 13px;
+  text-decoration: underline;
+}

@@ -9,28 +9,28 @@ import { tryHandleIdempotentReplay, persistIdempotentResult } from './middleware
 import { createRateLimitHook } from './middleware/rateLimit';
 import { requireApiRole } from './middleware/requireRole';
 import { getBackendMetricsSnapshot, recordBackendRequest } from './observability/metricsRegistry';
-import { getIntegrationStatus } from '../../../src/application/integrations/integrationStatusService';
-import { payloadContentRepository } from '../../../src/infrastructure/cms/contentGateway';
-import { payloadSeedRepository } from '../../../src/infrastructure/cms/seedGateway';
-import { payloadSearchRepository } from '../../../src/infrastructure/cms/searchGateway';
+import { getIntegrationStatus } from '@/application/integrations/integrationStatusService';
+import { payloadContentRepository } from '@/infrastructure/cms/contentGateway';
+import { payloadSeedRepository } from '@/infrastructure/cms/seedGateway';
+import { payloadSearchRepository } from '@/infrastructure/cms/searchGateway';
 import {
   hasDatabaseCredentials,
   isPersistentStoreConfigured,
   refreshPersistenceCapabilityState,
-} from '../../../src/infrastructure/persistence/backendStore';
-import { searchSiteContent } from '../../../src/application/search/searchService';
-import { submitGuideForm } from '../../../src/application/forms/guideSubmissionService';
-import { submitInquiryForm } from '../../../src/application/forms/inquirySubmissionService';
-import { seedSitePagesForRequest } from '../../../src/application/internal/seedSitePagesService';
+} from '@/infrastructure/persistence/backendStore';
+import { searchSiteContent } from '@/application/search/searchService';
+import { submitGuideForm } from '@/application/forms/guideSubmissionService';
+import { submitInquiryForm } from '@/application/forms/inquirySubmissionService';
+import { seedSitePagesForRequest } from '@/application/internal/seedSitePagesService';
 import {
   getContentPageBySlug,
   getContentNavigation,
-} from '../../../src/application/content/pageContentService';
+} from '@/application/content/pageContentService';
 import {
   listAdminSubmissions,
   getAdminSubmissionById,
   replaySubmissionSideEffects,
-} from '../../../src/application/admin/submissionsService';
+} from '@/application/admin/submissionsService';
 
 export function buildBackendServer(): FastifyInstance {
   const rateLimitMax = Number(process.env.BACKEND_RATE_LIMIT_MAX || '120');
@@ -154,7 +154,7 @@ export function buildBackendServer(): FastifyInstance {
 
     if (process.env.CMS_SKIP_PAYLOAD !== 'true') {
       try {
-        const { getPayload } = await import('../../../src/payload/client');
+        const { getPayload } = await import('@/payload/client');
         await getPayload();
       } catch (error) {
         cmsReady = false;

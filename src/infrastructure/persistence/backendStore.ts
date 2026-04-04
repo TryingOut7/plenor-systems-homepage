@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
+import type { OutboxProvider } from '@plenor/contracts/events';
 
 export type SubmissionKind = 'guide' | 'inquiry';
 
@@ -73,7 +74,7 @@ export type OutboxStatus =
 export interface OutboxJob {
   id: string;
   submissionId: string;
-  provider: string;
+  provider: OutboxProvider;
   status: OutboxStatus;
   attempts: number;
   maxAttempts: number;
@@ -650,7 +651,7 @@ export async function writeIdempotencyRecord(
 export async function enqueueOutboxJobs(
   jobs: Array<{
     submissionId: string;
-    provider: string;
+    provider: OutboxProvider;
     payload: Record<string, unknown>;
     maxAttempts?: number;
     nextAttemptAt?: string;
@@ -716,7 +717,7 @@ function mapOutboxRow(row: OutboxJobRow): OutboxJob {
   return {
     id: String(row.id),
     submissionId: String(row.submission_id),
-    provider: String(row.provider),
+    provider: String(row.provider) as OutboxProvider,
     status: row.status as OutboxStatus,
     attempts: Number(row.attempts ?? 0),
     maxAttempts: Number(row.max_attempts ?? 5),
@@ -969,7 +970,7 @@ export async function markOutboxJobFailed(
         inMemory.outbox.set(jobId, {
           id: String(current.data.id),
           submissionId: String(current.data.submission_id),
-          provider: String(current.data.provider),
+          provider: String(current.data.provider) as OutboxProvider,
           status,
           attempts,
           maxAttempts,

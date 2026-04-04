@@ -8,13 +8,6 @@ import FeatureGridSection from './FeatureGridSection';
 import FormSection from './FormSection';
 import HeroSection from './HeroSection';
 import ImageSection from './ImageSection';
-import LegacyAudienceGridSection from './LegacyAudienceGridSection';
-import LegacyCenteredCtaSection from './LegacyCenteredCtaSection';
-import LegacyChecklistSection from './LegacyChecklistSection';
-import LegacyHeroSection from './LegacyHeroSection';
-import LegacyNarrativeSection from './LegacyNarrativeSection';
-import LegacyNumberedStageSection from './LegacyNumberedStageSection';
-import LegacyQuoteSection from './LegacyQuoteSection';
 import LogoBandSection from './LogoBandSection';
 import PrivacyNoteSection from './PrivacyNoteSection';
 import QuoteSection from './QuoteSection';
@@ -46,13 +39,6 @@ export const SECTION_RENDERERS: Record<string, SectionRenderer> = {
   simpleTableSection: SimpleTableSection,
   comparisonTableSection: ComparisonTableSection,
   dynamicListSection: DynamicListSection,
-  legacyHeroSection: LegacyHeroSection,
-  legacyNarrativeSection: LegacyNarrativeSection,
-  legacyNumberedStageSection: LegacyNumberedStageSection,
-  legacyAudienceGridSection: LegacyAudienceGridSection,
-  legacyChecklistSection: LegacyChecklistSection,
-  legacyQuoteSection: LegacyQuoteSection,
-  legacyCenteredCtaSection: LegacyCenteredCtaSection,
   splitSection: SplitSection,
   reusableSectionReference: ReusableSectionReference,
   spacerSection: SpacerSection,

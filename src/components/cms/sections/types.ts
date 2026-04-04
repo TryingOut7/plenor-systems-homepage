@@ -1,4 +1,4 @@
-import type { CSSProperties, Dispatch, ReactNode, SetStateAction } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import type { CollectionData, PageSection } from '@/payload/cms';
 
 export type SectionTheme = 'navy' | 'charcoal' | 'black' | 'white' | 'light';
@@ -58,8 +58,6 @@ export interface SectionRendererProps {
   collections: CollectionData;
   guideFormLabels?: GuideFormLabels;
   inquiryFormLabels?: InquiryFormLabels;
-  listPages: Record<string, number>;
-  setListPages: Dispatch<SetStateAction<Record<string, number>>>;
   renderNestedSection: (section: PageSection, index: number, keyPrefix?: string) => ReactNode;
 }
 

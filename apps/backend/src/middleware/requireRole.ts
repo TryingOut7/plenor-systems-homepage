@@ -1,5 +1,5 @@
 import type { BackendPrincipal, BackendRole } from '@plenor/contracts/auth';
-import { authenticateBackendApiKey, hasRequiredRole } from '../../../../src/infrastructure/security/backendApiKeyAuth';
+import { authenticateBackendApiKey, hasRequiredRole } from '@/infrastructure/security/backendApiKeyAuth';
 
 export type RequireRoleResult =
   | {

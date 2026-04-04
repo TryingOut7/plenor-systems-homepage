@@ -6,7 +6,6 @@ import { createdByField } from '../fields/ownership.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
-import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigration.ts';
 import { migrateGuideInquirySectionsBeforeChange } from '../hooks/guideInquirySectionMigration.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
 
@@ -62,7 +61,6 @@ export const PageDrafts: CollectionConfig = {
       normalizeTargetSlugBeforeChange,
       workflowBeforeChange,
       migrateGuideInquirySectionsBeforeChange,
-      migrateLegacySectionsBeforeChange,
     ],
     afterChange: [workflowAfterChange, auditAfterChange],
     afterDelete: [auditAfterDelete],

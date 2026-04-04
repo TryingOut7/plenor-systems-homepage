@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import type { BlogPost, ServiceItem, Testimonial } from '@/payload/cms';
 import SectionHeading from './shared/SectionHeading';
@@ -24,11 +27,10 @@ export default function DynamicListSection({
   hFontSize,
   innerStyle,
   collections,
-  listPages,
-  setListPages,
   resolvedHeadingColor,
   resolvedMutedColor,
-}: SectionRendererProps) {
+}: Omit<SectionRendererProps, 'listPages' | 'setListPages'>) {
+  const [currentPage, setCurrentPage] = useState(1);
   const config = asSectionRecord(section) as typeof section & DynamicListConfig;
 
   const sourceItems: Array<ServiceItem | BlogPost | Testimonial> =
@@ -54,8 +56,8 @@ export default function DynamicListSection({
 
   const limit = typeof config.limit === 'number' && config.limit > 0 ? config.limit : 6;
   const totalPages = Math.max(1, Math.ceil(filteredAndSorted.length / limit));
-  const currentPage = Math.min(listPages[sectionKey] || 1, totalPages);
-  const start = (currentPage - 1) * limit;
+  const clampedPage = Math.min(currentPage, totalPages);
+  const start = (clampedPage - 1) * limit;
   const pageItems = filteredAndSorted.slice(start, start + limit);
 
   return (
@@ -135,24 +137,20 @@ export default function DynamicListSection({
               type="button"
               className="btn-secondary"
               style={{ padding: '8px 14px', fontSize: '13px' }}
-              disabled={currentPage <= 1}
-              onClick={() =>
-                setListPages((prev) => ({ ...prev, [sectionKey]: Math.max(1, (prev[sectionKey] || 1) - 1) }))
-              }
+              disabled={clampedPage <= 1}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             >
               Previous
             </button>
             <span style={{ color: resolvedMutedColor, fontSize: '14px' }}>
-              Page {currentPage} of {totalPages}
+              Page {clampedPage} of {totalPages}
             </span>
             <button
               type="button"
               className="btn-secondary"
               style={{ padding: '8px 14px', fontSize: '13px' }}
-              disabled={currentPage >= totalPages}
-              onClick={() =>
-                setListPages((prev) => ({ ...prev, [sectionKey]: Math.min(totalPages, (prev[sectionKey] || 1) + 1) }))
-              }
+              disabled={clampedPage >= totalPages}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             >
               Next
             </button>

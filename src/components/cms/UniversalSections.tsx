@@ -1,6 +1,4 @@
-'use client';
-
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import { type CSSProperties, type ReactNode } from 'react';
 import { SECTION_RENDERERS } from './sections/registry';
 import type { UniversalSectionsProps } from './sections/types';
 import {
@@ -29,8 +27,6 @@ export default function UniversalSections({
   guideFormLabels,
   inquiryFormLabels,
 }: UniversalSectionsProps) {
-  const [listPages, setListPages] = useState<Record<string, number>>({});
-
   const MAX_NEST_DEPTH = 5;
 
   const warnSkippedSection = (
@@ -125,8 +121,6 @@ export default function UniversalSections({
         collections,
         guideFormLabels,
         inquiryFormLabels,
-        listPages,
-        setListPages,
         renderNestedSection,
       });
     };

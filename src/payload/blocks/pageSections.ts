@@ -16,13 +16,6 @@ import { VideoSection } from './sections/VideoSection.ts';
 import { SimpleTableSection } from './sections/SimpleTableSection.ts';
 import { ComparisonTableSection } from './sections/ComparisonTableSection.ts';
 import { DynamicListSection } from './sections/DynamicListSection.ts';
-import { LegacyHeroSection } from './sections/LegacyHeroSection.ts';
-import { LegacyNarrativeSection } from './sections/LegacyNarrativeSection.ts';
-import { LegacyNumberedStageSection } from './sections/LegacyNumberedStageSection.ts';
-import { LegacyAudienceGridSection } from './sections/LegacyAudienceGridSection.ts';
-import { LegacyChecklistSection } from './sections/LegacyChecklistSection.ts';
-import { LegacyQuoteSection } from './sections/LegacyQuoteSection.ts';
-import { LegacyCenteredCtaSection } from './sections/LegacyCenteredCtaSection.ts';
 import { SplitSection } from './sections/SplitSection.ts';
 import { ReusableSectionReference } from './sections/ReusableSectionReference.ts';
 import { SpacerSection } from './sections/SpacerSection.ts';
@@ -61,19 +54,6 @@ function withModernEditorMetadata(block: Block): Block {
   };
 }
 
-function withLegacyEditorMetadata(block: Block): Block {
-  const admin = {
-    ...(block.admin || {}),
-    group: 'Legacy (Migration Only)',
-    hidden: true,
-  } as Block['admin'] & { hidden?: boolean };
-
-  return {
-    ...block,
-    admin,
-  };
-}
-
 export const modernPageSectionBlocks: Block[] = [
   HeroSection,
   RichTextSection,
@@ -98,19 +78,6 @@ export const modernPageSectionBlocks: Block[] = [
   DividerSection,
 ].map(withModernEditorMetadata);
 
-export const legacyPageSectionBlocks: Block[] = [
-  LegacyHeroSection,
-  LegacyNarrativeSection,
-  LegacyNumberedStageSection,
-  LegacyAudienceGridSection,
-  LegacyChecklistSection,
-  LegacyQuoteSection,
-  LegacyCenteredCtaSection,
-].map(withLegacyEditorMetadata);
-
-export const pageSectionBlocks: Block[] = [
-  ...modernPageSectionBlocks,
-  ...legacyPageSectionBlocks,
-];
+export const pageSectionBlocks: Block[] = [...modernPageSectionBlocks];
 
 export const modernPageSectionBlockSlugs = modernPageSectionBlocks.map((block) => block.slug);

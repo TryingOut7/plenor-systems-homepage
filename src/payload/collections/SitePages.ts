@@ -12,7 +12,6 @@ import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts'
 import { applyCorePresetSections } from '../hooks/sitePagePreset.ts';
 import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
-import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigration.ts';
 import { migrateGuideInquirySectionsBeforeChange } from '../hooks/guideInquirySectionMigration.ts';
 import { sitePagePublishGuardsBeforeChange } from '../hooks/sitePageGuards.ts';
 import { withFieldTier } from '../fields/fieldTier.ts';
@@ -154,7 +153,6 @@ export const SitePages: CollectionConfig = {
       workflowBeforeChange,
       applyCorePresetSections,
       migrateGuideInquirySectionsBeforeChange,
-      migrateLegacySectionsBeforeChange,
       sitePagePublishGuardsBeforeChange,
       enforceSitePageActivationRules,
     ],
