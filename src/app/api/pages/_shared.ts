@@ -60,8 +60,47 @@ export async function readJsonBody(request: NextRequest): Promise<Record<string,
   }
 }
 
-export function toApiErrorResponse(error: unknown): NextResponse {
-  const message = error instanceof Error ? error.message : 'Failed to create preset.';
+export async function requireWorkspaceUser(request: NextRequest): Promise<{
+  errorResponse: NextResponse | null;
+  payload: Awaited<ReturnType<typeof getPayload>>;
+  user: TypedUser | null;
+}> {
+  const payload = await getPayload();
+  const authResult = await payload.auth({ headers: request.headers });
+  const user = authResult.user as TypedUser | null;
+
+  if (!user) {
+    return {
+      payload,
+      user: null,
+      errorResponse: NextResponse.json(
+        { success: false, message: 'Authentication required.' },
+        { status: 401 },
+      ),
+    };
+  }
+
+  const role = resolveUserRole(user);
+  if (!['admin', 'editor', 'author'].includes(role)) {
+    return {
+      payload,
+      user: null,
+      errorResponse: NextResponse.json(
+        { success: false, message: 'Insufficient permissions.' },
+        { status: 403 },
+      ),
+    };
+  }
+
+  return {
+    payload,
+    user,
+    errorResponse: null,
+  };
+}
+
+export function toApiErrorResponse(error: unknown, defaultMessage = 'Operation failed.'): NextResponse {
+  const message = error instanceof Error ? error.message : defaultMessage;
   const lowered = message.toLowerCase();
   const status = lowered.includes('not found') ? 404 : 400;
   return NextResponse.json({ success: false, message }, { status });

@@ -11,13 +11,21 @@ export const PagePlaygrounds: CollectionConfig = {
   slug: 'page-playgrounds',
   labels: {
     singular: 'Playground',
-    plural: 'Playground',
+    plural: 'Playgrounds',
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['workspaceBadge', 'name', 'visibility', 'expiresAt', 'updatedAt'],
+    defaultColumns: ['workspaceBadge', 'name', 'visibility', 'createDraftAction', 'createPresetAction', 'expiresAt', 'updatedAt'],
     group: 'Pages',
     description: 'Safe sandbox area for trying layouts and section combinations before creating a draft.',
+    components: {
+      edit: {
+        beforeDocumentControls: [
+          '@/payload/admin/components/CreateDraftFromDocumentButton',
+          '@/payload/admin/components/CreatePresetFromDocumentButton',
+        ],
+      },
+    },
   },
   access: {
     read: ({ req }) => !!req.user,
@@ -47,6 +55,32 @@ export const PagePlaygrounds: CollectionConfig = {
         disableListColumn: false,
         components: {
           Cell: '@/payload/admin/components/WorkspaceBadgeCell',
+          Field: '@/payload/admin/components/HiddenUIField',
+        },
+      },
+    },
+    {
+      name: 'createDraftAction',
+      label: 'Create Draft',
+      type: 'ui',
+      admin: {
+        disableBulkEdit: true,
+        disableListColumn: false,
+        components: {
+          Cell: '@/payload/admin/components/CreateDraftFromRowCell',
+          Field: '@/payload/admin/components/HiddenUIField',
+        },
+      },
+    },
+    {
+      name: 'createPresetAction',
+      label: 'Create Preset',
+      type: 'ui',
+      admin: {
+        disableBulkEdit: true,
+        disableListColumn: false,
+        components: {
+          Cell: '@/payload/admin/components/CreatePresetFromRowCell',
           Field: '@/payload/admin/components/HiddenUIField',
         },
       },

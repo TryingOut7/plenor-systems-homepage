@@ -4,21 +4,13 @@ import { useAuth } from '@payloadcms/ui';
 import type { DefaultCellComponentProps } from 'payload';
 import { useState } from 'react';
 import {
-  createPresetFromSourceClient,
-  openPresetDocumentInAdmin,
-  type SourceCollection,
+  createDraftFromPlaygroundClient,
+  openDraftDocumentInAdmin,
 } from './createPresetClient';
 
 type UserRecord = {
   role?: unknown;
 };
-
-function resolveSupportedSourceCollection(slug: unknown): null | SourceCollection {
-  if (slug === 'site-pages' || slug === 'page-drafts' || slug === 'page-playgrounds') {
-    return slug;
-  }
-  return null;
-}
 
 function readRowId(rowData: unknown): string {
   if (!rowData || typeof rowData !== 'object') return '';
@@ -35,16 +27,15 @@ function readRowTitle(rowData: unknown): string {
   return 'Untitled';
 }
 
-const CreatePresetFromRowCell = ({ collectionSlug, rowData }: DefaultCellComponentProps) => {
+const CreateDraftFromRowCell = ({ collectionSlug, rowData }: DefaultCellComponentProps) => {
   const { user } = useAuth<UserRecord>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const sourceCollection = resolveSupportedSourceCollection(collectionSlug);
   const sourceId = readRowId(rowData);
   const userRole = typeof user?.role === 'string' ? user.role : '';
-  const canCreatePreset = userRole === 'admin' || userRole === 'editor';
+  const canCreate = userRole === 'admin' || userRole === 'editor' || userRole === 'author';
 
-  if (!canCreatePreset || !sourceCollection || !sourceId) return null;
+  if (!canCreate || collectionSlug !== 'page-playgrounds' || !sourceId) return null;
 
   return (
     <button
@@ -56,22 +47,14 @@ const CreatePresetFromRowCell = ({ collectionSlug, rowData }: DefaultCellCompone
 
         try {
           setIsSubmitting(true);
-          const preset = await createPresetFromSourceClient({
-            sourceCollection,
-            sourceId,
-            sourceTitle: readRowTitle(rowData),
-            descriptionSeed:
-              sourceCollection === 'page-drafts' &&
-              rowData &&
-              typeof rowData === 'object' &&
-              typeof (rowData as Record<string, unknown>).editorNotes === 'string'
-                ? String((rowData as Record<string, unknown>).editorNotes)
-                : '',
+          const draft = await createDraftFromPlaygroundClient({
+            playgroundId: sourceId,
+            playgroundName: readRowTitle(rowData),
           });
-          openPresetDocumentInAdmin(preset.id);
+          openDraftDocumentInAdmin(draft.id);
         } catch (error) {
-          if (error instanceof Error && error.message === 'Preset creation cancelled.') return;
-          window.alert(error instanceof Error ? error.message : 'Failed to create preset.');
+          if (error instanceof Error && error.message === 'Draft creation cancelled.') return;
+          window.alert(error instanceof Error ? error.message : 'Failed to create draft.');
         } finally {
           setIsSubmitting(false);
         }
@@ -89,9 +72,9 @@ const CreatePresetFromRowCell = ({ collectionSlug, rowData }: DefaultCellCompone
         opacity: isSubmitting ? 0.65 : 1,
       }}
     >
-      {isSubmitting ? 'Creating…' : 'Create Preset'}
+      {isSubmitting ? 'Creating…' : 'Create Draft'}
     </button>
   );
 };
 
-export default CreatePresetFromRowCell;
+export default CreateDraftFromRowCell;

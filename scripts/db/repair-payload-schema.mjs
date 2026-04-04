@@ -46,6 +46,9 @@ const COLLECTION_TABLES_WITH_CREATED_BY = [
   'blog_posts',
   'testimonials',
   'site_pages',
+  'page_drafts',
+  'page_presets',
+  'page_playgrounds',
 ];
 
 const COLLECTION_TABLES_WITH_WORKFLOW_REVIEW = [

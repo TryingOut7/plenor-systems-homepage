@@ -117,14 +117,7 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
     );
   }
 
-  // Stamp review metadata when moving into review.
-  if (newStatus === 'in_review') {
-    const user = req.user as UserRecord | undefined;
-    data.reviewedBy = user?.id || null;
-    data.reviewedAt = new Date().toISOString();
-  }
-
-  // Stamp approval metadata.
+  // Stamp approval metadata and review attribution when a reviewer approves/publishes.
   if (newStatus === 'approved' || newStatus === 'published') {
     const reviewSummary = readTrimmedString(data.reviewSummary);
     if (reviewSummary.length < 10) {
@@ -140,6 +133,8 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
     }
 
     const user = req.user as UserRecord | undefined;
+    data.reviewedBy = user?.id || null;
+    data.reviewedAt = new Date().toISOString();
     data.approvedBy = user?.id || null;
     data.approvedAt = new Date().toISOString();
   }

@@ -14,7 +14,7 @@ type UserRecord = {
 };
 
 function resolveSupportedSourceCollection(slug: unknown): null | SourceCollection {
-  if (slug === 'site-pages' || slug === 'page-drafts') {
+  if (slug === 'site-pages' || slug === 'page-drafts' || slug === 'page-playgrounds') {
     return slug;
   }
   return null;

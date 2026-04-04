@@ -138,6 +138,7 @@ export const PagePresets: CollectionConfig = {
         { label: 'Manual', value: 'manual' },
         { label: 'From Live Page', value: 'from-live' },
         { label: 'From Draft', value: 'from-draft' },
+        { label: 'From Playground', value: 'from-playground' },
       ],
       access: {
         update: () => false,
@@ -163,6 +164,18 @@ export const PagePresets: CollectionConfig = {
       name: 'sourceDraft',
       type: 'relationship',
       relationTo: 'page-drafts',
+      access: {
+        update: () => false,
+      },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'sourcePlayground',
+      type: 'relationship',
+      relationTo: 'page-playgrounds',
       access: {
         update: () => false,
       },

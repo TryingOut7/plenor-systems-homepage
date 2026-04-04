@@ -41,7 +41,10 @@ export const PageDrafts: CollectionConfig = {
     description: 'Working copies for review and experimentation before promotion to live pages.',
     components: {
       edit: {
-        beforeDocumentControls: ['@/payload/admin/components/CreatePresetFromDocumentButton'],
+        beforeDocumentControls: [
+          '@/payload/admin/components/PromoteDraftToLiveButton',
+          '@/payload/admin/components/CreatePresetFromDocumentButton',
+        ],
       },
     },
   },

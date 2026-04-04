@@ -12,7 +12,14 @@ export type PresetMetaInput = {
   tags?: unknown;
 };
 
-type PresetSourceType = 'from-live' | 'from-draft';
+type PresetSourceType = 'from-live' | 'from-draft' | 'from-playground';
+
+type DraftSourceDoc = {
+  id: number | string;
+  name?: string;
+  sections?: unknown;
+  notes?: unknown;
+};
 
 type SourceDoc = {
   id: number | string;
@@ -95,7 +102,7 @@ async function loadSourceDoc(
 async function createPresetFromSource(args: {
   payload: Payload;
   presetMeta: PresetMetaInput;
-  sourceCollection: 'page-drafts' | 'site-pages';
+  sourceCollection: 'page-drafts' | 'page-playgrounds' | 'site-pages';
   sourceId: number | string;
   sourceType: PresetSourceType;
   user: TypedUser;
@@ -103,9 +110,13 @@ async function createPresetFromSource(args: {
   const { payload, presetMeta, sourceCollection, sourceId, sourceType, user } = args;
   const source = await loadSourceDoc(payload, sourceCollection, sourceId, user);
   const sourceData = asRecord(source);
-  const sourceTitle = readTrimmedString(sourceData.title) || 'Untitled';
+  const sourceTitle =
+    readTrimmedString(sourceData.title) ||
+    readTrimmedString(sourceData.name) ||
+    'Untitled';
   const fallbackDescription =
-    sourceType === 'from-draft' ? readTrimmedString(sourceData.editorNotes) : '';
+    sourceType === 'from-draft' ? readTrimmedString(sourceData.editorNotes) :
+    sourceType === 'from-playground' ? readTrimmedString(sourceData.notes) : '';
   const normalizedMeta = sanitizeMeta(
     presetMeta,
     `${sourceTitle} Preset`,
@@ -132,6 +143,7 @@ async function createPresetFromSource(args: {
       sourceType,
       sourceLivePage: sourceType === 'from-live' ? source.id : undefined,
       sourceDraft: sourceType === 'from-draft' ? source.id : undefined,
+      sourcePlayground: sourceType === 'from-playground' ? source.id : undefined,
       createdFromSnapshotAt: new Date().toISOString(),
     },
   });
@@ -173,4 +185,63 @@ export async function createPresetFromDraft(args: {
     presetMeta: args.presetMeta,
     user: args.user,
   });
+}
+
+export async function createPresetFromPlayground(args: {
+  playgroundId: number | string;
+  payload: Payload;
+  presetMeta: PresetMetaInput;
+  user: TypedUser;
+}): Promise<{ id: number | string; name: string }> {
+  return createPresetFromSource({
+    payload: args.payload,
+    sourceCollection: 'page-playgrounds',
+    sourceId: args.playgroundId,
+    sourceType: 'from-playground',
+    presetMeta: args.presetMeta,
+    user: args.user,
+  });
+}
+
+export async function createDraftFromPlayground(args: {
+  playgroundId: number | string;
+  payload: Payload;
+  title: string;
+  targetSlug: string;
+  user: TypedUser;
+}): Promise<{ id: number | string; title: string }> {
+  const { payload, playgroundId, title, targetSlug, user } = args;
+
+  const source = await loadSourceDoc(payload, 'page-playgrounds', playgroundId, user) as DraftSourceDoc;
+  const sourceData = asRecord(source as unknown);
+
+  const sections = Array.isArray(sourceData.sections)
+    ? cloneValue(sourceData.sections)
+    : [];
+
+  const normalizedSlug = targetSlug.trim().replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/');
+  if (!normalizedSlug) {
+    throw new Error('targetSlug is required to create a draft from a playground.');
+  }
+
+  const created = await payload.create({
+    collection: 'page-drafts',
+    depth: 0,
+    overrideAccess: false,
+    user,
+    data: {
+      title: title.trim() || readTrimmedString(sourceData.name) || 'Untitled',
+      targetSlug: normalizedSlug,
+      sections,
+      sourceType: 'from-playground',
+      sourcePlayground: source.id,
+      workflowStatus: 'draft',
+    },
+  });
+
+  const createdRecord = created as UnknownRecord;
+  return {
+    id: (createdRecord.id as string | number) ?? '',
+    title: readTrimmedString(createdRecord.title) || title,
+  };
 }

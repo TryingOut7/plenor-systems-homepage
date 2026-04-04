@@ -1,6 +1,6 @@
 'use client';
 
-type SourceCollection = 'page-drafts' | 'site-pages';
+type SourceCollection = 'page-drafts' | 'page-playgrounds' | 'site-pages';
 
 const ALLOWED_CATEGORIES = ['core', 'landing', 'campaign', 'internal', 'custom'];
 
@@ -23,6 +23,9 @@ function normalizeTags(value: string): string[] {
 function resolveEndpoint(sourceCollection: SourceCollection, sourceId: string): string {
   if (sourceCollection === 'site-pages') {
     return `/api/pages/live/${encodeURIComponent(sourceId)}/create-preset`;
+  }
+  if (sourceCollection === 'page-playgrounds') {
+    return `/api/pages/playgrounds/${encodeURIComponent(sourceId)}/create-preset`;
   }
   return `/api/pages/drafts/${encodeURIComponent(sourceId)}/create-preset`;
 }
@@ -139,6 +142,63 @@ export function openPresetDocumentInAdmin(presetId: number | string): void {
   const basePath = resolveAdminBasePath();
   window.location.assign(
     `${basePath}/collections/page-presets/${encodeURIComponent(String(presetId))}`,
+  );
+}
+
+export async function createDraftFromPlaygroundClient(args: {
+  playgroundId: string;
+  playgroundName: string;
+}): Promise<{ id: string | number; title: string }> {
+  const nameInput = window.prompt('Draft title', `${readString(args.playgroundName) || 'Untitled'} Draft`);
+  if (nameInput === null) throw new Error('Draft creation cancelled.');
+
+  const title = readString(nameInput);
+  if (!title) {
+    window.alert('Draft title is required.');
+    throw new Error('Draft creation cancelled.');
+  }
+
+  const slugInput = window.prompt('Target page slug (e.g. /about)', '');
+  if (slugInput === null) throw new Error('Draft creation cancelled.');
+
+  const targetSlug = readString(slugInput);
+  if (!targetSlug) {
+    window.alert('Target page slug is required.');
+    throw new Error('Draft creation cancelled.');
+  }
+
+  const response = await fetch(
+    `/api/pages/playgrounds/${encodeURIComponent(args.playgroundId)}/create-draft`,
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ title, targetSlug }),
+    },
+  );
+
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = typeof json?.message === 'string' ? json.message : 'Failed to create draft.';
+    throw new Error(message);
+  }
+
+  if (!json || typeof json !== 'object' || typeof json.draft !== 'object' || !json.draft) {
+    throw new Error('Draft API returned an invalid response.');
+  }
+
+  const draft = json.draft as Record<string, unknown>;
+  const id = draft.id as string | number | undefined;
+  const draftTitle = readString(draft.title);
+  if (!id) throw new Error('Draft API response is missing draft id.');
+
+  return { id, title: draftTitle || title };
+}
+
+export function openDraftDocumentInAdmin(draftId: number | string): void {
+  const basePath = resolveAdminBasePath();
+  window.location.assign(
+    `${basePath}/collections/page-drafts/${encodeURIComponent(String(draftId))}`,
   );
 }
 
