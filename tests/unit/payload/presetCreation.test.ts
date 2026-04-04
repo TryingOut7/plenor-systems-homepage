@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { Payload, TypedUser } from 'payload';
-import { createPresetFromDraft, createPresetFromLivePage } from '@/payload/workspaces/presetCreation';
+import {
+  createDraftFromPreset,
+  createPresetFromDraft,
+  createPresetFromLivePage,
+} from '@/payload/workspaces/presetCreation';
 
 type MockPayload = {
   create: ReturnType<typeof vi.fn>;
@@ -164,6 +168,49 @@ describe('presetCreation workspace service', () => {
           { title: 'Tab One', body: 'One' },
           { title: 'Tab Two', body: 'Two' },
         ],
+      },
+    ]);
+  });
+
+  it('creates a draft from a preset and links sourcePreset', async () => {
+    const payload = buildMockPayload({
+      id: 'preset_1',
+      name: 'Landing Preset',
+      sections: [
+        {
+          id: 'hero_row',
+          blockType: 'heroSection',
+          heading: 'Preset Hero',
+        },
+      ],
+    });
+
+    await createDraftFromPreset({
+      payload: payload as unknown as Payload,
+      presetId: 'preset_1',
+      title: 'Landing Draft',
+      targetSlug: '/landing/new',
+      user: { id: 'user_5', role: 'editor' } as unknown as TypedUser,
+    });
+
+    expect(payload.findByID).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'page-presets',
+        id: 'preset_1',
+      }),
+    );
+
+    const createArgs = payload.create.mock.calls[0][0];
+    expect(createArgs.collection).toBe('page-drafts');
+    const data = createArgs.data as Record<string, unknown>;
+    expect(data.sourceType).toBe('from-preset');
+    expect(data.sourcePreset).toBe('preset_1');
+    expect(data.sourcePlayground).toBeUndefined();
+    expect(data.targetSlug).toBe('landing/new');
+    expect(data.sections).toEqual([
+      {
+        blockType: 'heroSection',
+        heading: 'Preset Hero',
       },
     ]);
   });

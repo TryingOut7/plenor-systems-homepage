@@ -40,6 +40,11 @@ export interface WorkspaceMutationRepository {
     title: string;
     targetSlug: string;
   }): Promise<WorkspaceDraftRecord>;
+  createDraftFromPreset(args: {
+    presetId: number | string;
+    title: string;
+    targetSlug: string;
+  }): Promise<WorkspaceDraftRecord>;
   promoteDraftToLive(args: {
     draftId: number | string;
   }): Promise<WorkspaceLivePageRecord>;

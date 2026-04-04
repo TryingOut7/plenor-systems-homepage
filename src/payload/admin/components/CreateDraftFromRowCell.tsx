@@ -5,6 +5,7 @@ import type { DefaultCellComponentProps } from 'payload';
 import { useState } from 'react';
 import {
   createDraftFromPlaygroundClient,
+  type DraftSourceCollection,
   openDraftDocumentInAdmin,
 } from './createPresetClient';
 
@@ -31,11 +32,15 @@ const CreateDraftFromRowCell = ({ collectionSlug, rowData }: DefaultCellComponen
   const { user } = useAuth<UserRecord>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const sourceCollection: DraftSourceCollection | null =
+    collectionSlug === 'page-playgrounds' || collectionSlug === 'page-presets'
+      ? collectionSlug
+      : null;
   const sourceId = readRowId(rowData);
   const userRole = typeof user?.role === 'string' ? user.role : '';
   const canCreate = userRole === 'admin' || userRole === 'editor' || userRole === 'author';
 
-  if (!canCreate || collectionSlug !== 'page-playgrounds' || !sourceId) return null;
+  if (!canCreate || !sourceCollection || !sourceId) return null;
 
   return (
     <button
@@ -48,8 +53,9 @@ const CreateDraftFromRowCell = ({ collectionSlug, rowData }: DefaultCellComponen
         try {
           setIsSubmitting(true);
           const draft = await createDraftFromPlaygroundClient({
-            playgroundId: sourceId,
-            playgroundName: readRowTitle(rowData),
+            sourceCollection,
+            sourceId,
+            sourceTitle: readRowTitle(rowData),
           });
           openDraftDocumentInAdmin(draft.id);
         } catch (error) {

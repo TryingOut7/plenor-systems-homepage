@@ -1,6 +1,7 @@
 'use client';
 
 type SourceCollection = 'page-drafts' | 'page-playgrounds' | 'site-pages';
+type DraftSourceCollection = 'page-playgrounds' | 'page-presets';
 
 const ALLOWED_CATEGORIES = ['core', 'landing', 'campaign', 'internal', 'custom'];
 
@@ -146,10 +147,15 @@ export function openPresetDocumentInAdmin(presetId: number | string): void {
 }
 
 export async function createDraftFromPlaygroundClient(args: {
-  playgroundId: string;
-  playgroundName: string;
+  sourceCollection: DraftSourceCollection;
+  sourceId: string;
+  sourceTitle: string;
 }): Promise<{ id: string | number; title: string }> {
-  const nameInput = window.prompt('Draft title', `${readString(args.playgroundName) || 'Untitled'} Draft`);
+  const sourceLabel = args.sourceCollection === 'page-presets' ? 'preset' : 'playground';
+  const nameInput = window.prompt(
+    'Draft title',
+    `${readString(args.sourceTitle) || 'Untitled'} Draft`,
+  );
   if (nameInput === null) throw new Error('Draft creation cancelled.');
 
   const title = readString(nameInput);
@@ -167,8 +173,13 @@ export async function createDraftFromPlaygroundClient(args: {
     throw new Error('Draft creation cancelled.');
   }
 
+  const endpoint =
+    args.sourceCollection === 'page-presets'
+      ? `/api/pages/presets/${encodeURIComponent(args.sourceId)}/create-draft`
+      : `/api/pages/playgrounds/${encodeURIComponent(args.sourceId)}/create-draft`;
+
   const response = await fetch(
-    `/api/pages/playgrounds/${encodeURIComponent(args.playgroundId)}/create-draft`,
+    endpoint,
     {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -179,7 +190,8 @@ export async function createDraftFromPlaygroundClient(args: {
 
   const json = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const message = typeof json?.message === 'string' ? json.message : 'Failed to create draft.';
+    const message =
+      typeof json?.message === 'string' ? json.message : `Failed to create draft from ${sourceLabel}.`;
     throw new Error(message);
   }
 
@@ -203,3 +215,4 @@ export function openDraftDocumentInAdmin(draftId: number | string): void {
 }
 
 export type { SourceCollection };
+export type { DraftSourceCollection };

@@ -1,6 +1,7 @@
 import type { WorkspaceMutationRepository } from '@/application/ports/workspaceMutationRepository';
 import {
   createDraftFromPlayground,
+  createDraftFromPreset,
   createPresetFromDraft,
   createPresetFromLivePage,
   createPresetFromPlayground,
@@ -39,6 +40,14 @@ export function createPayloadWorkspaceMutationRepository(args: {
         payload: args.payload,
         user: args.user,
         playgroundId,
+        title,
+        targetSlug,
+      }),
+    createDraftFromPreset: ({ presetId, title, targetSlug }) =>
+      createDraftFromPreset({
+        payload: args.payload,
+        user: args.user,
+        presetId,
         title,
         targetSlug,
       }),

@@ -20,6 +20,81 @@ const normalizeTargetSlugBeforeChange: CollectionBeforeChangeHook = ({ data }) =
   return incoming;
 };
 
+function cloneValueWithoutIds<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((entry) => cloneValueWithoutIds(entry)) as T;
+  }
+
+  if (value && typeof value === 'object') {
+    const cloned: Record<string, unknown> = {};
+    for (const [key, nestedValue] of Object.entries(value as Record<string, unknown>)) {
+      if (key === 'id') continue;
+      cloned[key] = cloneValueWithoutIds(nestedValue);
+    }
+    return cloned as T;
+  }
+
+  return value;
+}
+
+function readRelationId(value: unknown): null | number | string {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string' && value.trim()) return value.trim();
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+
+  const relationId = (value as Record<string, unknown>).id;
+  if (typeof relationId === 'number') return relationId;
+  if (typeof relationId === 'string' && relationId.trim()) return relationId.trim();
+  return null;
+}
+
+const hydrateSectionsFromPresetBeforeChange: CollectionBeforeChangeHook = async ({
+  data,
+  operation,
+  req,
+}) => {
+  if (!data || typeof data !== 'object') return data;
+  if (operation !== 'create') return data;
+
+  const incoming = data as Record<string, unknown>;
+  const sourceType =
+    typeof incoming.sourceType === 'string' ? incoming.sourceType.trim() : '';
+  if (sourceType !== 'from-preset') return incoming;
+
+  const sourcePresetId = readRelationId(incoming.sourcePreset);
+  if (!sourcePresetId) return incoming;
+  if (Array.isArray(incoming.sections) && incoming.sections.length > 0) return incoming;
+
+  const preset = await req.payload.findByID({
+    collection: 'page-presets',
+    id: sourcePresetId,
+    depth: 0,
+    overrideAccess: false,
+    user: req.user,
+  });
+
+  const presetRecord =
+    preset && typeof preset === 'object' && !Array.isArray(preset)
+      ? (preset as Record<string, unknown>)
+      : null;
+  const presetSections = Array.isArray(presetRecord?.sections)
+    ? (presetRecord?.sections as unknown[])
+    : [];
+  incoming.sections = cloneValueWithoutIds(presetSections);
+
+  const title =
+    typeof incoming.title === 'string' ? incoming.title.trim() : '';
+  if (!title) {
+    const presetName =
+      typeof presetRecord?.name === 'string' ? presetRecord.name.trim() : '';
+    if (presetName) {
+      incoming.title = `${presetName} Draft`;
+    }
+  }
+
+  return incoming;
+};
+
 export const PageDrafts: CollectionConfig = {
   slug: 'page-drafts',
   labels: {
@@ -60,6 +135,7 @@ export const PageDrafts: CollectionConfig = {
     beforeChange: [
       stampCreatedByBeforeChange,
       normalizeTargetSlugBeforeChange,
+      hydrateSectionsFromPresetBeforeChange,
       workflowBeforeChange,
       migrateLegacySectionsBeforeChange,
       migrateGuideInquirySectionsBeforeChange,

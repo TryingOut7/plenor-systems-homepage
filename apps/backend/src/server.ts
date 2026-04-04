@@ -34,6 +34,7 @@ import { submitInquiryForm } from '@/application/forms/inquirySubmissionService'
 import { seedSitePagesForRequest } from '@/application/internal/seedSitePagesService';
 import {
   createDraftFromPlayground as createDraftFromPlaygroundWorkspace,
+  createDraftFromPreset as createDraftFromPresetWorkspace,
   createPresetFromDraft as createPresetFromDraftWorkspace,
   createPresetFromLivePage as createPresetFromLivePageWorkspace,
   createPresetFromPlayground as createPresetFromPlaygroundWorkspace,
@@ -646,6 +647,74 @@ export function buildBackendServer(): FastifyInstance {
       });
       const draft = await createDraftFromPlaygroundWorkspace(repository, {
         playgroundId,
+        title,
+        targetSlug,
+      });
+      return reply.send({
+        success: true,
+        draft,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create draft.';
+      const status = inferWorkspaceErrorStatus(message);
+      return reply.status(status).send(
+        toBackendErrorResponse({
+          status,
+          requestId: request.id,
+          body: {
+            message,
+          },
+        }),
+      );
+    }
+  });
+
+  app.post('/v1/pages/presets/:id/create-draft', async (request, reply) => {
+    const session = await requireWorkspaceSession(
+      request,
+      reply,
+      WORKSPACE_ROLES,
+      'Insufficient permissions.',
+    );
+    if (!session) return reply;
+
+    const presetId = readParamId(request.params);
+    if (!presetId) {
+      return reply.status(400).send(
+        toBackendErrorResponse({
+          status: 400,
+          requestId: request.id,
+          body: {
+            code: 'VALIDATION_ERROR',
+            message: 'id is required.',
+          },
+        }),
+      );
+    }
+
+    const body = asRecord(request.body);
+    const title = readTrimmedString(body.title);
+    const targetSlug = readTrimmedString(body.targetSlug);
+    if (!targetSlug) {
+      return reply.status(400).send(
+        toBackendErrorResponse({
+          status: 400,
+          requestId: request.id,
+          body: {
+            code: 'VALIDATION_ERROR',
+            message: 'targetSlug is required.',
+          },
+        }),
+      );
+    }
+
+    try {
+      const repository = createPayloadWorkspaceMutationRepository({
+        payload: session.payload,
+        user: session.user,
+      });
+      const draft = await createDraftFromPresetWorkspace(repository, {
+        presetId,
         title,
         targetSlug,
       });

@@ -14,9 +14,24 @@ export const PagePresets: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['workspaceBadge', 'sourceBadge', 'name', 'category', 'sourceType', 'updatedAt'],
+    defaultColumns: [
+      'workspaceBadge',
+      'sourceBadge',
+      'name',
+      'category',
+      'createDraftAction',
+      'sourceType',
+      'updatedAt',
+    ],
     group: 'Pages',
     description: 'Reusable page blueprints. Presets do not own routes and cannot be published directly.',
+    components: {
+      edit: {
+        beforeDocumentControls: [
+          '@/payload/admin/components/CreateDraftFromDocumentButton',
+        ],
+      },
+    },
   },
   access: {
     read: ({ req }) => !!req.user,
@@ -60,6 +75,19 @@ export const PagePresets: CollectionConfig = {
         components: {
           Cell: '@/payload/admin/components/PresetSourceBadge#PresetSourceBadgeCell',
           Field: '@/payload/admin/components/PresetSourceBadge',
+        },
+      },
+    },
+    {
+      name: 'createDraftAction',
+      label: 'Create Draft',
+      type: 'ui',
+      admin: {
+        disableBulkEdit: true,
+        disableListColumn: false,
+        components: {
+          Cell: '@/payload/admin/components/CreateDraftFromRowCell',
+          Field: '@/payload/admin/components/HiddenUIField',
         },
       },
     },

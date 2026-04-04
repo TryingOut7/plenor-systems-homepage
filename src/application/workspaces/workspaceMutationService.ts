@@ -47,6 +47,17 @@ export async function createDraftFromPlayground(
   return repository.createDraftFromPlayground(args);
 }
 
+export async function createDraftFromPreset(
+  repository: WorkspaceMutationRepository,
+  args: {
+    presetId: number | string;
+    title: string;
+    targetSlug: string;
+  },
+): Promise<WorkspaceDraftRecord> {
+  return repository.createDraftFromPreset(args);
+}
+
 export async function promoteDraftToLive(
   repository: WorkspaceMutationRepository,
   args: {

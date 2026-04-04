@@ -13,6 +13,7 @@ export type PresetMetaInput = {
 };
 
 type PresetSourceType = 'from-live' | 'from-draft' | 'from-playground';
+type DraftSourceType = 'from-playground' | 'from-preset';
 
 type DraftSourceDoc = {
   id: number | string;
@@ -231,18 +232,61 @@ export async function createDraftFromPlayground(args: {
   targetSlug: string;
   user: TypedUser;
 }): Promise<{ id: number | string; title: string }> {
-  const { payload, playgroundId, title, targetSlug, user } = args;
-
-  const source = await loadSourceDoc(payload, 'page-playgrounds', playgroundId, user) as DraftSourceDoc;
+  const { payload, title, targetSlug, user } = args;
+  const source = await loadSourceDoc(payload, 'page-playgrounds', args.playgroundId, user) as DraftSourceDoc;
   const sourceData = asRecord(source as unknown);
+  return createDraftFromSource({
+    payload,
+    user,
+    source,
+    sourceData,
+    sourceType: 'from-playground',
+    title,
+    targetSlug,
+  });
+}
 
-  const sections = Array.isArray(sourceData.sections)
-    ? cloneSections(sourceData.sections)
-    : [];
+export async function createDraftFromPreset(args: {
+  presetId: number | string;
+  payload: Payload;
+  title: string;
+  targetSlug: string;
+  user: TypedUser;
+}): Promise<{ id: number | string; title: string }> {
+  const { payload, title, targetSlug, user } = args;
+  const source = await loadSourceDoc(payload, 'page-presets', args.presetId, user) as DraftSourceDoc;
+  const sourceData = asRecord(source as unknown);
+  return createDraftFromSource({
+    payload,
+    user,
+    source,
+    sourceData,
+    sourceType: 'from-preset',
+    title,
+    targetSlug,
+  });
+}
 
+async function createDraftFromSource(args: {
+  payload: Payload;
+  user: TypedUser;
+  source: DraftSourceDoc;
+  sourceData: UnknownRecord;
+  sourceType: DraftSourceType;
+  title: string;
+  targetSlug: string;
+}): Promise<{ id: number | string; title: string }> {
+  const { payload, user, source, sourceData, sourceType, title, targetSlug } = args;
+
+  const sections = Array.isArray(sourceData.sections) ? cloneSections(sourceData.sections) : [];
+  const sourceTitle = readTrimmedString(sourceData.title) || readTrimmedString(sourceData.name);
   const normalizedSlug = targetSlug.trim().replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/');
   if (!normalizedSlug) {
-    throw new Error('targetSlug is required to create a draft from a playground.');
+    throw new Error(
+      sourceType === 'from-preset'
+        ? 'targetSlug is required to create a draft from a preset.'
+        : 'targetSlug is required to create a draft from a playground.',
+    );
   }
 
   const created = await payload.create({
@@ -251,11 +295,12 @@ export async function createDraftFromPlayground(args: {
     overrideAccess: false,
     user,
     data: {
-      title: title.trim() || readTrimmedString(sourceData.name) || 'Untitled',
+      title: title.trim() || sourceTitle || 'Untitled',
       targetSlug: normalizedSlug,
       sections,
-      sourceType: 'from-playground',
-      sourcePlayground: source.id,
+      sourceType,
+      sourcePlayground: sourceType === 'from-playground' ? source.id : undefined,
+      sourcePreset: sourceType === 'from-preset' ? source.id : undefined,
       workflowStatus: 'draft',
     },
   });

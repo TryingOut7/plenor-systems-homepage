@@ -2,9 +2,10 @@
 
 import { useAuth, useDocumentInfo } from '@payloadcms/ui';
 import type { BeforeDocumentControlsClientProps } from 'payload';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   createDraftFromPlaygroundClient,
+  type DraftSourceCollection,
   openDraftDocumentInAdmin,
 } from './createPresetClient';
 
@@ -28,17 +29,24 @@ const CreateDraftFromDocumentButton = (
   const { id, data, docConfig } = useDocumentInfo();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const sourceCollection = useMemo((): DraftSourceCollection | null => {
+    if (docConfig?.slug === 'page-playgrounds') return 'page-playgrounds';
+    if (docConfig?.slug === 'page-presets') return 'page-presets';
+    return null;
+  }, [docConfig?.slug]);
+
   const userRole = typeof user?.role === 'string' ? user.role : '';
   const canCreate = userRole === 'admin' || userRole === 'editor' || userRole === 'author';
 
-  if (!canCreate || docConfig?.slug !== 'page-playgrounds' || !id) return null;
+  if (!canCreate || !sourceCollection || !id) return null;
 
   const handleCreateDraft = async () => {
     try {
       setIsSubmitting(true);
       const draft = await createDraftFromPlaygroundClient({
-        playgroundId: String(id),
-        playgroundName: readTitle(data),
+        sourceCollection,
+        sourceId: String(id),
+        sourceTitle: readTitle(data),
       });
       openDraftDocumentInAdmin(draft.id);
     } catch (error) {
