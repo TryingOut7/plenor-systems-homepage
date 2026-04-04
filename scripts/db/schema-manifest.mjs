@@ -327,6 +327,29 @@ function buildManifest() {
 
 export const SCHEMA_MANIFEST = buildManifest();
 
+/**
+ * Enum manifest — expected labels for critical database enums that can drift
+ * when Payload collection slugs evolve faster than applied SQL migrations.
+ */
+export const SCHEMA_ENUM_MANIFEST = {
+  'public.enum_payload_query_presets_related_collection': [
+    'users',
+    'media',
+    'service-items',
+    'site-pages',
+    'reusable-sections',
+    'redirect-rules',
+    'blog-posts',
+    'testimonials',
+    'blog-categories',
+    'team-members',
+    'logos',
+    'page-drafts',
+    'page-presets',
+    'page-playgrounds',
+  ],
+};
+
 export const REQUIRED_TABLES = [
   'reuse_sec',
   'audit_logs',

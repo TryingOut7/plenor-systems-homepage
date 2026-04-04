@@ -4,8 +4,9 @@
 # Runs two checks:
 #   1. Pending SQL migrations (migrations/versions/) — ensures nothing was
 #      committed to the migration directory but not yet applied.
-#   2. Column-level schema drift — compares schema-manifest.mjs against the
-#      actual database and auto-generates a repair migration if needed.
+#   2. Schema drift (columns + critical enum labels) — compares
+#      scripts/db/schema-manifest.mjs against the actual database and
+#      auto-generates a repair migration if needed.
 #
 # To install: npm run hooks:install
 # To skip (emergency only): git push --no-verify

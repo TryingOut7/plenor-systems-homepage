@@ -135,6 +135,12 @@ Fail if any migration is pending (CI check mode):
 npm run db:migrate:backend:status -- --check
 ```
 
+Check schema drift (columns + managed enum labels) without generating files:
+
+```bash
+npm run db:schema:drift:check
+```
+
 Rollback the last applied migration:
 
 ```bash
