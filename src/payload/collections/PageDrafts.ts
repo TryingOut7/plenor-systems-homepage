@@ -20,6 +20,10 @@ const normalizeTargetSlugBeforeChange: CollectionBeforeChangeHook = ({ data }) =
   return incoming;
 };
 
+function normalizeSourceType(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
 function cloneValueWithoutIds<T>(value: T): T {
   if (Array.isArray(value)) {
     return value.map((entry) => cloneValueWithoutIds(entry)) as T;
@@ -95,6 +99,35 @@ const hydrateSectionsFromPresetBeforeChange: CollectionBeforeChangeHook = async 
   return incoming;
 };
 
+const normalizeDraftSourceReferencesBeforeChange: CollectionBeforeChangeHook = ({ data }) => {
+  if (!data || typeof data !== 'object') return data;
+  const incoming = data as Record<string, unknown>;
+  const sourceType = normalizeSourceType(incoming.sourceType);
+
+  if (sourceType === 'from-live') {
+    incoming.sourcePreset = undefined;
+    incoming.sourcePlayground = undefined;
+    return incoming;
+  }
+
+  if (sourceType === 'from-preset') {
+    incoming.sourcePage = undefined;
+    incoming.sourcePlayground = undefined;
+    return incoming;
+  }
+
+  if (sourceType === 'from-playground') {
+    incoming.sourcePage = undefined;
+    incoming.sourcePreset = undefined;
+    return incoming;
+  }
+
+  incoming.sourcePage = undefined;
+  incoming.sourcePreset = undefined;
+  incoming.sourcePlayground = undefined;
+  return incoming;
+};
+
 export const PageDrafts: CollectionConfig = {
   slug: 'page-drafts',
   labels: {
@@ -135,6 +168,7 @@ export const PageDrafts: CollectionConfig = {
     beforeChange: [
       stampCreatedByBeforeChange,
       normalizeTargetSlugBeforeChange,
+      normalizeDraftSourceReferencesBeforeChange,
       hydrateSectionsFromPresetBeforeChange,
       workflowBeforeChange,
       migrateLegacySectionsBeforeChange,
@@ -218,6 +252,8 @@ export const PageDrafts: CollectionConfig = {
       relationTo: 'site-pages',
       admin: {
         position: 'sidebar',
+        description: 'Used when Source Type is "From Live Page".',
+        condition: (_, siblingData) => normalizeSourceType(siblingData?.sourceType) === 'from-live',
       },
     },
     {
@@ -226,6 +262,8 @@ export const PageDrafts: CollectionConfig = {
       relationTo: 'page-presets',
       admin: {
         position: 'sidebar',
+        description: 'Used when Source Type is "From Preset".',
+        condition: (_, siblingData) => normalizeSourceType(siblingData?.sourceType) === 'from-preset',
       },
     },
     {
@@ -234,6 +272,9 @@ export const PageDrafts: CollectionConfig = {
       relationTo: 'page-playgrounds',
       admin: {
         position: 'sidebar',
+        description: 'Used when Source Type is "From Playground".',
+        condition: (_, siblingData) =>
+          normalizeSourceType(siblingData?.sourceType) === 'from-playground',
       },
     },
     {
