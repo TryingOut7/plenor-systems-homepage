@@ -37,14 +37,21 @@ if [ -z "${DATABASE_URI:-}" ] && [ -z "${DATABASE_URL:-}" ]; then
 fi
 
 echo "🔍 [pre-push] Checking for pending backend migrations..."
-if ! node scripts/db/migrate-status.mjs --check 2>&1; then
+migrate_status_output=$(node scripts/db/migrate-status.mjs --check 2>&1)
+migrate_exit=$?
+if echo "$migrate_status_output" | grep -q "Missing DATABASE_URI\|Missing DATABASE_URL\|Connection refused\|ECONNREFUSED\|connect ENOENT"; then
+  echo "   ⚠️  DB unreachable locally — skipping pending migration check."
+  echo "   CI will verify and apply migrations on deploy."
+elif [ $migrate_exit -ne 0 ]; then
+  echo "$migrate_status_output"
   echo ""
   echo "❌ [pre-push] Pending migrations found. Either:"
   echo "   • Run 'npm run db:migrate' to apply them locally, OR"
   echo "   • Commit missing migration files before pushing."
   exit 1
+else
+  echo "   ✓ No pending migrations."
 fi
-echo "   ✓ No pending migrations."
 
 echo ""
 echo "🔍 [pre-push] Checking for schema drift..."
