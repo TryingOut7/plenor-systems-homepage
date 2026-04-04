@@ -1,8 +1,4 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import {
-  authenticateBackendApiKey,
-  hasRequiredRole,
-} from '@/infrastructure/security/backendApiKeyAuth';
 
 const ORIGINAL_ENV = { ...process.env };
 
@@ -11,9 +7,12 @@ afterEach(() => {
 });
 
 describe('backend API key auth', () => {
-  it('authenticates composite API keys and role checks', () => {
+  it('authenticates composite API keys and role checks', async () => {
     process.env.BACKEND_API_KEYS =
       'internal-key:internal:int-1,admin-key:admin:adm-1';
+    const { authenticateBackendApiKey, hasRequiredRole } = await import(
+      '@/infrastructure/security/backendApiKeyAuth'
+    );
 
     const internal = authenticateBackendApiKey('internal-key');
     const admin = authenticateBackendApiKey('admin-key');
@@ -27,14 +26,19 @@ describe('backend API key auth', () => {
       role: 'admin',
     });
 
-    expect(internal && hasRequiredRole(internal, ['internal'])).toBe(true);
-    expect(internal && hasRequiredRole(internal, ['admin'])).toBe(false);
-    expect(admin && hasRequiredRole(admin, ['internal', 'admin'])).toBe(true);
+    expect(internal).not.toBeNull();
+    expect(admin).not.toBeNull();
+    expect(hasRequiredRole(internal!, ['internal'])).toBe(true);
+    expect(hasRequiredRole(internal!, ['admin'])).toBe(false);
+    expect(hasRequiredRole(admin!, ['internal', 'admin'])).toBe(true);
   });
 
-  it('supports dedicated env keys and rejects unknown key', () => {
+  it('supports dedicated env keys and rejects unknown key', async () => {
     process.env.BACKEND_INTERNAL_API_KEY = 'dedicated-internal';
     process.env.BACKEND_ADMIN_API_KEY = 'dedicated-admin';
+    const { authenticateBackendApiKey } = await import(
+      '@/infrastructure/security/backendApiKeyAuth'
+    );
 
     expect(authenticateBackendApiKey('dedicated-internal')?.role).toBe(
       'internal',

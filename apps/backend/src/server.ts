@@ -247,7 +247,7 @@ export function buildBackendServer(): FastifyInstance {
         ? toBackendErrorResponse({
             status: result.status,
             requestId: request.id,
-            body: result.body as Record<string, unknown>,
+            body: result.body as unknown as Record<string, unknown>,
             headers: result.headers,
           })
         : result.body;
@@ -280,7 +280,7 @@ export function buildBackendServer(): FastifyInstance {
         ? toBackendErrorResponse({
             status: result.status,
             requestId: request.id,
-            body: result.body as Record<string, unknown>,
+            body: result.body as unknown as Record<string, unknown>,
             headers: result.headers,
           })
         : result.body;

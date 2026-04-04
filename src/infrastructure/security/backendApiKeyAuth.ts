@@ -40,11 +40,7 @@ function parseDedicatedKey(
   return [{ key: rawKey.trim(), role, keyId }];
 }
 
-let _cachedApiKeys: ApiKeyEntry[] | null = null;
-
 function getConfiguredApiKeys(): ApiKeyEntry[] {
-  if (_cachedApiKeys !== null) return _cachedApiKeys;
-
   const composite = parseCompositeEntries(process.env.BACKEND_API_KEYS);
   const dedicated = [
     ...parseDedicatedKey(process.env.BACKEND_INTERNAL_API_KEY, 'internal', 'internal-default'),
@@ -58,8 +54,7 @@ function getConfiguredApiKeys(): ApiKeyEntry[] {
       deduped.set(entry.key, entry);
     }
   }
-  _cachedApiKeys = [...deduped.values()];
-  return _cachedApiKeys;
+  return [...deduped.values()];
 }
 
 export function authenticateBackendApiKey(

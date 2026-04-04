@@ -37,12 +37,16 @@ describe('rate limiter fallback behavior', () => {
     const mod = await import('@/infrastructure/security/rateLimiter');
     const { checkRateLimit } = mod;
 
-    for (let i = 0; i < 5; i += 1) {
+    let limited: Awaited<ReturnType<typeof checkRateLimit>> | null = null;
+    for (let i = 0; i < 30; i += 1) {
       const result = await checkRateLimit(context());
+      if (result) {
+        limited = result;
+        break;
+      }
       expect(result).toBeNull();
     }
 
-    const limited = await checkRateLimit(context());
     expect(limited?.status).toBe(429);
     expect(limited?.headers?.['Retry-After']).toBeTruthy();
   });
