@@ -150,6 +150,16 @@ function buildManifest() {
     content_routing_guide_page_url:         varchar,
     content_routing_privacy_policy_url:     varchar,
     content_routing_workflow_notify_email:  varchar,
+    // migration 0018
+    email_defaults_brand_name:                        varchar,
+    email_defaults_guide_subject:                     varchar,
+    email_defaults_guide_heading:                     varchar,
+    email_defaults_guide_body:                        text,
+    email_defaults_guide_button_label:                varchar,
+    email_defaults_inquiry_notification_subject:      varchar,
+    email_defaults_inquiry_ack_subject:               varchar,
+    email_defaults_inquiry_ack_heading:               varchar,
+    email_defaults_inquiry_ack_body:                  text,
   };
 
   // _site_settings_v mirrors site_settings with version_ prefix
@@ -174,6 +184,16 @@ function buildManifest() {
     version_content_routing_guide_page_url:         varchar,
     version_content_routing_privacy_policy_url:     varchar,
     version_content_routing_workflow_notify_email:  varchar,
+    // migration 0018
+    version_email_defaults_brand_name:                        varchar,
+    version_email_defaults_guide_subject:                     varchar,
+    version_email_defaults_guide_heading:                     varchar,
+    version_email_defaults_guide_body:                        text,
+    version_email_defaults_guide_button_label:                varchar,
+    version_email_defaults_inquiry_notification_subject:      varchar,
+    version_email_defaults_inquiry_ack_subject:               varchar,
+    version_email_defaults_inquiry_ack_heading:               varchar,
+    version_email_defaults_inquiry_ack_body:                  text,
   };
 
   // ---------------------------------------------------------------------------

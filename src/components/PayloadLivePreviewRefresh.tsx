@@ -61,7 +61,7 @@ export default function PayloadLivePreviewRefresh({ serverURL }: Props) {
         return;
       }
 
-      if ((event.data as { type?: unknown }).type !== 'payload-document-event') {
+      if ((event.data as { type?: unknown }).type !== 'payload-live-preview') {
         return;
       }
 
