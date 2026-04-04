@@ -33,6 +33,9 @@ function repo(result: unknown): SeedRepository {
     async runSitePageSeed() {
       return result;
     },
+    async runFormSeed() {
+      return result;
+    },
   };
 }
 

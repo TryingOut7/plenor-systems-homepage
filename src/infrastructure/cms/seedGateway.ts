@@ -5,6 +5,12 @@ async function runSitePageSeed(): Promise<unknown> {
   return seedSitePages();
 }
 
+async function runFormSeed(): Promise<unknown> {
+  const { seedForms } = await import('../../payload/seed/seedForms');
+  return seedForms();
+}
+
 export const payloadSeedRepository: SeedRepository = {
   runSitePageSeed,
+  runFormSeed,
 };

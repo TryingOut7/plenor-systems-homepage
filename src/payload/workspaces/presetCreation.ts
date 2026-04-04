@@ -49,6 +49,13 @@ function cloneValue<T>(value: T): T {
   return value;
 }
 
+function cloneSections(sections: unknown[]): UnknownRecord[] {
+  return cloneValue(sections).map((block) => {
+    const { id: _id, ...rest } = block as UnknownRecord;
+    return rest;
+  });
+}
+
 function readTrimmedString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
@@ -124,7 +131,7 @@ async function createPresetFromSource(args: {
   );
 
   const sections = Array.isArray(sourceData.sections)
-    ? cloneValue(sourceData.sections)
+    ? cloneSections(sourceData.sections)
     : [];
 
   const created = await payload.create({
@@ -216,7 +223,7 @@ export async function createDraftFromPlayground(args: {
   const sourceData = asRecord(source as unknown);
 
   const sections = Array.isArray(sourceData.sections)
-    ? cloneValue(sourceData.sections)
+    ? cloneSections(sourceData.sections)
     : [];
 
   const normalizedSlug = targetSlug.trim().replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/');

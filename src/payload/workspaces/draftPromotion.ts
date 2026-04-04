@@ -27,6 +27,13 @@ function cloneValue<T>(value: T): T {
   return value;
 }
 
+function cloneSectionsForCreate(sections: unknown[]): UnknownRecord[] {
+  return cloneValue(sections).map((block) => {
+    const { id: _id, ...rest } = block as UnknownRecord;
+    return rest;
+  });
+}
+
 export async function promoteDraftToLive(args: {
   draftId: number | string;
   payload: Payload;
@@ -50,8 +57,11 @@ export async function promoteDraftToLive(args: {
     throw new Error('Draft must have a targetSlug before it can be promoted to live.');
   }
 
-  const sections = Array.isArray(draftData.sections)
+  const sectionsForUpdate = Array.isArray(draftData.sections)
     ? cloneValue(draftData.sections)
+    : [];
+  const sectionsForCreate = Array.isArray(draftData.sections)
+    ? cloneSectionsForCreate(draftData.sections)
     : [];
 
   const seo = asRecord(draftData.seo);
@@ -77,7 +87,7 @@ export async function promoteDraftToLive(args: {
       user,
       data: {
         title,
-        sections,
+        sections: sectionsForUpdate,
         seo,
       },
     });
@@ -93,7 +103,7 @@ export async function promoteDraftToLive(args: {
     data: {
       title,
       slug: targetSlug,
-      sections,
+      sections: sectionsForCreate,
       seo,
       workflowStatus: 'draft',
       isActive: false,
