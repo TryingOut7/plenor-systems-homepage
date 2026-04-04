@@ -107,11 +107,27 @@ const supabase: SupabaseStore = {
   tableMissingUntil: new Map(),
 };
 
+// Caps for in-memory fallback stores (development/test only).
+const IN_MEMORY_MAX_SUBMISSIONS = 500;
+const IN_MEMORY_MAX_OUTBOX_JOBS = 500;
+
 const inMemory = {
   submissions: [] as StoredSubmission[],
   idempotency: new Map<string, IdempotencyRecord>(),
   outbox: new Map<string, OutboxJob>(),
 };
+
+function evictInMemoryOutbox(): void {
+  if (inMemory.outbox.size <= IN_MEMORY_MAX_OUTBOX_JOBS) return;
+  // Evict terminal-state jobs first, then oldest by createdAt.
+  const terminal = [...inMemory.outbox.values()]
+    .filter((j) => j.status === 'succeeded' || j.status === 'dead_letter')
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const evictCount = inMemory.outbox.size - IN_MEMORY_MAX_OUTBOX_JOBS;
+  for (const job of terminal.slice(0, evictCount)) {
+    inMemory.outbox.delete(job.id);
+  }
+}
 
 const REQUIRED_PERSISTENCE_TABLES = [
   'guide_submissions',
@@ -270,6 +286,9 @@ export async function persistGuideSubmissionRecord(input: {
       };
       if (allowInMemoryFallback()) {
         inMemory.submissions.unshift(record);
+        if (inMemory.submissions.length > IN_MEMORY_MAX_SUBMISSIONS) {
+          inMemory.submissions.length = IN_MEMORY_MAX_SUBMISSIONS;
+        }
       }
       return record;
     }
@@ -287,6 +306,9 @@ export async function persistGuideSubmissionRecord(input: {
   }
 
   inMemory.submissions.unshift(fallbackRecord);
+  if (inMemory.submissions.length > IN_MEMORY_MAX_SUBMISSIONS) {
+    inMemory.submissions.length = IN_MEMORY_MAX_SUBMISSIONS;
+  }
   return fallbackRecord;
 }
 
@@ -336,6 +358,9 @@ export async function persistInquirySubmissionRecord(input: {
       };
       if (allowInMemoryFallback()) {
         inMemory.submissions.unshift(record);
+        if (inMemory.submissions.length > IN_MEMORY_MAX_SUBMISSIONS) {
+          inMemory.submissions.length = IN_MEMORY_MAX_SUBMISSIONS;
+        }
       }
       return record;
     }
@@ -353,6 +378,9 @@ export async function persistInquirySubmissionRecord(input: {
   }
 
   inMemory.submissions.unshift(fallbackRecord);
+  if (inMemory.submissions.length > IN_MEMORY_MAX_SUBMISSIONS) {
+    inMemory.submissions.length = IN_MEMORY_MAX_SUBMISSIONS;
+  }
   return fallbackRecord;
 }
 
@@ -679,6 +707,7 @@ export async function enqueueOutboxJobs(
   for (const job of created) {
     inMemory.outbox.set(job.id, job);
   }
+  evictInMemoryOutbox();
 
   return created;
 }

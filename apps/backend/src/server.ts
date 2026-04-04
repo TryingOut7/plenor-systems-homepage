@@ -69,6 +69,7 @@ export function buildBackendServer(): FastifyInstance {
       : { level: process.env.LOG_LEVEL || 'info' },
     trustProxy: true,
     requestIdHeader: 'x-request-id',
+    bodyLimit: Number(process.env.BACKEND_BODY_LIMIT_BYTES || String(512 * 1024)), // 512 KB default
   });
 
   app.register(cors, {
@@ -122,6 +123,7 @@ export function buildBackendServer(): FastifyInstance {
   });
 
   app.setErrorHandler((error, request, reply) => {
+    requestStartById.delete(request.id);
     request.log.error({ err: error }, 'Unhandled backend error');
     reply.status(500).send(
       toBackendErrorResponse({
@@ -133,6 +135,10 @@ export function buildBackendServer(): FastifyInstance {
         },
       }),
     );
+  });
+
+  app.addHook('onRequestAbort', async (request) => {
+    requestStartById.delete(request.id);
   });
 
   app.get('/health', async (request) => ({
@@ -485,6 +491,21 @@ export async function startBackendServer(): Promise<void> {
   const app = buildBackendServer();
   const port = Number(process.env.BACKEND_PORT || process.env.PORT || '18000');
   const host = process.env.BACKEND_HOST || '127.0.0.1';
+
+  const shutdown = async (signal: string) => {
+    app.log.info({ signal }, 'Received shutdown signal — closing server gracefully');
+    try {
+      await app.close();
+      process.exit(0);
+    } catch (err) {
+      app.log.error({ err }, 'Error during graceful shutdown');
+      process.exit(1);
+    }
+  };
+
+  process.once('SIGTERM', () => { void shutdown('SIGTERM'); });
+  process.once('SIGINT',  () => { void shutdown('SIGINT'); });
+
   await app.listen({ port, host });
   app.log.info({ host, port }, 'Backend server listening');
 }

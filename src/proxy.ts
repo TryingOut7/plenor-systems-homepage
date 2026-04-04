@@ -102,7 +102,7 @@ async function loadRedirectRules(): Promise<RedirectRule[]> {
     });
     clearTimeout(timeout);
     if (!response.ok) {
-      cachedRedirects = [];
+      // Keep the last successful rules; retry after a short backoff.
       cacheExpiresAt = now + 30_000;
       return cachedRedirects;
     }
@@ -111,7 +111,7 @@ async function loadRedirectRules(): Promise<RedirectRule[]> {
     cacheExpiresAt = now + 60_000;
     return cachedRedirects;
   } catch {
-    cachedRedirects = [];
+    // Keep the last successful rules; retry after a short backoff.
     cacheExpiresAt = now + 30_000;
     return cachedRedirects;
   }

@@ -33,6 +33,7 @@ const corePresets: Array<Exclude<SitePagePreset, 'custom'>> = [
 ];
 
 const completenessRules: GuardRule[] = [
+  // ── home ──────────────────────────────────────────────────────────────────
   {
     preset: 'home',
     structuralKey: 'home-hero',
@@ -51,6 +52,44 @@ const completenessRules: GuardRule[] = [
       return typeof section.primaryCtaHref === 'string' && section.primaryCtaHref.trim().length > 0;
     },
   },
+  // ── services ──────────────────────────────────────────────────────────────
+  {
+    preset: 'services',
+    structuralKey: 'services-hero',
+    severity: 'ERROR_PUBLISH',
+    message: 'services-hero.heading is required.',
+    validate: (section) => typeof section.heading === 'string' && section.heading.trim().length > 0,
+  },
+  {
+    preset: 'services',
+    structuralKey: 'services-testing-coverage',
+    severity: 'ERROR_PUBLISH',
+    message: 'services-testing-coverage requires at least one row.',
+    validate: (section) => Array.isArray(section.rows) && section.rows.length > 0,
+  },
+  {
+    preset: 'services',
+    structuralKey: 'services-launch-coverage',
+    severity: 'ERROR_PUBLISH',
+    message: 'services-launch-coverage requires at least one row.',
+    validate: (section) => Array.isArray(section.rows) && section.rows.length > 0,
+  },
+  // ── about ─────────────────────────────────────────────────────────────────
+  {
+    preset: 'about',
+    structuralKey: 'about-hero',
+    severity: 'ERROR_PUBLISH',
+    message: 'about-hero.heading is required.',
+    validate: (section) => typeof section.heading === 'string' && section.heading.trim().length > 0,
+  },
+  {
+    preset: 'about',
+    structuralKey: 'about-cta',
+    severity: 'WARN',
+    message: 'about-cta.buttonHref is recommended.',
+    validate: (section) => typeof section.buttonHref === 'string' && section.buttonHref.trim().length > 0,
+  },
+  // ── pricing ───────────────────────────────────────────────────────────────
   {
     preset: 'pricing',
     structuralKey: 'pricing-table-included',
@@ -58,6 +97,7 @@ const completenessRules: GuardRule[] = [
     message: 'pricing-table-included requires at least one row.',
     validate: (section) => Array.isArray(section.rows) && section.rows.length > 0,
   },
+  // ── contact ───────────────────────────────────────────────────────────────
   {
     preset: 'contact',
     structuralKey: 'contact-privacy-note',

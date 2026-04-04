@@ -10,9 +10,10 @@ interface Entry {
 const DEFAULT_WINDOW_MS = 60_000;
 const DEFAULT_MAX_REQUESTS = 20;
 const MAX_STORE_SIZE = 10_000;
+const ERROR_LOG_COOLDOWN_MS = 60_000;
 const store = new Map<string, Entry>();
-let warnedPersistentFallback = false;
-let warnedPersistentError = false;
+let persistentFallbackLoggedUntil = 0;
+let persistentErrorLoggedUntil = 0;
 
 type RateLimitPolicy = {
   windowMs: number;
@@ -95,12 +96,11 @@ function allowInMemoryFallback(): boolean {
   return process.env.NODE_ENV !== 'production';
 }
 
-function warnPersistentFallbackOnce(): void {
-  if (!warnedPersistentFallback) {
-    warnedPersistentFallback = true;
-    console.warn(
-      '[rate-limit] Persistent shared rate limiter is unavailable; using process-local fallback.',
-    );
+function warnPersistentFallback(): void {
+  const now = Date.now();
+  if (now >= persistentFallbackLoggedUntil) {
+    persistentFallbackLoggedUntil = now + ERROR_LOG_COOLDOWN_MS;
+    console.warn('[rate-limit] Persistent shared rate limiter is unavailable; using process-local fallback.');
   }
 }
 
@@ -166,8 +166,9 @@ export async function consumeRateLimitBucket(params: {
     }
 
     if (result.error) {
-      if (!warnedPersistentError) {
-        warnedPersistentError = true;
+      const now = Date.now();
+      if (now >= persistentErrorLoggedUntil) {
+        persistentErrorLoggedUntil = now + ERROR_LOG_COOLDOWN_MS;
         console.error('[rate-limit] Persistent consume failed.', {
           errorMessage: result.error.message,
         });
@@ -196,7 +197,7 @@ export async function consumeRateLimitBucket(params: {
     throw new Error(strictPersistentRateLimitMessage('fallback disabled'));
   }
 
-  warnPersistentFallbackOnce();
+  warnPersistentFallback();
   return consumeInMemory(params.key, params.windowMs, params.maxRequests);
 }
 
@@ -214,8 +215,9 @@ export async function checkRateLimit(
       maxRequests: policy.maxRequests,
     });
   } catch (error) {
-    if (!warnedPersistentError) {
-      warnedPersistentError = true;
+    const now = Date.now();
+    if (now >= persistentErrorLoggedUntil) {
+      persistentErrorLoggedUntil = now + ERROR_LOG_COOLDOWN_MS;
       console.error('[rate-limit] Rate limit consume threw unexpectedly.', {
         errorMessage: error instanceof Error ? error.message : String(error),
       });
@@ -225,7 +227,7 @@ export async function checkRateLimit(
         message: 'Rate limiting service unavailable. Please try again shortly.',
       });
     }
-    warnPersistentFallbackOnce();
+    warnPersistentFallback();
     result = consumeInMemory(key, policy.windowMs, policy.maxRequests);
   }
 
