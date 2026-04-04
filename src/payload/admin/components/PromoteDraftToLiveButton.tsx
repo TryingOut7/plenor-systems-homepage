@@ -22,7 +22,10 @@ function resolveAdminBasePath(): string {
   return '/admin';
 }
 
-const PromoteDraftToLiveButton = (_props: BeforeDocumentControlsClientProps) => {
+const PromoteDraftToLiveButton = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _props: BeforeDocumentControlsClientProps,
+) => {
   const { user } = useAuth<UserRecord>();
   const { id, docConfig } = useDocumentInfo();
   const [isSubmitting, setIsSubmitting] = useState(false);

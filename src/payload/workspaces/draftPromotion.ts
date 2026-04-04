@@ -29,7 +29,8 @@ function cloneValue<T>(value: T): T {
 
 function cloneSectionsForCreate(sections: unknown[]): UnknownRecord[] {
   return cloneValue(sections).map((block) => {
-    const { id: _id, ...rest } = block as UnknownRecord;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, ...rest } = block as UnknownRecord;
     return rest;
   });
 }

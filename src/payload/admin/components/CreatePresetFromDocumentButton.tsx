@@ -28,7 +28,10 @@ function readTitle(data: unknown): string {
   return 'Untitled';
 }
 
-const CreatePresetFromDocumentButton = (_props: BeforeDocumentControlsClientProps) => {
+const CreatePresetFromDocumentButton = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _props: BeforeDocumentControlsClientProps,
+) => {
   const { user } = useAuth<UserRecord>();
   const { id, data, docConfig } = useDocumentInfo();
   const [isSubmitting, setIsSubmitting] = useState(false);

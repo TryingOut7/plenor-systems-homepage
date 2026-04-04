@@ -33,22 +33,6 @@ function asRecord(value: unknown): UnknownRecord {
   return value as UnknownRecord;
 }
 
-function cloneValue<T>(value: T): T {
-  if (Array.isArray(value)) {
-    return value.map((entry) => cloneValue(entry)) as T;
-  }
-
-  if (value && typeof value === 'object') {
-    const cloned: UnknownRecord = {};
-    for (const [key, nestedValue] of Object.entries(value as UnknownRecord)) {
-      cloned[key] = cloneValue(nestedValue);
-    }
-    return cloned as T;
-  }
-
-  return value;
-}
-
 function normalizeDocId(id: number | string): number | string {
   if (typeof id === 'number') return id;
 

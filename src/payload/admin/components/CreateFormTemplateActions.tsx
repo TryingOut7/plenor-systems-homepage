@@ -40,7 +40,10 @@ function openFormDocumentInAdmin(formId: number | string): void {
   );
 }
 
-const CreateFormTemplateActions = (_props: BeforeListClientProps) => {
+const CreateFormTemplateActions = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _props: BeforeListClientProps,
+) => {
   const { user } = useAuth<UserRecord>();
   const [submittingKey, setSubmittingKey] = useState<null | 'guide' | 'inquiry' | 'newsletter'>(null);
 

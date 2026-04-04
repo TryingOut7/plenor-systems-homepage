@@ -331,48 +331,6 @@ function getImageAlt(media: unknown): string {
   return String((media as Record<string, unknown>).alt || '');
 }
 
-function readArrayEntries(value: unknown): Array<Record<string, unknown>> {
-  if (!Array.isArray(value)) return [];
-  return value.filter(
-    (entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object'
-  );
-}
-
-function readParagraphArray(value: unknown): string[] {
-  return readArrayEntries(value)
-    .map((entry) => (typeof entry.paragraph === 'string' ? entry.paragraph.trim() : ''))
-    .filter(Boolean);
-}
-
-function readItemArray(value: unknown): string[] {
-  return readArrayEntries(value)
-    .map((entry) => (typeof entry.item === 'string' ? entry.item.trim() : ''))
-    .filter(Boolean);
-}
-
-function readAudienceArray(value: unknown): Array<{ label: string; copy: string }> {
-  return readArrayEntries(value)
-    .map((entry) => {
-      const label = typeof entry.label === 'string' ? entry.label.trim() : '';
-      const copy = typeof entry.copy === 'string' ? entry.copy.trim() : '';
-      return { label, copy };
-    })
-    .filter((entry) => entry.label && entry.copy);
-}
-
-function readChecklistArray(
-  value: unknown
-): Array<{ title: string; description: string }> {
-  return readArrayEntries(value)
-    .map((entry) => {
-      const title = typeof entry.title === 'string' ? entry.title.trim() : '';
-      const description =
-        typeof entry.description === 'string' ? entry.description.trim() : '';
-      return { title, description };
-    })
-    .filter((entry) => entry.title && entry.description);
-}
-
 export type NormalizedImage = { url: string; alt: string };
 
 export function normalizeImageEntries(images: unknown): NormalizedImage[] {

@@ -1,5 +1,3 @@
-type CmsLanePreference = 'simple' | 'advanced';
-
 type UserRecord = Record<string, unknown>;
 
 function resolveUserRole(user: unknown): string | null {
