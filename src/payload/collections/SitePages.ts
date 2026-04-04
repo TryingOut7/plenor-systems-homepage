@@ -13,6 +13,7 @@ import { applyCorePresetSections } from '../hooks/sitePagePreset.ts';
 import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
 import { migrateGuideInquirySectionsBeforeChange } from '../hooks/guideInquirySectionMigration.ts';
+import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigration.ts';
 import { sitePagePublishGuardsBeforeChange } from '../hooks/sitePageGuards.ts';
 import { withFieldTier } from '../fields/fieldTier.ts';
 
@@ -152,6 +153,7 @@ export const SitePages: CollectionConfig = {
       normalizeSlugBeforeChange,
       workflowBeforeChange,
       applyCorePresetSections,
+      migrateLegacySectionsBeforeChange,
       migrateGuideInquirySectionsBeforeChange,
       sitePagePublishGuardsBeforeChange,
       enforceSitePageActivationRules,

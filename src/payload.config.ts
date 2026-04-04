@@ -54,6 +54,10 @@ import { EmailTemplates } from './payload/collections/EmailTemplates.ts';
 import { SiteSettings } from './payload/globals/SiteSettings.ts';
 import { UISettings } from './payload/globals/UISettings.ts';
 import { CleanPasteFeature } from './payload/editor/features/cleanPasteFeature.ts';
+import {
+  formatSupportedFormTemplateKeys,
+  parseFormTemplateKey,
+} from './domain/forms/formTemplates.ts';
 
 validateEnv();
 
@@ -660,6 +664,73 @@ export default buildConfig({
       formOverrides: {
         slug: 'forms',
         enableQueryPresets: true,
+        hooks: {
+          beforeChange: [
+            ({ data, operation, originalDoc }) => {
+              if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                return data;
+              }
+
+              const formData = data as Record<string, unknown>;
+              const originalData =
+                originalDoc && typeof originalDoc === 'object' && !Array.isArray(originalDoc)
+                  ? (originalDoc as Record<string, unknown>)
+                  : null;
+
+              const originalTemplateKey = parseFormTemplateKey(originalData?.templateKey);
+              const hasTemplateKeyInput = Object.prototype.hasOwnProperty.call(
+                formData,
+                'templateKey',
+              );
+              const rawTemplateKey = hasTemplateKeyInput ? formData.templateKey : undefined;
+
+              if (rawTemplateKey == null || rawTemplateKey === '') {
+                if (operation === 'update' && originalTemplateKey) {
+                  formData.templateKey = originalTemplateKey;
+                }
+                return formData;
+              }
+
+              const parsedTemplateKey = parseFormTemplateKey(rawTemplateKey);
+              if (!parsedTemplateKey) {
+                throw new Error(
+                  `templateKey must be one of: ${formatSupportedFormTemplateKeys()}.`,
+                );
+              }
+
+              if (
+                operation === 'update' &&
+                originalTemplateKey &&
+                parsedTemplateKey !== originalTemplateKey
+              ) {
+                throw new Error('templateKey is immutable once set.');
+              }
+
+              formData.templateKey = parsedTemplateKey;
+              return formData;
+            },
+          ],
+        },
+        fields: ({ defaultFields }) => [
+          ...defaultFields,
+          {
+            name: 'templateKey',
+            type: 'select',
+            dbName: 'template_key',
+            required: false,
+            options: [
+              { label: 'Guide', value: 'guide' },
+              { label: 'Inquiry', value: 'inquiry' },
+              { label: 'Newsletter', value: 'newsletter' },
+            ],
+            admin: {
+              position: 'sidebar',
+              readOnly: true,
+              description:
+                'Immutable template discriminator used by frontend submission routing.',
+            },
+          },
+        ],
         admin: {
           group: 'Leads',
           components: {
@@ -682,7 +753,8 @@ export default buildConfig({
               if (!formId) return data;
               try {
                 const form = await req.payload.findByID({ collection: 'forms', id: formId });
-                data.formType = form?.title ?? null;
+                const templateKey = parseFormTemplateKey(form?.templateKey);
+                data.formType = templateKey ?? form?.title ?? null;
               } catch {
                 // non-fatal — leave formType null
               }

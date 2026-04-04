@@ -100,6 +100,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/forms/templates/create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createWorkspaceFormTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/pages/live/{id}/create-preset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createPresetFromLivePage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/pages/drafts/{id}/create-preset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createPresetFromDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/pages/drafts/{id}/promote-to-live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["promoteDraftToLive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/pages/playgrounds/{id}/create-draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createDraftFromPlayground"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/pages/playgrounds/{id}/create-preset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createPresetFromPlayground"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/internal/seed-site-pages": {
         parameters: {
             query?: never;
@@ -298,6 +394,59 @@ export interface components {
         FormSubmissionSuccessResponse: {
             /** @constant */
             success: true;
+        };
+        FormTemplateCreateRequest: {
+            /** @enum {string} */
+            templateKey: "guide" | "inquiry" | "newsletter";
+        };
+        FormTemplateRecord: {
+            created: boolean;
+            id: string | number;
+            title: string;
+        };
+        WorkspaceFormTemplateResponse: {
+            /** @constant */
+            success: true;
+            form: components["schemas"]["FormTemplateRecord"];
+        };
+        WorkspacePresetMetaInput: {
+            name?: string;
+            category?: string;
+            description?: string;
+            thumbnailId?: string;
+            tags?: string[];
+        };
+        WorkspacePresetRecord: {
+            id: string | number;
+            name: string;
+        };
+        WorkspacePresetResponse: {
+            /** @constant */
+            success: true;
+            preset: components["schemas"]["WorkspacePresetRecord"];
+        };
+        WorkspaceDraftRecord: {
+            id: string | number;
+            title: string;
+        };
+        WorkspaceDraftResponse: {
+            /** @constant */
+            success: true;
+            draft: components["schemas"]["WorkspaceDraftRecord"];
+        };
+        WorkspaceLivePageRecord: {
+            id: string | number;
+            isNew: boolean;
+            slug: string;
+        };
+        WorkspaceLivePageResponse: {
+            /** @constant */
+            success: true;
+            livePage: components["schemas"]["WorkspaceLivePageRecord"];
+        };
+        WorkspaceCreateDraftRequest: {
+            title?: string;
+            targetSlug: string;
         };
         SearchResultItem: {
             id: string | number;
@@ -518,6 +667,15 @@ export interface components {
                 "application/json": components["schemas"]["BackendErrorResponse"];
             };
         };
+        /** @description Dependency is unavailable for this request. */
+        ErrorDependencyUnavailable: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["BackendErrorResponse"];
+            };
+        };
     };
     parameters: never;
     requestBodies: never;
@@ -679,6 +837,185 @@ export interface operations {
             409: components["responses"]["ErrorConflict"];
             429: components["responses"]["ErrorRateLimited"];
             500: components["responses"]["ErrorInternal"];
+        };
+    };
+    createWorkspaceFormTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FormTemplateCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Form template was created or already existed. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceFormTemplateResponse"];
+                };
+            };
+            400: components["responses"]["ErrorValidation"];
+            401: components["responses"]["ErrorUnauthorized"];
+            403: components["responses"]["ErrorForbidden"];
+            503: components["responses"]["ErrorDependencyUnavailable"];
+        };
+    };
+    createPresetFromLivePage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string | number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["WorkspacePresetMetaInput"];
+            };
+        };
+        responses: {
+            /** @description Preset created from a live page. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspacePresetResponse"];
+                };
+            };
+            400: components["responses"]["ErrorValidation"];
+            401: components["responses"]["ErrorUnauthorized"];
+            403: components["responses"]["ErrorForbidden"];
+            404: components["responses"]["ErrorNotFound"];
+            503: components["responses"]["ErrorDependencyUnavailable"];
+        };
+    };
+    createPresetFromDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string | number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["WorkspacePresetMetaInput"];
+            };
+        };
+        responses: {
+            /** @description Preset created from a draft. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspacePresetResponse"];
+                };
+            };
+            400: components["responses"]["ErrorValidation"];
+            401: components["responses"]["ErrorUnauthorized"];
+            403: components["responses"]["ErrorForbidden"];
+            404: components["responses"]["ErrorNotFound"];
+            503: components["responses"]["ErrorDependencyUnavailable"];
+        };
+    };
+    promoteDraftToLive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string | number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Draft promoted to live page. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceLivePageResponse"];
+                };
+            };
+            400: components["responses"]["ErrorValidation"];
+            401: components["responses"]["ErrorUnauthorized"];
+            403: components["responses"]["ErrorForbidden"];
+            404: components["responses"]["ErrorNotFound"];
+            503: components["responses"]["ErrorDependencyUnavailable"];
+        };
+    };
+    createDraftFromPlayground: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string | number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkspaceCreateDraftRequest"];
+            };
+        };
+        responses: {
+            /** @description Draft created from playground. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceDraftResponse"];
+                };
+            };
+            400: components["responses"]["ErrorValidation"];
+            401: components["responses"]["ErrorUnauthorized"];
+            403: components["responses"]["ErrorForbidden"];
+            404: components["responses"]["ErrorNotFound"];
+            503: components["responses"]["ErrorDependencyUnavailable"];
+        };
+    };
+    createPresetFromPlayground: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string | number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["WorkspacePresetMetaInput"];
+            };
+        };
+        responses: {
+            /** @description Preset created from a playground. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspacePresetResponse"];
+                };
+            };
+            400: components["responses"]["ErrorValidation"];
+            401: components["responses"]["ErrorUnauthorized"];
+            403: components["responses"]["ErrorForbidden"];
+            404: components["responses"]["ErrorNotFound"];
+            503: components["responses"]["ErrorDependencyUnavailable"];
         };
     };
     seedSitePages: {

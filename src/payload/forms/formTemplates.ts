@@ -1,4 +1,4 @@
-type FormTemplateKey = 'guide' | 'inquiry' | 'newsletter';
+import { isFormTemplateKey, type FormTemplateKey } from '@/domain/forms/formTemplates';
 
 type FormTemplate = {
   confirmationMessage: Record<string, unknown>;
@@ -105,7 +105,7 @@ const FORM_TEMPLATE_BY_KEY: Record<FormTemplateKey, FormTemplate> = {
 };
 
 export function resolveFormTemplate(key: unknown): FormTemplate | null {
-  if (key !== 'guide' && key !== 'inquiry' && key !== 'newsletter') return null;
+  if (!isFormTemplateKey(key)) return null;
   return FORM_TEMPLATE_BY_KEY[key];
 }
 

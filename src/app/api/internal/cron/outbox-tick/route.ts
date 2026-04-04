@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { processOutboxTick } from '@/infrastructure/integrations/outboxService';
 
-// Called every minute by Vercel Cron (see vercel.json schedule: "* * * * *").
+// Called daily by Vercel Cron (see vercel.json schedule: "0 0 * * *").
 // Vercel Cron sends an Authorization header with CRON_SECRET to verify the call is from Vercel.
 // See: https://vercel.com/docs/cron-jobs/manage-cron-jobs#securing-cron-jobs
 export async function GET(request: NextRequest): Promise<NextResponse> {

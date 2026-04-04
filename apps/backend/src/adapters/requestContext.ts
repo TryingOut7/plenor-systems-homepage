@@ -25,6 +25,7 @@ export function toRequestContext(request: FastifyRequest): RequestContext {
     forwardedProto,
     realIp: firstHeader(request.headers['x-real-ip']),
     forwardedFor: firstHeader(request.headers['x-forwarded-for']),
+    userAgent: firstHeader(request.headers['user-agent']),
     authorization: firstHeader(request.headers.authorization),
     apiKey: firstHeader(request.headers['x-api-key']),
     idempotencyKey: firstHeader(request.headers['idempotency-key']),

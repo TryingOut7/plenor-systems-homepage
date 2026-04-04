@@ -163,6 +163,200 @@ paths:
           $ref: '#/components/responses/ErrorRateLimited'
         '500':
           $ref: '#/components/responses/ErrorInternal'
+  /v1/forms/templates/create:
+    post:
+      operationId: createWorkspaceFormTemplate
+      tags: [forms, workspace]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormTemplateCreateRequest'
+      responses:
+        '200':
+          description: Form template was created or already existed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceFormTemplateResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '503':
+          $ref: '#/components/responses/ErrorDependencyUnavailable'
+  /v1/pages/live/{id}/create-preset:
+    post:
+      operationId: createPresetFromLivePage
+      tags: [workspace]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            oneOf:
+              - type: string
+              - type: number
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspacePresetMetaInput'
+      responses:
+        '200':
+          description: Preset created from a live page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspacePresetResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '503':
+          $ref: '#/components/responses/ErrorDependencyUnavailable'
+  /v1/pages/drafts/{id}/create-preset:
+    post:
+      operationId: createPresetFromDraft
+      tags: [workspace]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            oneOf:
+              - type: string
+              - type: number
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspacePresetMetaInput'
+      responses:
+        '200':
+          description: Preset created from a draft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspacePresetResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '503':
+          $ref: '#/components/responses/ErrorDependencyUnavailable'
+  /v1/pages/drafts/{id}/promote-to-live:
+    post:
+      operationId: promoteDraftToLive
+      tags: [workspace]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            oneOf:
+              - type: string
+              - type: number
+      responses:
+        '200':
+          description: Draft promoted to live page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceLivePageResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '503':
+          $ref: '#/components/responses/ErrorDependencyUnavailable'
+  /v1/pages/playgrounds/{id}/create-draft:
+    post:
+      operationId: createDraftFromPlayground
+      tags: [workspace]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            oneOf:
+              - type: string
+              - type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceCreateDraftRequest'
+      responses:
+        '200':
+          description: Draft created from playground.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceDraftResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '503':
+          $ref: '#/components/responses/ErrorDependencyUnavailable'
+  /v1/pages/playgrounds/{id}/create-preset:
+    post:
+      operationId: createPresetFromPlayground
+      tags: [workspace]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            oneOf:
+              - type: string
+              - type: number
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspacePresetMetaInput'
+      responses:
+        '200':
+          description: Preset created from a playground.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspacePresetResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '503':
+          $ref: '#/components/responses/ErrorDependencyUnavailable'
   /v1/internal/seed-site-pages:
     post:
       operationId: seedSitePages
@@ -390,6 +584,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/BackendErrorResponse'
+    ErrorDependencyUnavailable:
+      description: Dependency is unavailable for this request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BackendErrorResponse'
   schemas:
     HealthResponse:
       type: object
@@ -555,6 +755,116 @@ components:
         success:
           type: boolean
           const: true
+    FormTemplateCreateRequest:
+      type: object
+      required: [templateKey]
+      properties:
+        templateKey:
+          type: string
+          enum: [guide, inquiry, newsletter]
+    FormTemplateRecord:
+      type: object
+      required: [created, id, title]
+      properties:
+        created:
+          type: boolean
+        id:
+          oneOf:
+            - type: string
+            - type: number
+        title:
+          type: string
+    WorkspaceFormTemplateResponse:
+      type: object
+      required: [success, form]
+      properties:
+        success:
+          type: boolean
+          const: true
+        form:
+          $ref: '#/components/schemas/FormTemplateRecord'
+    WorkspacePresetMetaInput:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        thumbnailId:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+    WorkspacePresetRecord:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          oneOf:
+            - type: string
+            - type: number
+        name:
+          type: string
+    WorkspacePresetResponse:
+      type: object
+      required: [success, preset]
+      properties:
+        success:
+          type: boolean
+          const: true
+        preset:
+          $ref: '#/components/schemas/WorkspacePresetRecord'
+    WorkspaceDraftRecord:
+      type: object
+      required: [id, title]
+      properties:
+        id:
+          oneOf:
+            - type: string
+            - type: number
+        title:
+          type: string
+    WorkspaceDraftResponse:
+      type: object
+      required: [success, draft]
+      properties:
+        success:
+          type: boolean
+          const: true
+        draft:
+          $ref: '#/components/schemas/WorkspaceDraftRecord'
+    WorkspaceLivePageRecord:
+      type: object
+      required: [id, isNew, slug]
+      properties:
+        id:
+          oneOf:
+            - type: string
+            - type: number
+        isNew:
+          type: boolean
+        slug:
+          type: string
+    WorkspaceLivePageResponse:
+      type: object
+      required: [success, livePage]
+      properties:
+        success:
+          type: boolean
+          const: true
+        livePage:
+          $ref: '#/components/schemas/WorkspaceLivePageRecord'
+    WorkspaceCreateDraftRequest:
+      type: object
+      required: [targetSlug]
+      properties:
+        title:
+          type: string
+        targetSlug:
+          type: string
     SearchResultItem:
       type: object
       required: [id, collection, title]

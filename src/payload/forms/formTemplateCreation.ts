@@ -33,6 +33,28 @@ export async function createOrGetFormTemplate(args: {
     throw new Error('Invalid form template key.');
   }
 
+  const existingByKey = await args.payload.find({
+    collection: 'forms',
+    where: {
+      templateKey: {
+        equals: template.key,
+      },
+    },
+    limit: 1,
+    depth: 0,
+    overrideAccess: false,
+    user: args.user,
+  });
+
+  if (existingByKey.docs.length > 0) {
+    const existingRecord = existingByKey.docs[0] as UnknownRecord;
+    return {
+      created: false,
+      id: (existingRecord.id as number | string) ?? '',
+      title: readTrimmedString(existingRecord.title) || template.title,
+    };
+  }
+
   const existing = await args.payload.find({
     collection: 'forms',
     where: {
@@ -50,9 +72,25 @@ export async function createOrGetFormTemplate(args: {
 
   if (existing.docs.length > 0) {
     const existingRecord = existing.docs[0] as UnknownRecord;
+    const existingId = (existingRecord.id as number | string) ?? '';
+    const existingTemplateKey = readTrimmedString(existingRecord.templateKey);
+
+    if (existingId && existingTemplateKey !== template.key) {
+      await args.payload.update({
+        collection: 'forms',
+        id: existingId,
+        depth: 0,
+        overrideAccess: false,
+        user: args.user,
+        data: {
+          templateKey: template.key,
+        },
+      });
+    }
+
     return {
       created: false,
-      id: (existingRecord.id as number | string) ?? '',
+      id: existingId,
       title: readTrimmedString(existingRecord.title) || template.title,
     };
   }
@@ -64,6 +102,7 @@ export async function createOrGetFormTemplate(args: {
     user: args.user,
     data: {
       title: template.title,
+      templateKey: template.key,
       fields: cloneValue(template.fields),
       submitButtonLabel: template.submitButtonLabel,
       confirmationType: 'message',
@@ -78,4 +117,3 @@ export async function createOrGetFormTemplate(args: {
     title: readTrimmedString(createdRecord.title) || template.title,
   };
 }
-

@@ -1,30 +1,40 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { createOrGetFormTemplate } from '@/payload/forms/formTemplateCreation';
-import { resolveFormTemplate } from '@/payload/forms/formTemplates';
+import {
+  createWorkspaceFormTemplate,
+  getSupportedFormTemplateKeysLabel,
+  parseRequestedFormTemplateKey,
+} from '@/application/forms/formTemplateService';
+import {
+  createPayloadFormTemplateRepository,
+} from '@/infrastructure/forms/payloadFormTemplateRepository';
+import { proxyRequestToBackend } from '@/infrastructure/http/backendProxy';
 import { readJsonBody, requireWorkspaceUser, toApiErrorResponse } from '../../../pages/_shared';
 
 export async function POST(request: NextRequest) {
+  const proxied = await proxyRequestToBackend(request, '/v1/forms/templates/create');
+  if (proxied) {
+    return proxied;
+  }
+
   const { payload, user, errorResponse } = await requireWorkspaceUser(request);
   if (errorResponse || !user) return errorResponse as NextResponse;
 
   const body = await readJsonBody(request);
-  const templateKey = typeof body.templateKey === 'string' ? body.templateKey.trim() : '';
-
-  const template = resolveFormTemplate(templateKey);
-  if (!template) {
+  const templateKey = parseRequestedFormTemplateKey(body.templateKey);
+  if (!templateKey) {
     return NextResponse.json(
-      { success: false, message: 'templateKey must be one of: guide, inquiry, newsletter.' },
+      {
+        success: false,
+        message: `templateKey must be one of: ${getSupportedFormTemplateKeysLabel()}.`,
+      },
       { status: 400 },
     );
   }
 
   try {
-    const form = await createOrGetFormTemplate({
-      payload,
-      templateKey: template.key,
-      user,
-    });
+    const repository = createPayloadFormTemplateRepository({ payload, user });
+    const form = await createWorkspaceFormTemplate(repository, templateKey);
 
     return NextResponse.json({
       success: true,

@@ -7,6 +7,7 @@ import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
 import { migrateGuideInquirySectionsBeforeChange } from '../hooks/guideInquirySectionMigration.ts';
+import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigration.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
 
 const normalizeTargetSlugBeforeChange: CollectionBeforeChangeHook = ({ data }) => {
@@ -60,6 +61,7 @@ export const PageDrafts: CollectionConfig = {
       stampCreatedByBeforeChange,
       normalizeTargetSlugBeforeChange,
       workflowBeforeChange,
+      migrateLegacySectionsBeforeChange,
       migrateGuideInquirySectionsBeforeChange,
     ],
     afterChange: [workflowAfterChange, auditAfterChange],

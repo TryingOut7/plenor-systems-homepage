@@ -19,6 +19,7 @@ describe('backend route integration', () => {
     env.CMS_SKIP_PAYLOAD = 'true';
     env.BACKEND_RATE_LIMIT_MAX = '100';
     env.BACKEND_RATE_LIMIT_WINDOW_MS = '60000';
+    env.ALLOW_IN_MEMORY_RATE_LIMIT_FALLBACK = 'true';
     env.BACKEND_API_KEYS = 'internal-test:internal:internal-test,admin-test:admin:admin-test';
     app = buildBackendServer();
   });
@@ -105,7 +106,7 @@ describe('backend route integration', () => {
     const body = res.json();
     expect(body.success).toBe(false);
     expect(body.code).toBe('UNAUTHORIZED');
-    expect(body.message).toBe('Unauthorized');
+    expect(body.message).toBe('Missing or invalid API key.');
   });
 
   it('supports idempotent replay for form submission POST', async () => {

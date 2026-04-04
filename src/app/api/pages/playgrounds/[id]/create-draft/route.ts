@@ -1,16 +1,26 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { createDraftFromPlayground } from '@/payload/workspaces/presetCreation';
+import { createDraftFromPlayground } from '@/application/workspaces/workspaceMutationService';
+import { proxyRequestToBackend } from '@/infrastructure/http/backendProxy';
+import { createPayloadWorkspaceMutationRepository } from '@/infrastructure/workspaces/payloadWorkspaceMutationRepository';
 import { readJsonBody, requireWorkspaceUser, toApiErrorResponse } from '../../../_shared';
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const resolvedParams = await params;
+  const proxied = await proxyRequestToBackend(
+    request,
+    `/v1/pages/playgrounds/${resolvedParams.id}/create-draft`,
+  );
+  if (proxied) {
+    return proxied;
+  }
+
   const { payload, user, errorResponse } = await requireWorkspaceUser(request);
   if (errorResponse || !user) return errorResponse as NextResponse;
 
-  const resolvedParams = await params;
   const body = await readJsonBody(request);
 
   const title = typeof body.title === 'string' ? body.title.trim() : '';
@@ -24,12 +34,11 @@ export async function POST(
   }
 
   try {
-    const draft = await createDraftFromPlayground({
-      payload,
+    const repository = createPayloadWorkspaceMutationRepository({ payload, user });
+    const draft = await createDraftFromPlayground(repository, {
       playgroundId: resolvedParams.id,
       title,
       targetSlug,
-      user,
     });
 
     return NextResponse.json({

@@ -17,6 +17,7 @@ interface FormField {
 interface FormData {
   id: string;
   title: string;
+  templateKey?: 'guide' | 'inquiry' | 'newsletter';
   fields: FormField[];
   confirmationType?: 'message' | 'redirect';
   confirmationMessage?: unknown;
@@ -31,6 +32,63 @@ interface FormRendererProps {
 
 function isDark(theme?: SectionTheme) {
   return theme === 'navy' || theme === 'charcoal' || theme === 'black';
+}
+
+function readTextValue(values: Record<string, string | boolean>, key: string): string {
+  const value = values[key];
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function resolveSubmitTarget(
+  form: FormData,
+  values: Record<string, string | boolean>,
+  formId: string,
+): {
+  endpoint: string;
+  payload: unknown;
+} {
+  if (form.templateKey === 'guide') {
+    return {
+      endpoint: '/api/guide',
+      payload: {
+        name: readTextValue(values, 'firstName') || readTextValue(values, 'name'),
+        email: readTextValue(values, 'email'),
+        templateId: formId,
+      },
+    };
+  }
+
+  if (form.templateKey === 'inquiry') {
+    return {
+      endpoint: '/api/inquiry',
+      payload: {
+        name: readTextValue(values, 'name'),
+        email: readTextValue(values, 'email'),
+        company: readTextValue(values, 'company'),
+        challenge: readTextValue(values, 'challenge'),
+      },
+    };
+  }
+
+  const submissionData = Object.entries(values).map(([field, value]) => ({
+    field,
+    value: String(value),
+  }));
+
+  return {
+    endpoint: '/api/form-submissions',
+    payload: { form: formId, submissionData },
+  };
+}
+
+function readSubmitErrorMessage(value: unknown): string | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  const message = record.message;
+  if (typeof message === 'string' && message.trim()) return message;
+  const error = record.error;
+  if (typeof error === 'string' && error.trim()) return error;
+  return null;
 }
 
 export default function FormRenderer({ formId, successMessage, theme }: FormRendererProps) {
@@ -94,21 +152,37 @@ export default function FormRenderer({ formId, successMessage, theme }: FormRend
     setSubmitting(true);
     setSubmitError(null);
 
-    const submissionData = Object.entries(values).map(([field, value]) => ({
-      field,
-      value: String(value),
-    }));
-
     try {
-      const res = await fetch('/api/form-submissions', {
+      const target = resolveSubmitTarget(form, values, formId);
+      const res = await fetch(target.endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ form: formId, submissionData }),
+        body: JSON.stringify(target.payload),
       });
-      if (!res.ok) throw new Error('Submission failed');
+      const body = await res
+        .json()
+        .catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(readSubmitErrorMessage(body) || 'Submission failed');
+      }
+
+      if (
+        body &&
+        typeof body === 'object' &&
+        !Array.isArray(body) &&
+        (body as Record<string, unknown>).success === false
+      ) {
+        throw new Error(readSubmitErrorMessage(body) || 'Submission failed');
+      }
+
       setSubmitted(true);
-    } catch {
-      setSubmitError('Something went wrong. Please try again.');
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error && error.message
+          ? error.message
+          : 'Something went wrong. Please try again.',
+      );
     } finally {
       setSubmitting(false);
     }

@@ -13,6 +13,7 @@ export function toRequestContext(request: NextRequest): RequestContext {
     forwardedProto: request.headers.get('x-forwarded-proto'),
     realIp: request.headers.get('x-real-ip'),
     forwardedFor: request.headers.get('x-forwarded-for'),
+    userAgent: request.headers.get('user-agent'),
     authorization: request.headers.get('authorization'),
     apiKey: request.headers.get('x-api-key'),
     idempotencyKey: request.headers.get('idempotency-key'),

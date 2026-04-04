@@ -1,4 +1,8 @@
-import Fastify, { type FastifyInstance } from 'fastify';
+import Fastify, {
+  type FastifyInstance,
+  type FastifyReply,
+  type FastifyRequest,
+} from 'fastify';
 import cors from '@fastify/cors';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,9 +14,15 @@ import { createRateLimitHook } from './middleware/rateLimit';
 import { requireApiRole } from './middleware/requireRole';
 import { getBackendMetricsSnapshot, recordBackendRequest } from './observability/metricsRegistry';
 import { getIntegrationStatus } from '@/application/integrations/integrationStatusService';
+import {
+  createWorkspaceFormTemplate,
+  getSupportedFormTemplateKeysLabel,
+  parseRequestedFormTemplateKey,
+} from '@/application/forms/formTemplateService';
 import { payloadContentRepository } from '@/infrastructure/cms/contentGateway';
 import { payloadSeedRepository } from '@/infrastructure/cms/seedGateway';
 import { payloadSearchRepository } from '@/infrastructure/cms/searchGateway';
+import { createPayloadFormTemplateRepository } from '@/infrastructure/forms/payloadFormTemplateRepository';
 import {
   hasDatabaseCredentials,
   isPersistentStoreConfigured,
@@ -23,6 +33,13 @@ import { submitGuideForm } from '@/application/forms/guideSubmissionService';
 import { submitInquiryForm } from '@/application/forms/inquirySubmissionService';
 import { seedSitePagesForRequest } from '@/application/internal/seedSitePagesService';
 import {
+  createDraftFromPlayground as createDraftFromPlaygroundWorkspace,
+  createPresetFromDraft as createPresetFromDraftWorkspace,
+  createPresetFromLivePage as createPresetFromLivePageWorkspace,
+  createPresetFromPlayground as createPresetFromPlaygroundWorkspace,
+  promoteDraftToLive as promoteDraftToLiveWorkspace,
+} from '@/application/workspaces/workspaceMutationService';
+import {
   getContentPageBySlug,
   getContentNavigation,
 } from '@/application/content/pageContentService';
@@ -31,6 +48,34 @@ import {
   getAdminSubmissionById,
   replaySubmissionSideEffects,
 } from '@/application/admin/submissionsService';
+import { getPayloadSessionFromHeaders } from '@/infrastructure/http/payloadRouteAuth';
+import { createPayloadWorkspaceMutationRepository } from '@/infrastructure/workspaces/payloadWorkspaceMutationRepository';
+
+const PRESET_CREATOR_ROLES = new Set(['admin', 'editor']);
+const WORKSPACE_ROLES = new Set(['admin', 'editor', 'author']);
+
+function asRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return value as Record<string, unknown>;
+}
+
+function readParamId(params: unknown): string {
+  const raw = asRecord(params).id;
+  if (typeof raw !== 'string') return '';
+  return raw.trim();
+}
+
+function readTrimmedString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function toWorkspaceErrorStatus(message: string): number {
+  const lowered = message.toLowerCase();
+  if (lowered.includes('not found')) return 404;
+  if (lowered.includes('forbidden') || lowered.includes('permission')) return 403;
+  if (lowered.includes('unauthorized') || lowered.includes('authentication')) return 401;
+  return 400;
+}
 
 export function buildBackendServer(): FastifyInstance {
   const rateLimitMax = Number(process.env.BACKEND_RATE_LIMIT_MAX || '120');
@@ -39,6 +84,9 @@ export function buildBackendServer(): FastifyInstance {
 
   const isDev = process.env.NODE_ENV !== 'production';
   const isProduction = process.env.NODE_ENV === 'production';
+  const isVitestRuntime =
+    process.env.VITEST === 'true' ||
+    process.env.VITEST_WORKER_ID != null;
   const rawOrigins = process.env.BACKEND_CORS_ORIGINS || process.env.NEXT_PUBLIC_SERVER_URL || '';
   const allowedOrigins = rawOrigins
     .split(',')
@@ -64,7 +112,9 @@ export function buildBackendServer(): FastifyInstance {
   }
 
   const app = Fastify({
-    logger: isDev
+    logger: isVitestRuntime
+      ? { level: 'silent' }
+      : isDev
       ? { transport: { target: 'pino-pretty', options: { colorize: true } } }
       : { level: process.env.LOG_LEVEL || 'info' },
     trustProxy: true,
@@ -140,6 +190,65 @@ export function buildBackendServer(): FastifyInstance {
   app.addHook('onRequestAbort', async (request) => {
     requestStartById.delete(request.id);
   });
+
+  async function requireWorkspaceSession(
+    request: FastifyRequest,
+    reply: FastifyReply,
+    allowedRoles: Set<string>,
+    forbiddenMessage: string,
+  ) {
+    try {
+      const session = await getPayloadSessionFromHeaders(
+        request.headers as Record<string, string | string[] | undefined>,
+      );
+
+      if (!session.user) {
+        reply.status(401).send(
+          toBackendErrorResponse({
+            status: 401,
+            requestId: request.id,
+            body: {
+              code: 'UNAUTHORIZED',
+              message: 'Authentication required.',
+            },
+          }),
+        );
+        return null;
+      }
+
+      if (!allowedRoles.has(session.role)) {
+        reply.status(403).send(
+          toBackendErrorResponse({
+            status: 403,
+            requestId: request.id,
+            body: {
+              code: 'FORBIDDEN',
+              message: forbiddenMessage,
+            },
+          }),
+        );
+        return null;
+      }
+
+      return {
+        ...session,
+        user: session.user,
+      };
+    } catch (error) {
+      request.log.error({ err: error }, 'Workspace session resolution failed');
+      reply.status(503).send(
+        toBackendErrorResponse({
+          status: 503,
+          requestId: request.id,
+          body: {
+            code: 'DEPENDENCY_UNAVAILABLE',
+            message: 'CMS authentication service unavailable.',
+          },
+        }),
+      );
+      return null;
+    }
+  }
 
   app.get('/health', async (request) => ({
     ok: true,
@@ -295,6 +404,326 @@ export function buildBackendServer(): FastifyInstance {
     });
 
     return sendServiceResult(reply, result, request.id);
+  });
+
+  app.post('/v1/forms/templates/create', async (request, reply) => {
+    const session = await requireWorkspaceSession(
+      request,
+      reply,
+      WORKSPACE_ROLES,
+      'Insufficient permissions.',
+    );
+    if (!session) return reply;
+
+    const body = asRecord(request.body);
+    const templateKey = parseRequestedFormTemplateKey(body.templateKey);
+    if (!templateKey) {
+      return reply.status(400).send(
+        toBackendErrorResponse({
+          status: 400,
+          requestId: request.id,
+          body: {
+            code: 'VALIDATION_ERROR',
+            message: `templateKey must be one of: ${getSupportedFormTemplateKeysLabel()}.`,
+          },
+        }),
+      );
+    }
+
+    try {
+      const repository = createPayloadFormTemplateRepository({
+        payload: session.payload,
+        user: session.user,
+      });
+      const form = await createWorkspaceFormTemplate(repository, templateKey);
+      return reply.send({
+        success: true,
+        form,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create form template.';
+      const status = toWorkspaceErrorStatus(message);
+      return reply.status(status).send(
+        toBackendErrorResponse({
+          status,
+          requestId: request.id,
+          body: {
+            message,
+          },
+        }),
+      );
+    }
+  });
+
+  app.post('/v1/pages/live/:id/create-preset', async (request, reply) => {
+    const session = await requireWorkspaceSession(
+      request,
+      reply,
+      PRESET_CREATOR_ROLES,
+      'Only admins and editors can create presets.',
+    );
+    if (!session) return reply;
+
+    const livePageId = readParamId(request.params);
+    if (!livePageId) {
+      return reply.status(400).send(
+        toBackendErrorResponse({
+          status: 400,
+          requestId: request.id,
+          body: {
+            code: 'VALIDATION_ERROR',
+            message: 'id is required.',
+          },
+        }),
+      );
+    }
+
+    try {
+      const repository = createPayloadWorkspaceMutationRepository({
+        payload: session.payload,
+        user: session.user,
+      });
+      const preset = await createPresetFromLivePageWorkspace(repository, {
+        livePageId,
+        presetMeta: asRecord(request.body),
+      });
+      return reply.send({
+        success: true,
+        preset,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Operation failed.';
+      const status = toWorkspaceErrorStatus(message);
+      return reply.status(status).send(
+        toBackendErrorResponse({
+          status,
+          requestId: request.id,
+          body: {
+            message,
+          },
+        }),
+      );
+    }
+  });
+
+  app.post('/v1/pages/drafts/:id/create-preset', async (request, reply) => {
+    const session = await requireWorkspaceSession(
+      request,
+      reply,
+      PRESET_CREATOR_ROLES,
+      'Only admins and editors can create presets.',
+    );
+    if (!session) return reply;
+
+    const draftId = readParamId(request.params);
+    if (!draftId) {
+      return reply.status(400).send(
+        toBackendErrorResponse({
+          status: 400,
+          requestId: request.id,
+          body: {
+            code: 'VALIDATION_ERROR',
+            message: 'id is required.',
+          },
+        }),
+      );
+    }
+
+    try {
+      const repository = createPayloadWorkspaceMutationRepository({
+        payload: session.payload,
+        user: session.user,
+      });
+      const preset = await createPresetFromDraftWorkspace(repository, {
+        draftId,
+        presetMeta: asRecord(request.body),
+      });
+      return reply.send({
+        success: true,
+        preset,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Operation failed.';
+      const status = toWorkspaceErrorStatus(message);
+      return reply.status(status).send(
+        toBackendErrorResponse({
+          status,
+          requestId: request.id,
+          body: {
+            message,
+          },
+        }),
+      );
+    }
+  });
+
+  app.post('/v1/pages/drafts/:id/promote-to-live', async (request, reply) => {
+    const session = await requireWorkspaceSession(
+      request,
+      reply,
+      PRESET_CREATOR_ROLES,
+      'Only admins and editors can promote drafts.',
+    );
+    if (!session) return reply;
+
+    const draftId = readParamId(request.params);
+    if (!draftId) {
+      return reply.status(400).send(
+        toBackendErrorResponse({
+          status: 400,
+          requestId: request.id,
+          body: {
+            code: 'VALIDATION_ERROR',
+            message: 'id is required.',
+          },
+        }),
+      );
+    }
+
+    try {
+      const repository = createPayloadWorkspaceMutationRepository({
+        payload: session.payload,
+        user: session.user,
+      });
+      const livePage = await promoteDraftToLiveWorkspace(repository, {
+        draftId,
+      });
+      return reply.send({
+        success: true,
+        livePage,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to promote draft to live.';
+      const status = toWorkspaceErrorStatus(message);
+      return reply.status(status).send(
+        toBackendErrorResponse({
+          status,
+          requestId: request.id,
+          body: {
+            message,
+          },
+        }),
+      );
+    }
+  });
+
+  app.post('/v1/pages/playgrounds/:id/create-draft', async (request, reply) => {
+    const session = await requireWorkspaceSession(
+      request,
+      reply,
+      WORKSPACE_ROLES,
+      'Insufficient permissions.',
+    );
+    if (!session) return reply;
+
+    const playgroundId = readParamId(request.params);
+    if (!playgroundId) {
+      return reply.status(400).send(
+        toBackendErrorResponse({
+          status: 400,
+          requestId: request.id,
+          body: {
+            code: 'VALIDATION_ERROR',
+            message: 'id is required.',
+          },
+        }),
+      );
+    }
+
+    const body = asRecord(request.body);
+    const title = readTrimmedString(body.title);
+    const targetSlug = readTrimmedString(body.targetSlug);
+    if (!targetSlug) {
+      return reply.status(400).send(
+        toBackendErrorResponse({
+          status: 400,
+          requestId: request.id,
+          body: {
+            code: 'VALIDATION_ERROR',
+            message: 'targetSlug is required.',
+          },
+        }),
+      );
+    }
+
+    try {
+      const repository = createPayloadWorkspaceMutationRepository({
+        payload: session.payload,
+        user: session.user,
+      });
+      const draft = await createDraftFromPlaygroundWorkspace(repository, {
+        playgroundId,
+        title,
+        targetSlug,
+      });
+      return reply.send({
+        success: true,
+        draft,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create draft.';
+      const status = toWorkspaceErrorStatus(message);
+      return reply.status(status).send(
+        toBackendErrorResponse({
+          status,
+          requestId: request.id,
+          body: {
+            message,
+          },
+        }),
+      );
+    }
+  });
+
+  app.post('/v1/pages/playgrounds/:id/create-preset', async (request, reply) => {
+    const session = await requireWorkspaceSession(
+      request,
+      reply,
+      PRESET_CREATOR_ROLES,
+      'Only admins and editors can create presets.',
+    );
+    if (!session) return reply;
+
+    const playgroundId = readParamId(request.params);
+    if (!playgroundId) {
+      return reply.status(400).send(
+        toBackendErrorResponse({
+          status: 400,
+          requestId: request.id,
+          body: {
+            code: 'VALIDATION_ERROR',
+            message: 'id is required.',
+          },
+        }),
+      );
+    }
+
+    try {
+      const repository = createPayloadWorkspaceMutationRepository({
+        payload: session.payload,
+        user: session.user,
+      });
+      const preset = await createPresetFromPlaygroundWorkspace(repository, {
+        playgroundId,
+        presetMeta: asRecord(request.body),
+      });
+      return reply.send({
+        success: true,
+        preset,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create preset.';
+      const status = toWorkspaceErrorStatus(message);
+      return reply.status(status).send(
+        toBackendErrorResponse({
+          status,
+          requestId: request.id,
+          body: {
+            message,
+          },
+        }),
+      );
+    }
   });
 
   app.post('/v1/internal/seed-site-pages', async (request, reply) => {

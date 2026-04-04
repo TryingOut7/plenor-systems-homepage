@@ -21,6 +21,7 @@ describe('homepage section rendering smoke (typed api client)', () => {
     env.CMS_SKIP_PAYLOAD = 'true';
     env.BACKEND_RATE_LIMIT_MAX = '100';
     env.BACKEND_RATE_LIMIT_WINDOW_MS = '60000';
+    env.ALLOW_IN_MEMORY_RATE_LIMIT_FALLBACK = 'true';
     env.BACKEND_API_KEYS = 'internal-test:internal:internal-test';
 
     app = buildBackendServer();

@@ -1,24 +1,14 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import type { TypedUser } from 'payload';
-import { getPayload } from '@/payload/client';
-
-type UserRecord = Record<string, unknown>;
-
-function resolveUserRole(user: unknown): string {
-  if (!user || typeof user !== 'object') return '';
-  const role = (user as UserRecord).role;
-  return typeof role === 'string' ? role : '';
-}
+import { getPayloadRouteSession } from '@/infrastructure/http/payloadRouteAuth';
 
 export async function requirePresetCreatorUser(request: NextRequest): Promise<{
   errorResponse: NextResponse | null;
-  payload: Awaited<ReturnType<typeof getPayload>>;
+  payload: Awaited<ReturnType<typeof getPayloadRouteSession>>['payload'];
   user: TypedUser | null;
 }> {
-  const payload = await getPayload();
-  const authResult = await payload.auth({ headers: request.headers });
-  const user = authResult.user as TypedUser | null;
+  const { payload, user, role } = await getPayloadRouteSession(request);
 
   if (!user) {
     return {
@@ -31,7 +21,6 @@ export async function requirePresetCreatorUser(request: NextRequest): Promise<{
     };
   }
 
-  const role = resolveUserRole(user);
   if (!['admin', 'editor'].includes(role)) {
     return {
       payload,
@@ -62,12 +51,10 @@ export async function readJsonBody(request: NextRequest): Promise<Record<string,
 
 export async function requireWorkspaceUser(request: NextRequest): Promise<{
   errorResponse: NextResponse | null;
-  payload: Awaited<ReturnType<typeof getPayload>>;
+  payload: Awaited<ReturnType<typeof getPayloadRouteSession>>['payload'];
   user: TypedUser | null;
 }> {
-  const payload = await getPayload();
-  const authResult = await payload.auth({ headers: request.headers });
-  const user = authResult.user as TypedUser | null;
+  const { payload, user, role } = await getPayloadRouteSession(request);
 
   if (!user) {
     return {
@@ -80,7 +67,6 @@ export async function requireWorkspaceUser(request: NextRequest): Promise<{
     };
   }
 
-  const role = resolveUserRole(user);
   if (!['admin', 'editor', 'author'].includes(role)) {
     return {
       payload,

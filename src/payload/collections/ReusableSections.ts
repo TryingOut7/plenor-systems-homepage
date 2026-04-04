@@ -10,6 +10,7 @@ import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { ensureLocalizationBeforeChange, localizationFields } from '../fields/localization.ts';
 import { reusableSectionVersioningBeforeChange } from '../hooks/reusableSectionVersioning.ts';
 import { migrateGuideInquirySectionsBeforeChange } from '../hooks/guideInquirySectionMigration.ts';
+import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigration.ts';
 
 export const ReusableSections: CollectionConfig = {
   slug: 'reusable-sections',
@@ -39,6 +40,7 @@ export const ReusableSections: CollectionConfig = {
       ensureLocalizationBeforeChange,
       reusableSectionVersioningBeforeChange,
       workflowBeforeChange,
+      migrateLegacySectionsBeforeChange,
       migrateGuideInquirySectionsBeforeChange,
     ],
     afterChange: [workflowAfterChange, auditAfterChange],

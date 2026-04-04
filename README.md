@@ -54,7 +54,13 @@ Current backend routes:
 - `GET /v1/search`
 - `POST /v1/forms/guide` (supports `Idempotency-Key`)
 - `POST /v1/forms/inquiry` (supports `Idempotency-Key`)
+- `POST /v1/forms/templates/create` (workspace auth)
 - `POST /v1/internal/seed-site-pages`
+- `POST /v1/pages/live/{id}/create-preset` (workspace auth)
+- `POST /v1/pages/drafts/{id}/create-preset` (workspace auth)
+- `POST /v1/pages/drafts/{id}/promote-to-live` (workspace auth)
+- `POST /v1/pages/playgrounds/{id}/create-draft` (workspace auth)
+- `POST /v1/pages/playgrounds/{id}/create-preset` (workspace auth)
 - `GET /v1/content/pages/{slug}`
 - `GET /v1/content/navigation`
 - `GET /v1/admin/submissions` (admin API key)
@@ -83,6 +89,7 @@ See `.env.example` for all variables:
 | `BACKEND_INTERNAL_API_KEY` | Optional dedicated internal API key (alternative to `BACKEND_API_KEYS`) |
 | `BACKEND_ADMIN_API_KEY` | Optional dedicated admin API key (alternative to `BACKEND_API_KEYS`) |
 | `BACKEND_CORS_ORIGINS` | Comma-separated backend CORS allowlist (required in production unless `NEXT_PUBLIC_SERVER_URL` is set) |
+| `ALLOW_IN_MEMORY_RATE_LIMIT_FALLBACK` | Set to `true` only for local/test fallback when shared Supabase rate limiting is unavailable |
 | `OUTBOUND_WEBHOOK_URL` | Optional signed outbound event webhook target |
 | `OUTBOUND_WEBHOOK_SECRET` | Optional HMAC secret for `X-Plenor-Signature` |
 | `CMS_SKIP_PAYLOAD` | Optional local/test flag to bypass payload-backed CMS calls |
@@ -97,7 +104,7 @@ See `.env.example` for all variables:
 | `/about` | About — team, mission, focus |
 | `/services` | Services — Testing & QA and Launch & GTM detail |
 | `/pricing` | Pricing — engagement model |
-| `/contact` | Contact — guide form + inquiry form |
+| `/contact` | Contact — CMS-managed form sections |
 | `/privacy` | Privacy policy |
 
 ## Build
@@ -113,19 +120,19 @@ Versioned backend persistence migrations live in `migrations/versions` (includin
 Apply pending migrations:
 
 ```bash
-npm run db:migrate
+npm run db:migrate:backend
 ```
 
 Show migration status:
 
 ```bash
-npm run db:migrate:status
+npm run db:migrate:backend:status
 ```
 
 Fail if any migration is pending (CI check mode):
 
 ```bash
-npm run db:migrate:status -- --check
+npm run db:migrate:backend:status -- --check
 ```
 
 Rollback the last applied migration:

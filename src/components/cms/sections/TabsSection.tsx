@@ -153,9 +153,9 @@ function TabsSectionRenderer({
                     display: 'inline-block',
                     marginTop: '20px',
                     padding: '10px 20px',
-                    backgroundColor: 'var(--ui-btn-primary-bg)',
-                    color: 'var(--ui-btn-primary-text)',
-                    borderRadius: 'var(--ui-btn-radius)',
+                    backgroundColor: 'var(--ui-button-primary-bg)',
+                    color: 'var(--ui-button-primary-text)',
+                    borderRadius: 'var(--ui-button-radius)',
                     textDecoration: 'none',
                     fontWeight: 500,
                   }}

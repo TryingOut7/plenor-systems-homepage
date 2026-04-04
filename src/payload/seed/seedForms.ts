@@ -23,18 +23,36 @@ export async function seedForms(): Promise<SeedFormsResult> {
   for (const template of FORM_TEMPLATES) {
     const found = await payload.find({
       collection: 'forms',
-      where: { title: { equals: template.title } },
+      where: {
+        or: [
+          { templateKey: { equals: template.key } },
+          { title: { equals: template.title } },
+        ],
+      },
       limit: 1,
       depth: 0,
       overrideAccess: true,
     });
 
     if (found.docs.length > 0) {
+      const existingDoc = found.docs[0] as { id?: string | number; templateKey?: unknown };
+      if (existingDoc.id && existingDoc.templateKey !== template.key) {
+        await payload.update({
+          collection: 'forms',
+          id: existingDoc.id,
+          overrideAccess: true,
+          depth: 0,
+          data: {
+            templateKey: template.key,
+          },
+        });
+      }
+
       existing += 1;
       items.push({
         title: template.title,
         action: 'exists',
-        id: String((found.docs[0] as { id?: string | number }).id ?? ''),
+        id: String(existingDoc.id ?? ''),
       });
       continue;
     }
@@ -43,6 +61,7 @@ export async function seedForms(): Promise<SeedFormsResult> {
       collection: 'forms',
       data: {
         title: template.title,
+        templateKey: template.key,
         fields: template.fields,
         submitButtonLabel: template.submitButtonLabel,
         confirmationType: 'message',

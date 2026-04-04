@@ -67,11 +67,11 @@ npm run dev:schema-push  # Dev server with Payload auto-push enabled (use when a
 # ── Schema / Migrations ────────────────────────────────────────────────────────
 npm run generate:migration          # Auto-generate a CMS migration after adding/changing collections or fields
 npm run generate:types              # Generate Payload TypeScript types
-npm run db:migrate                  # Apply backend table migrations (migrations/versions/)
-npm run db:migrate:status           # Show applied/pending backend migrations
+npm run db:migrate:backend                  # Apply backend table migrations (migrations/versions/)
+npm run db:migrate:backend:status           # Show applied/pending backend migrations
 npm run db:migrate:rollback         # Roll back the latest backend migration
-npm run db:migrate:cms              # Apply pending CMS migrations (migrations/payload/)
-npm run db:migrate:cms:status       # Show applied/pending CMS migrations
+npm run db:migrate:payload              # Apply pending CMS migrations (migrations/payload/)
+npm run db:migrate:payload:status       # Show applied/pending CMS migrations
 npm run db:check:payload            # Check Payload schema against actual DB
 npm run db:repair:payload           # Repair Payload schema drift in the DB
 npm run db:schema:drift             # Check schema manifest vs live DB; auto-generate repair migration if needed
@@ -122,25 +122,25 @@ npm run generate:migration
 # → Creates migrations/payload/<timestamp>_<name>.ts automatically
 
 # 4. Apply the migration to confirm it runs cleanly
-npm run db:migrate:cms
+npm run db:migrate:payload
 
 # 5. Commit both the collection change and the generated migration file
 git add src/payload/collections/... migrations/payload/...
 git commit -m "feat: add <field> to <Collection>"
 ```
 
-CI runs `npm run db:migrate:cms` on every push. If you forget to generate the migration, CI will detect the pending schema drift and fail.
+CI runs `npm run db:migrate:payload` on every push. If you forget to generate the migration, CI will detect the pending schema drift and fail.
 
 ### For backend operational tables (guide_submissions, outbox, idempotency, etc.)
 
-These tables are **not** Payload-managed. Write `.up.sql` and `.down.sql` files manually in `migrations/versions/` following the existing naming convention (`NNNN_description.up.sql`). Then run `npm run db:migrate`.
+These tables are **not** Payload-managed. Write `.up.sql` and `.down.sql` files manually in `migrations/versions/` following the existing naming convention (`NNNN_description.up.sql`). Then run `npm run db:migrate:backend`.
 
 ### Which system owns which tables
 
 | System | Directory | Tables |
 |--------|-----------|--------|
-| Payload (`db:migrate:cms`) | `migrations/payload/` | All CMS collections: site_pages, testimonials, blog_posts, media, users, etc. |
-| Custom runner (`db:migrate`) | `migrations/versions/` | Backend ops: guide_submissions, inquiry_submissions, backend_outbox_jobs, backend_idempotency_keys, backend_rate_limit_counters, schema_migrations, audit_logs |
+| Payload (`db:migrate:payload`) | `migrations/payload/` | All CMS collections: site_pages, testimonials, blog_posts, media, users, etc. |
+| Custom runner (`db:migrate:backend`) | `migrations/versions/` | Backend ops: guide_submissions, inquiry_submissions, backend_outbox_jobs, backend_idempotency_keys, backend_rate_limit_counters, schema_migrations, audit_logs |
 
 ## Schema Drift Detection (Pre-Push Hook)
 
@@ -168,7 +168,7 @@ If drift is detected, the hook auto-generates a numbered repair migration and pr
    1. Review the generated migration (check types and defaults)
    2. git add migrations/versions/NNNN_auto_schema_drift.{up,down}.sql
    3. git commit -m "fix: repair schema drift"
-   4. npm run db:migrate   ← apply it locally first
+   4. npm run db:migrate:backend   ← apply it locally first
    5. Push again
 ```
 
@@ -220,6 +220,7 @@ BACKEND_PORT                    # Backend bind port (default 18000)
 BACKEND_RATE_LIMIT_MAX          # Backend edge rate limit max requests/window
 BACKEND_RATE_LIMIT_WINDOW_MS    # Backend edge rate limit window length
 BACKEND_CORS_ORIGINS            # Backend CORS allowlist (required in production unless NEXT_PUBLIC_SERVER_URL is set)
+ALLOW_IN_MEMORY_RATE_LIMIT_FALLBACK # Set true only for explicit local/test in-memory limiter fallback
 BACKEND_API_KEYS                # Comma-separated key entries: key:role:keyId
 BACKEND_INTERNAL_API_KEY        # Optional dedicated internal role key
 BACKEND_ADMIN_API_KEY           # Optional dedicated admin role key
@@ -264,7 +265,13 @@ Import boundaries are enforced by ESLint via `lint:architecture`.
   - `GET /v1/search`
   - `POST /v1/forms/guide`
   - `POST /v1/forms/inquiry`
+  - `POST /v1/forms/templates/create`
   - `POST /v1/internal/seed-site-pages`
+  - `POST /v1/pages/live/:id/create-preset`
+  - `POST /v1/pages/drafts/:id/create-preset`
+  - `POST /v1/pages/drafts/:id/promote-to-live`
+  - `POST /v1/pages/playgrounds/:id/create-draft`
+  - `POST /v1/pages/playgrounds/:id/create-preset`
   - `GET /v1/content/pages/:slug`
   - `GET /v1/content/navigation`
   - `GET /v1/admin/submissions`
@@ -279,8 +286,8 @@ Import boundaries are enforced by ESLint via `lint:architecture`.
   - POST idempotency support via `Idempotency-Key`
   - persistent outbox pipeline with retry/dead-letter state
   - shared DB-backed edge rate limiting middleware (`apps/backend/src/middleware/rateLimit.ts`)
-- Next API routes that proxy to the backend when `BACKEND_INTERNAL_URL` is set (**proxy-first fail-closed**): `/api/search`, `/api/guide`, `/api/inquiry`, `/api/internal/seed-site-pages`, `/api/content/*`, `/api/admin/submissions*`, `/api/integrations/status`.
-- Routes that are **always local** in Next (no proxy): `/api/draft-mode/*` (Next draft cookies), `/api/pages/*` (workspace actions: playground→draft/preset, draft→live), `/api/forms/templates/*` (form template seeding), `/api/internal/cron/*` (Vercel Cron jobs: outbox-tick, backup), `/api/internal/seed-forms`.
+- Next API routes that proxy to the backend when `BACKEND_INTERNAL_URL` is set (**proxy-first fail-closed**): `/api/search`, `/api/guide`, `/api/inquiry`, `/api/internal/seed-site-pages`, `/api/content/*`, `/api/admin/submissions*`, `/api/integrations/status`, `/api/pages/*`, `/api/forms/templates/*`.
+- Routes that are **always local** in Next (no proxy): `/api/draft-mode/*` (Next draft cookies), `/api/internal/cron/*` (Vercel Cron jobs: outbox-tick, backup), `/api/internal/seed-forms`.
 
 ### Contracts and API Schema
 
@@ -344,10 +351,10 @@ Key frontend routes:
 CI workflow (`.github/workflows/ci.yml`) runs against a local Postgres 16 container:
 1. `npm run check:runtime`
 2. `npm ci`
-3. `npm run db:migrate` — apply backend table migrations
-4. `npm run db:migrate:status -- --check` — fail if any backend migrations are pending
-5. `npm run db:migrate:cms` — apply CMS migrations
-6. `npm run db:migrate:cms:status` — fail if any CMS migrations are pending
+3. `npm run db:migrate:backend` — apply backend table migrations
+4. `npm run db:migrate:backend:status -- --check` — fail if any backend migrations are pending
+5. `npm run db:migrate:payload` — apply CMS migrations
+6. `npm run db:migrate:payload:status` — fail if any CMS migrations are pending
 7. `npm run predeploy:guardrails` — runtime check + Payload schema check + CMS governance check + type check + importmap check
 8. `npm run lint`
 9. `npm run lint:architecture`
@@ -385,8 +392,7 @@ This section tracks the phased removal of hardcoded frontend content so future s
   - `site-settings.guideForm.privacyHref`
   - `site-settings.inquiryForm.privacyLabel`
   - `site-settings.inquiryForm.privacyHref`
-- Wired `GuideForm` and `InquiryForm` to consume those CMS fields instead of hardcoded `Privacy Policy` + `/privacy`.
-- Updated hardcoded home/contact form mounts to pass `site-settings.guideForm` and `site-settings.inquiryForm`.
+- Wired CMS `UniversalSections` form rendering to consume those CMS fields instead of hardcoded `Privacy Policy` + `/privacy`.
 - Reduced home/contact hardcoded hero/form copy by reading existing section fields:
   - hero eyebrow + primary CTA label/href
   - guide section label/heading/highlight/body
@@ -398,7 +404,6 @@ This section tracks the phased removal of hardcoded frontend content so future s
 
 - Added shared page-content resolvers so route-level fallback/override logic is centralized and testable:
   - `src/lib/page-content/home.ts`
-  - `src/lib/page-content/contact.ts`
   - `src/lib/page-content/not-found.ts`
 - Updated custom home rendering to use CMS-driven section content for previously hardcoded structural copy:
   - problem label via `richTextSection.sectionLabel`
@@ -449,7 +454,7 @@ Use this matrix in order. A feature is incomplete if any non-`N/A` row fails don
 | **Step 9: Reliability requirements** | Mutation semantics, async side-effect behavior | Documented idempotency/retry behavior and duplicate handling | `N/A` | Mutating operations are retry-safe or explicitly constrained and documented. |
 | **Step 10: Observability requirements** | Logging/monitoring standards, request ID policy | Structured log fields, request ID propagation, health/readiness impact notes | `N/A` | Operators can diagnose failures for the new/changed path without code inspection. |
 | **Step 11: Test requirements** | Contract diff + implementation diff | Unit + integration + e2e coverage for changed behavior | Add tests under `tests/unit`, `tests/integration`, `tests/e2e` | Tests cover happy path, validation errors, auth errors, rate-limit, and integration failure mode. |
-| **Step 12: Full gate commands (mandatory, ordered)** | Code/tests/docs complete | Passing gate report | `npm run lint`<br/>`npm run lint:architecture`<br/>`npm run check:type`<br/>`npm run db:migrate`<br/>`npm run db:migrate:status -- --check`<br/>`npm run backend:lint`<br/>`npm run backend:typecheck`<br/>`npm run openapi:check`<br/>`npm run test:ci`<br/>`npm run build` | All commands pass in order with no skipped steps unless marked `N/A` in PR notes. |
+| **Step 12: Full gate commands (mandatory, ordered)** | Code/tests/docs complete | Passing gate report | `npm run lint`<br/>`npm run lint:architecture`<br/>`npm run check:type`<br/>`npm run db:migrate:backend`<br/>`npm run db:migrate:backend:status -- --check`<br/>`npm run backend:lint`<br/>`npm run backend:typecheck`<br/>`npm run openapi:check`<br/>`npm run test:ci`<br/>`npm run build` | All commands pass in order with no skipped steps unless marked `N/A` in PR notes. |
 | **Step 13: Documentation sync** | Final merged behavior + env/config changes | Updated CLAUDE/README/.env docs for routes, vars, and ops behavior | Update docs files directly | No undocumented configuration or behavior drift remains. |
 | **Step 14: Release readiness note** | Deployment target, risk classification, rollback strategy | Rollout steps, rollback trigger, post-deploy smoke checks | `N/A` | Release note is explicit enough for another engineer to execute without clarification. |
 | **Step 15: Completion rule** | Evidence from Steps 0-14 | Final feature checklist with pass/`N/A` status | `N/A` | Feature is not complete until Steps 0-14 are satisfied or explicitly marked `N/A` with rationale. |
@@ -510,8 +515,8 @@ Copy/paste and fill before implementation:
 1. npm run lint
 2. npm run lint:architecture
 3. npm run check:type
-4. npm run db:migrate
-5. npm run db:migrate:status -- --check
+4. npm run db:migrate:backend
+5. npm run db:migrate:backend:status -- --check
 6. npm run backend:lint
 7. npm run backend:typecheck
 8. npm run openapi:check

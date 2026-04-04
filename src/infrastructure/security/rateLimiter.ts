@@ -14,6 +14,7 @@ const ERROR_LOG_COOLDOWN_MS = 60_000;
 const store = new Map<string, Entry>();
 let persistentFallbackLoggedUntil = 0;
 let persistentErrorLoggedUntil = 0;
+let identityErrorLoggedUntil = 0;
 
 type RateLimitPolicy = {
   windowMs: number;
@@ -80,20 +81,50 @@ function cleanup(): void {
   }
 }
 
-function getClientIp(context: RequestContext): string {
-  const ip = context.realIp || context.forwardedFor?.split(',')[0]?.trim();
-  if (!ip) {
-    console.warn('Rate limiter: could not determine client IP, using fallback key');
-    return 'unknown';
+function readClientIp(context: RequestContext): string {
+  const realIp = context.realIp?.trim();
+  if (realIp) return realIp;
+  const forwardedIp = context.forwardedFor?.split(',')[0]?.trim();
+  if (forwardedIp) return forwardedIp;
+  return '';
+}
+
+function hashIdentity(input: string): string {
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
   }
-  return ip;
+  return (hash >>> 0).toString(16);
+}
+
+function resolveClientIdentity(context: RequestContext): string | null {
+  const ip = readClientIp(context);
+  if (ip) return `ip:${ip}`;
+
+  const fallbackParts = [
+    context.apiKey ? `api:${context.apiKey}` : '',
+    context.authorization ? `auth:${context.authorization}` : '',
+    context.idempotencyKey ? `idem:${context.idempotencyKey}` : '',
+    context.userAgent ? `ua:${context.userAgent}` : '',
+    context.host ? `host:${context.host}` : '',
+    context.forwardedHost ? `fhost:${context.forwardedHost}` : '',
+    context.origin ? `origin:${context.origin}` : '',
+  ].filter(Boolean);
+
+  if (fallbackParts.length === 0) {
+    return null;
+  }
+
+  fallbackParts.push(`path:${context.path}`);
+  return `fp:${hashIdentity(fallbackParts.join('|'))}`;
 }
 
 function allowInMemoryFallback(): boolean {
-  if (process.env.ALLOW_IN_MEMORY_RATE_LIMIT_FALLBACK === 'true') {
-    return true;
-  }
-  return process.env.NODE_ENV !== 'production';
+  const configured = process.env.ALLOW_IN_MEMORY_RATE_LIMIT_FALLBACK;
+  if (configured === 'true') return true;
+  if (configured === 'false') return false;
+  return process.env.NODE_ENV === 'test';
 }
 
 function warnPersistentFallback(): void {
@@ -205,7 +236,21 @@ export async function checkRateLimit(
   context: RequestContext,
 ): Promise<ServiceResult<{ message: string }> | null> {
   const policy = resolveRateLimitPolicy(context.path);
-  const key = `${getClientIp(context)}:${context.path}`;
+  const clientIdentity = resolveClientIdentity(context);
+  if (!clientIdentity) {
+    const now = Date.now();
+    if (now >= identityErrorLoggedUntil) {
+      identityErrorLoggedUntil = now + ERROR_LOG_COOLDOWN_MS;
+      console.error('[rate-limit] Unable to derive client identity for request.', {
+        path: context.path,
+      });
+    }
+    return fail(503, {
+      message: 'Rate limiting service unavailable. Please try again shortly.',
+    });
+  }
+
+  const key = `${clientIdentity}:${context.path}`;
 
   let result: { limited: boolean; retryAfterSeconds: number };
   try {

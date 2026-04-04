@@ -87,4 +87,32 @@ describe('rate limiter fallback behavior', () => {
     expect(result?.status).toBe(503);
     expect(result?.body?.message).toContain('Rate limiting service unavailable');
   });
+
+  it('fails closed when no stable client identity can be derived', async () => {
+    const env = process.env as Record<string, string | undefined>;
+    env.NODE_ENV = 'test';
+    env.ALLOW_IN_MEMORY_RATE_LIMIT_FALLBACK = 'true';
+    delete env.SUPABASE_URL;
+    delete env.SUPABASE_SERVICE_ROLE_KEY;
+
+    const mod = await import('@/infrastructure/security/rateLimiter');
+    const { checkRateLimit } = mod;
+
+    const result = await checkRateLimit(
+      context({
+        realIp: null,
+        forwardedFor: null,
+        origin: null,
+        host: null,
+        forwardedHost: null,
+        authorization: null,
+        apiKey: null,
+        idempotencyKey: null,
+        userAgent: null,
+      }),
+    );
+
+    expect(result?.status).toBe(503);
+    expect(result?.body?.message).toContain('Rate limiting service unavailable');
+  });
 });
