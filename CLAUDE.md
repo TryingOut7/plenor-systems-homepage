@@ -67,12 +67,27 @@ npm run lint:architecture # Enforce architecture boundary imports
 npm run check:type       # Repository typecheck (excludes .next noise)
 npm run openapi:generate # Generate typed API definitions from OpenAPI
 npm run openapi:check    # Verify generated OpenAPI types are up to date
-npm run db:migrate       # Apply versioned DB migrations from migrations/versions
-npm run db:migrate:status # Show applied/pending migrations
-npm run db:migrate:rollback # Roll back the latest applied migration
-npm run db:check:payload # Check Payload schema against actual DB columns/constraints
-npm run db:repair:payload # Repair Payload schema drift in the DB
-npm run backup           # Run database backup script
+npm run dev              # Start dev server (Turbopack, localhost:3000)
+npm run dev:schema-push  # Dev server with Payload auto-push enabled (use when adding new fields/collections)
+
+# ── Schema / Migrations ────────────────────────────────────────────────────────
+npm run generate:migration          # Auto-generate a CMS migration after adding/changing collections or fields
+npm run db:migrate:cms              # Apply pending CMS migrations (migrations/payload/)
+npm run db:migrate:cms:status       # Show applied/pending CMS migrations
+npm run db:migrate                  # Apply backend table migrations (migrations/versions/)
+npm run db:migrate:status           # Show applied/pending backend migrations
+npm run db:migrate:rollback         # Roll back the latest backend migration
+npm run db:check:payload            # Check Payload schema against actual DB
+npm run db:repair:payload           # Repair Payload schema drift in the DB
+npm run backup                      # Run database backup script
+
+# ── Build / Lint / Test ────────────────────────────────────────────────────────
+npm run build            # Production build
+npm run lint             # ESLint check
+npm run lint:architecture # Enforce architecture boundary imports
+npm run check:type       # Repository typecheck (excludes .next noise)
+npm run openapi:generate # Generate typed API definitions from OpenAPI
+npm run openapi:check    # Verify generated OpenAPI types are up to date
 npm run test:unit        # Domain/application unit tests
 npm run test:integration # Fastify route integration tests
 npm run test:e2e         # Typed-client smoke tests against live backend instance
@@ -85,6 +100,43 @@ npm run payload          # Payload CLI
 npm run generate:types   # Generate Payload TypeScript types
 npm run seed:site-pages  # Seed site-pages collection
 ```
+
+## Adding a New Field or Collection (Schema Change Workflow)
+
+When you add or modify a Payload collection or field, follow these steps — **do not write SQL by hand**.
+
+### For Payload-managed schema (collections, globals, fields)
+
+```bash
+# 1. Add/change the field or collection in src/payload/collections/* or src/payload/globals/*
+
+# 2. Start dev server with schema push enabled — Payload auto-alters your local DB
+npm run dev:schema-push
+
+# 3. Stop the server. Auto-generate the migration file from the schema diff
+npm run generate:migration
+# → Creates migrations/payload/<timestamp>_<name>.ts automatically
+
+# 4. Apply the migration to confirm it runs cleanly
+npm run db:migrate:cms
+
+# 5. Commit both the collection change and the generated migration file
+git add src/payload/collections/... migrations/payload/...
+git commit -m "feat: add <field> to <Collection>"
+```
+
+CI runs `npm run db:migrate:cms` on every push. If you forget to generate the migration, CI will detect the pending schema drift and fail.
+
+### For backend operational tables (guide_submissions, outbox, idempotency, etc.)
+
+These tables are **not** Payload-managed. Write `.up.sql` and `.down.sql` files manually in `migrations/versions/` following the existing naming convention (`NNNN_description.up.sql`). Then run `npm run db:migrate`.
+
+### Which system owns which tables
+
+| System | Directory | Tables |
+|--------|-----------|--------|
+| Payload (`db:migrate:cms`) | `migrations/payload/` | All CMS collections: site_pages, testimonials, blog_posts, media, users, etc. |
+| Custom runner (`db:migrate`) | `migrations/versions/` | Backend ops: guide_submissions, inquiry_submissions, backend_outbox_jobs, backend_idempotency_keys, backend_rate_limit_counters, schema_migrations, audit_logs |
 
 ## Environment Variables
 

@@ -553,6 +553,7 @@ export default buildConfig({
   }),
   db: postgresAdapter({
     push: dbPushSchema,
+    migrationDir: path.join(__dirname, '../migrations/payload'),
     pool: {
       connectionString: databaseConnectionString,
       ssl: { rejectUnauthorized: dbRejectUnauthorized },
