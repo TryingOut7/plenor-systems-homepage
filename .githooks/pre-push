@@ -7,6 +7,8 @@
 #   2. Schema drift (columns + critical enum labels) — compares
 #      scripts/db/schema-manifest.mjs against the actual database and
 #      auto-generates a repair migration if needed.
+#   3. Query-presets enum manifest parity — ensures every collection with
+#      enableQueryPresets is represented in the managed enum manifest.
 #
 # To install: npm run hooks:install
 # To skip (emergency only): git push --no-verify
@@ -53,6 +55,11 @@ elif [ $migrate_exit -ne 0 ]; then
 else
   echo "   ✓ No pending migrations."
 fi
+
+echo ""
+echo "🔍 [pre-push] Checking query-presets enum manifest parity..."
+node scripts/db/check-query-presets-enum-manifest.mjs
+echo "   ✓ Query-presets enum manifest is in sync."
 
 echo ""
 echo "🔍 [pre-push] Checking for schema drift..."

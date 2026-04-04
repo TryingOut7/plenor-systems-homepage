@@ -141,6 +141,12 @@ Check schema drift (columns + managed enum labels) without generating files:
 npm run db:schema:drift:check
 ```
 
+Check that query-preset collection slugs are covered by the managed enum manifest:
+
+```bash
+npm run db:check:query-presets-enum-manifest
+```
+
 Rollback the last applied migration:
 
 ```bash
