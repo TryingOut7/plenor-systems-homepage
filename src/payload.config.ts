@@ -55,26 +55,92 @@ import { SiteSettings } from './payload/globals/SiteSettings.ts';
 import { UISettings } from './payload/globals/UISettings.ts';
 import { CleanPasteFeature } from './payload/editor/features/cleanPasteFeature.ts';
 import {
-  formatSupportedFormTemplateKeys,
   parseFormTemplateKey,
 } from './domain/forms/formTemplates.ts';
+import { normalizeFormBuilderData } from './payload/forms/formBuilderNormalization.ts';
 
 validateEnv();
 
+function readRuntimePortFromArgv(argv: string[]): string | undefined {
+  for (let index = 0; index < argv.length; index += 1) {
+    const token = argv[index];
+    if (token === '--port' || token === '-p') {
+      const candidate = argv[index + 1];
+      if (candidate && /^\d+$/.test(candidate)) return candidate;
+      continue;
+    }
+    if (token.startsWith('--port=')) {
+      const candidate = token.slice('--port='.length);
+      if (candidate && /^\d+$/.test(candidate)) return candidate;
+    }
+  }
+  return undefined;
+}
+
+function resolveRuntimePort(): string | undefined {
+  const candidate =
+    readRuntimePortFromArgv(process.argv) || process.env.PORT || process.env.npm_config_port;
+  if (typeof candidate !== 'string') return undefined;
+
+  const normalized = candidate.trim();
+  return /^\d+$/.test(normalized) ? normalized : undefined;
+}
+
+function resolveRuntimePorts(): Set<string> {
+  const ports = new Set<string>(['3000']);
+  const candidates = [
+    process.env.PORT,
+    process.env.npm_config_port,
+    readRuntimePortFromArgv(process.argv),
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate !== 'string') continue;
+    const normalized = candidate.trim();
+    if (!/^\d+$/.test(normalized)) continue;
+    ports.add(normalized);
+  }
+
+  return ports;
+}
+
+function tryParseUrl(value: string): URL | null {
+  try {
+    return new URL(value);
+  } catch {
+    return null;
+  }
+}
+
 function resolveServerURL(): string {
-  const raw =
-    process.env.NEXT_PUBLIC_SERVER_URL ||
+  const runtimePort = resolveRuntimePort();
+  const configuredServerUrl = process.env.NEXT_PUBLIC_SERVER_URL?.trim() || '';
+  if (configuredServerUrl) {
+    const normalizedConfiguredUrl = /^https?:\/\//i.test(configuredServerUrl)
+      ? configuredServerUrl
+      : `https://${configuredServerUrl}`;
+    const parsedConfiguredUrl = tryParseUrl(normalizedConfiguredUrl);
+
+    if (
+      parsedConfiguredUrl &&
+      process.env.NODE_ENV !== 'production' &&
+      runtimePort &&
+      isLocalHostname(parsedConfiguredUrl.hostname) &&
+      parsedConfiguredUrl.port !== runtimePort
+    ) {
+      return `${parsedConfiguredUrl.protocol}//${parsedConfiguredUrl.hostname}:${runtimePort}`;
+    }
+
+    return normalizedConfiguredUrl;
+  }
+
+  return (
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : undefined) ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
-    'http://localhost:3000';
-
-  // Auto-add https:// if the value has no protocol (e.g. "staging.plenor.ai")
-  if (raw && !/^https?:\/\//i.test(raw)) {
-    return `https://${raw}`;
-  }
-  return raw;
+    `http://localhost:${runtimePort || '3000'}`
+  );
 }
 
 const serverURL = resolveServerURL();
@@ -146,6 +212,69 @@ function parseCsvList(value?: string): string[] {
     .filter(Boolean);
 }
 
+function normalizeOrigin(value: string): string | null {
+  const raw = value.trim();
+  if (!raw) return null;
+
+  try {
+    return new URL(raw).origin;
+  } catch {
+    if (/^[a-z]+:\/\//i.test(raw)) return null;
+    try {
+      return new URL(`https://${raw}`).origin;
+    } catch {
+      return null;
+    }
+  }
+}
+
+function isLocalHostname(hostname: string): boolean {
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
+}
+
+function resolvePayloadAllowedOrigins(): string[] {
+  const origins = new Set<string>();
+  const addOrigin = (candidate?: string) => {
+    if (!candidate) return;
+    const origin = normalizeOrigin(candidate);
+    if (origin) origins.add(origin);
+  };
+
+  addOrigin(serverURL);
+  addOrigin(process.env.NEXT_PUBLIC_SERVER_URL);
+
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    addOrigin(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
+  }
+  if (process.env.VERCEL_URL) {
+    addOrigin(`https://${process.env.VERCEL_URL}`);
+  }
+
+  for (const origin of parseCsvList(process.env.PAYLOAD_ALLOWED_ORIGINS)) {
+    addOrigin(origin);
+  }
+
+  const runtimePorts = resolveRuntimePorts();
+
+  try {
+    const parsedServerUrl = new URL(serverURL);
+    if (parsedServerUrl.port) runtimePorts.add(parsedServerUrl.port);
+
+    if (process.env.NODE_ENV !== 'production' || isLocalHostname(parsedServerUrl.hostname)) {
+      for (const port of runtimePorts) {
+        const normalizedPort = port.trim();
+        if (!normalizedPort) continue;
+        addOrigin(`http://localhost:${normalizedPort}`);
+        addOrigin(`http://127.0.0.1:${normalizedPort}`);
+      }
+    }
+  } catch {
+    // Ignore invalid serverURL values in this helper; runtime validation handles required env.
+  }
+
+  return [...origins];
+}
+
 function normalizePreviewSlug(value: unknown): string | null {
   if (typeof value !== 'string') return null;
   const normalized = value.trim().replace(/^\/+|\/+$/g, '');
@@ -159,16 +288,10 @@ function resolveCollectionLivePreviewPath(
   if (!collectionSlug) return null;
 
   const slug = normalizePreviewSlug(data?.slug);
-  const targetSlug = normalizePreviewSlug(data?.targetSlug);
 
   if (collectionSlug === 'site-pages') {
     if (!slug || slug === 'home') return '/';
     return `/${slug}`;
-  }
-
-  if (collectionSlug === 'page-drafts') {
-    if (!targetSlug || targetSlug === 'home') return '/';
-    return `/${targetSlug}`;
   }
 
   if (collectionSlug === 'service-items') {
@@ -187,6 +310,14 @@ function resolveGlobalLivePreviewPath(globalSlug: string | undefined): string | 
   return null;
 }
 
+function readPreviewRecordId(data: Record<string, unknown> | undefined): string | null {
+  if (!data) return null;
+  const id = data.id;
+  if (typeof id === 'number') return String(id);
+  if (typeof id === 'string' && id.trim()) return id.trim();
+  return null;
+}
+
 function resolveLivePreviewURL(args: {
   collectionConfig?: { slug?: string };
   globalConfig?: { slug?: string };
@@ -195,13 +326,19 @@ function resolveLivePreviewURL(args: {
   const data = args.data && typeof args.data === 'object'
     ? (args.data as Record<string, unknown>)
     : undefined;
+  const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || process.env.PAYLOAD_SECRET;
+  if (!previewSecret) return null;
+
+  if (args.collectionConfig?.slug === 'page-drafts') {
+    const draftId = readPreviewRecordId(data);
+    if (!draftId) return null;
+    return `/preview/page-drafts/${encodeURIComponent(draftId)}?secret=${encodeURIComponent(previewSecret)}`;
+  }
+
   const path =
     resolveCollectionLivePreviewPath(args.collectionConfig?.slug, data) ||
     resolveGlobalLivePreviewPath(args.globalConfig?.slug);
   if (!path) return null;
-
-  const previewSecret = process.env.PAYLOAD_PREVIEW_SECRET || process.env.PAYLOAD_SECRET;
-  if (!previewSecret) return null;
 
   const params = new URLSearchParams({
     secret: previewSecret,
@@ -283,6 +420,7 @@ const adminAutoLogin = shouldEnableAutoLogin
     }
   : false;
 
+const payloadAllowedOrigins = resolvePayloadAllowedOrigins();
 const timezoneEnvList = parseCsvList(process.env.PAYLOAD_ADMIN_TIMEZONES);
 const includeUTCByDefault = withUndefinedToDefault(
   parseBooleanEnv(process.env.PAYLOAD_ADMIN_INCLUDE_UTC_TIMEZONE),
@@ -372,6 +510,8 @@ const adminToast =
 
 export default buildConfig({
   serverURL,
+  cors: payloadAllowedOrigins,
+  csrf: payloadAllowedOrigins,
   routes: rootRoutes,
   i18n: {
     fallbackLanguage: adminFallbackLanguage,
@@ -607,12 +747,6 @@ export default buildConfig({
       generateDescription: ({ doc }) =>
         (doc as Record<string, unknown>)?.summary as string ||
         '',
-      generateURL: ({ doc, collectionSlug }) => {
-        const slug = (doc as Record<string, unknown>)?.slug as string || '';
-        if (collectionSlug === 'service-items') return `${serverURL}/services/${slug}`;
-        if (collectionSlug === 'site-pages') return `${serverURL}/${slug}`;
-        return `${serverURL}`;
-      },
     }),
 
     // NOTE: We intentionally use the custom `redirect-rules` collection as the
@@ -665,50 +799,13 @@ export default buildConfig({
         slug: 'forms',
         enableQueryPresets: true,
         hooks: {
+          beforeValidate: [
+            ({ data, operation, originalDoc }) =>
+              normalizeFormBuilderData({ data, operation, originalDoc }),
+          ],
           beforeChange: [
-            ({ data, operation, originalDoc }) => {
-              if (!data || typeof data !== 'object' || Array.isArray(data)) {
-                return data;
-              }
-
-              const formData = data as Record<string, unknown>;
-              const originalData =
-                originalDoc && typeof originalDoc === 'object' && !Array.isArray(originalDoc)
-                  ? (originalDoc as Record<string, unknown>)
-                  : null;
-
-              const originalTemplateKey = parseFormTemplateKey(originalData?.templateKey);
-              const hasTemplateKeyInput = Object.prototype.hasOwnProperty.call(
-                formData,
-                'templateKey',
-              );
-              const rawTemplateKey = hasTemplateKeyInput ? formData.templateKey : undefined;
-
-              if (rawTemplateKey == null || rawTemplateKey === '') {
-                if (operation === 'update' && originalTemplateKey) {
-                  formData.templateKey = originalTemplateKey;
-                }
-                return formData;
-              }
-
-              const parsedTemplateKey = parseFormTemplateKey(rawTemplateKey);
-              if (!parsedTemplateKey) {
-                throw new Error(
-                  `templateKey must be one of: ${formatSupportedFormTemplateKeys()}.`,
-                );
-              }
-
-              if (
-                operation === 'update' &&
-                originalTemplateKey &&
-                parsedTemplateKey !== originalTemplateKey
-              ) {
-                throw new Error('templateKey is immutable once set.');
-              }
-
-              formData.templateKey = parsedTemplateKey;
-              return formData;
-            },
+            ({ data, operation, originalDoc }) =>
+              normalizeFormBuilderData({ data, operation, originalDoc }),
           ],
         },
         fields: ({ defaultFields }) => [

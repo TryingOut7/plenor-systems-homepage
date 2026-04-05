@@ -61,9 +61,82 @@ export function shouldSkipPayload(): boolean {
   if (process.env.CMS_SKIP_PAYLOAD === 'true') {
     return true;
   }
+  const hasDatabaseConnectionString = Boolean(process.env.DATABASE_URI || process.env.DATABASE_URL);
+  if (!hasDatabaseConnectionString) {
+    return true;
+  }
   return Date.now() < payloadFailureUntil;
 }
 
 export function markPayloadFailure(): void {
   payloadFailureUntil = Date.now() + CMS_FAILURE_BACKOFF_MS;
+}
+
+function clearHolderEntry(holder: { entry?: unknown }): void {
+  if ('entry' in holder) {
+    delete holder.entry;
+  }
+}
+
+function readSlugFromDoc(doc: unknown, field: 'slug' | 'targetSlug' = 'slug'): string | null {
+  if (!doc || typeof doc !== 'object') return null;
+  const raw = (doc as Record<string, unknown>)[field];
+  if (typeof raw !== 'string') return null;
+  const normalized = raw.trim().replace(/^\/+|\/+$/g, '');
+  return normalized || null;
+}
+
+function invalidatePageCacheForSlug(slug: string | null): void {
+  if (!slug) return;
+  pageCache.delete(slug);
+}
+
+export function invalidateCmsCollectionCaches(input: {
+  collectionSlug: string;
+  doc?: unknown;
+  previousDoc?: unknown;
+}): void {
+  switch (input.collectionSlug) {
+    case 'site-pages': {
+      invalidatePageCacheForSlug(readSlugFromDoc(input.doc, 'slug'));
+      invalidatePageCacheForSlug(readSlugFromDoc(input.previousDoc, 'slug'));
+      clearHolderEntry(sitemapCache);
+      break;
+    }
+    case 'redirect-rules': {
+      clearHolderEntry(redirectRulesCache);
+      break;
+    }
+    case 'service-items':
+    case 'blog-posts':
+    case 'testimonials':
+    case 'team-members':
+    case 'logos': {
+      clearHolderEntry(collectionDataCache);
+      clearHolderEntry(sitemapCache);
+      break;
+    }
+    case 'page-drafts': {
+      invalidatePageCacheForSlug(readSlugFromDoc(input.doc, 'targetSlug'));
+      invalidatePageCacheForSlug(readSlugFromDoc(input.previousDoc, 'targetSlug'));
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+export function invalidateCmsGlobalCaches(globalSlug: string): void {
+  switch (globalSlug) {
+    case 'site-settings':
+      clearHolderEntry(siteSettingsCache);
+      clearHolderEntry(sitemapCache);
+      pageCache.clear();
+      break;
+    case 'ui-settings':
+      clearHolderEntry(uiSettingsCache);
+      break;
+    default:
+      break;
+  }
 }

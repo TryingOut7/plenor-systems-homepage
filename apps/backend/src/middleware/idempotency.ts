@@ -1,9 +1,15 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import {
+import * as idempotencyService from '@/infrastructure/persistence/idempotencyService';
+
+const idempotencyModule =
+  (idempotencyService as { default?: typeof import('@/infrastructure/persistence/idempotencyService') })
+    .default ?? (idempotencyService as typeof import('@/infrastructure/persistence/idempotencyService'));
+
+const {
   buildIdempotencyFingerprint,
   getIdempotencyReplay,
   storeIdempotencyResult,
-} from '@/infrastructure/persistence/idempotencyService';
+} = idempotencyModule;
 
 function firstHeader(value: string | string[] | undefined): string | null {
   if (typeof value === 'string') return value;

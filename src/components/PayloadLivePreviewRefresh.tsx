@@ -42,10 +42,28 @@ function resolveAllowedOrigins(serverURL?: string): Set<string> {
   return origins;
 }
 
+function resolvePostMessageTargetOrigin(serverURL?: string): string | null {
+  if (typeof window === 'undefined') {
+    return toOrigin(serverURL);
+  }
+
+  const currentOrigin = toOrigin(window.location.origin);
+  const referrerOrigin = toOrigin(document.referrer, currentOrigin ?? undefined);
+  if (referrerOrigin) {
+    return referrerOrigin;
+  }
+
+  return toOrigin(serverURL) ?? currentOrigin;
+}
+
 export default function PayloadLivePreviewRefresh({ serverURL }: Props) {
   const router = useRouter();
   const hasSentReadyMessage = useRef<boolean>(false);
   const allowedOrigins = useMemo(() => resolveAllowedOrigins(serverURL), [serverURL]);
+  const postMessageTargetOrigin = useMemo(
+    () => resolvePostMessageTargetOrigin(serverURL),
+    [serverURL],
+  );
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -78,8 +96,8 @@ export default function PayloadLivePreviewRefresh({ serverURL }: Props) {
         ready: true,
       };
 
-      for (const origin of allowedOrigins) {
-        windowToPostTo?.postMessage(readyMessage, origin);
+      if (windowToPostTo && windowToPostTo !== window && postMessageTargetOrigin) {
+        windowToPostTo.postMessage(readyMessage, postMessageTargetOrigin);
       }
 
       router.refresh();
@@ -88,7 +106,7 @@ export default function PayloadLivePreviewRefresh({ serverURL }: Props) {
     return () => {
       window.removeEventListener('message', onMessage);
     };
-  }, [allowedOrigins, router]);
+  }, [allowedOrigins, postMessageTargetOrigin, router]);
 
   return null;
 }

@@ -6,8 +6,12 @@ type RedirectRule = {
   isPermanent?: boolean;
 };
 
-let cachedRedirects: RedirectRule[] = [];
-let cacheExpiresAt = 0;
+type RedirectCacheEntry = {
+  expiresAt: number;
+  rules: RedirectRule[];
+};
+
+const redirectCacheByBaseUrl = new Map<string, RedirectCacheEntry>();
 
 function normalizePath(path: string): string {
   if (!path) return '/';
@@ -42,23 +46,28 @@ function isValidRedirectPath(path: string, allowWildcard: boolean): boolean {
   return true;
 }
 
-async function loadRedirectRules(): Promise<RedirectRule[]> {
-  const enableDevRedirects = process.env.ENABLE_DEV_REDIRECT_RULES === 'true';
-  if (process.env.NODE_ENV !== 'production' && !enableDevRedirects) {
-    return [];
-  }
-
-  const now = Date.now();
-  if (now < cacheExpiresAt) return cachedRedirects;
-
-  // Use Payload's REST API to load redirect rules
-  const baseUrl =
+function resolveRedirectApiBaseUrl(requestOrigin?: string): string {
+  if (requestOrigin) return requestOrigin;
+  return (
     process.env.NEXT_PUBLIC_SERVER_URL ||
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : undefined) ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
-    'http://localhost:3000';
+    'http://localhost:3000'
+  );
+}
+
+async function loadRedirectRules(requestOrigin?: string): Promise<RedirectRule[]> {
+  const enableDevRedirects = process.env.ENABLE_DEV_REDIRECT_RULES === 'true';
+  if (process.env.NODE_ENV !== 'production' && !enableDevRedirects) {
+    return [];
+  }
+
+  const baseUrl = resolveRedirectApiBaseUrl(requestOrigin);
+  const now = Date.now();
+  const cachedEntry = redirectCacheByBaseUrl.get(baseUrl);
+  if (cachedEntry && now < cachedEntry.expiresAt) return cachedEntry.rules;
 
   try {
     const url = `${baseUrl}/api/redirect-rules?where[enabled][equals]=true&limit=500`;
@@ -72,17 +81,28 @@ async function loadRedirectRules(): Promise<RedirectRule[]> {
     clearTimeout(timeout);
     if (!response.ok) {
       // Keep the last successful rules; retry after a short backoff.
-      cacheExpiresAt = now + 30_000;
-      return cachedRedirects;
+      const fallbackRules = cachedEntry?.rules ?? [];
+      redirectCacheByBaseUrl.set(baseUrl, {
+        rules: fallbackRules,
+        expiresAt: now + 30_000,
+      });
+      return fallbackRules;
     }
     const data = (await response.json()) as { docs?: RedirectRule[] };
-    cachedRedirects = Array.isArray(data.docs) ? data.docs : [];
-    cacheExpiresAt = now + 60_000;
-    return cachedRedirects;
+    const rules = Array.isArray(data.docs) ? data.docs : [];
+    redirectCacheByBaseUrl.set(baseUrl, {
+      rules,
+      expiresAt: now + 60_000,
+    });
+    return rules;
   } catch {
     // Keep the last successful rules; retry after a short backoff.
-    cacheExpiresAt = now + 30_000;
-    return cachedRedirects;
+    const fallbackRules = cachedEntry?.rules ?? [];
+    redirectCacheByBaseUrl.set(baseUrl, {
+      rules: fallbackRules,
+      expiresAt: now + 30_000,
+    });
+    return fallbackRules;
   }
 }
 
@@ -141,7 +161,12 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const rules = await loadRedirectRules();
+  // Skip framework internals (HMR, chunks, image optimizer, RSC endpoints).
+  if (pathname.startsWith('/_next/')) {
+    return NextResponse.next();
+  }
+
+  const rules = await loadRedirectRules(request.nextUrl.origin);
   const normalizedPath = normalizePath(pathname);
   const match = findRedirectMatch(rules, normalizedPath);
 
@@ -162,5 +187,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|.*\\.(?:ico|png|jpg|jpeg|gif|svg|webp|css|js|map|txt|xml)$).*)'],
+  matcher: ['/((?!_next/|.*\\.(?:ico|png|jpg|jpeg|gif|svg|webp|css|js|map|txt|xml)$).*)'],
 };

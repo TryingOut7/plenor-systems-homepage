@@ -15,6 +15,9 @@ export const ServiceItems: CollectionConfig = {
     defaultColumns: ['title', 'slug', 'isFeatured', 'priceFrom'],
     group: 'Content',
     description: 'Service landing pages and offerings shown on the website.',
+    components: {
+      beforeList: ['@/payload/admin/components/TrashNotFoundBanner'],
+    },
   },
   access: {
     read: ({ req }) => {

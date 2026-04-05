@@ -11,15 +11,16 @@ function readTrimmedString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-function cloneValue<T>(value: T): T {
+function cloneValueWithoutIds<T>(value: T): T {
   if (Array.isArray(value)) {
-    return value.map((entry) => cloneValue(entry)) as T;
+    return value.map((entry) => cloneValueWithoutIds(entry)) as T;
   }
 
   if (value && typeof value === 'object') {
     const cloned: UnknownRecord = {};
     for (const [key, nestedValue] of Object.entries(value as UnknownRecord)) {
-      cloned[key] = cloneValue(nestedValue);
+      if (key === 'id') continue;
+      cloned[key] = cloneValueWithoutIds(nestedValue);
     }
     return cloned as T;
   }
@@ -28,11 +29,7 @@ function cloneValue<T>(value: T): T {
 }
 
 function cloneSectionsForCreate(sections: unknown[]): UnknownRecord[] {
-  return cloneValue(sections).map((block) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, ...rest } = block as UnknownRecord;
-    return rest;
-  });
+  return cloneValueWithoutIds(sections) as UnknownRecord[];
 }
 
 export async function promoteDraftToLive(args: {
@@ -59,13 +56,14 @@ export async function promoteDraftToLive(args: {
   }
 
   const sectionsForUpdate = Array.isArray(draftData.sections)
-    ? cloneValue(draftData.sections)
+    ? cloneValueWithoutIds(draftData.sections)
     : [];
   const sectionsForCreate = Array.isArray(draftData.sections)
     ? cloneSectionsForCreate(draftData.sections)
     : [];
 
-  const seo = asRecord(draftData.seo);
+  const seoForUpdate = cloneValueWithoutIds(asRecord(draftData.seo));
+  const seoForCreate = cloneValueWithoutIds(asRecord(draftData.seo));
 
   const existing = await payload.find({
     collection: 'site-pages',
@@ -89,7 +87,7 @@ export async function promoteDraftToLive(args: {
       data: {
         title,
         sections: sectionsForUpdate,
-        seo,
+        seo: seoForUpdate,
       },
     });
 
@@ -105,7 +103,7 @@ export async function promoteDraftToLive(args: {
       title,
       slug: targetSlug,
       sections: sectionsForCreate,
-      seo,
+      seo: seoForCreate,
       workflowStatus: 'draft',
       isActive: false,
     },

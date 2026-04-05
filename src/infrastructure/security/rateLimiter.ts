@@ -17,6 +17,7 @@ let persistentErrorLoggedUntil = 0;
 let identityErrorLoggedUntil = 0;
 
 type RateLimitPolicy = {
+  allowInMemoryFallbackWhenPersistentUnavailable: boolean;
   windowMs: number;
   maxRequests: number;
 };
@@ -27,6 +28,7 @@ const routePolicies: Array<{ path: string; policy: RateLimitPolicy }> = [
     policy: {
       // Live preview can open multiple tabs/iframes and re-trigger preview enables.
       // Keep this route protected, but avoid blocking normal editorial usage.
+      allowInMemoryFallbackWhenPersistentUnavailable: true,
       windowMs: 60_000,
       maxRequests: 60,
     },
@@ -41,6 +43,7 @@ function resolveRateLimitPolicy(path: string): RateLimitPolicy {
   }
 
   return {
+    allowInMemoryFallbackWhenPersistentUnavailable: false,
     windowMs: DEFAULT_WINDOW_MS,
     maxRequests: DEFAULT_MAX_REQUESTS,
   };
@@ -120,11 +123,12 @@ function resolveClientIdentity(context: RequestContext): string | null {
   return `fp:${hashIdentity(fallbackParts.join('|'))}`;
 }
 
-function allowInMemoryFallback(): boolean {
+function allowInMemoryFallback(allowRouteFallback: boolean): boolean {
   const configured = process.env.ALLOW_IN_MEMORY_RATE_LIMIT_FALLBACK;
   if (configured === 'true') return true;
   if (configured === 'false') return false;
-  return process.env.NODE_ENV === 'test';
+  if (process.env.NODE_ENV !== 'production') return true;
+  return allowRouteFallback;
 }
 
 function warnPersistentFallback(): void {
@@ -174,6 +178,7 @@ function isMissingRateLimitSchemaError(message: string): boolean {
 }
 
 export async function consumeRateLimitBucket(params: {
+  allowInMemoryFallback: boolean;
   key: string;
   windowMs: number;
   maxRequests: number;
@@ -205,7 +210,7 @@ export async function consumeRateLimitBucket(params: {
         });
       }
 
-      if (!allowInMemoryFallback()) {
+      if (!allowInMemoryFallback(params.allowInMemoryFallback)) {
         throw new Error(
           strictPersistentRateLimitMessage(result.error.message),
         );
@@ -216,7 +221,7 @@ export async function consumeRateLimitBucket(params: {
         // can use process-local limiting to preserve availability.
       }
     }
-  } else if (!allowInMemoryFallback()) {
+  } else if (!allowInMemoryFallback(params.allowInMemoryFallback)) {
     throw new Error(
       strictPersistentRateLimitMessage(
         'missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY',
@@ -224,7 +229,7 @@ export async function consumeRateLimitBucket(params: {
     );
   }
 
-  if (!allowInMemoryFallback()) {
+  if (!allowInMemoryFallback(params.allowInMemoryFallback)) {
     throw new Error(strictPersistentRateLimitMessage('fallback disabled'));
   }
 
@@ -251,10 +256,12 @@ export async function checkRateLimit(
   }
 
   const key = `${clientIdentity}:${context.path}`;
+  const allowFallbackForRoute = policy.allowInMemoryFallbackWhenPersistentUnavailable;
 
   let result: { limited: boolean; retryAfterSeconds: number };
   try {
     result = await consumeRateLimitBucket({
+      allowInMemoryFallback: allowFallbackForRoute,
       key,
       windowMs: policy.windowMs,
       maxRequests: policy.maxRequests,
@@ -267,7 +274,7 @@ export async function checkRateLimit(
         errorMessage: error instanceof Error ? error.message : String(error),
       });
     }
-    if (!allowInMemoryFallback()) {
+    if (!allowInMemoryFallback(allowFallbackForRoute)) {
       return fail(503, {
         message: 'Rate limiting service unavailable. Please try again shortly.',
       });

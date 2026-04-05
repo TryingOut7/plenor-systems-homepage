@@ -24,6 +24,9 @@ export const ReusableSections: CollectionConfig = {
     defaultColumns: ['title', 'slug', 'libraryVersion', 'libraryCategory', 'workflowStatus'],
     group: 'System',
     description: 'Shared content blocks reused across pages. Intended for admins and editors.',
+    components: {
+      beforeList: ['@/payload/admin/components/TrashNotFoundBanner'],
+    },
   },
   access: {
     read: ({ req }) => {

@@ -81,6 +81,8 @@ const REQUIRED_TABLES = [
   '_site_settings_v_version_navigation_links',
   'nav_children',
   '_nav_children_v',
+  'forms',
+  'form_submissions',
 ];
 
 const REQUIRED_COLUMNS = {
@@ -142,6 +144,11 @@ const REQUIRED_COLUMNS = {
     'inquiry_form_privacy_href',
     'not_found_page_meta_title',
     'not_found_page_meta_description',
+    'core_preset_content_home',
+    'core_preset_content_services',
+    'core_preset_content_about',
+    'core_preset_content_pricing',
+    'core_preset_content_contact',
   ],
   _site_settings_v: [
     'version_logo_image_id',
@@ -158,7 +165,14 @@ const REQUIRED_COLUMNS = {
     'version_inquiry_form_privacy_href',
     'version_not_found_page_meta_title',
     'version_not_found_page_meta_description',
+    'version_core_preset_content_home',
+    'version_core_preset_content_services',
+    'version_core_preset_content_about',
+    'version_core_preset_content_pricing',
+    'version_core_preset_content_contact',
   ],
+  forms: ['template_key'],
+  form_submissions: ['form_type'],
   ...Object.fromEntries(
     COLLECTION_TABLES_WITH_CREATED_BY.map((tableName) => [tableName, ['created_by_id']]),
   ),

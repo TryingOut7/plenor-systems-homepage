@@ -88,6 +88,23 @@ describe('rate limiter fallback behavior', () => {
     expect(result?.body?.message).toContain('Rate limiting service unavailable');
   });
 
+  it('keeps draft-mode enable available in production when persistent limiter is unavailable', async () => {
+    const env = process.env as Record<string, string | undefined>;
+    env.NODE_ENV = 'production';
+    delete env.SUPABASE_URL;
+    delete env.SUPABASE_SERVICE_ROLE_KEY;
+    delete env.ALLOW_IN_MEMORY_RATE_LIMIT_FALLBACK;
+
+    const mod = await import('@/infrastructure/security/rateLimiter');
+    const { checkRateLimit } = mod;
+
+    const result = await checkRateLimit(
+      context({ path: '/api/draft-mode/enable', url: 'http://localhost:3000/api/draft-mode/enable' }),
+    );
+
+    expect(result).toBeNull();
+  });
+
   it('fails closed when no stable client identity can be derived', async () => {
     const env = process.env as Record<string, string | undefined>;
     env.NODE_ENV = 'test';

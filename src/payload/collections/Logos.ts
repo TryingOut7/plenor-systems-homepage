@@ -11,6 +11,9 @@ export const Logos: CollectionConfig = {
     defaultColumns: ['name', 'workflowStatus', 'order'],
     group: 'Content',
     description: 'Client and partner logos used in logo-strip sections.',
+    components: {
+      beforeList: ['@/payload/admin/components/TrashNotFoundBanner'],
+    },
   },
   access: {
     read: ({ req }) => {

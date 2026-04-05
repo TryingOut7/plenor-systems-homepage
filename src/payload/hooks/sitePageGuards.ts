@@ -23,6 +23,11 @@ type GuardRule = {
 export type SitePageGuardRule = GuardRule;
 type GuardFailuresBySeverity = Record<GuardSeverity, string[]>;
 type PublishQualityLevel = 'excellent' | 'good' | 'needs_attention' | 'blocked';
+type PayloadLogger = {
+  warn?: (payload: unknown) => void;
+  info?: (payload: unknown) => void;
+  error?: (payload: unknown) => void;
+};
 
 const corePresets: Array<Exclude<SitePagePreset, 'custom'>> = [
   'home',
@@ -236,10 +241,9 @@ function resolveGuardLifecycleEvent(args: {
   context: unknown;
 }): GuardLifecycleEvent {
   const { oldStatus, newStatus, req, context } = args;
-  if (oldStatus === 'published') return 'update_published_document';
-  if (newStatus === 'in_review' && oldStatus !== 'in_review') return 'submit_for_review';
-  if (newStatus === 'approved' && oldStatus !== 'approved') return 'approve';
-  if (newStatus === 'published' && oldStatus !== 'published') {
+  if (newStatus === 'published') {
+    if (oldStatus === 'published') return 'update_published_document';
+
     const contextRecord = context && typeof context === 'object'
       ? (context as Record<string, unknown>)
       : {};
@@ -254,6 +258,8 @@ function resolveGuardLifecycleEvent(args: {
     }
     return 'publish';
   }
+  if (newStatus === 'in_review' && oldStatus !== 'in_review') return 'submit_for_review';
+  if (newStatus === 'approved' && oldStatus !== 'approved') return 'approve';
   return 'draft_save';
 }
 
@@ -491,6 +497,57 @@ function buildPublishQualityScore(args: {
   return { score, level: 'blocked' };
 }
 
+function resolvePayloadLogger(req: unknown): PayloadLogger {
+  const requestRecord = req && typeof req === 'object' ? (req as Record<string, unknown>) : {};
+  const payloadRecord =
+    requestRecord.payload && typeof requestRecord.payload === 'object'
+      ? (requestRecord.payload as Record<string, unknown>)
+      : {};
+  const loggerRecord =
+    payloadRecord.logger && typeof payloadRecord.logger === 'object'
+      ? (payloadRecord.logger as PayloadLogger)
+      : {};
+  return loggerRecord;
+}
+
+function readStringField(value: unknown): string | undefined {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  }
+  if (typeof value === 'number') {
+    return String(value);
+  }
+  return undefined;
+}
+
+function reportGuardFailure(args: {
+  req: unknown;
+  code: string;
+  preset: SitePagePreset;
+  lifecycleEvent: GuardLifecycleEvent;
+  oldStatus: string;
+  newStatus: string;
+  pageId?: string;
+  slug?: string;
+  details: string[];
+}): void {
+  const { req, code, preset, lifecycleEvent, oldStatus, newStatus, pageId, slug, details } = args;
+  const logger = resolvePayloadLogger(req);
+  logger.error?.({
+    msg: 'Site page guard blocked save',
+    code,
+    preset,
+    lifecycleEvent,
+    oldStatus,
+    newStatus,
+    pageId: pageId || 'unknown',
+    slug: slug || 'unknown',
+    detailCount: details.length,
+    details,
+  });
+}
+
 export const sitePagePublishGuardsBeforeChange: CollectionBeforeChangeHook = ({
   data,
   originalDoc,
@@ -503,6 +560,8 @@ export const sitePagePublishGuardsBeforeChange: CollectionBeforeChangeHook = ({
 
   const incoming = { ...(data as SectionRecord) };
   const original = asObject(originalDoc);
+  const pageId = readStringField(incoming.id) || readStringField(original.id);
+  const slug = readStringField(incoming.slug) || readStringField(original.slug);
   const preset = resolvePresetKey(incoming, original);
 
   const templateSections = corePresets.includes(preset as Exclude<SitePagePreset, 'custom'>)
@@ -532,10 +591,6 @@ export const sitePagePublishGuardsBeforeChange: CollectionBeforeChangeHook = ({
   incoming.publishQualityLevel = quality.level;
   incoming.previewDiffSummary = buildPreviewDiffSummary(preset, sections, templateSections);
 
-  if (structuralErrors.length > 0) {
-    throw new Error(`[ERROR_SAVE] ${structuralErrors.join(' | ')}`);
-  }
-
   const oldStatus =
     typeof original.workflowStatus === 'string' ? original.workflowStatus : 'draft';
   const newStatus =
@@ -547,19 +602,57 @@ export const sitePagePublishGuardsBeforeChange: CollectionBeforeChangeHook = ({
     context,
   });
   const publishPath = isPublishLifecycleEvent(lifecycleEvent);
+  const logger = resolvePayloadLogger(req);
+
+  if (structuralErrors.length > 0) {
+    reportGuardFailure({
+      req,
+      code: 'SPG_STRUCTURAL_SAVE_BLOCK',
+      preset,
+      lifecycleEvent,
+      oldStatus,
+      newStatus,
+      pageId,
+      slug,
+      details: structuralErrors,
+    });
+    throw new Error(`[ERROR_SAVE][SPG_STRUCTURAL] ${structuralErrors.join(' | ')}`);
+  }
 
   if (completeness.ERROR_SAVE.length > 0) {
-    throw new Error(`[ERROR_SAVE] ${completeness.ERROR_SAVE.join(' | ')}`);
+    reportGuardFailure({
+      req,
+      code: 'SPG_COMPLETENESS_SAVE_BLOCK',
+      preset,
+      lifecycleEvent,
+      oldStatus,
+      newStatus,
+      pageId,
+      slug,
+      details: completeness.ERROR_SAVE,
+    });
+    throw new Error(`[ERROR_SAVE][SPG_COMPLETENESS] ${completeness.ERROR_SAVE.join(' | ')}`);
   }
 
   if (publishPath && completeness.ERROR_PUBLISH.length > 0) {
+    reportGuardFailure({
+      req,
+      code: 'SPG_COMPLETENESS_PUBLISH_BLOCK',
+      preset,
+      lifecycleEvent,
+      oldStatus,
+      newStatus,
+      pageId,
+      slug,
+      details: completeness.ERROR_PUBLISH,
+    });
     throw new Error(
-      `[ERROR_PUBLISH] A few things need attention before this page can go live. ${completeness.ERROR_PUBLISH.join(' | ')}`,
+      `[ERROR_PUBLISH][SPG_COMPLETENESS] A few things need attention before this page can go live. ${completeness.ERROR_PUBLISH.join(' | ')}`,
     );
   }
 
   if (completeness.WARN.length > 0) {
-    req.payload.logger.warn({
+    logger.warn?.({
       msg: 'Site page publish guard warnings',
       preset,
       lifecycleEvent,
@@ -568,7 +661,7 @@ export const sitePagePublishGuardsBeforeChange: CollectionBeforeChangeHook = ({
   }
 
   if (completeness.INFO.length > 0) {
-    req.payload.logger.info({
+    logger.info?.({
       msg: 'Site page publish guard info',
       preset,
       lifecycleEvent,

@@ -13,14 +13,29 @@ function normalizeSlug(value: unknown): string | null {
   return normalized;
 }
 
-export const normalizeSlugBeforeChange: CollectionBeforeChangeHook = ({ data }) => {
+function slugFromTitle(title: unknown): string | null {
+  if (typeof title !== 'string') return null;
+  const slug = title
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug || null;
+}
+
+export const normalizeSlugBeforeChange: CollectionBeforeChangeHook = ({ data, operation }) => {
   if (!data || typeof data !== 'object') return data;
 
   const incoming = data as Record<string, unknown>;
   const normalized = normalizeSlug(incoming.slug);
 
-  if (normalized !== null) {
+  if (normalized !== null && normalized !== '') {
     incoming.slug = normalized;
+  } else if (operation === 'create' || !normalized) {
+    const generated = slugFromTitle(incoming.title);
+    if (generated) {
+      incoming.slug = generated;
+    }
   }
 
   return incoming;

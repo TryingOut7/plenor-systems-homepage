@@ -3,6 +3,7 @@
 import { useAuth } from '@payloadcms/ui';
 import type { BeforeListClientProps } from 'payload';
 import { useState } from 'react';
+import { canRunCollectionAction } from './permissionUtils';
 
 type UserRecord = {
   role?: unknown;
@@ -44,11 +45,16 @@ const CreateFormTemplateActions = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _props: BeforeListClientProps,
 ) => {
-  const { user } = useAuth<UserRecord>();
+  const { permissions, user } = useAuth<UserRecord>();
   const [submittingKey, setSubmittingKey] = useState<null | 'guide' | 'inquiry' | 'newsletter'>(null);
 
-  const userRole = typeof user?.role === 'string' ? user.role : '';
-  const canCreate = userRole === 'admin' || userRole === 'editor' || userRole === 'author';
+  const canCreate = canRunCollectionAction({
+    collectionSlug: 'forms',
+    operation: 'create',
+    permissions,
+    user,
+    allowedRoles: ['admin', 'editor', 'author'],
+  });
 
   if (!canCreate) return null;
 

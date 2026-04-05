@@ -19,6 +19,7 @@ export const PagePlaygrounds: CollectionConfig = {
     group: 'Pages',
     description: 'Safe sandbox area for trying layouts and section combinations before creating a draft.',
     components: {
+      beforeList: ['@/payload/admin/components/TrashNotFoundBanner'],
       edit: {
         beforeDocumentControls: [
           '@/payload/admin/components/CreateDraftFromDocumentButton',
@@ -63,6 +64,9 @@ export const PagePlaygrounds: CollectionConfig = {
       name: 'createDraftAction',
       label: 'Create Draft',
       type: 'ui',
+      custom: {
+        draftSourceCollection: 'page-playgrounds',
+      },
       admin: {
         disableBulkEdit: true,
         disableListColumn: false,
@@ -76,6 +80,9 @@ export const PagePlaygrounds: CollectionConfig = {
       name: 'createPresetAction',
       label: 'Create Preset',
       type: 'ui',
+      custom: {
+        presetSourceCollection: 'page-playgrounds',
+      },
       admin: {
         disableBulkEdit: true,
         disableListColumn: false,

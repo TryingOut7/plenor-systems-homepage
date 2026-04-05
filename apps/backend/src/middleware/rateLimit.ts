@@ -1,8 +1,14 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { toBackendErrorResponse } from '../adapters/errorEnvelope';
-import { consumeRateLimitBucket } from '@/infrastructure/security/rateLimiter';
+import * as rateLimiter from '@/infrastructure/security/rateLimiter';
+
+const rateLimiterModule =
+  (rateLimiter as { default?: typeof import('@/infrastructure/security/rateLimiter') }).default ??
+  (rateLimiter as typeof import('@/infrastructure/security/rateLimiter'));
+const { consumeRateLimitBucket } = rateLimiterModule;
 
 export interface RateLimitOptions {
+  allowInMemoryFallbackWhenPersistentUnavailable?: boolean;
   windowMs: number;
   maxRequests: number;
   skipPaths?: string[];
@@ -23,6 +29,7 @@ export function createRateLimitHook(options: RateLimitOptions) {
     try {
       const key = `${request.ip}:${path}`;
       const outcome = await consumeRateLimitBucket({
+        allowInMemoryFallback: options.allowInMemoryFallbackWhenPersistentUnavailable === true,
         key,
         windowMs: options.windowMs,
         maxRequests: options.maxRequests,

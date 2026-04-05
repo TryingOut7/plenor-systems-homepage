@@ -78,6 +78,6 @@ describe('workflow review gates', () => {
           user: { id: 'u1', role: 'editor' },
         },
       } as never),
-    ).rejects.toThrow('cannot move');
+    ).rejects.toThrow('workflowStatus');
   });
 });

@@ -11,6 +11,9 @@ export const BlogCategories: CollectionConfig = {
     defaultColumns: ['name', 'slug', 'workflowStatus'],
     group: 'Content',
     description: 'Categories used to organize blog posts.',
+    components: {
+      beforeList: ['@/payload/admin/components/TrashNotFoundBanner'],
+    },
   },
   access: {
     read: ({ req }) => {

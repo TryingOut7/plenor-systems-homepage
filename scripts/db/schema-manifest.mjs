@@ -160,6 +160,11 @@ function buildManifest() {
     email_defaults_inquiry_ack_subject:               varchar,
     email_defaults_inquiry_ack_heading:               varchar,
     email_defaults_inquiry_ack_body:                  text,
+    core_preset_content_home:                         `jsonb DEFAULT '{}'::jsonb`,
+    core_preset_content_services:                     `jsonb DEFAULT '{}'::jsonb`,
+    core_preset_content_about:                        `jsonb DEFAULT '{}'::jsonb`,
+    core_preset_content_pricing:                      `jsonb DEFAULT '{}'::jsonb`,
+    core_preset_content_contact:                      `jsonb DEFAULT '{}'::jsonb`,
   };
 
   // _site_settings_v mirrors site_settings with version_ prefix
@@ -194,6 +199,24 @@ function buildManifest() {
     version_email_defaults_inquiry_ack_subject:               varchar,
     version_email_defaults_inquiry_ack_heading:               varchar,
     version_email_defaults_inquiry_ack_body:                  text,
+    version_core_preset_content_home:                         `jsonb DEFAULT '{}'::jsonb`,
+    version_core_preset_content_services:                     `jsonb DEFAULT '{}'::jsonb`,
+    version_core_preset_content_about:                        `jsonb DEFAULT '{}'::jsonb`,
+    version_core_preset_content_pricing:                      `jsonb DEFAULT '{}'::jsonb`,
+    version_core_preset_content_contact:                      `jsonb DEFAULT '{}'::jsonb`,
+  };
+
+  // ---------------------------------------------------------------------------
+  // forms / form_submissions
+  // ---------------------------------------------------------------------------
+  columns['forms'] = {
+    ...columns['forms'],
+    template_key: varchar,
+  };
+
+  columns['form_submissions'] = {
+    ...columns['form_submissions'],
+    form_type: varchar,
   };
 
   // ---------------------------------------------------------------------------
@@ -363,6 +386,8 @@ export const REQUIRED_TABLES = [
   '_site_settings_v_version_navigation_links',
   'nav_children',
   '_nav_children_v',
+  'forms',
+  'form_submissions',
   ...BLOCK_TABLES,
   ...CREATED_BY_TABLES,
   ...WORKFLOW_REVIEW_TABLES,

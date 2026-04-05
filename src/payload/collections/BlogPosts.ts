@@ -42,6 +42,9 @@ export const BlogPosts: CollectionConfig = {
     defaultColumns: ['title', 'slug', 'workflowStatus', 'isFeatured', 'publishedAt'],
     group: 'Content',
     description: 'Long-form blog content. Use excerpt for card previews and search snippets.',
+    components: {
+      beforeList: ['@/payload/admin/components/TrashNotFoundBanner'],
+    },
   },
   access: {
     read: ({ req }) => {

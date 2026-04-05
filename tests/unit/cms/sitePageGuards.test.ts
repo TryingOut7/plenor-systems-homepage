@@ -161,6 +161,66 @@ describe('site page publish guards', () => {
       } as never),
     ).not.toThrow();
   });
+
+  it('does not block moving a published page back to draft for completeness-only issues', () => {
+    const sections = buildCorePresetSections('home', {});
+    const nextSections = sections.map((section) => {
+      if ((section as Record<string, unknown>).structuralKey === 'home-hero') {
+        return {
+          ...section,
+          heading: '',
+        };
+      }
+      return section;
+    });
+
+    expect(() =>
+      sitePagePublishGuardsBeforeChange({
+        operation: 'update',
+        data: {
+          presetKey: 'home',
+          workflowStatus: 'draft',
+          sections: nextSections,
+        },
+        originalDoc: {
+          presetKey: 'home',
+          workflowStatus: 'published',
+          sections,
+        },
+        req: makeReq(),
+      } as never),
+    ).not.toThrow();
+  });
+
+  it('still enforces publish completeness when updating an already-published page', () => {
+    const sections = buildCorePresetSections('home', {});
+    const nextSections = sections.map((section) => {
+      if ((section as Record<string, unknown>).structuralKey === 'home-hero') {
+        return {
+          ...section,
+          heading: '',
+        };
+      }
+      return section;
+    });
+
+    expect(() =>
+      sitePagePublishGuardsBeforeChange({
+        operation: 'update',
+        data: {
+          presetKey: 'home',
+          workflowStatus: 'published',
+          sections: nextSections,
+        },
+        originalDoc: {
+          presetKey: 'home',
+          workflowStatus: 'published',
+          sections,
+        },
+        req: makeReq(),
+      } as never),
+    ).toThrow('[ERROR_PUBLISH]');
+  });
 });
 
 describe('site page guard lifecycle model', () => {
@@ -208,6 +268,13 @@ describe('site page guard lifecycle model', () => {
       req: { user: { id: '1' } },
       context: {},
     })).toBe('update_published_document');
+
+    expect(resolve({
+      oldStatus: 'published',
+      newStatus: 'draft',
+      req: { user: { id: '1' } },
+      context: {},
+    })).toBe('draft_save');
   });
 });
 

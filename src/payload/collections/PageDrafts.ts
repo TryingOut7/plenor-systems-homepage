@@ -148,6 +148,7 @@ export const PageDrafts: CollectionConfig = {
     group: 'Pages',
     description: 'Working copies for review and experimentation before promotion to live pages.',
     components: {
+      beforeList: ['@/payload/admin/components/TrashNotFoundBanner'],
       edit: {
         beforeDocumentControls: [
           '@/payload/admin/components/PromoteDraftToLiveButton',
@@ -208,6 +209,9 @@ export const PageDrafts: CollectionConfig = {
       name: 'createPresetAction',
       label: 'Create Preset',
       type: 'ui',
+      custom: {
+        presetSourceCollection: 'page-drafts',
+      },
       admin: {
         disableBulkEdit: true,
         disableListColumn: false,

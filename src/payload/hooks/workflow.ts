@@ -1,10 +1,14 @@
-import type {
-  CollectionBeforeChangeHook,
-  CollectionAfterChangeHook,
+import {
+  ValidationError,
+  type CollectionBeforeChangeHook,
+  type CollectionAfterChangeHook,
 } from 'payload';
 import type { WorkflowStatus } from '../fields/workflow.ts';
 
 type UserRecord = Record<string, unknown>;
+type PayloadLogger = {
+  warn?: (payload: unknown) => void;
+};
 
 function getUserRole(req: { user?: unknown }): string | null {
   const user = req.user as UserRecord | undefined;
@@ -18,6 +22,56 @@ function readTrimmedString(value: unknown): string {
 function asObject(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
   return value as Record<string, unknown>;
+}
+
+function resolvePayloadLogger(req: unknown): PayloadLogger {
+  const requestRecord = req && typeof req === 'object' ? (req as Record<string, unknown>) : {};
+  const payloadRecord =
+    requestRecord.payload && typeof requestRecord.payload === 'object'
+      ? (requestRecord.payload as Record<string, unknown>)
+      : {};
+  const loggerRecord =
+    payloadRecord.logger && typeof payloadRecord.logger === 'object'
+      ? (payloadRecord.logger as PayloadLogger)
+      : {};
+  return loggerRecord;
+}
+
+function logWorkflowBlock(args: {
+  req: unknown;
+  code: string;
+  role: string | null;
+  oldStatus: string;
+  newStatus: string;
+  reason: string;
+}): void {
+  const { req, code, role, oldStatus, newStatus, reason } = args;
+  const logger = resolvePayloadLogger(req);
+  logger.warn?.({
+    msg: 'Workflow transition blocked',
+    code,
+    role: role || 'unknown',
+    oldStatus,
+    newStatus,
+    reason,
+  });
+}
+
+function throwWorkflowValidationError(args: {
+  req: unknown;
+  collection?: string;
+  errors: Array<{ path: string; message: string }>;
+}): never {
+  const reqRecord =
+    args.req && typeof args.req === 'object'
+      ? (args.req as Record<string, unknown>)
+      : undefined;
+
+  throw new ValidationError({
+    ...(args.collection ? { collection: args.collection } : {}),
+    errors: args.errors,
+    ...(reqRecord ? { req: reqRecord } : {}),
+  });
 }
 
 async function resolveWorkflowNotifyEmail(req: {
@@ -87,7 +141,12 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
   originalDoc,
   req,
   operation,
+  collection,
 }) => {
+  const collectionSlug =
+    collection && typeof collection === 'object' && typeof collection.slug === 'string'
+      ? collection.slug
+      : undefined;
   const newStatus = data.workflowStatus as WorkflowStatus | undefined;
   if (!newStatus) return data;
 
@@ -107,29 +166,94 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
 
   const role = getUserRole(req);
   if (!role) {
-    throw new Error('Workflow: cannot change status without an authenticated user role.');
+    logWorkflowBlock({
+      req,
+      code: 'WF_ROLE_REQUIRED',
+      role,
+      oldStatus,
+      newStatus,
+      reason: 'Authenticated workflow role is required.',
+    });
+    throwWorkflowValidationError({
+      req,
+      collection: collectionSlug,
+      errors: [
+        {
+          path: 'workflowStatus',
+          message:
+            'Workflow [WF_ROLE_REQUIRED]: cannot change status without an authenticated user role.',
+        },
+      ],
+    });
   }
 
   const allowed = transitions[oldStatus]?.[role] || [];
   if (!allowed.includes(newStatus)) {
-    throw new Error(
-      `Workflow: ${role} cannot move from "${oldStatus}" to "${newStatus}".`,
-    );
+    logWorkflowBlock({
+      req,
+      code: 'WF_TRANSITION_DENIED',
+      role,
+      oldStatus,
+      newStatus,
+      reason: `Role "${role}" cannot transition from "${oldStatus}" to "${newStatus}".`,
+    });
+    throwWorkflowValidationError({
+      req,
+      collection: collectionSlug,
+      errors: [
+        {
+          path: 'workflowStatus',
+          message: `Workflow [WF_TRANSITION_DENIED]: ${role} cannot move from "${oldStatus}" to "${newStatus}".`,
+        },
+      ],
+    });
   }
 
   // Stamp approval metadata and review attribution when a reviewer approves/publishes.
   if (newStatus === 'approved' || newStatus === 'published') {
     const reviewSummary = readTrimmedString(data.reviewSummary);
     if (reviewSummary.length < 10) {
-      throw new Error(
-        'Workflow: reviewSummary must contain at least 10 characters before approval/publish.',
-      );
+      logWorkflowBlock({
+        req,
+        code: 'WF_REVIEW_SUMMARY_REQUIRED',
+        role,
+        oldStatus,
+        newStatus,
+        reason: 'reviewSummary must contain at least 10 characters before approval/publish.',
+      });
+      throwWorkflowValidationError({
+        req,
+        collection: collectionSlug,
+        errors: [
+          {
+            path: 'reviewSummary',
+            message:
+              'Workflow [WF_REVIEW_SUMMARY_REQUIRED]: reviewSummary must contain at least 10 characters before approval/publish.',
+          },
+        ],
+      });
     }
 
     if (data.reviewChecklistComplete !== true) {
-      throw new Error(
-        'Workflow: reviewChecklistComplete must be confirmed before approval/publish.',
-      );
+      logWorkflowBlock({
+        req,
+        code: 'WF_REVIEW_CHECKLIST_REQUIRED',
+        role,
+        oldStatus,
+        newStatus,
+        reason: 'reviewChecklistComplete must be confirmed before approval/publish.',
+      });
+      throwWorkflowValidationError({
+        req,
+        collection: collectionSlug,
+        errors: [
+          {
+            path: 'reviewChecklistComplete',
+            message:
+              'Workflow [WF_REVIEW_CHECKLIST_REQUIRED]: reviewChecklistComplete must be confirmed before approval/publish.',
+          },
+        ],
+      });
     }
 
     const user = req.user as UserRecord | undefined;

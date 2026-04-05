@@ -175,7 +175,7 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(
 
   try {
     const payload = await getPayload();
-    const result = await withPayloadTimeout(
+    const liveResult = await withPayloadTimeout(
       payload.find({
         collection: 'site-pages',
         where: {
@@ -194,13 +194,53 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(
       }),
       `find:site-pages:${normalizedSlug}`,
     );
-    const doc = result.docs[0];
+    let doc = liveResult.docs[0] as Record<string, unknown> | undefined;
+
+    if (!doc && draft) {
+      const draftResult = await withPayloadTimeout(
+        payload.find({
+          collection: 'page-drafts',
+          where: {
+            targetSlug: { equals: normalizedSlug },
+          },
+          limit: 1,
+          depth: 1,
+          overrideAccess: true,
+        }),
+        `find:page-drafts:${normalizedSlug}`,
+      );
+
+      const draftDoc = draftResult.docs[0] as Record<string, unknown> | undefined;
+      if (draftDoc) {
+        const draftSections = Array.isArray(draftDoc.sections)
+          ? draftDoc.sections.map(normalizeSection)
+          : [];
+
+        return {
+          id: String(draftDoc.id),
+          title: (draftDoc.title as string | undefined) || normalizedSlug,
+          slug: normalizedSlug,
+          pageMode: 'builder',
+          templateKey: undefined,
+          presetKey: 'custom',
+          presetContent: undefined,
+          isActive: true,
+          hideNavbar: undefined,
+          hideFooter: undefined,
+          pageBackgroundColor: undefined,
+          customHeadScripts: undefined,
+          seo: normalizeSeo(draftDoc.seo),
+          sections: draftSections,
+        };
+      }
+    }
+
     if (!doc) {
       if (draft) return null;
       return setMapCache(pageCache, normalizedSlug, cloneDefaultSitePage(normalizedSlug));
     }
 
-    const d = doc as Record<string, unknown>;
+    const d = doc;
     const fallback = cloneDefaultSitePage(normalizedSlug);
     const sections = Array.isArray(d.sections) ? d.sections.map(normalizeSection) : [];
     const resolvedSections = sections.length > 0 ? sections : (fallback?.sections ?? []);

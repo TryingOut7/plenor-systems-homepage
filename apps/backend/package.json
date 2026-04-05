@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "start": "tsx src/server.ts",
+    "dev": "node -r ./src/runtime/nextEnvCompat.cjs --import tsx --watch src/server.ts",
+    "start": "node -r ./src/runtime/nextEnvCompat.cjs --import tsx src/server.ts",
     "typecheck": "tsc --noEmit --pretty false --project tsconfig.json",
     "lint": "eslint src"
   },

@@ -11,6 +11,9 @@ export const TeamMembers: CollectionConfig = {
     defaultColumns: ['name', 'role', 'workflowStatus', 'order'],
     group: 'Content',
     description: 'People shown in team sections across the website.',
+    components: {
+      beforeList: ['@/payload/admin/components/TrashNotFoundBanner'],
+    },
   },
   access: {
     read: ({ req }) => {

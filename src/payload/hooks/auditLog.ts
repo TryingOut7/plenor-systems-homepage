@@ -5,6 +5,10 @@ import type {
 } from 'payload';
 import { AUDIT_ACTIONS } from '../constants/auditActions.ts';
 import { listSystemFieldPathsForCollection } from '../systemFieldInventory.ts';
+import {
+  invalidateCmsCollectionCaches,
+  invalidateCmsGlobalCaches,
+} from '../cms/cache.ts';
 
 type AuditRiskTier = 'routine' | 'system';
 type UserRecord = Record<string, unknown>;
@@ -208,6 +212,11 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
   context,
 }) => {
   if (collection.slug === 'audit-logs') return doc;
+  invalidateCmsCollectionCaches({
+    collectionSlug: collection.slug,
+    doc,
+    previousDoc,
+  });
   if (!req.user) return doc;
 
   // Skip autosave to avoid flooding audit logs
@@ -284,6 +293,10 @@ export const auditAfterDelete: CollectionAfterDeleteHook = async ({
   collection,
 }) => {
   if (collection.slug === 'audit-logs') return doc;
+  invalidateCmsCollectionCaches({
+    collectionSlug: collection.slug,
+    doc,
+  });
   if (!req.user) return doc;
 
   const userRecord = req.user as UserRecord;
@@ -324,6 +337,7 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
   context,
   global,
 }) => {
+  invalidateCmsGlobalCaches(global.slug);
   if (!req.user) return doc;
   if (context?.autosave) return doc;
 

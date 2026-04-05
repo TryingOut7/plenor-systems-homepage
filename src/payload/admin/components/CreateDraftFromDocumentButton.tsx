@@ -8,6 +8,7 @@ import {
   type DraftSourceCollection,
   openDraftDocumentInAdmin,
 } from './createPresetClient';
+import { canRunCollectionAction } from './permissionUtils';
 
 type UserRecord = {
   role?: unknown;
@@ -25,7 +26,7 @@ const CreateDraftFromDocumentButton = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _props: BeforeDocumentControlsClientProps,
 ) => {
-  const { user } = useAuth<UserRecord>();
+  const { permissions, user } = useAuth<UserRecord>();
   const { id, data, docConfig } = useDocumentInfo();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,8 +36,13 @@ const CreateDraftFromDocumentButton = (
     return null;
   }, [docConfig?.slug]);
 
-  const userRole = typeof user?.role === 'string' ? user.role : '';
-  const canCreate = userRole === 'admin' || userRole === 'editor' || userRole === 'author';
+  const canCreate = canRunCollectionAction({
+    collectionSlug: 'page-drafts',
+    operation: 'create',
+    permissions,
+    user,
+    allowedRoles: ['admin', 'editor', 'author'],
+  });
 
   if (!canCreate || !sourceCollection || !id) return null;
 

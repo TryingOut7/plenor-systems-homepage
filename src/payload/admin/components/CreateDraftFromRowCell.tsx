@@ -8,6 +8,7 @@ import {
   type DraftSourceCollection,
   openDraftDocumentInAdmin,
 } from './createPresetClient';
+import { canRunCollectionAction } from './permissionUtils';
 
 type UserRecord = {
   role?: unknown;
@@ -28,17 +29,35 @@ function readRowTitle(rowData: unknown): string {
   return 'Untitled';
 }
 
-const CreateDraftFromRowCell = ({ collectionSlug, rowData }: DefaultCellComponentProps) => {
-  const { user } = useAuth<UserRecord>();
+function resolveSourceCollectionFromField(field: unknown): DraftSourceCollection | null {
+  if (!field || typeof field !== 'object') return null;
+  const custom = (field as Record<string, unknown>).custom;
+  if (!custom || typeof custom !== 'object') return null;
+
+  const sourceCollection = (custom as Record<string, unknown>).draftSourceCollection;
+  if (sourceCollection === 'page-playgrounds' || sourceCollection === 'page-presets') {
+    return sourceCollection;
+  }
+
+  return null;
+}
+
+const CreateDraftFromRowCell = ({ collectionSlug, field, rowData }: DefaultCellComponentProps) => {
+  const { permissions, user } = useAuth<UserRecord>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const sourceCollection: DraftSourceCollection | null =
-    collectionSlug === 'page-playgrounds' || collectionSlug === 'page-presets'
+  const sourceCollection: DraftSourceCollection | null = resolveSourceCollectionFromField(field) ??
+    (collectionSlug === 'page-playgrounds' || collectionSlug === 'page-presets'
       ? collectionSlug
-      : null;
+      : null);
   const sourceId = readRowId(rowData);
-  const userRole = typeof user?.role === 'string' ? user.role : '';
-  const canCreate = userRole === 'admin' || userRole === 'editor' || userRole === 'author';
+  const canCreate = canRunCollectionAction({
+    collectionSlug: 'page-drafts',
+    operation: 'create',
+    permissions,
+    user,
+    allowedRoles: ['admin', 'editor', 'author'],
+  });
 
   if (!canCreate || !sourceCollection || !sourceId) return null;
 

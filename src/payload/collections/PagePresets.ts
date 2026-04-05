@@ -26,6 +26,7 @@ export const PagePresets: CollectionConfig = {
     group: 'Pages',
     description: 'Reusable page blueprints. Presets do not own routes and cannot be published directly.',
     components: {
+      beforeList: ['@/payload/admin/components/TrashNotFoundBanner'],
       edit: {
         beforeDocumentControls: [
           '@/payload/admin/components/CreateDraftFromDocumentButton',
@@ -82,6 +83,9 @@ export const PagePresets: CollectionConfig = {
       name: 'createDraftAction',
       label: 'Create Draft',
       type: 'ui',
+      custom: {
+        draftSourceCollection: 'page-presets',
+      },
       admin: {
         disableBulkEdit: true,
         disableListColumn: false,

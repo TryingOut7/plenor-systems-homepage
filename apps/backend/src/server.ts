@@ -13,45 +13,103 @@ import { tryHandleIdempotentReplay, persistIdempotentResult } from './middleware
 import { createRateLimitHook } from './middleware/rateLimit';
 import { requireApiRole } from './middleware/requireRole';
 import { getBackendMetricsSnapshot, recordBackendRequest } from './observability/metricsRegistry';
-import { getIntegrationStatus } from '@/application/integrations/integrationStatusService';
-import {
+import * as integrationStatusService from '@/application/integrations/integrationStatusService';
+import * as formTemplateService from '@/application/forms/formTemplateService';
+import * as contentGateway from '@/infrastructure/cms/contentGateway';
+import * as seedGateway from '@/infrastructure/cms/seedGateway';
+import * as searchGateway from '@/infrastructure/cms/searchGateway';
+import * as payloadFormTemplateRepository from '@/infrastructure/forms/payloadFormTemplateRepository';
+import * as backendStore from '@/infrastructure/persistence/backendStore';
+import * as searchService from '@/application/search/searchService';
+import * as guideSubmissionService from '@/application/forms/guideSubmissionService';
+import * as inquirySubmissionService from '@/application/forms/inquirySubmissionService';
+import * as seedSitePagesService from '@/application/internal/seedSitePagesService';
+import * as workspaceMutationService from '@/application/workspaces/workspaceMutationService';
+import * as workspaceErrorStatus from '@/application/workspaces/workspaceErrorStatus';
+import * as pageContentService from '@/application/content/pageContentService';
+import * as submissionsService from '@/application/admin/submissionsService';
+import * as payloadRouteAuth from '@/infrastructure/http/payloadRouteAuth';
+import * as payloadWorkspaceMutationRepository from '@/infrastructure/workspaces/payloadWorkspaceMutationRepository';
+
+function interopModule<T>(namespace: T | { default?: T }): T {
+  return (namespace as { default?: T }).default ?? (namespace as T);
+}
+
+const { getIntegrationStatus } =
+  interopModule<typeof import('@/application/integrations/integrationStatusService')>(
+    integrationStatusService,
+  );
+
+const {
   createWorkspaceFormTemplate,
   getSupportedFormTemplateKeysLabel,
   parseRequestedFormTemplateKey,
-} from '@/application/forms/formTemplateService';
-import { payloadContentRepository } from '@/infrastructure/cms/contentGateway';
-import { payloadSeedRepository } from '@/infrastructure/cms/seedGateway';
-import { payloadSearchRepository } from '@/infrastructure/cms/searchGateway';
-import { createPayloadFormTemplateRepository } from '@/infrastructure/forms/payloadFormTemplateRepository';
-import {
+} = interopModule<typeof import('@/application/forms/formTemplateService')>(formTemplateService);
+
+const { payloadContentRepository } =
+  interopModule<typeof import('@/infrastructure/cms/contentGateway')>(contentGateway);
+const { payloadSeedRepository } = interopModule<typeof import('@/infrastructure/cms/seedGateway')>(
+  seedGateway,
+);
+const { payloadSearchRepository } =
+  interopModule<typeof import('@/infrastructure/cms/searchGateway')>(searchGateway);
+const { createPayloadFormTemplateRepository } =
+  interopModule<typeof import('@/infrastructure/forms/payloadFormTemplateRepository')>(
+    payloadFormTemplateRepository,
+  );
+
+const {
   hasDatabaseCredentials,
   isPersistentStoreConfigured,
   refreshPersistenceCapabilityState,
-} from '@/infrastructure/persistence/backendStore';
-import { searchSiteContent } from '@/application/search/searchService';
-import { submitGuideForm } from '@/application/forms/guideSubmissionService';
-import { submitInquiryForm } from '@/application/forms/inquirySubmissionService';
-import { seedSitePagesForRequest } from '@/application/internal/seedSitePagesService';
-import {
-  createDraftFromPlayground as createDraftFromPlaygroundWorkspace,
-  createDraftFromPreset as createDraftFromPresetWorkspace,
-  createPresetFromDraft as createPresetFromDraftWorkspace,
-  createPresetFromLivePage as createPresetFromLivePageWorkspace,
-  createPresetFromPlayground as createPresetFromPlaygroundWorkspace,
-  promoteDraftToLive as promoteDraftToLiveWorkspace,
-} from '@/application/workspaces/workspaceMutationService';
-import { inferWorkspaceErrorStatus } from '@/application/workspaces/workspaceErrorStatus';
-import {
+} = interopModule<typeof import('@/infrastructure/persistence/backendStore')>(backendStore);
+
+const { searchSiteContent } = interopModule<typeof import('@/application/search/searchService')>(
+  searchService,
+);
+const { submitGuideForm } =
+  interopModule<typeof import('@/application/forms/guideSubmissionService')>(
+    guideSubmissionService,
+  );
+const { submitInquiryForm } =
+  interopModule<typeof import('@/application/forms/inquirySubmissionService')>(
+    inquirySubmissionService,
+  );
+const { seedSitePagesForRequest } =
+  interopModule<typeof import('@/application/internal/seedSitePagesService')>(
+    seedSitePagesService,
+  );
+
+const {
+  createDraftFromPlayground: createDraftFromPlaygroundWorkspace,
+  createDraftFromPreset: createDraftFromPresetWorkspace,
+  createPresetFromDraft: createPresetFromDraftWorkspace,
+  createPresetFromLivePage: createPresetFromLivePageWorkspace,
+  createPresetFromPlayground: createPresetFromPlaygroundWorkspace,
+  promoteDraftToLive: promoteDraftToLiveWorkspace,
+} = interopModule<typeof import('@/application/workspaces/workspaceMutationService')>(
+  workspaceMutationService,
+);
+
+const { inferWorkspaceErrorStatus } =
+  interopModule<typeof import('@/application/workspaces/workspaceErrorStatus')>(
+    workspaceErrorStatus,
+  );
+const {
   getContentPageBySlug,
   getContentNavigation,
-} from '@/application/content/pageContentService';
-import {
+} = interopModule<typeof import('@/application/content/pageContentService')>(pageContentService);
+const {
   listAdminSubmissions,
   getAdminSubmissionById,
   replaySubmissionSideEffects,
-} from '@/application/admin/submissionsService';
-import { getPayloadSessionFromHeaders } from '@/infrastructure/http/payloadRouteAuth';
-import { createPayloadWorkspaceMutationRepository } from '@/infrastructure/workspaces/payloadWorkspaceMutationRepository';
+} = interopModule<typeof import('@/application/admin/submissionsService')>(submissionsService);
+const { getPayloadSessionFromHeaders } =
+  interopModule<typeof import('@/infrastructure/http/payloadRouteAuth')>(payloadRouteAuth);
+const { createPayloadWorkspaceMutationRepository } =
+  interopModule<typeof import('@/infrastructure/workspaces/payloadWorkspaceMutationRepository')>(
+    payloadWorkspaceMutationRepository,
+  );
 
 const PRESET_CREATOR_ROLES = new Set(['admin', 'editor']);
 const WORKSPACE_ROLES = new Set(['admin', 'editor', 'author']);
@@ -126,6 +184,7 @@ export function buildBackendServer(): FastifyInstance {
   app.addHook(
     'onRequest',
     createRateLimitHook({
+      allowInMemoryFallbackWhenPersistentUnavailable: process.env.NODE_ENV !== 'production',
       maxRequests: rateLimitMax,
       windowMs: rateLimitWindowMs,
       skipPaths: ['/health', '/health/ready'],
@@ -254,14 +313,22 @@ export function buildBackendServer(): FastifyInstance {
   app.get('/health/ready', async (request, reply) => {
     let cmsReady = true;
     let cmsError: string | null = null;
+    const hasPayloadDatabaseConnection = Boolean(
+      process.env.DATABASE_URI || process.env.DATABASE_URL,
+    );
 
     if (process.env.CMS_SKIP_PAYLOAD !== 'true') {
-      try {
-        const { getPayload } = await import('@/payload/client');
-        await getPayload();
-      } catch (error) {
+      if (!hasPayloadDatabaseConnection) {
         cmsReady = false;
-        cmsError = error instanceof Error ? error.message : String(error);
+        cmsError = 'DATABASE_URI or DATABASE_URL is not configured.';
+      } else {
+        try {
+          const { getPayload } = await import('@/payload/client');
+          await getPayload();
+        } catch (error) {
+          cmsReady = false;
+          cmsError = error instanceof Error ? error.message : String(error);
+        }
       }
     }
 

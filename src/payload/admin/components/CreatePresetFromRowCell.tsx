@@ -8,6 +8,7 @@ import {
   openPresetDocumentInAdmin,
   type SourceCollection,
 } from './createPresetClient';
+import { canRunCollectionAction } from './permissionUtils';
 
 type UserRecord = {
   role?: unknown;
@@ -18,6 +19,14 @@ function resolveSupportedSourceCollection(slug: unknown): null | SourceCollectio
     return slug;
   }
   return null;
+}
+
+function resolveSourceCollectionFromField(field: unknown): null | SourceCollection {
+  if (!field || typeof field !== 'object') return null;
+  const custom = (field as Record<string, unknown>).custom;
+  if (!custom || typeof custom !== 'object') return null;
+  const sourceCollection = (custom as Record<string, unknown>).presetSourceCollection;
+  return resolveSupportedSourceCollection(sourceCollection);
 }
 
 function readRowId(rowData: unknown): string {
@@ -35,14 +44,19 @@ function readRowTitle(rowData: unknown): string {
   return 'Untitled';
 }
 
-const CreatePresetFromRowCell = ({ collectionSlug, rowData }: DefaultCellComponentProps) => {
-  const { user } = useAuth<UserRecord>();
+const CreatePresetFromRowCell = ({ collectionSlug, field, rowData }: DefaultCellComponentProps) => {
+  const { permissions, user } = useAuth<UserRecord>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const sourceCollection = resolveSupportedSourceCollection(collectionSlug);
+  const sourceCollection = resolveSourceCollectionFromField(field) ?? resolveSupportedSourceCollection(collectionSlug);
   const sourceId = readRowId(rowData);
-  const userRole = typeof user?.role === 'string' ? user.role : '';
-  const canCreatePreset = userRole === 'admin' || userRole === 'editor';
+  const canCreatePreset = canRunCollectionAction({
+    collectionSlug: 'page-presets',
+    operation: 'create',
+    permissions,
+    user,
+    allowedRoles: ['admin', 'editor'],
+  });
 
   if (!canCreatePreset || !sourceCollection || !sourceId) return null;
 

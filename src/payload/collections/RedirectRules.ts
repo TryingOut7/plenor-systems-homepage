@@ -11,6 +11,9 @@ export const RedirectRules: CollectionConfig = {
     defaultColumns: ['fromPath', 'toPath', 'isPermanent', 'enabled'],
     group: 'Settings',
     description: 'URL redirects managed as policy-controlled rules.',
+    components: {
+      beforeList: ['@/payload/admin/components/TrashNotFoundBanner'],
+    },
   },
   access: {
     read: ({ req }) => {

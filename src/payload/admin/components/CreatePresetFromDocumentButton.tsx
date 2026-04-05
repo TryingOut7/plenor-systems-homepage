@@ -8,6 +8,7 @@ import {
   openPresetDocumentInAdmin,
   type SourceCollection,
 } from './createPresetClient';
+import { canRunCollectionAction } from './permissionUtils';
 
 type UserRecord = {
   role?: unknown;
@@ -32,7 +33,7 @@ const CreatePresetFromDocumentButton = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _props: BeforeDocumentControlsClientProps,
 ) => {
-  const { user } = useAuth<UserRecord>();
+  const { permissions, user } = useAuth<UserRecord>();
   const { id, data, docConfig } = useDocumentInfo();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,8 +42,13 @@ const CreatePresetFromDocumentButton = (
     [docConfig?.slug],
   );
 
-  const userRole = typeof user?.role === 'string' ? user.role : '';
-  const canCreatePreset = userRole === 'admin' || userRole === 'editor';
+  const canCreatePreset = canRunCollectionAction({
+    collectionSlug: 'page-presets',
+    operation: 'create',
+    permissions,
+    user,
+    allowedRoles: ['admin', 'editor'],
+  });
 
   if (!canCreatePreset || !sourceCollection || !id) return null;
 

@@ -3,6 +3,7 @@
 import { useAuth, useDocumentInfo } from '@payloadcms/ui';
 import type { BeforeDocumentControlsClientProps } from 'payload';
 import { useState } from 'react';
+import { canRunCollectionAction } from './permissionUtils';
 
 type UserRecord = {
   role?: unknown;
@@ -26,12 +27,17 @@ const PromoteDraftToLiveButton = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _props: BeforeDocumentControlsClientProps,
 ) => {
-  const { user } = useAuth<UserRecord>();
+  const { permissions, user } = useAuth<UserRecord>();
   const { id, docConfig } = useDocumentInfo();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const userRole = typeof user?.role === 'string' ? user.role : '';
-  const canPromote = userRole === 'admin' || userRole === 'editor';
+  const canPromote = canRunCollectionAction({
+    collectionSlug: 'site-pages',
+    operation: 'update',
+    permissions,
+    user,
+    allowedRoles: ['admin', 'editor'],
+  });
 
   if (!canPromote || docConfig?.slug !== 'page-drafts' || !id) return null;
 

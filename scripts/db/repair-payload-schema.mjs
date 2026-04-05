@@ -176,7 +176,12 @@ async function run() {
           ADD COLUMN IF NOT EXISTS inquiry_form_privacy_label character varying DEFAULT 'Privacy Policy',
           ADD COLUMN IF NOT EXISTS inquiry_form_privacy_href character varying DEFAULT '/privacy',
           ADD COLUMN IF NOT EXISTS not_found_page_meta_title character varying DEFAULT 'Page Not Found',
-          ADD COLUMN IF NOT EXISTS not_found_page_meta_description character varying DEFAULT 'The page you requested could not be found.';
+          ADD COLUMN IF NOT EXISTS not_found_page_meta_description character varying DEFAULT 'The page you requested could not be found.',
+          ADD COLUMN IF NOT EXISTS core_preset_content_home jsonb DEFAULT '{}'::jsonb,
+          ADD COLUMN IF NOT EXISTS core_preset_content_services jsonb DEFAULT '{}'::jsonb,
+          ADD COLUMN IF NOT EXISTS core_preset_content_about jsonb DEFAULT '{}'::jsonb,
+          ADD COLUMN IF NOT EXISTS core_preset_content_pricing jsonb DEFAULT '{}'::jsonb,
+          ADD COLUMN IF NOT EXISTS core_preset_content_contact jsonb DEFAULT '{}'::jsonb;
       `);
 
       await client.query(`
@@ -194,7 +199,17 @@ async function run() {
           ADD COLUMN IF NOT EXISTS version_inquiry_form_privacy_label character varying DEFAULT 'Privacy Policy',
           ADD COLUMN IF NOT EXISTS version_inquiry_form_privacy_href character varying DEFAULT '/privacy',
           ADD COLUMN IF NOT EXISTS version_not_found_page_meta_title character varying DEFAULT 'Page Not Found',
-          ADD COLUMN IF NOT EXISTS version_not_found_page_meta_description character varying DEFAULT 'The page you requested could not be found.';
+          ADD COLUMN IF NOT EXISTS version_not_found_page_meta_description character varying DEFAULT 'The page you requested could not be found.',
+          ADD COLUMN IF NOT EXISTS version_core_preset_content_home jsonb DEFAULT '{}'::jsonb,
+          ADD COLUMN IF NOT EXISTS version_core_preset_content_services jsonb DEFAULT '{}'::jsonb,
+          ADD COLUMN IF NOT EXISTS version_core_preset_content_about jsonb DEFAULT '{}'::jsonb,
+          ADD COLUMN IF NOT EXISTS version_core_preset_content_pricing jsonb DEFAULT '{}'::jsonb,
+          ADD COLUMN IF NOT EXISTS version_core_preset_content_contact jsonb DEFAULT '{}'::jsonb;
+      `);
+
+      await client.query(`
+        ALTER TABLE IF EXISTS public.forms
+          ADD COLUMN IF NOT EXISTS template_key character varying;
       `);
 
       await client.query(

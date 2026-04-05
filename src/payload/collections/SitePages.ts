@@ -128,11 +128,12 @@ export const SitePages: CollectionConfig = {
       'presetKey',
       'workflowStatus',
       'isActive',
-      'createPresetAction',
+      'updatedAt',
     ],
     group: 'Pages',
     description: 'Main website pages. Core preset pages use a fixed layout; custom pages use the section builder.',
     components: {
+      beforeList: ['@/payload/admin/components/TrashNotFoundBanner'],
       edit: {
         beforeDocumentControls: ['@/payload/admin/components/CreatePresetFromDocumentButton'],
       },
@@ -192,6 +193,9 @@ export const SitePages: CollectionConfig = {
       name: 'createPresetAction',
       label: 'Create Preset',
       type: 'ui',
+      custom: {
+        presetSourceCollection: 'site-pages',
+      },
       admin: {
         disableBulkEdit: true,
         disableListColumn: false,
@@ -205,6 +209,11 @@ export const SitePages: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
+      admin: {
+        components: {
+          Cell: '@/payload/admin/components/CollectionDocumentTitleLinkCell',
+        },
+      },
     },
     {
       name: 'slug',

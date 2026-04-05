@@ -1,7 +1,74 @@
 type ResourceKind = 'script' | 'style';
 
-const DEFAULT_ALLOWED_SCRIPT_HOSTS = ['static.cloudflareinsights.com'];
+const DEFAULT_ALLOWED_SCRIPT_HOSTS = [
+  'static.cloudflareinsights.com',
+  'cdn.jsdelivr.net',
+  'va.vercel-scripts.com',
+];
 const DEFAULT_ALLOWED_STYLE_HOSTS = ['fonts.googleapis.com'];
+
+function readRuntimePortFromArgv(argv: string[]): string | undefined {
+  for (let index = 0; index < argv.length; index += 1) {
+    const token = argv[index];
+    if (token === '--port' || token === '-p') {
+      const candidate = argv[index + 1];
+      if (candidate && /^\d+$/.test(candidate)) return candidate;
+      continue;
+    }
+    if (token.startsWith('--port=')) {
+      const candidate = token.slice('--port='.length);
+      if (candidate && /^\d+$/.test(candidate)) return candidate;
+    }
+  }
+  return undefined;
+}
+
+function isLocalHostname(hostname: string): boolean {
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
+}
+
+function collectRuntimePorts(env: NodeJS.ProcessEnv): Set<string> {
+  const ports = new Set<string>(['3000']);
+  const candidates = [
+    env.PORT,
+    env.npm_config_port,
+    readRuntimePortFromArgv(process.argv),
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate !== 'string') continue;
+    const normalized = candidate.trim();
+    if (!/^\d+$/.test(normalized)) continue;
+    ports.add(normalized);
+  }
+
+  const configuredServerUrl = env.NEXT_PUBLIC_SERVER_URL;
+  if (configuredServerUrl) {
+    try {
+      const parsed = new URL(configuredServerUrl);
+      if (isLocalHostname(parsed.hostname) && parsed.port) {
+        ports.add(parsed.port);
+      }
+    } catch {
+      // Ignore invalid URLs here; env validation handles critical checks elsewhere.
+    }
+  }
+
+  return ports;
+}
+
+export function resolveLocalDevelopmentOrigins(
+  env: NodeJS.ProcessEnv = process.env,
+): string[] {
+  if (env.NODE_ENV === 'production') return [];
+
+  const origins = new Set<string>();
+  for (const port of collectRuntimePorts(env)) {
+    origins.add(`http://localhost:${port}`);
+    origins.add(`http://127.0.0.1:${port}`);
+  }
+  return [...origins];
+}
 
 function normalizeHost(value: string): string | null {
   const trimmed = value.trim().toLowerCase();
@@ -156,17 +223,28 @@ export function buildContentSecurityPolicy(
 ): string {
   const scriptHosts = [...allowedHostsFor('script', env)].map(hostToOrigin);
   const styleHosts = [...allowedHostsFor('style', env)].map(hostToOrigin);
+  const localDevOrigins = resolveLocalDevelopmentOrigins(env);
+  const isProduction = env.NODE_ENV === 'production';
 
-  const scriptSrc = [`'self'`, ...scriptHosts].join(' ');
+  const scriptSrcTokens = [`'self'`, `'unsafe-inline'`, ...scriptHosts];
+  if (!isProduction) {
+    scriptSrcTokens.push(`'unsafe-eval'`);
+  }
+  const scriptSrc = scriptSrcTokens.join(' ');
   const styleSrc = [`'self'`, `'unsafe-inline'`, ...styleHosts].join(' ');
+  const imgSrc = [`'self'`, 'https:', 'data:', ...localDevOrigins].join(' ');
+  const connectSrc = [`'self'`, 'https:', ...localDevOrigins].join(' ');
+  const frameSrc = [`'self'`, ...localDevOrigins].join(' ');
+  const frameAncestors = [`'self'`, ...localDevOrigins].join(' ');
 
   return [
     `default-src 'self'`,
     `script-src ${scriptSrc}`,
     `style-src ${styleSrc}`,
-    `img-src 'self' https: data:`,
+    `img-src ${imgSrc}`,
     `font-src 'self' https:`,
-    `connect-src 'self' https:`,
-    `frame-ancestors 'self'`,
+    `connect-src ${connectSrc}`,
+    `frame-src ${frameSrc}`,
+    `frame-ancestors ${frameAncestors}`,
   ].join('; ');
 }
