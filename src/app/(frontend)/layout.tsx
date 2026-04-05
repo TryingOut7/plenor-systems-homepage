@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import dynamic from 'next/dynamic';
 import localFont from 'next/font/local';
 import { draftMode } from 'next/headers';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -11,6 +10,7 @@ import ConsentGatedAnalytics from '@/components/ConsentGatedAnalytics';
 import DraftModeBanner from '@/components/DraftModeBanner';
 import PayloadLivePreviewRefresh from '@/components/PayloadLivePreviewRefresh';
 import SkipLink from '@/components/SkipLink';
+import CookieBanner from '@/components/CookieBanner';
 import { getSafeStylesheetUrl } from '@/lib/external-resource-policy';
 import { getSiteSettings, getUISettings } from '@/payload/cms';
 import UIStyleInjector from '@/components/UIStyleInjector';
@@ -21,10 +21,6 @@ import {
   resolveTwitterHandle,
 } from '@/lib/site-config';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
-
-const CookieBanner = dynamic(() => import('@/components/CookieBanner'), {
-  ssr: false,
-});
 
 const playfair = localFont({
   src: '../../fonts/PlayfairDisplay-VariableFont_wght.ttf',
