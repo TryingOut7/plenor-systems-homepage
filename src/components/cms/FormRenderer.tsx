@@ -12,7 +12,9 @@ interface FormField {
   id: string;
   name: string;
   label: string;
-  fieldType: 'text' | 'textarea' | 'email' | 'number' | 'select' | 'checkbox' | 'message';
+  // Payload form builder returns blockType, not fieldType
+  blockType: 'text' | 'textarea' | 'email' | 'number' | 'select' | 'checkbox' | 'message';
+  fieldType?: 'text' | 'textarea' | 'email' | 'number' | 'select' | 'checkbox' | 'message';
   required?: boolean;
   options?: Array<{ label: string; value: string }>;
   defaultValue?: string;
@@ -239,7 +241,7 @@ export default function FormRenderer({
         setForm(data);
         const defaults: Record<string, string | boolean> = {};
         (data.fields || []).forEach((field) => {
-          if (field.fieldType === 'checkbox') {
+          if ((field.blockType ?? field.fieldType) === 'checkbox') {
             defaults[field.name] = false;
           } else {
             defaults[field.name] = field.defaultValue || '';
@@ -376,13 +378,14 @@ export default function FormRenderer({
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {form.fields
-        .filter((field) => field.fieldType !== 'message')
+        .filter((field) => (field.blockType ?? field.fieldType) !== 'message')
         .map((field) => {
           const placeholder = resolveFieldPlaceholder(field, form.templateKey, templateLabels);
+          const ft = field.blockType ?? field.fieldType;
 
           return (
             <div key={field.id || field.name}>
-              {field.fieldType === 'checkbox' ? (
+              {ft === 'checkbox' ? (
                 <label
                   style={{
                     display: 'flex',
@@ -415,7 +418,7 @@ export default function FormRenderer({
                     ) : null}
                   </span>
                 </label>
-              ) : field.fieldType === 'select' ? (
+              ) : ft === 'select' ? (
                 <>
                   <label htmlFor={`field-${field.name}`} style={labelStyle}>
                     {field.label}
@@ -443,7 +446,7 @@ export default function FormRenderer({
                     ))}
                   </select>
                 </>
-              ) : field.fieldType === 'textarea' ? (
+              ) : ft === 'textarea' ? (
                 <>
                   <label htmlFor={`field-${field.name}`} style={labelStyle}>
                     {field.label}
@@ -479,9 +482,9 @@ export default function FormRenderer({
                   <input
                     id={`field-${field.name}`}
                     type={
-                      field.fieldType === 'email'
+                      ft === 'email'
                         ? 'email'
-                        : field.fieldType === 'number'
+                        : ft === 'number'
                           ? 'number'
                           : 'text'
                     }
