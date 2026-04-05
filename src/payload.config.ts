@@ -2,6 +2,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { buildConfig } from 'payload';
 import { validateEnv } from './lib/env-validation.ts';
+import { resolveDatabasePoolMax } from './payload/databasePool.ts';
 import { acceptedLanguages, type AcceptedLanguages } from '@payloadcms/translations';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -701,7 +702,7 @@ export default buildConfig({
     pool: {
       connectionString: databaseConnectionString,
       ssl: { rejectUnauthorized: dbRejectUnauthorized },
-      max: process.env.VERCEL ? 5 : 10,
+      max: resolveDatabasePoolMax(Boolean(process.env.VERCEL)),
       idleTimeoutMillis: process.env.VERCEL ? 10000 : 30000,
       connectionTimeoutMillis: 10000,
     },
