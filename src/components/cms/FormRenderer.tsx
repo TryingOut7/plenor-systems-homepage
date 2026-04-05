@@ -33,6 +33,7 @@ interface FormData {
 
 interface FormRendererProps {
   formId: string;
+  resolveAlias?: 'guide' | 'inquiry';
   successMessage?: string;
   theme?: SectionTheme;
   guideFormLabels?: GuideFormLabels;
@@ -189,6 +190,7 @@ function resolveFieldPlaceholder(
 
 export default function FormRenderer({
   formId,
+  resolveAlias,
   successMessage,
   theme,
   guideFormLabels,
@@ -229,15 +231,31 @@ export default function FormRenderer({
   };
 
   useEffect(() => {
-    if (!formId) return;
+    if (!formId && !resolveAlias) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
-    fetch(`/api/forms/${formId}?depth=1`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load form');
-        return res.json();
-      })
-      .then((data: FormData) => {
+
+    const fetchForm: Promise<FormData> = resolveAlias
+      ? fetch(`/api/forms?where[templateKey][equals]=${resolveAlias}&limit=1&depth=1`)
+          .then((res) => {
+            if (!res.ok) throw new Error('Failed to load form');
+            return res.json();
+          })
+          .then((data: { docs?: FormData[] }) => {
+            const found = Array.isArray(data.docs) ? data.docs[0] : undefined;
+            if (!found) throw new Error('Form not found');
+            return found;
+          })
+      : fetch(`/api/forms/${formId}?depth=1`).then((res) => {
+          if (!res.ok) throw new Error('Failed to load form');
+          return res.json() as Promise<FormData>;
+        });
+
+    fetchForm
+      .then((data) => {
         setForm(data);
         const defaults: Record<string, string | boolean> = {};
         (data.fields || []).forEach((field) => {
@@ -251,7 +269,7 @@ export default function FormRenderer({
       })
       .catch(() => setError('Could not load form. Please try again later.'))
       .finally(() => setLoading(false));
-  }, [formId]);
+  }, [formId, resolveAlias]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -260,7 +278,7 @@ export default function FormRenderer({
     setSubmitError(null);
 
     try {
-      const target = resolveSubmitTarget(form, values, formId);
+      const target = resolveSubmitTarget(form, values, form.id || formId);
       const res = await fetch(target.endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

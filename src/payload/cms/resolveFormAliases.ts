@@ -35,8 +35,9 @@ export async function resolveFormEmbedAliasesInSections(
     if (needInquiry) inquiryId = await getInquiryFormId();
   } catch {
     // If form IDs cannot be resolved (e.g. DB connection error during cold start),
-    // clear alias strings from sections so they don't reach FormRenderer as invalid
-    // Payload REST IDs (e.g. /api/forms/guide → NaN query).
+    // clear alias strings so they don't reach FormRenderer as invalid Payload REST IDs
+    // (e.g. /api/forms/guide → NaN query). Preserve the alias as `formAlias` so the
+    // client component can retry resolution via the Payload REST where-clause.
     return sections.map((section) => {
       if (
         section.blockType !== 'formSection' ||
@@ -44,7 +45,7 @@ export async function resolveFormEmbedAliasesInSections(
       ) {
         return section;
       }
-      return { ...section, form: null };
+      return { ...section, form: null, formAlias: section.form };
     });
   }
 

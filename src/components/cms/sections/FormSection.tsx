@@ -42,6 +42,11 @@ export default function FormSection({
 }: SectionRendererProps) {
   const sectionRecord = asSectionRecord(section);
   const formId = formRelationshipToId(sectionRecord.form);
+  const formAlias =
+    !formId &&
+    (sectionRecord.formAlias === 'guide' || sectionRecord.formAlias === 'inquiry')
+      ? (sectionRecord.formAlias as 'guide' | 'inquiry')
+      : undefined;
 
   return (
     <section
@@ -85,9 +90,10 @@ export default function FormSection({
           </p>
         ) : null}
 
-        {formId ? (
+        {formId || formAlias ? (
           <FormRenderer
             formId={formId}
+            resolveAlias={formAlias}
             successMessage={
               typeof sectionRecord.successMessage === 'string'
                 ? sectionRecord.successMessage
