@@ -704,7 +704,7 @@ export default buildConfig({
       ssl: { rejectUnauthorized: dbRejectUnauthorized },
       max: resolveDatabasePoolMax(Boolean(process.env.VERCEL)),
       idleTimeoutMillis: process.env.VERCEL ? 10000 : 30000,
-      connectionTimeoutMillis: 10000,
+      connectionTimeoutMillis: 30000,
     },
   }),
   secret: (() => {
