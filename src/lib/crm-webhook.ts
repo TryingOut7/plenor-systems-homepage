@@ -6,8 +6,8 @@
  *   CRM_WEBHOOK_URL    — The endpoint to POST form data to
  *   CRM_WEBHOOK_SECRET — (Optional) Shared secret sent as X-Webhook-Secret header
  *
- * Silently skips if CRM_WEBHOOK_URL is not set. Errors are logged but never
- * block the main form submission flow.
+ * Silently skips if CRM_WEBHOOK_URL is not set. Throws on HTTP errors so the
+ * outbox can retry and dead-letter failed deliveries correctly.
  */
 
 type CrmPayload = {
@@ -55,18 +55,15 @@ export async function fireCrmWebhook(payload: CrmPayload): Promise<void> {
     headers['X-Webhook-Secret'] = secret;
   }
 
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(10_000),
-    });
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(10_000),
+  });
 
-    if (!res.ok) {
-      console.error(`CRM webhook responded with ${res.status}: ${await res.text().catch(() => '(no body)')}`);
-    }
-  } catch (err) {
-    console.error('CRM webhook failed:', err);
+  if (!res.ok) {
+    const body = await res.text().catch(() => '(no body)');
+    throw new Error(`CRM webhook responded with ${res.status}: ${body}`);
   }
 }
