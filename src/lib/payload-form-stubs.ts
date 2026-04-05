@@ -8,6 +8,7 @@
  */
 import { getPayload } from '@/payload/client';
 import type { FormTemplateKey } from '@/domain/forms/formTemplates';
+import { shouldSkipPayload } from '@/payload/cms/cache';
 
 let guideFormId: number | string | null = null;
 let inquiryFormId: number | string | null = null;
@@ -16,6 +17,9 @@ async function getOrCreateStub(
   title: string,
   templateKey: FormTemplateKey,
 ): Promise<number | string> {
+  if (shouldSkipPayload()) {
+    throw new Error('Payload unavailable');
+  }
   const payload = await getPayload();
   const existing = await payload.find({
     collection: 'forms',
