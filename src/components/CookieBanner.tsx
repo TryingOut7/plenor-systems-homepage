@@ -1,27 +1,40 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 
-export default function CookieBanner() {
-  const [visible, setVisible] = useState(false);
+const CONSENT_STORAGE_KEY = 'plenor_cookie_consent';
 
-  useEffect(() => {
-    const consent = localStorage.getItem('plenor_cookie_consent');
-    if (!consent) {
-      setVisible(true);
-    }
-  }, []);
+interface CookieBannerProps {
+  message?: string;
+  acceptLabel?: string;
+  declineLabel?: string;
+  privacyLabel?: string;
+  privacyHref?: string;
+}
+
+export default function CookieBanner({
+  message = 'We use analytics cookies to understand how visitors use this site. No cookies are set before you consent.',
+  acceptLabel = 'Accept',
+  declineLabel = 'Decline',
+  privacyLabel = 'Privacy Policy',
+  privacyHref = '/privacy',
+}: CookieBannerProps) {
+  const [visible, setVisible] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return !window.localStorage.getItem(CONSENT_STORAGE_KEY);
+  });
 
   function accept() {
-    localStorage.setItem('plenor_cookie_consent', 'accepted');
+    localStorage.setItem(CONSENT_STORAGE_KEY, 'accepted');
     setVisible(false);
     window.dispatchEvent(new CustomEvent('cookie_consent_accepted'));
   }
 
   function decline() {
-    localStorage.setItem('plenor_cookie_consent', 'declined');
+    localStorage.setItem(CONSENT_STORAGE_KEY, 'declined');
     setVisible(false);
+    window.dispatchEvent(new CustomEvent('cookie_consent_declined'));
   }
 
   if (!visible) return null;
@@ -36,8 +49,8 @@ export default function CookieBanner() {
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#1B2D4F',
-        color: '#ffffff',
+        backgroundColor: 'var(--ui-color-cookie-bg)',
+        color: 'var(--ui-color-cookie-text)',
         padding: '16px 24px',
         zIndex: 100,
         display: 'flex',
@@ -49,10 +62,9 @@ export default function CookieBanner() {
       }}
     >
       <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.5, flex: '1 1 300px' }}>
-        We use analytics cookies to understand how visitors use this site. No cookies are set before
-        you consent.{' '}
-        <Link href="/privacy" style={{ color: '#93C5FD', textDecoration: 'underline' }}>
-          Privacy Policy
+        {message}{' '}
+        <Link href={privacyHref} style={{ color: 'var(--ui-color-cookie-link)', textDecoration: 'underline' }}>
+          {privacyLabel}
         </Link>
       </p>
       <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
@@ -61,34 +73,34 @@ export default function CookieBanner() {
           style={{
             background: 'transparent',
             border: '1.5px solid rgba(255,255,255,0.5)',
-            color: '#ffffff',
+            color: 'var(--ui-color-cookie-text)',
             padding: '8px 18px',
-            borderRadius: '6px',
+            borderRadius: 'var(--ui-button-radius)',
             cursor: 'pointer',
             fontSize: '14px',
             fontWeight: 600,
             transition: 'border-color 0.2s ease',
           }}
-          aria-label="Decline analytics cookies"
+          aria-label={`${declineLabel} analytics cookies`}
         >
-          Decline
+          {declineLabel}
         </button>
         <button
           onClick={accept}
           style={{
-            background: '#ffffff',
+            background: 'var(--ui-color-surface)',
             border: 'none',
-            color: '#1B2D4F',
+            color: 'var(--ui-color-primary)',
             padding: '8px 18px',
-            borderRadius: '6px',
+            borderRadius: 'var(--ui-button-radius)',
             cursor: 'pointer',
             fontSize: '14px',
             fontWeight: 700,
             transition: 'opacity 0.2s ease',
           }}
-          aria-label="Accept analytics cookies"
+          aria-label={`${acceptLabel} analytics cookies`}
         >
-          Accept
+          {acceptLabel}
         </button>
       </div>
     </div>

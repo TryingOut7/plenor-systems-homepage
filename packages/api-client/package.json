@@ -1,0 +1,13 @@
+{
+  "name": "@plenor/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./generated": "./src/generated.ts"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.14.0"
+  }
+}

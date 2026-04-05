@@ -39,3 +39,20 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# backups
+/backups
+
+# local AI/dev tooling artifacts
+/.cursor/
+/.agent/
+/.agents/
+/.claude/
+/.tmp/
+/.code-review-graph/
+/.playwright-cli/
+/.playwright-mcp/
+/.mcp.json
+/skills-lock.json
+
+.vscode/

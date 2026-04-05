@@ -1,11 +1,23 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
+  "installCommand": "npm ci",
   "regions": ["iad1"],
   "redirects": [
     {
       "source": "/home",
       "destination": "/",
       "permanent": true
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/internal/cron/backup",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/internal/cron/outbox-tick",
+      "schedule": "0 0 * * *"
     }
   ]
 }

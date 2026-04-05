@@ -1,0 +1,65 @@
+@import url('@payloadcms/next/css');
+
+/* Add custom admin panel styles here */
+
+.admin-environment-badge {
+  align-items: center;
+  background: linear-gradient(135deg, #0b3a63, #0f5a95);
+  border-radius: 999px;
+  color: #f4fbff;
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  margin-right: 0.5rem;
+  padding: 0.4rem 0.7rem;
+  text-transform: uppercase;
+}
+
+.section-background-color-picker {
+  margin-bottom: 0.6rem;
+}
+
+.section-background-color-picker__label {
+  color: var(--theme-elevation-500);
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.32rem;
+  text-transform: uppercase;
+}
+
+.section-background-color-picker__controls {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.section-background-color-picker__input {
+  appearance: none;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  height: 34px;
+  overflow: hidden;
+  padding: 0;
+  width: 48px;
+}
+
+.section-background-color-picker__input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.section-background-color-picker__value {
+  background: var(--theme-elevation-100);
+  border: 1px solid var(--theme-elevation-200);
+  border-radius: 6px;
+  color: var(--theme-text);
+  font-size: 0.8rem;
+  line-height: 1;
+  padding: 0.4rem 0.5rem;
+}

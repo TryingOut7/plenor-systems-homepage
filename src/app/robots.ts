@@ -1,6 +1,11 @@
 import { MetadataRoute } from 'next';
+import { getSiteSettings } from '@/payload/cms';
+import { resolveSiteUrl } from '@/lib/site-config';
 
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const settings = await getSiteSettings();
+  const siteUrl = resolveSiteUrl(settings);
+
   return {
     rules: [
       {
@@ -9,6 +14,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/studio/'],
       },
     ],
-    sitemap: 'https://plenor.ai/sitemap.xml',
+    sitemap: `${siteUrl}/sitemap.xml`,
   };
 }

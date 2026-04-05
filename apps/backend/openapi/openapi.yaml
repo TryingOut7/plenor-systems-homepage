@@ -1,0 +1,1166 @@
+openapi: 3.1.0
+info:
+  title: Plenor Backend API
+  version: 2.0.0
+  description: Contract for split-runtime backend routes used by the frontend proxy.
+servers:
+  - url: http://127.0.0.1:18000
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      tags: [system]
+      responses:
+        '200':
+          description: Backend liveness status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /health/ready:
+    get:
+      operationId: getReadiness
+      tags: [system]
+      responses:
+        '200':
+          description: Backend readiness status and dependency checks.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadyResponse'
+  /metrics:
+    get:
+      operationId: getMetrics
+      tags: [system]
+      security:
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: Backend request/latency metrics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+  /v1/search:
+    get:
+      operationId: searchContent
+      tags: [search]
+      parameters:
+        - in: query
+          name: q
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: collection
+          required: false
+          schema:
+            type: string
+            enum: [service-items, blog-posts, testimonials, site-pages]
+        - in: query
+          name: tag
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: featured
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+      responses:
+        '200':
+          description: Search response with paginated results and facets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '429':
+          $ref: '#/components/responses/ErrorRateLimited'
+  /v1/forms/guide:
+    post:
+      operationId: submitGuideForm
+      tags: [forms]
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+          description: Optional key for safe retries of this POST operation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuideSubmissionRequest'
+      responses:
+        '200':
+          description: Guide form accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormSubmissionSuccessResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '409':
+          $ref: '#/components/responses/ErrorConflict'
+        '429':
+          $ref: '#/components/responses/ErrorRateLimited'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
+  /v1/forms/inquiry:
+    post:
+      operationId: submitInquiryForm
+      tags: [forms]
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+          description: Optional key for safe retries of this POST operation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InquirySubmissionRequest'
+      responses:
+        '200':
+          description: Inquiry form accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormSubmissionSuccessResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '409':
+          $ref: '#/components/responses/ErrorConflict'
+        '429':
+          $ref: '#/components/responses/ErrorRateLimited'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
+  /v1/forms/templates/create:
+    post:
+      operationId: createWorkspaceFormTemplate
+      tags: [forms, workspace]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormTemplateCreateRequest'
+      responses:
+        '200':
+          description: Form template was created or already existed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceFormTemplateResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '503':
+          $ref: '#/components/responses/ErrorDependencyUnavailable'
+  /v1/pages/live/{id}/create-preset:
+    post:
+      operationId: createPresetFromLivePage
+      tags: [workspace]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            oneOf:
+              - type: string
+              - type: number
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspacePresetMetaInput'
+      responses:
+        '200':
+          description: Preset created from a live page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspacePresetResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '503':
+          $ref: '#/components/responses/ErrorDependencyUnavailable'
+  /v1/pages/drafts/{id}/create-preset:
+    post:
+      operationId: createPresetFromDraft
+      tags: [workspace]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            oneOf:
+              - type: string
+              - type: number
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspacePresetMetaInput'
+      responses:
+        '200':
+          description: Preset created from a draft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspacePresetResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '503':
+          $ref: '#/components/responses/ErrorDependencyUnavailable'
+  /v1/pages/drafts/{id}/promote-to-live:
+    post:
+      operationId: promoteDraftToLive
+      tags: [workspace]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            oneOf:
+              - type: string
+              - type: number
+      responses:
+        '200':
+          description: Draft promoted to live page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceLivePageResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '503':
+          $ref: '#/components/responses/ErrorDependencyUnavailable'
+  /v1/pages/playgrounds/{id}/create-draft:
+    post:
+      operationId: createDraftFromPlayground
+      tags: [workspace]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            oneOf:
+              - type: string
+              - type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceCreateDraftRequest'
+      responses:
+        '200':
+          description: Draft created from playground.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceDraftResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '503':
+          $ref: '#/components/responses/ErrorDependencyUnavailable'
+  /v1/pages/playgrounds/{id}/create-preset:
+    post:
+      operationId: createPresetFromPlayground
+      tags: [workspace]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            oneOf:
+              - type: string
+              - type: number
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspacePresetMetaInput'
+      responses:
+        '200':
+          description: Preset created from a playground.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspacePresetResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '503':
+          $ref: '#/components/responses/ErrorDependencyUnavailable'
+  /v1/internal/seed-site-pages:
+    post:
+      operationId: seedSitePages
+      tags: [internal]
+      security:
+        - apiKeyAuth: []
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Seed finished successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeedSuccessResponse'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '409':
+          $ref: '#/components/responses/ErrorConflict'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
+  /v1/content/pages/{slug}:
+    get:
+      operationId: getContentPageBySlug
+      tags: [content]
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: CMS page content by slug.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentPageResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '429':
+          $ref: '#/components/responses/ErrorRateLimited'
+  /v1/content/navigation:
+    get:
+      operationId: getContentNavigation
+      tags: [content]
+      responses:
+        '200':
+          description: Navigation and header button data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentNavigationResponse'
+        '429':
+          $ref: '#/components/responses/ErrorRateLimited'
+  /v1/admin/submissions:
+    get:
+      operationId: listAdminSubmissions
+      tags: [admin]
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Paginated list of guide/inquiry submissions with side-effect status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSubmissionsListResponse'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+  /v1/admin/submissions/{id}:
+    get:
+      operationId: getAdminSubmissionById
+      tags: [admin]
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Submission detail and outbox job state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSubmissionDetailResponse'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+  /v1/admin/submissions/{id}/replay-side-effects:
+    post:
+      operationId: replaySubmissionSideEffects
+      tags: [admin]
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Replay accepted and enqueued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminReplaySubmissionResponse'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '409':
+          $ref: '#/components/responses/ErrorConflict'
+  /v1/integrations/status:
+    get:
+      operationId: getIntegrationStatus
+      tags: [integrations]
+      security:
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: Integration and persistence configuration status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationStatusResponse'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+components:
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: token
+  responses:
+    ErrorValidation:
+      description: Input validation error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BackendErrorResponse'
+    ErrorUnauthorized:
+      description: Missing/invalid credentials.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BackendErrorResponse'
+    ErrorForbidden:
+      description: Credential lacks required role/scope.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BackendErrorResponse'
+    ErrorNotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BackendErrorResponse'
+    ErrorConflict:
+      description: Conflict (for example idempotency key mismatch).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BackendErrorResponse'
+    ErrorRateLimited:
+      description: Rate limit exceeded.
+      headers:
+        Retry-After:
+          description: Seconds until retry.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BackendErrorResponse'
+    ErrorInternal:
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BackendErrorResponse'
+    ErrorDependencyUnavailable:
+      description: Dependency is unavailable for this request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BackendErrorResponse'
+  schemas:
+    HealthResponse:
+      type: object
+      required: [ok, service, requestId, timestamp]
+      properties:
+        ok:
+          type: boolean
+          const: true
+        service:
+          type: string
+        requestId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+    ReadyResponse:
+      type: object
+      required: [ok, service, requestId, timestamp, dependencies]
+      properties:
+        ok:
+          type: boolean
+        service:
+          type: string
+        requestId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        dependencies:
+          type: object
+          required: [cms, database, persistence]
+          properties:
+            cms:
+              type: object
+              required: [ready]
+              properties:
+                ready:
+                  type: boolean
+                error:
+                  type: string
+                  nullable: true
+            database:
+              type: object
+              required: [credentialsConfigured]
+              properties:
+                credentialsConfigured:
+                  type: boolean
+            persistence:
+              type: object
+              required:
+                [
+                  requiredPersistenceTablesReady,
+                  idempotencyAndOutboxPersistentStoreReady,
+                ]
+              properties:
+                requiredPersistenceTablesReady:
+                  type: boolean
+                idempotencyAndOutboxPersistentStoreReady:
+                  type: boolean
+                error:
+                  type: string
+                  nullable: true
+    MetricsResponse:
+      type: object
+      required: [service, uptimeSeconds, requests, timing, requestId, timestamp]
+      properties:
+        service:
+          type: string
+        uptimeSeconds:
+          type: integer
+        requestId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        requests:
+          type: object
+          required: [total, byMethod, byStatus, byPath]
+          properties:
+            total:
+              type: integer
+            byMethod:
+              type: object
+              additionalProperties:
+                type: integer
+            byStatus:
+              type: object
+              additionalProperties:
+                type: integer
+            byPath:
+              type: object
+              additionalProperties:
+                type: integer
+        timing:
+          type: object
+          required: [averageMs, maxMs]
+          properties:
+            averageMs:
+              type: number
+            maxMs:
+              type: number
+    BackendErrorResponse:
+      type: object
+      required: [success, code, message, status]
+      properties:
+        success:
+          type: boolean
+          const: false
+        code:
+          type: string
+          enum:
+            - VALIDATION_ERROR
+            - UNAUTHORIZED
+            - FORBIDDEN
+            - NOT_FOUND
+            - CONFLICT
+            - RATE_LIMITED
+            - IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_PAYLOAD
+            - BACKEND_UNAVAILABLE
+            - DEPENDENCY_UNAVAILABLE
+            - INTERNAL_ERROR
+        message:
+          type: string
+        status:
+          type: integer
+        requestId:
+          type: string
+        retryAfterSeconds:
+          type: integer
+        details:
+          type: object
+          additionalProperties: true
+        error:
+          type: string
+    GuideSubmissionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        templateId:
+          oneOf:
+            - type: string
+            - type: number
+    InquirySubmissionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        company:
+          type: string
+        challenge:
+          type: string
+    FormSubmissionSuccessResponse:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+          const: true
+    FormTemplateCreateRequest:
+      type: object
+      required: [templateKey]
+      properties:
+        templateKey:
+          type: string
+          enum: [guide, inquiry, newsletter]
+    FormTemplateRecord:
+      type: object
+      required: [created, id, title]
+      properties:
+        created:
+          type: boolean
+        id:
+          oneOf:
+            - type: string
+            - type: number
+        title:
+          type: string
+    WorkspaceFormTemplateResponse:
+      type: object
+      required: [success, form]
+      properties:
+        success:
+          type: boolean
+          const: true
+        form:
+          $ref: '#/components/schemas/FormTemplateRecord'
+    WorkspacePresetMetaInput:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        thumbnailId:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+    WorkspacePresetRecord:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          oneOf:
+            - type: string
+            - type: number
+        name:
+          type: string
+    WorkspacePresetResponse:
+      type: object
+      required: [success, preset]
+      properties:
+        success:
+          type: boolean
+          const: true
+        preset:
+          $ref: '#/components/schemas/WorkspacePresetRecord'
+    WorkspaceDraftRecord:
+      type: object
+      required: [id, title]
+      properties:
+        id:
+          oneOf:
+            - type: string
+            - type: number
+        title:
+          type: string
+    WorkspaceDraftResponse:
+      type: object
+      required: [success, draft]
+      properties:
+        success:
+          type: boolean
+          const: true
+        draft:
+          $ref: '#/components/schemas/WorkspaceDraftRecord'
+    WorkspaceLivePageRecord:
+      type: object
+      required: [id, isNew, slug]
+      properties:
+        id:
+          oneOf:
+            - type: string
+            - type: number
+        isNew:
+          type: boolean
+        slug:
+          type: string
+    WorkspaceLivePageResponse:
+      type: object
+      required: [success, livePage]
+      properties:
+        success:
+          type: boolean
+          const: true
+        livePage:
+          $ref: '#/components/schemas/WorkspaceLivePageRecord'
+    WorkspaceCreateDraftRequest:
+      type: object
+      required: [targetSlug]
+      properties:
+        title:
+          type: string
+        targetSlug:
+          type: string
+    SearchResultItem:
+      type: object
+      required: [id, collection, title]
+      properties:
+        id:
+          oneOf:
+            - type: string
+            - type: number
+        collection:
+          type: string
+        title:
+          type: string
+        slug:
+          type: string
+        excerpt:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        isFeatured:
+          type: boolean
+    SearchResponse:
+      type: object
+      required: [results, meta, facets]
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+        meta:
+          type: object
+          required: [total, page, limit, totalPages]
+          properties:
+            total:
+              type: integer
+            page:
+              type: integer
+            limit:
+              type: integer
+            totalPages:
+              type: integer
+            requestId:
+              type: string
+        facets:
+          type: object
+          required: [collection, tag]
+          properties:
+            collection:
+              type: object
+              additionalProperties:
+                type: integer
+            tag:
+              type: object
+              additionalProperties:
+                type: integer
+    SeedSuccessResponse:
+      type: object
+      additionalProperties: true
+    ContentPageSection:
+      type: object
+      required: [blockType]
+      properties:
+        id:
+          type: string
+        blockType:
+          type: string
+      additionalProperties: true
+    ContentPageResponse:
+      type: object
+      required: [page]
+      properties:
+        page:
+          type: object
+          required: [sections]
+          properties:
+            id:
+              type: string
+            title:
+              type: string
+            slug:
+              type: string
+            pageMode:
+              type: string
+              enum: [builder, template]
+            templateKey:
+              type: string
+              enum: [default, landing, article, product]
+            presetKey:
+              type: string
+              enum: [custom, home, services, about, pricing, contact]
+            hideNavbar:
+              type: boolean
+            hideFooter:
+              type: boolean
+            pageBackgroundColor:
+              type: string
+            sections:
+              type: array
+              items:
+                $ref: '#/components/schemas/ContentPageSection'
+    ContentNavigationLink:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        href:
+          type: string
+        isVisible:
+          type: boolean
+        children:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              label:
+                type: string
+              href:
+                type: string
+    HeaderButton:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        href:
+          type: string
+        variant:
+          type: string
+          enum: [primary, ghost]
+        isVisible:
+          type: boolean
+    ContentNavigationResponse:
+      type: object
+      required: [navigationLinks, headerButtons]
+      properties:
+        siteName:
+          type: string
+        navigationLinks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentNavigationLink'
+        headerButtons:
+          type: array
+          items:
+            $ref: '#/components/schemas/HeaderButton'
+    AdminSideEffects:
+      type: object
+      required:
+        [total, pending, retrying, succeeded, deadLetter, status]
+      properties:
+        total:
+          type: integer
+        pending:
+          type: integer
+        retrying:
+          type: integer
+        succeeded:
+          type: integer
+        deadLetter:
+          type: integer
+        status:
+          type: string
+          enum: [pending, retrying, succeeded, dead_letter]
+    AdminSubmission:
+      type: object
+      required:
+        [id, kind, name, email, submittedAt, sideEffects]
+      properties:
+        id:
+          type: string
+        kind:
+          type: string
+          enum: [guide, inquiry]
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        company:
+          type: string
+        challenge:
+          type: string
+        submittedAt:
+          type: string
+          format: date-time
+        sideEffects:
+          $ref: '#/components/schemas/AdminSideEffects'
+    AdminSubmissionsListResponse:
+      type: object
+      required: [items, meta]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminSubmission'
+        meta:
+          type: object
+          required: [total, page, limit, totalPages]
+          properties:
+            total:
+              type: integer
+            page:
+              type: integer
+            limit:
+              type: integer
+            totalPages:
+              type: integer
+    OutboxJob:
+      type: object
+      required:
+        [id, provider, status, attempts, maxAttempts, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+        provider:
+          type: string
+        status:
+          type: string
+          enum: [pending, processing, retrying, succeeded, dead_letter]
+        attempts:
+          type: integer
+        maxAttempts:
+          type: integer
+        nextAttemptAt:
+          type: string
+          format: date-time
+        lastError:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    AdminSubmissionDetailResponse:
+      type: object
+      required: [submission, jobs]
+      properties:
+        submission:
+          $ref: '#/components/schemas/AdminSubmission'
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/OutboxJob'
+    AdminReplaySubmissionResponse:
+      type: object
+      required: [replayed, submissionId, enqueuedJobs]
+      properties:
+        replayed:
+          type: boolean
+          const: true
+        submissionId:
+          type: string
+        enqueuedJobs:
+          type: integer
+    IntegrationStatusResponse:
+      type: object
+      required: [providers, persistence]
+      properties:
+        providers:
+          type: object
+          required: [crmWebhook, resendEmail, outboundWebhook]
+          properties:
+            crmWebhook:
+              type: object
+              required: [configured, urlConfigured, secretConfigured]
+              properties:
+                configured:
+                  type: boolean
+                urlConfigured:
+                  type: boolean
+                secretConfigured:
+                  type: boolean
+            resendEmail:
+              type: object
+              required: [configured]
+              properties:
+                configured:
+                  type: boolean
+            outboundWebhook:
+              type: object
+              required: [configured, signatureEnabled]
+              properties:
+                configured:
+                  type: boolean
+                signatureEnabled:
+                  type: boolean
+        persistence:
+          type: object
+          required: [databaseCredentialsConfigured]
+          properties:
+            databaseCredentialsConfigured:
+              type: boolean

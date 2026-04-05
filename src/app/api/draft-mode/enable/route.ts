@@ -1,33 +1,42 @@
-import { createClient } from 'next-sanity';
-import { defineEnableDraftMode } from 'next-sanity/draft-mode';
+import { draftMode } from 'next/headers';
+import { enableDraftModeForRequest } from '@/application/draft-mode/enableDraftModeService';
+import { toRequestContext, readJsonBody } from '@/infrastructure/http/nextRequestAdapter';
+import { toJsonResponse } from '@/infrastructure/http/nextResponseAdapter';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
-const apiVersion = '2024-01-01';
-const token = process.env.SANITY_API_READ_TOKEN;
+export async function POST(request: NextRequest) {
+  const [context, body] = [toRequestContext(request), await readJsonBody(request)];
+  const result = await enableDraftModeForRequest(context, body);
 
-const enableDraftModeGet =
-  projectId && token
-    ? defineEnableDraftMode({
-        client: createClient({
-          projectId,
-          dataset,
-          apiVersion,
-          useCdn: false,
-          token,
-        }),
-      }).GET
-    : null;
+  if (result.status === 200) {
+    (await draftMode()).enable();
+  }
 
-export async function GET(request: Request) {
-  if (!projectId) {
-    return new Response('NEXT_PUBLIC_SANITY_PROJECT_ID is not set', { status: 500 });
+  return toJsonResponse(result);
+}
+
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const body = {
+    secret: searchParams.get('secret') ?? undefined,
+    slug: searchParams.get('slug') ?? undefined,
+  };
+
+  const result = await enableDraftModeForRequest(toRequestContext(request), body);
+  if (result.status !== 200) {
+    return toJsonResponse(result);
   }
-  if (!token) {
-    return new Response('SANITY_API_READ_TOKEN is not set', { status: 500 });
+
+  if (
+    !result.body ||
+    typeof result.body !== 'object' ||
+    !('slug' in result.body) ||
+    typeof result.body.slug !== 'string'
+  ) {
+    return toJsonResponse(result);
   }
-  if (!enableDraftModeGet) {
-    return new Response('Draft mode route is not configured', { status: 500 });
-  }
-  return enableDraftModeGet(request);
+
+  (await draftMode()).enable();
+  return NextResponse.redirect(new URL(result.body.slug, request.nextUrl.origin));
 }

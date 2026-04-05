@@ -1,15 +1,17 @@
 'use client';
 
+import Link from 'next/link';
+
 export default function DraftModeBanner() {
   return (
     <div
       style={{
         position: 'fixed',
-        bottom: '24px',
+        bottom: '80px',
         right: '24px',
         zIndex: 9999,
-        backgroundColor: '#1B2D4F',
-        color: '#ffffff',
+        backgroundColor: 'var(--ui-color-primary)',
+        color: 'var(--ui-color-surface)',
         padding: '12px 20px',
         borderRadius: '8px',
         fontSize: '14px',
@@ -22,17 +24,17 @@ export default function DraftModeBanner() {
       role="status"
     >
       <span>Draft mode active — viewing unpublished content</span>
-      <a
+      <Link
         href="/api/draft-mode/disable"
         style={{
-          color: '#ffffff',
+          color: 'var(--ui-color-surface)',
           textDecoration: 'underline',
           fontWeight: 400,
           whiteSpace: 'nowrap',
         }}
       >
         Exit preview
-      </a>
+      </Link>
     </div>
   );
 }

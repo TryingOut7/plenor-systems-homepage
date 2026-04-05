@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: plenor_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d plenor_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URI: postgresql://postgres:postgres@127.0.0.1:5432/plenor_ci
+      PAYLOAD_SECRET: ci-build-secret-not-real
+      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Runtime Check
+        run: npm run check:runtime
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run DB Migrations (backend tables)
+        run: npm run db:migrate:backend
+
+      - name: Migration Status Check (backend tables)
+        run: npm run db:migrate:backend:status -- --check
+
+      - name: Run DB Migrations (CMS schema)
+        run: npm run db:migrate:payload
+
+      - name: Migration Status Check (CMS schema)
+        run: npm run db:migrate:payload:status
+
+      - name: Predeploy Guardrails
+        run: npm run predeploy:guardrails
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Architecture Boundaries
+        run: npm run lint:architecture
+
+      - name: OpenAPI Contract Check
+        run: npm run openapi:check
+
+      - name: Tests
+        run: npm run test:ci
+
+      - name: Build
+        run: npm run build
