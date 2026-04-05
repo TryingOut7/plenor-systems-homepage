@@ -113,6 +113,10 @@ See `.env.example` for all variables:
 npm run build
 ```
 
+## Production (Vercel + Supabase)
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for Node version, required environment variables, cron, and smoke checks.
+
 ## Database Migrations
 
 Versioned backend persistence migrations live in `migrations/versions` (including shared rate-limit counters for distributed throttling).

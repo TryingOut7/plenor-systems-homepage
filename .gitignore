@@ -44,6 +44,7 @@ next-env.d.ts
 /backups
 
 # local AI/dev tooling artifacts
+/.cursor/
 /.agent/
 /.agents/
 /.claude/

@@ -194,7 +194,7 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(
       }),
       `find:site-pages:${normalizedSlug}`,
     );
-    let doc = liveResult.docs[0] as Record<string, unknown> | undefined;
+    const doc = liveResult.docs[0] as Record<string, unknown> | undefined;
 
     if (!doc && draft) {
       const draftResult = await withPayloadTimeout(

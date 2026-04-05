@@ -79,6 +79,12 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    files: ["apps/backend/**/*.cjs"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
+  {
     files: ["src/components/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
