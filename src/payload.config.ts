@@ -703,8 +703,13 @@ export default buildConfig({
       connectionString: databaseConnectionString,
       ssl: { rejectUnauthorized: dbRejectUnauthorized },
       max: resolveDatabasePoolMax(Boolean(process.env.VERCEL)),
-      idleTimeoutMillis: process.env.VERCEL ? 10000 : 30000,
-      connectionTimeoutMillis: 10000,
+      // On Vercel cold starts the function can queue many parallel queries.
+      // 30s gives enough headroom for the first connection to establish and
+      // any backlog to drain before giving up.
+      connectionTimeoutMillis: process.env.VERCEL ? 30000 : 10000,
+      // Release idle connections quickly on Vercel to avoid exhausting
+      // Supabase's real backend connection pool across multiple invocations.
+      idleTimeoutMillis: process.env.VERCEL ? 5000 : 30000,
     },
   }),
   secret: (() => {
