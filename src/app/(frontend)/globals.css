@@ -401,6 +401,10 @@ a {
   line-height: 1.55;
 }
 
+.cms-table tbody td:first-child {
+  white-space: nowrap;
+}
+
 .cms-table tbody tr:last-child td {
   border-bottom: none;
 }
