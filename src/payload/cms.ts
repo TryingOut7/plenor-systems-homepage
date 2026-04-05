@@ -18,6 +18,7 @@ export type {
 } from './cms/types.ts';
 
 export {
+  getBlogPostBySlug,
   getCollectionData,
   getRedirectRules,
   getServiceItemBySlug,

@@ -46,12 +46,16 @@ export function cloneDefaultSitePage(slug: string): SitePage | null {
   };
 }
 
-function normalizeMedia(media: unknown): { url?: string; alt?: string } | undefined {
+function normalizeMedia(
+  media: unknown,
+): { url?: string; alt?: string; width?: number; height?: number } | undefined {
   if (!media || typeof media !== 'object') return undefined;
   const m = media as Record<string, unknown>;
   return {
     url: typeof m.url === 'string' ? m.url : undefined,
     alt: typeof m.alt === 'string' ? m.alt : undefined,
+    width: typeof m.width === 'number' ? m.width : undefined,
+    height: typeof m.height === 'number' ? m.height : undefined,
   };
 }
 

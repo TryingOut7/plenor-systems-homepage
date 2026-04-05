@@ -74,12 +74,12 @@ export default function DynamicListSection({
 
         {config.viewMode === 'table' ? (
           <div style={{ overflowX: 'auto', border: '1px solid var(--ui-color-border)', borderRadius: '8px' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+            <table className="cms-table">
               <thead>
                 <tr>
-                  <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)', color: resolvedHeadingColor }}>Title</th>
-                  <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)', color: resolvedHeadingColor }}>Summary</th>
-                  <th style={{ padding: '12px', textAlign: 'left', backgroundColor: 'var(--ui-color-section-alt)', color: resolvedHeadingColor }}>Meta</th>
+                  <th>Title</th>
+                  <th>Summary</th>
+                  <th>Meta</th>
                 </tr>
               </thead>
               <tbody>
@@ -87,13 +87,13 @@ export default function DynamicListSection({
                   const normalized = renderDynamicListItem(item, config.source || 'serviceItem');
                   return (
                     <tr key={`${sectionKey}-table-row-${itemIndex}`}>
-                      <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)' }}>
-                        <Link href={normalized.href} style={{ color: resolvedHeadingColor, textDecoration: 'none' }}>
+                      <td>
+                        <Link href={normalized.href} style={{ color: resolvedHeadingColor, textDecoration: 'none', fontWeight: 600 }}>
                           {normalized.title}
                         </Link>
                       </td>
-                      <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)', color: resolvedMutedColor }}>{normalized.description}</td>
-                      <td style={{ padding: '12px', borderBottom: '1px solid var(--ui-color-border)', color: resolvedMutedColor }}>{normalized.meta}</td>
+                      <td style={{ color: resolvedMutedColor }}>{normalized.description}</td>
+                      <td style={{ color: resolvedMutedColor }}>{normalized.meta}</td>
                     </tr>
                   );
                 })}

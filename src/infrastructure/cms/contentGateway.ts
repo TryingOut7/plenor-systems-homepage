@@ -21,6 +21,7 @@ export const payloadContentRepository: ContentRepository = {
       hideNavbar: page.hideNavbar,
       hideFooter: page.hideFooter,
       pageBackgroundColor: page.pageBackgroundColor,
+      seo: page.seo,
       sections: page.sections || [],
     };
   },

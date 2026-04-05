@@ -9,6 +9,10 @@ import {
   invalidateCmsCollectionCaches,
   invalidateCmsGlobalCaches,
 } from '../cms/cache.ts';
+import {
+  revalidateCollectionContent,
+  revalidateGlobalContent,
+} from './revalidateCmsContent.ts';
 
 type AuditRiskTier = 'routine' | 'system';
 type UserRecord = Record<string, unknown>;
@@ -203,6 +207,53 @@ export const auditLogInternals = {
   summarizeTransition,
 };
 
+/**
+ * Fires an async alert for system-tier (high-risk) audit events.
+ * Writes a structured error log (captured by Vercel log drains + Sentry)
+ * and optionally POSTs to OUTBOUND_WEBHOOK_URL when configured.
+ */
+function alertHighRiskAuditEvent(args: {
+  action: string;
+  collection: string;
+  documentId: string;
+  documentTitle: string;
+  fieldPath: string;
+  userEmail: string;
+  summary: string;
+}): void {
+  // Structured log — visible in Vercel logs and Sentry as an error-level event.
+  console.error('[AUDIT:SYSTEM_RISK]', JSON.stringify({
+    action: args.action,
+    collection: args.collection,
+    documentId: args.documentId,
+    documentTitle: args.documentTitle,
+    fieldPath: args.fieldPath,
+    user: args.userEmail,
+    summary: args.summary,
+    timestamp: new Date().toISOString(),
+  }));
+
+  // Outbound webhook (fire-and-forget, best-effort).
+  const webhookUrl = process.env.OUTBOUND_WEBHOOK_URL;
+  const webhookSecret = process.env.OUTBOUND_WEBHOOK_SECRET;
+  if (!webhookUrl) return;
+
+  const payload = JSON.stringify({
+    event: 'cms.audit.system_risk',
+    ...args,
+    timestamp: new Date().toISOString(),
+  });
+
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (webhookSecret) {
+    headers['x-webhook-secret'] = webhookSecret;
+  }
+
+  fetch(webhookUrl, { method: 'POST', headers, body: payload }).catch(() => {
+    // Best-effort — never throw from an audit hook.
+  });
+}
+
 export const auditAfterChange: CollectionAfterChangeHook = async ({
   doc,
   previousDoc,
@@ -217,6 +268,11 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
     doc,
     previousDoc,
   });
+  revalidateCollectionContent(
+    collection.slug as Parameters<typeof revalidateCollectionContent>[0],
+    doc as Record<string, unknown>,
+    previousDoc as Record<string, unknown> | undefined,
+  );
   if (!req.user) return doc;
 
   // Skip autosave to avoid flooding audit logs
@@ -262,6 +318,7 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
 
         const oldSummary = summarizeValue(path, oldValue);
         const newSummary = summarizeValue(path, newValue);
+        const entrySummary = `${userRecord.email || 'Unknown'} changed ${collection.slug}.${path}: ${summarizeTransition(oldSummary, newSummary)}`;
         await req.payload.create({
           collection: 'audit-logs',
           overrideAccess: true,
@@ -277,6 +334,15 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
             riskTier: 'system',
             ipAddress,
           }),
+        });
+        alertHighRiskAuditEvent({
+          action,
+          collection: collection.slug,
+          documentId: String(doc.id),
+          documentTitle: title,
+          fieldPath: path,
+          userEmail: String(userRecord.email || 'Unknown'),
+          summary: entrySummary,
         });
       }
     }
@@ -338,6 +404,9 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
   global,
 }) => {
   invalidateCmsGlobalCaches(global.slug);
+  if (!context?.autosave) {
+    revalidateGlobalContent(global.slug);
+  }
   if (!req.user) return doc;
   if (context?.autosave) return doc;
 
@@ -381,6 +450,7 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
 
         const oldSummary = summarizeValue(path, oldValue);
         const newSummary = summarizeValue(path, newValue);
+        const globalEntrySummary = `${userRecord.email || 'Unknown'} changed ${global.slug}.${path}: ${summarizeTransition(oldSummary, newSummary)}`;
         await req.payload.create({
           collection: 'audit-logs',
           overrideAccess: true,
@@ -396,6 +466,15 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
             riskTier: 'system',
             ipAddress,
           }),
+        });
+        alertHighRiskAuditEvent({
+          action,
+          collection: global.slug,
+          documentId: global.slug,
+          documentTitle: title,
+          fieldPath: path,
+          userEmail: String(userRecord.email || 'Unknown'),
+          summary: globalEntrySummary,
         });
       }
     }

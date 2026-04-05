@@ -7,10 +7,12 @@ export default function SimpleTableSection({
   sectionKey,
   sectionStyle,
   hTag,
+  hSize,
   hFontSize,
   innerStyle,
   resolvedHeadingColor,
   resolvedBodyColor,
+  resolvedMutedColor,
 }: SectionRendererProps) {
   const sectionRecord = asSectionRecord(section);
   const columns = Array.isArray(sectionRecord.columns) ? sectionRecord.columns : [];
@@ -19,17 +21,38 @@ export default function SimpleTableSection({
   return (
     <section key={sectionKey} style={sectionStyle}>
       <div style={innerStyle}>
+        {typeof sectionRecord.sectionLabel === 'string' && sectionRecord.sectionLabel ? (
+          <p
+            className="section-label"
+            style={{ color: resolvedMutedColor, marginBottom: '12px' }}
+          >
+            {sectionRecord.sectionLabel}
+          </p>
+        ) : null}
+
         {sectionRecord.heading ? (
           <SectionHeading
             tag={hTag}
-            style={{ marginBottom: '20px', color: resolvedHeadingColor, fontSize: hFontSize }}
+            style={{
+              fontFamily: 'var(--ui-font-display)',
+              fontSize: hSize === 'md' ? 'clamp(26px, 3.5vw, 38px)' : hFontSize,
+              fontWeight: 700,
+              color: resolvedHeadingColor,
+              marginBottom: sectionRecord.subheading ? '12px' : '24px',
+            }}
           >
             {String(sectionRecord.heading)}
           </SectionHeading>
         ) : null}
 
+        {typeof sectionRecord.subheading === 'string' && sectionRecord.subheading ? (
+          <p style={{ color: resolvedBodyColor, fontSize: '16px', marginBottom: '28px' }}>
+            {String(sectionRecord.subheading)}
+          </p>
+        ) : null}
+
         <div style={{ overflowX: 'auto', border: '1px solid var(--ui-color-border)', borderRadius: '8px' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+          <table className="cms-table">
             <thead>
               <tr>
                 {columns.map((column: unknown, colIndex: number) => {
@@ -39,16 +62,7 @@ export default function SimpleTableSection({
                       : column;
 
                   return (
-                    <th
-                      key={`${sectionKey}-col-${colIndex}`}
-                      style={{
-                        textAlign: 'left',
-                        padding: '12px',
-                        borderBottom: '1px solid var(--ui-color-border)',
-                        backgroundColor: 'var(--ui-color-section-alt)',
-                        color: resolvedHeadingColor,
-                      }}
-                    >
+                    <th key={`${sectionKey}-col-${colIndex}`}>
                       {String(label || '')}
                     </th>
                   );
@@ -75,11 +89,7 @@ export default function SimpleTableSection({
                       return (
                         <td
                           key={`${sectionKey}-row-${rowIndex}-cell-${cellIndex}`}
-                          style={{
-                            padding: '12px',
-                            borderBottom: '1px solid var(--ui-color-border)',
-                            color: resolvedBodyColor,
-                          }}
+                          style={{ color: resolvedBodyColor }}
                         >
                           {String(value || '')}
                         </td>

@@ -28,6 +28,15 @@ export default function RichTextSection({
       }
     >
       <div style={{ ...innerStyle, maxWidth: '800px' }}>
+        {typeof sectionRecord.sectionLabel === 'string' && sectionRecord.sectionLabel ? (
+          <p
+            className="section-label"
+            style={{ color: resolvedBodyColor, marginBottom: '12px' }}
+          >
+            {sectionRecord.sectionLabel}
+          </p>
+        ) : null}
+
         {sectionRecord.heading ? (
           <SectionHeading
             tag={hTag}

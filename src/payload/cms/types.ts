@@ -1,3 +1,10 @@
+type MediaRef = {
+  url?: string;
+  alt?: string;
+  width?: number;
+  height?: number;
+};
+
 export type SeoFields = {
   metaTitle?: string;
   metaDescription?: string;
@@ -7,10 +14,7 @@ export type SeoFields = {
   noindex?: boolean;
   nofollow?: boolean;
   includeInSitemap?: boolean;
-  ogImage?: {
-    url?: string;
-    alt?: string;
-  };
+  ogImage?: MediaRef;
 };
 
 export type SiteSettings = {
@@ -18,7 +22,7 @@ export type SiteSettings = {
   brandTagline?: string;
   siteUrl?: string;
   contactEmail?: string;
-  logoImage?: { url?: string; alt?: string; width?: number; height?: number };
+  logoImage?: MediaRef;
   logoWidth?: number;
   headerButtons?: Array<{
     id?: string;
@@ -242,10 +246,7 @@ export type ServiceItem = {
   priceFrom?: number;
   currency?: string;
   seo?: SeoFields;
-  heroImage?: {
-    url?: string;
-    alt?: string;
-  };
+  heroImage?: MediaRef;
 };
 
 export type BlogCategory = {
@@ -260,7 +261,7 @@ export type TeamMember = {
   name?: string;
   role?: string;
   bio?: string;
-  photo?: { url?: string; alt?: string };
+  photo?: MediaRef;
   linkedinUrl?: string;
   twitterUrl?: string;
   order?: number;
@@ -269,7 +270,7 @@ export type TeamMember = {
 export type Logo = {
   id?: string;
   name?: string;
-  image?: { url?: string; alt?: string };
+  image?: MediaRef;
   url?: string;
   order?: number;
 };
@@ -279,10 +280,7 @@ export type BlogPost = {
   title?: string;
   slug?: string;
   excerpt?: string;
-  coverImage?: {
-    url?: string;
-    alt?: string;
-  };
+  coverImage?: MediaRef;
   body?: unknown;
   publishedAt?: string;
   isFeatured?: boolean;
@@ -300,10 +298,7 @@ export type Testimonial = {
   role?: string;
   company?: string;
   quote?: string;
-  avatar?: {
-    url?: string;
-    alt?: string;
-  };
+  avatar?: MediaRef;
   rating?: number;
   details?: unknown;
   isFeatured?: boolean;

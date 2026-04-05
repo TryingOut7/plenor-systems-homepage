@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { getPayload } from '../client.ts';
 import {
+  blogPostCache,
   collectionDataCache,
   getFromCache,
   getMapCache,
@@ -27,6 +28,7 @@ import {
   normalizeSeo,
 } from './normalize.ts';
 import type {
+  BlogPost,
   CmsReadOptions,
   CollectionData,
   RedirectRule,
@@ -90,6 +92,8 @@ export const getSiteSettings = cache(async function getSiteSettings(
       brandTagline: d.brandTagline as string | undefined,
       siteUrl: d.siteUrl as string | undefined,
       contactEmail: d.contactEmail as string | undefined,
+      logoImage: d.logoImage as SiteSettings['logoImage'],
+      logoWidth: d.logoWidth as number | undefined,
       headerButtons: d.headerButtons as SiteSettings['headerButtons'],
       twitterHandle: d.twitterHandle as string | undefined,
       contentRouting: d.contentRouting as SiteSettings['contentRouting'],
@@ -98,6 +102,7 @@ export const getSiteSettings = cache(async function getSiteSettings(
       defaultSeo: normalizeSeo(d.defaultSeo),
       defaultMetaDescription: d.defaultMetaDescription as string | undefined,
       navigationLinks: d.navigationLinks as SiteSettings['navigationLinks'],
+      announcementBanner: d.announcementBanner as SiteSettings['announcementBanner'],
       footerColumns: d.footerColumns as SiteSettings['footerColumns'],
       socialLinks: d.socialLinks as SiteSettings['socialLinks'],
       copyrightText: d.copyrightText as string | undefined,
@@ -298,7 +303,15 @@ export const getCollectionData = cache(async function getCollectionData(
 
   try {
     const payload = await getPayload();
-    const publishedFilter = { workflowStatus: { equals: 'published' } };
+    // Include items that are explicitly 'published' OR that pre-date the workflow
+    // system (workflowStatus not yet set). This prevents legacy/seeded data from
+    // disappearing from dynamic list sections after the workflow field was added.
+    const publishedFilter = {
+      or: [
+        { workflowStatus: { equals: 'published' } },
+        { workflowStatus: { exists: false } },
+      ],
+    };
     const [serviceResult, blogResult, testimonialResult, teamResult, logosResult] =
       await Promise.all([
       withPayloadTimeout(
@@ -412,6 +425,45 @@ export const getServiceItemBySlug = cache(async function getServiceItemBySlug(
     if (draft) return null;
     markPayloadFailure();
     return setMapCache(serviceItemCache, normalizedSlug, null, 10_000);
+  }
+});
+
+export const getBlogPostBySlug = cache(async function getBlogPostBySlug(
+  slug: string,
+  options: CmsReadOptions = {},
+): Promise<BlogPost | null> {
+  const draft = isDraftRead(options);
+  const normalizedSlug = slug.replace(/^\/+|\/+$/g, '');
+  if (!draft) {
+    const cached = getMapCache(blogPostCache, normalizedSlug);
+    if (cached !== undefined) return cached;
+    if (shouldSkipPayload()) return setMapCache(blogPostCache, normalizedSlug, null, 10_000);
+  }
+
+  try {
+    const payload = await getPayload();
+    const result = await withPayloadTimeout(
+      payload.find({
+        collection: 'blog-posts',
+        where: {
+          slug: { equals: normalizedSlug },
+          ...(draft ? {} : { workflowStatus: { equals: 'published' } }),
+        },
+        limit: 1,
+        depth: 1,
+        ...(draft ? { draft: true } : {}),
+      }),
+      `find:blog-posts:${normalizedSlug}`,
+    );
+    const doc = result.docs[0];
+    if (!doc) return draft ? null : setMapCache(blogPostCache, normalizedSlug, null);
+
+    const normalized = normalizeBlogPost(doc as unknown as Record<string, unknown>);
+    return draft ? normalized : setMapCache(blogPostCache, normalizedSlug, normalized);
+  } catch {
+    if (draft) return null;
+    markPayloadFailure();
+    return setMapCache(blogPostCache, normalizedSlug, null, 10_000);
   }
 });
 

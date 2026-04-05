@@ -1,4 +1,4 @@
-import type { CollectionData, RedirectRule, ServiceItem, SitemapQueryResult, SitePage, SiteSettings, UISettings } from './types.ts';
+import type { BlogPost, CollectionData, RedirectRule, ServiceItem, SitemapQueryResult, SitePage, SiteSettings, UISettings } from './types.ts';
 
 export type CacheEntry<T> = {
   value: T;
@@ -20,6 +20,7 @@ export const uiSettingsCache: { entry?: CacheEntry<UISettings | null> } = {};
 export const collectionDataCache: { entry?: CacheEntry<CollectionData> } = {};
 export const pageCache = new Map<string, CacheEntry<SitePage | null>>();
 export const serviceItemCache = new Map<string, CacheEntry<ServiceItem | null>>();
+export const blogPostCache = new Map<string, CacheEntry<BlogPost | null>>();
 export const sitemapCache: { entry?: CacheEntry<SitemapQueryResult> } = {};
 export const redirectRulesCache: { entry?: CacheEntry<RedirectRule[]> } = {};
 
@@ -110,10 +111,18 @@ export function invalidateCmsCollectionCaches(input: {
       break;
     }
     case 'service-items':
-    case 'blog-posts':
     case 'testimonials':
     case 'team-members':
     case 'logos': {
+      clearHolderEntry(collectionDataCache);
+      clearHolderEntry(sitemapCache);
+      break;
+    }
+    case 'blog-posts': {
+      const slug = readSlugFromDoc(input.doc, 'slug');
+      const prevSlug = readSlugFromDoc(input.previousDoc, 'slug');
+      if (slug) blogPostCache.delete(slug);
+      if (prevSlug && prevSlug !== slug) blogPostCache.delete(prevSlug);
       clearHolderEntry(collectionDataCache);
       clearHolderEntry(sitemapCache);
       break;

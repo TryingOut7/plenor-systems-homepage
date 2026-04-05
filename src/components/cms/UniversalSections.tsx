@@ -99,7 +99,31 @@ export default function UniversalSections({
       };
 
       const renderer = SECTION_RENDERERS[section.blockType];
-      if (!renderer) return null;
+      if (!renderer) {
+        if (process.env.NODE_ENV !== 'production') {
+          return (
+            <div
+              key={sectionKey}
+              style={{
+                margin: '16px auto',
+                maxWidth: '760px',
+                padding: '16px',
+                border: '2px dashed #f59e0b',
+                borderRadius: '6px',
+                backgroundColor: '#fffbeb',
+                color: '#92400e',
+                fontFamily: 'monospace',
+                fontSize: '13px',
+              }}
+            >
+              <strong>[UniversalSections]</strong> Unknown blockType: &quot;{section.blockType}&quot;
+              {sectionId ? ` (id: ${sectionId})` : ''} — add it to{' '}
+              <code>src/components/cms/sections/registry.ts</code>.
+            </div>
+          );
+        }
+        return null;
+      }
 
       const nextVisited = sectionId ? new Set([...visited, sectionId]) : visited;
       const renderNestedSection = makeRenderSection(nextVisited, depth + 1);

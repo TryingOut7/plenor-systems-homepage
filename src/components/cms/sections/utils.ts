@@ -400,10 +400,12 @@ export function renderDynamicListItem(
 } {
   if (source === 'blogPost') {
     const post = item as BlogPost;
+    // Prefer an explicit external resource URL; fall back to the internal blog route.
+    const href = post.resourceUrl || `/blog/${post.slug || ''}`;
     return {
       title: post.title || 'Untitled Post',
       description: post.excerpt || '',
-      href: `/blog/${post.slug || ''}`,
+      href,
       meta: post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : '',
     };
   }

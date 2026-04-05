@@ -27,6 +27,21 @@ export default function CtaSection({
       }
     >
       <div style={{ ...innerStyle, maxWidth: '700px', textAlign: 'center' }}>
+        {typeof sectionRecord.sectionLabel === 'string' && sectionRecord.sectionLabel ? (
+          <p
+            className="section-label"
+            style={{
+              color:
+                theme === 'white' || theme === 'light'
+                  ? 'var(--ui-color-text-muted)'
+                  : 'var(--ui-color-dark-text-muted)',
+              marginBottom: '12px',
+            }}
+          >
+            {sectionRecord.sectionLabel}
+          </p>
+        ) : null}
+
         {sectionRecord.heading ? (
           <SectionHeading
             tag={hTag}

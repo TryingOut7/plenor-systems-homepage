@@ -24,17 +24,24 @@ export default function ReusableSectionReference({
     ? reusableSection.sections
     : [];
 
+  if (nestedSections.length === 0) return null;
+
+  const displayHeading =
+    typeof sectionRecord.overrideHeading === 'string' && sectionRecord.overrideHeading.trim()
+      ? sectionRecord.overrideHeading
+      : reusableSection?.title ?? '';
+
   return (
     <section key={sectionKey} style={sectionStyle}>
       <div style={innerStyle}>
-        <SectionHeading
-          tag={hTag}
-          style={{ marginBottom: '16px', color: resolvedHeadingColor, fontSize: hFontSize }}
-        >
-          {typeof sectionRecord.overrideHeading === 'string'
-            ? sectionRecord.overrideHeading
-            : reusableSection?.title || 'Reusable Section'}
-        </SectionHeading>
+        {displayHeading ? (
+          <SectionHeading
+            tag={hTag}
+            style={{ marginBottom: '16px', color: resolvedHeadingColor, fontSize: hFontSize }}
+          >
+            {displayHeading}
+          </SectionHeading>
+        ) : null}
         {nestedSections.map((nestedSection, nestedIndex) =>
           renderNestedSection(
             nestedSection,

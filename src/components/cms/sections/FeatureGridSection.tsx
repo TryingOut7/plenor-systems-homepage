@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import SectionHeading from './shared/SectionHeading';
 import type { SectionRendererProps } from './types';
-import { asSectionRecord, isDarkTheme, normalizePath } from './utils';
+import { asSectionRecord, isDarkTheme, mutedColor, normalizePath } from './utils';
 
 export default function FeatureGridSection({
   section,
@@ -31,6 +31,15 @@ export default function FeatureGridSection({
       }
     >
       <div style={innerStyle}>
+        {typeof sectionRecord.sectionLabel === 'string' && sectionRecord.sectionLabel ? (
+          <p
+            className="section-label"
+            style={{ color: mutedColor(theme), marginBottom: '12px' }}
+          >
+            {sectionRecord.sectionLabel}
+          </p>
+        ) : null}
+
         {sectionRecord.heading ? (
           <SectionHeading
             tag={hTag}

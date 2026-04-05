@@ -323,7 +323,10 @@ export const SitePages: CollectionConfig = {
       type: 'textarea',
       admin: {
         position: 'sidebar',
-        description: 'Custom <script> or <link> tags to inject in <head> for this page only',
+        description:
+          'Inject external scripts for this page only. Only empty <script src="..."></script> tags ' +
+          'pointing to allowed domains are loaded — inline scripts are ignored for security. ' +
+          'Example: <script src="https://cdn.example.com/widget.js"></script>',
       },
     }, 'system'),
     {

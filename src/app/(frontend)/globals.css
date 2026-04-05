@@ -357,6 +357,59 @@ a {
   }
 }
 
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--ui-color-link);
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.15s, text-decoration-color 0.15s;
+  text-underline-offset: 3px;
+}
+
+.text-link:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+/* CMS table — shared by SimpleTableSection, ComparisonTableSection, DynamicListSection */
+.cms-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.cms-table thead th {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--ui-color-border);
+  background-color: var(--ui-color-section-alt);
+  color: var(--ui-color-primary);
+  font-family: var(--ui-font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cms-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ui-color-border);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.cms-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cms-table tbody tr:hover td {
+  background-color: var(--ui-color-section-alt);
+  transition: background-color 0.12s;
+}
+
 .honeypot {
   position: absolute;
   width: 1px;
