@@ -61,7 +61,9 @@ export function shouldSkipPayload(): boolean {
   if (process.env.CMS_SKIP_PAYLOAD === 'true') {
     return true;
   }
-  const hasDatabaseConnectionString = Boolean(process.env.DATABASE_URI || process.env.DATABASE_URL);
+  const hasDatabaseConnectionString = Boolean(
+    process.env.POSTGRES_URL || process.env.DATABASE_URI || process.env.DATABASE_URL,
+  );
   if (!hasDatabaseConnectionString) {
     return true;
   }

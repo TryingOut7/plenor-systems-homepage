@@ -28,7 +28,7 @@ export default function AdminError({
         </p>
       )}
       <p style={{ marginBottom: '1.5rem', color: '#555', fontSize: '0.9rem' }}>
-        Common causes: missing <code>DATABASE_URI</code>,{' '}
+        Common causes: missing <code>POSTGRES_URL</code>,{' '}
         <code>PAYLOAD_SECRET</code>, or database connection issues. Check your
         server logs and environment variables.
       </p>

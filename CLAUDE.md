@@ -206,7 +206,7 @@ npm run db:schema:drift:check    # check only, no file write
 ## Environment Variables
 
 ```
-DATABASE_URI                    # Postgres connection string (Supabase pooler)
+POSTGRES_URL                    # Postgres connection string — auto-provisioned by Supabase+Vercel integration (pooler, port 6543)
 DATABASE_SSL_REJECT_UNAUTHORIZED # SSL cert verification (default: false)
 PAYLOAD_DB_PUSH                 # Enable Payload schema push (default: false in .env.example)
 PAYLOAD_SECRET                  # Auth token secret for Payload CMS

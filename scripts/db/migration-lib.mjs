@@ -41,10 +41,12 @@ function resolveSsl(connectionString) {
 
 function getDatabaseUri() {
   const databaseUri =
-    process.env.DATABASE_URI?.trim() || process.env.DATABASE_URL?.trim();
+    process.env.POSTGRES_URL?.trim() ||
+    process.env.DATABASE_URI?.trim() ||
+    process.env.DATABASE_URL?.trim();
   if (!databaseUri) {
     throw new Error(
-      'Missing DATABASE_URI or DATABASE_URL environment variable.',
+      'Missing POSTGRES_URL environment variable (or legacy DATABASE_URI / DATABASE_URL).',
     );
   }
   return databaseUri;

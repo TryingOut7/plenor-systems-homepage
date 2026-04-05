@@ -314,13 +314,13 @@ export function buildBackendServer(): FastifyInstance {
     let cmsReady = true;
     let cmsError: string | null = null;
     const hasPayloadDatabaseConnection = Boolean(
-      process.env.DATABASE_URI || process.env.DATABASE_URL,
+      process.env.POSTGRES_URL || process.env.DATABASE_URI || process.env.DATABASE_URL,
     );
 
     if (process.env.CMS_SKIP_PAYLOAD !== 'true') {
       if (!hasPayloadDatabaseConnection) {
         cmsReady = false;
-        cmsError = 'DATABASE_URI or DATABASE_URL is not configured.';
+        cmsError = 'POSTGRES_URL is not configured.';
       } else {
         try {
           const { getPayload } = await import('@/payload/client');

@@ -17,39 +17,58 @@ describe('validateEnv', () => {
   });
 
   it('does not throw in development regardless of missing vars', () => {
-    setEnv({ NODE_ENV: 'development', DATABASE_URI: undefined, PAYLOAD_SECRET: undefined });
+    setEnv({ NODE_ENV: 'development', POSTGRES_URL: undefined, PAYLOAD_SECRET: undefined });
     expect(() => validateEnv()).not.toThrow();
   });
 
   it('does not throw in test regardless of missing vars', () => {
-    setEnv({ NODE_ENV: 'test', DATABASE_URI: undefined, PAYLOAD_SECRET: undefined });
+    setEnv({ NODE_ENV: 'test', POSTGRES_URL: undefined, PAYLOAD_SECRET: undefined });
     expect(() => validateEnv()).not.toThrow();
   });
 
-  it('does not throw in production when all required vars are present', () => {
+  it('does not throw in production when all required vars are present (POSTGRES_URL)', () => {
     setEnv({
       NODE_ENV: 'production',
+      POSTGRES_URL: 'postgres://localhost/db',
+      PAYLOAD_SECRET: 'secret',
+      NEXT_PUBLIC_SERVER_URL: 'https://example.com',
+      SUPABASE_URL: 'https://proj.supabase.co',
+      SUPABASE_SERVICE_ROLE_KEY: 'service-role-key',
+      CRON_SECRET: 'cron-secret',
+    });
+    expect(() => validateEnv()).not.toThrow();
+  });
+
+  it('does not throw in production when legacy DATABASE_URI is set', () => {
+    setEnv({
+      NODE_ENV: 'production',
+      POSTGRES_URL: undefined,
       DATABASE_URI: 'postgres://localhost/db',
       PAYLOAD_SECRET: 'secret',
       NEXT_PUBLIC_SERVER_URL: 'https://example.com',
+      SUPABASE_URL: 'https://proj.supabase.co',
+      SUPABASE_SERVICE_ROLE_KEY: 'service-role-key',
+      CRON_SECRET: 'cron-secret',
     });
     expect(() => validateEnv()).not.toThrow();
   });
 
-  it('throws in production when DATABASE_URI is missing', () => {
+  it('throws in production when no database URL is set', () => {
     setEnv({
       NODE_ENV: 'production',
+      POSTGRES_URL: undefined,
       DATABASE_URI: undefined,
+      DATABASE_URL: undefined,
       PAYLOAD_SECRET: 'secret',
       NEXT_PUBLIC_SERVER_URL: 'https://example.com',
     });
-    expect(() => validateEnv()).toThrow('DATABASE_URI');
+    expect(() => validateEnv()).toThrow('POSTGRES_URL');
   });
 
   it('throws in production when PAYLOAD_SECRET is missing', () => {
     setEnv({
       NODE_ENV: 'production',
-      DATABASE_URI: 'postgres://localhost/db',
+      POSTGRES_URL: 'postgres://localhost/db',
       PAYLOAD_SECRET: undefined,
       NEXT_PUBLIC_SERVER_URL: 'https://example.com',
     });
@@ -59,7 +78,7 @@ describe('validateEnv', () => {
   it('throws in production when NEXT_PUBLIC_SERVER_URL is missing', () => {
     setEnv({
       NODE_ENV: 'production',
-      DATABASE_URI: 'postgres://localhost/db',
+      POSTGRES_URL: 'postgres://localhost/db',
       PAYLOAD_SECRET: 'secret',
       NEXT_PUBLIC_SERVER_URL: undefined,
     });
@@ -69,12 +88,14 @@ describe('validateEnv', () => {
   it('lists all missing vars in the error message', () => {
     setEnv({
       NODE_ENV: 'production',
+      POSTGRES_URL: undefined,
       DATABASE_URI: undefined,
+      DATABASE_URL: undefined,
       PAYLOAD_SECRET: undefined,
       NEXT_PUBLIC_SERVER_URL: undefined,
     });
     expect(() => validateEnv()).toThrow(
-      'Missing required environment variables: DATABASE_URI (or DATABASE_URL), PAYLOAD_SECRET, NEXT_PUBLIC_SERVER_URL',
+      'Missing required environment variables: POSTGRES_URL, PAYLOAD_SECRET, NEXT_PUBLIC_SERVER_URL',
     );
   });
 });

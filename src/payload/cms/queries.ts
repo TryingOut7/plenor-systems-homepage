@@ -36,6 +36,7 @@ import type {
   SiteSettings,
   UISettings,
 } from './types.ts';
+import { resolveFormEmbedAliasesInSitePage } from './resolveFormAliases.ts';
 
 const PAYLOAD_QUERY_TIMEOUT_MS = 8000;
 
@@ -167,9 +168,11 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(
   const normalizedSlug = slug.replace(/^\/+|\/+$/g, '');
   if (!draft) {
     const cached = getMapCache(pageCache, normalizedSlug);
-    if (cached !== undefined) return cached;
+    if (cached !== undefined) return resolveFormEmbedAliasesInSitePage(cached);
     if (shouldSkipPayload()) {
-      return setMapCache(pageCache, normalizedSlug, cloneDefaultSitePage(normalizedSlug), 10_000);
+      const fallback = cloneDefaultSitePage(normalizedSlug);
+      const resolved = await resolveFormEmbedAliasesInSitePage(fallback);
+      return setMapCache(pageCache, normalizedSlug, resolved, 10_000);
     }
   }
 
@@ -216,7 +219,7 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(
           ? draftDoc.sections.map(normalizeSection)
           : [];
 
-        return {
+        const draftPage: SitePage = {
           id: String(draftDoc.id),
           title: (draftDoc.title as string | undefined) || normalizedSlug,
           slug: normalizedSlug,
@@ -232,12 +235,15 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(
           seo: normalizeSeo(draftDoc.seo),
           sections: draftSections,
         };
+        return resolveFormEmbedAliasesInSitePage(draftPage);
       }
     }
 
     if (!doc) {
       if (draft) return null;
-      return setMapCache(pageCache, normalizedSlug, cloneDefaultSitePage(normalizedSlug));
+      const fallbackPage = cloneDefaultSitePage(normalizedSlug);
+      const resolvedFallback = await resolveFormEmbedAliasesInSitePage(fallbackPage);
+      return setMapCache(pageCache, normalizedSlug, resolvedFallback);
     }
 
     const d = doc;
@@ -262,11 +268,14 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(
       sections: resolvedSections,
     };
 
-    return draft ? normalized : setMapCache(pageCache, normalizedSlug, normalized);
+    const resolvedPage = await resolveFormEmbedAliasesInSitePage(normalized);
+    return draft ? resolvedPage : setMapCache(pageCache, normalizedSlug, resolvedPage);
   } catch {
     if (draft) return null;
     markPayloadFailure();
-    return setMapCache(pageCache, normalizedSlug, cloneDefaultSitePage(normalizedSlug), 10_000);
+    const fallbackPage = cloneDefaultSitePage(normalizedSlug);
+    const resolvedFallback = await resolveFormEmbedAliasesInSitePage(fallbackPage);
+    return setMapCache(pageCache, normalizedSlug, resolvedFallback, 10_000);
   }
 });
 
@@ -460,6 +469,7 @@ export const getRedirectRules = cache(async function getRedirectRules(): Promise
     const result = await withPayloadTimeout(
       payload.find({
         collection: 'redirect-rules',
+        overrideAccess: true,
         where: { enabled: { equals: true } },
         limit: 500,
       }),

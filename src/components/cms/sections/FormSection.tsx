@@ -3,6 +3,17 @@ import SectionHeading from './shared/SectionHeading';
 import type { SectionRendererProps } from './types';
 import { asSectionRecord } from './utils';
 
+function formRelationshipToId(form: unknown): string {
+  if (form == null) return '';
+  if (typeof form === 'number' || typeof form === 'bigint') return String(form);
+  if (typeof form === 'string') return form;
+  if (typeof form === 'object' && 'id' in form) {
+    const id = (form as { id?: unknown }).id;
+    if (id != null) return String(id);
+  }
+  return '';
+}
+
 export default function FormSection({
   section,
   sectionKey,
@@ -18,12 +29,7 @@ export default function FormSection({
   inquiryFormLabels,
 }: SectionRendererProps) {
   const sectionRecord = asSectionRecord(section);
-  const formId =
-    sectionRecord.form && typeof sectionRecord.form === 'object'
-      ? String((sectionRecord.form as { id?: string }).id || '')
-      : typeof sectionRecord.form === 'string'
-        ? sectionRecord.form
-        : '';
+  const formId = formRelationshipToId(sectionRecord.form);
 
   return (
     <section

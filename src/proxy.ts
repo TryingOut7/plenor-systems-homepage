@@ -58,6 +58,12 @@ function resolveRedirectApiBaseUrl(requestOrigin?: string): string {
   );
 }
 
+function resolvePayloadApiRoot(): string {
+  const configured = process.env.PAYLOAD_ROUTE_API;
+  if (!configured) return '/api';
+  return configured.startsWith('/') ? configured : `/${configured}`;
+}
+
 async function loadRedirectRules(requestOrigin?: string): Promise<RedirectRule[]> {
   const enableDevRedirects = process.env.ENABLE_DEV_REDIRECT_RULES === 'true';
   if (process.env.NODE_ENV !== 'production' && !enableDevRedirects) {
@@ -69,8 +75,11 @@ async function loadRedirectRules(requestOrigin?: string): Promise<RedirectRule[]
   const cachedEntry = redirectCacheByBaseUrl.get(baseUrl);
   if (cachedEntry && now < cachedEntry.expiresAt) return cachedEntry.rules;
 
+  const apiRoot = resolvePayloadApiRoot();
   try {
-    const url = `${baseUrl}/api/redirect-rules?where[enabled][equals]=true&limit=500`;
+    // Anonymous read access on redirect-rules already constrains enabled=true; omitting
+    // where[enabled] avoids Payload merging duplicate predicates on the same column.
+    const url = `${baseUrl}${apiRoot}/redirect-rules?limit=500`;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 3000);
     const response = await fetch(url, {
@@ -156,8 +165,11 @@ function resolveRedirectTarget(
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip proxy for Payload API routes to avoid self-referential fetch deadlock
-  if (pathname.startsWith('/api/')) {
+  // Skip proxy for Payload API routes to avoid self-referential fetch deadlock.
+  // Uses the same PAYLOAD_ROUTE_API root that loadRedirectRules() fetches from,
+  // so a custom API prefix is honoured consistently.
+  const apiRoot = resolvePayloadApiRoot();
+  if (pathname === apiRoot || pathname.startsWith(`${apiRoot}/`)) {
     return NextResponse.next();
   }
 

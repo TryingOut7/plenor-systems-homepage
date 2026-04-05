@@ -1,7 +1,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { buildConfig } from 'payload';
-import { validateEnv } from './lib/env-validation.ts';
+import { validateEnv, resolveDbConnectionString } from './lib/env-validation.ts';
 import { resolveDatabasePoolMax } from './payload/databasePool.ts';
 import { acceptedLanguages, type AcceptedLanguages } from '@payloadcms/translations';
 
@@ -387,7 +387,7 @@ function normalizeDatabaseConnectionString(uri?: string): string | undefined {
     .replace(/\?$/, '');
 }
 
-const databaseConnectionString = normalizeDatabaseConnectionString(process.env.DATABASE_URI || process.env.DATABASE_URL);
+const databaseConnectionString = normalizeDatabaseConnectionString(resolveDbConnectionString());
 const adminTheme = parseEnumEnv(process.env.PAYLOAD_ADMIN_THEME, adminThemeValues) || 'all';
 const adminAvatar = parseEnumEnv(process.env.PAYLOAD_ADMIN_AVATAR, adminAvatarValues) || 'default';
 const adminToastDuration = parseNumberEnv(process.env.PAYLOAD_ADMIN_TOAST_DURATION_MS);

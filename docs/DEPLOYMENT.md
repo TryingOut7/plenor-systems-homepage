@@ -1,6 +1,6 @@
 # Production deployment (Vercel + Supabase)
 
-This app is designed to run on **Vercel** (Next.js) with **Supabase Postgres** as the single database. Operational tables (`guide_submissions`, rate limits, outbox) and **Payload CMS** must use the **same** `DATABASE_URI` / project as `SUPABASE_URL`.
+This app is designed to run on **Vercel** (Next.js) with **Supabase Postgres** as the single database. Operational tables (`guide_submissions`, rate limits, outbox) and **Payload CMS** must use the **same** `POSTGRES_URL` / project as `SUPABASE_URL`.
 
 ## Runtime requirements
 
@@ -8,13 +8,13 @@ This app is designed to run on **Vercel** (Next.js) with **Supabase Postgres** a
 |-------------|--------|
 | **Node.js 20.x** | `package.json` `engines`, `.nvmrc`, and `npm run check:runtime` enforce this. In Vercel **Project → Settings → General → Node.js Version**, choose **20.x** if it does not follow `engines` automatically. |
 | **Install** | `vercel.json` uses `npm ci` for reproducible installs. |
-| **Build** | Default `npm run build` runs backend SQL migrations, **Payload** migrations, schema drift check, then `next build`. The build needs **`DATABASE_URI`** (and secrets) available during the build. |
+| **Build** | Default `npm run build` runs backend SQL migrations, **Payload** migrations, schema drift check, then `next build`. The build needs **`POSTGRES_URL`** (and secrets) available during the build. |
 
 ## Vercel environment variables
 
 Set at least these for **Production** (and **Preview** where builds run against a DB):
 
-- `DATABASE_URI` — Supabase pooler URI (same DB as below).
+- `POSTGRES_URL` — auto-provisioned by the Supabase+Vercel Marketplace integration (pooler, port 6543). Set manually for deployments not using the integration.
 - `PAYLOAD_SECRET`
 - `NEXT_PUBLIC_SERVER_URL` — canonical public URL (use preview URL for Preview deployments when testing).
 - `SUPABASE_URL` — `https://<project-ref>.supabase.co`

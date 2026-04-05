@@ -4,14 +4,18 @@ set -euo pipefail
 # Snapshot backup for Payload CMS Postgres database.
 # Usage: ./scripts/backup.sh
 # Requires: pg_dump, gzip
-# Reads DATABASE_URI from environment or .env file.
+# Reads POSTGRES_URL (Supabase+Vercel auto-provisioned) from environment or .env file.
+# Falls back to DATABASE_URI / DATABASE_URL for legacy deployments.
 
-if [ -z "${DATABASE_URI:-}" ] && [ -f .env ]; then
-  DATABASE_URI=$(grep '^DATABASE_URI=' .env | cut -d '=' -f2-)
+# Resolve from environment first, then .env file
+_DB_URI="${POSTGRES_URL:-${DATABASE_URI:-${DATABASE_URL:-}}}"
+
+if [ -z "$_DB_URI" ] && [ -f .env ]; then
+  _DB_URI=$(grep -E '^(POSTGRES_URL|DATABASE_URI|DATABASE_URL)=' .env | head -1 | cut -d '=' -f2-)
 fi
 
-if [ -z "${DATABASE_URI:-}" ]; then
-  echo "ERROR: DATABASE_URI is not set." >&2
+if [ -z "$_DB_URI" ]; then
+  echo "ERROR: POSTGRES_URL is not set (also checked DATABASE_URI / DATABASE_URL)." >&2
   exit 1
 fi
 
@@ -22,7 +26,7 @@ TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 FILENAME="$BACKUP_DIR/payload_backup_${TIMESTAMP}.sql.gz"
 
 echo "Creating backup: $FILENAME"
-pg_dump "$DATABASE_URI" --no-owner --no-acl | gzip > "$FILENAME"
+pg_dump "$_DB_URI" --no-owner --no-acl | gzip > "$FILENAME"
 
 echo "Backup complete: $FILENAME ($(du -h "$FILENAME" | cut -f1))"
 
