@@ -1,7 +1,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { buildConfig } from 'payload';
-import { validateEnv, resolveDbConnectionString } from './lib/env-validation.ts';
+import { validateEnv } from './lib/env-validation.ts';
 import { resolveDatabasePoolMax } from './payload/databasePool.ts';
 import { acceptedLanguages, type AcceptedLanguages } from '@payloadcms/translations';
 
@@ -387,7 +387,7 @@ function normalizeDatabaseConnectionString(uri?: string): string | undefined {
     .replace(/\?$/, '');
 }
 
-const databaseConnectionString = normalizeDatabaseConnectionString(resolveDbConnectionString());
+const databaseConnectionString = normalizeDatabaseConnectionString(process.env.DATABASE_URI || process.env.DATABASE_URL);
 const adminTheme = parseEnumEnv(process.env.PAYLOAD_ADMIN_THEME, adminThemeValues) || 'all';
 const adminAvatar = parseEnumEnv(process.env.PAYLOAD_ADMIN_AVATAR, adminAvatarValues) || 'default';
 const adminToastDuration = parseNumberEnv(process.env.PAYLOAD_ADMIN_TOAST_DURATION_MS);
@@ -703,13 +703,8 @@ export default buildConfig({
       connectionString: databaseConnectionString,
       ssl: { rejectUnauthorized: dbRejectUnauthorized },
       max: resolveDatabasePoolMax(Boolean(process.env.VERCEL)),
-      // On Vercel cold starts the function can queue many parallel queries.
-      // 30s gives enough headroom for the first connection to establish and
-      // any backlog to drain before giving up.
-      connectionTimeoutMillis: process.env.VERCEL ? 30000 : 10000,
-      // Release idle connections quickly on Vercel to avoid exhausting
-      // Supabase's real backend connection pool across multiple invocations.
-      idleTimeoutMillis: process.env.VERCEL ? 5000 : 30000,
+      idleTimeoutMillis: process.env.VERCEL ? 10000 : 30000,
+      connectionTimeoutMillis: 10000,
     },
   }),
   secret: (() => {

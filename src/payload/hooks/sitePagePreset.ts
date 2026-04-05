@@ -326,9 +326,6 @@ export const applyCorePresetSections: CollectionBeforeChangeHook = async ({
   const original = asObject(originalDoc);
   const presetKey = resolvePresetKey(incoming, original, operation);
   if (presetKey === 'custom') {
-    if (incoming.pageMode !== 'template' && incoming.pageMode !== 'builder') {
-      incoming.pageMode = 'builder';
-    }
     return incoming;
   }
 
@@ -362,7 +359,6 @@ export const applyCorePresetSections: CollectionBeforeChangeHook = async ({
     ...incoming,
     presetContent: mergedRoot,
     presetKey,
-    pageMode: 'template',
     sections: mergePresetTextIntoTemplateSections(templateSections, incomingSections, originalSections),
   };
 };

@@ -222,8 +222,6 @@ export type SitePage = {
   id?: string;
   title?: string;
   slug?: string;
-  pageMode?: 'builder' | 'template';
-  templateKey?: 'default' | 'landing' | 'article' | 'product';
   presetKey?: 'custom' | 'home' | 'services' | 'about' | 'pricing' | 'contact';
   presetContent?: Record<string, unknown>;
   isActive?: boolean;

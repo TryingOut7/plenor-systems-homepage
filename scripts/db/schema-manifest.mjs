@@ -230,7 +230,6 @@ function buildManifest() {
     old_value_summary:   text,
     new_value_summary:   text,
     risk_tier:           varchar_default('routine'),
-    changed_at:          timestamptz,
   };
 
   // ---------------------------------------------------------------------------
@@ -299,6 +298,7 @@ function buildManifest() {
     seo_noindex:                boolean_false,
     seo_nofollow:               boolean_false,
     seo_include_in_sitemap:     boolean_false,
+    sections_locked:            boolean_false,
   };
 
   // ---------------------------------------------------------------------------
@@ -324,7 +324,6 @@ function buildManifest() {
     ...columns['page_playgrounds'],
     name:       varchar,
     visibility: varchar,
-    expires_at: timestamptz,
     notes:      text,
   };
 

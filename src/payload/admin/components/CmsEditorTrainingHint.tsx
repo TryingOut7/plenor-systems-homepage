@@ -7,7 +7,7 @@ const corePresetKeys = new Set(['home', 'services', 'about', 'pricing', 'contact
 const CmsEditorTrainingHint: FieldLabelClientComponent = (props) => {
   const data = (props as { data?: Record<string, unknown> }).data;
   const presetKey = typeof data?.presetKey === 'string' ? data.presetKey : 'custom';
-  const presetLocked = corePresetKeys.has(presetKey);
+  const presetLocked = corePresetKeys.has(presetKey) || data?.sectionsLocked === true;
 
   return (
     <details

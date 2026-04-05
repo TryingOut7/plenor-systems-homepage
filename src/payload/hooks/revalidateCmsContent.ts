@@ -20,6 +20,7 @@ function safeRevalidatePath(path: string, type?: 'page' | 'layout'): void {
     // Dynamic import so this file is safe to import in non-Next environments
     // (Payload CLI, seed scripts). The actual revalidatePath is only available
     // when running inside Next.js.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { revalidatePath } = require('next/cache') as {
       revalidatePath: (path: string, type?: 'page' | 'layout') => void;
     };
@@ -102,7 +103,7 @@ export function revalidateCollectionContent(
   }
 }
 
-export function revalidateGlobalContent(globalSlug: string): void {
+export function revalidateGlobalContent(): void {
   // Any global change (site-settings, ui-settings) affects the shared layout
   // rendered on every page, so revalidate everything.
   revalidateAllFrontendPages();

@@ -23,7 +23,7 @@ function readDisplayLabel(blockType: string | undefined, rowLabel: string | unde
 
 const SectionBlockRowLabel: React.FC<BlockLabelProps> = ({ blockType, rowLabel, data }) => {
   const presetKey = typeof data?.presetKey === 'string' ? data.presetKey : 'custom';
-  const isLockedLayout = corePresetKeys.has(presetKey);
+  const isLockedLayout = corePresetKeys.has(presetKey) || data?.sectionsLocked === true;
   const displayLabel = readDisplayLabel(blockType, rowLabel);
 
   return (

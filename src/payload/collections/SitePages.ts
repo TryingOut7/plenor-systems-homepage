@@ -17,19 +17,6 @@ import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigrati
 import { sitePagePublishGuardsBeforeChange } from '../hooks/sitePageGuards.ts';
 import { withFieldTier } from '../fields/fieldTier.ts';
 
-const corePresetValues = ['home', 'services', 'about', 'pricing', 'contact'] as const;
-
-function readPresetKey(data: unknown): string {
-  if (!data || typeof data !== 'object') return 'custom';
-  const key = (data as Record<string, unknown>).presetKey;
-  return typeof key === 'string' ? key : 'custom';
-}
-
-function isCorePreset(data: unknown): boolean {
-  const key = readPresetKey(data);
-  return corePresetValues.includes(key as (typeof corePresetValues)[number]);
-}
-
 function asObject(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
   return value as Record<string, unknown>;
@@ -58,13 +45,12 @@ function readEffectiveSlug(incoming: Record<string, unknown>, original: Record<s
 function readEffectiveIsActive(
   incoming: Record<string, unknown>,
   original: Record<string, unknown>,
-  operation: 'create' | 'update',
 ): boolean {
   if (typeof incoming.isActive === 'boolean') return incoming.isActive;
   if (typeof original.isActive === 'boolean') return original.isActive;
 
-  // Field default is true for newly created pages.
-  return operation === 'create';
+  // Field default is false for newly created pages (admin/editor must activate).
+  return false;
 }
 
 const enforceSitePageActivationRules: CollectionBeforeChangeHook = async ({
@@ -80,7 +66,7 @@ const enforceSitePageActivationRules: CollectionBeforeChangeHook = async ({
 
   const nextPresetKey = readEffectivePresetKey(incoming, original);
   const nextSlug = readEffectiveSlug(incoming, original);
-  const nextIsActive = readEffectiveIsActive(incoming, original, operation);
+  const nextIsActive = readEffectiveIsActive(incoming, original);
   if (nextPresetKey !== 'home' || nextSlug !== 'home' || !nextIsActive) return incoming;
 
   const currentId = incoming.id ?? original.id;
@@ -132,6 +118,7 @@ export const SitePages: CollectionConfig = {
     ],
     group: 'Pages',
     description: 'Main website pages. Core preset pages use a fixed layout; custom pages use the section builder.',
+    baseListFilter: () => ({ workflowStatus: { equals: 'published' } }),
     components: {
       beforeList: ['@/payload/admin/components/TrashNotFoundBanner'],
       edit: {
@@ -144,7 +131,7 @@ export const SitePages: CollectionConfig = {
       if (req.user) return true;
       return { workflowStatus: { equals: 'published' }, isActive: { equals: true } };
     },
-    create: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
+    create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
     update: authorScopedUpdate,
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
@@ -222,34 +209,7 @@ export const SitePages: CollectionConfig = {
       unique: true,
       admin: {
         position: 'sidebar',
-      },
-    },
-    {
-      name: 'pageMode',
-      type: 'select',
-      defaultValue: 'builder',
-      options: [
-        { label: 'Layout: Custom', value: 'builder' },
-        { label: 'Layout: Fixed', value: 'template' },
-      ],
-      admin: {
-        position: 'sidebar',
-        description: 'Choose custom layout controls or fixed template layout.',
-        condition: (data) => !isCorePreset(data),
-      },
-    },
-    {
-      name: 'templateKey',
-      type: 'select',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Landing', value: 'landing' },
-        { label: 'Article', value: 'article' },
-        { label: 'Product', value: 'product' },
-      ],
-      admin: {
-        position: 'sidebar',
-        condition: (data, siblingData) => !isCorePreset(data) && siblingData?.pageMode === 'template',
+        description: 'URL path segment. Use "home" for the root ( / ) page. All other slugs map to /<slug>. Auto-formatted: no leading or trailing slashes.',
       },
     },
     {
@@ -281,7 +241,7 @@ export const SitePages: CollectionConfig = {
     {
       name: 'isActive',
       type: 'checkbox',
-      defaultValue: true,
+      defaultValue: false,
       access: {
         create: ({ req }) =>
           !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
@@ -290,6 +250,7 @@ export const SitePages: CollectionConfig = {
       },
       admin: {
         position: 'sidebar',
+        description: 'Inactive pages are not served on the frontend and do not appear in the sitemap. New pages are inactive by default — activate only once the content is ready.',
       },
     },
     {
@@ -337,7 +298,7 @@ export const SitePages: CollectionConfig = {
       admin: {
         condition: () => true,
         description:
-          'For fixed preset pages, section structure is managed automatically. Edit text/images inside each locked section. Manage forms in the Forms collection and place them using Form Embed sections.',
+          'Add, reorder, and configure page sections. For core preset pages the structure is managed automatically — you can edit content within sections but cannot add or remove them here. Manage forms in the Forms collection and embed them using Form Section blocks.',
         components: {
           beforeInput: ['@/payload/admin/components/CmsEditorTrainingHint'],
         },

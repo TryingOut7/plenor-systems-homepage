@@ -29,6 +29,12 @@ const SOURCE_META: Record<string, SourceMeta> = {
     border: '#93C5FD',
     text: '#1D4ED8',
   },
+  'from-playground': {
+    label: 'FROM PLAYGROUND',
+    background: '#FFF7ED',
+    border: '#FDBA74',
+    text: '#9A3412',
+  },
 };
 
 function resolveSourceType(value: unknown): string {

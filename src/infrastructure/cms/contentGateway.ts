@@ -15,8 +15,6 @@ export const payloadContentRepository: ContentRepository = {
       id: page.id,
       title: page.title,
       slug: page.slug,
-      pageMode: page.pageMode,
-      templateKey: page.templateKey,
       presetKey: page.presetKey,
       hideNavbar: page.hideNavbar,
       hideFooter: page.hideFooter,

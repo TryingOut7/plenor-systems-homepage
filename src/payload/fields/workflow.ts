@@ -25,7 +25,7 @@ export type WorkflowStatus = (typeof workflowStatuses)[number];
 
 export const workflowStatusField: Field = {
   name: 'workflowStatus',
-  label: 'Publication Status',
+  label: 'Content Status',
   type: 'select',
   defaultValue: 'draft',
   options: [
@@ -45,18 +45,52 @@ export const workflowStatusField: Field = {
   },
 };
 
+/**
+ * Workflow status field for page drafts.
+ * Identical state machine but the 'published' option is relabeled to
+ * "Completed (Promoted)" so it is clear the draft itself is never live —
+ * only the promoted site-page is.
+ */
+export const pageDraftWorkflowStatusField: Field = {
+  name: 'workflowStatus',
+  label: 'Editorial Status',
+  type: 'select',
+  defaultValue: 'draft',
+  options: [
+    { label: 'Draft', value: 'draft' },
+    { label: 'Awaiting Review', value: 'in_review' },
+    { label: 'Approved', value: 'approved' },
+    { label: 'Changes Requested', value: 'rejected' },
+    { label: 'Completed (Promoted)', value: 'published' },
+  ],
+  admin: {
+    position: 'sidebar',
+    description:
+      'Authors: submit to "Awaiting Review" when ready. Editors: approve or request changes. Use the Promote to Live button to publish. Status changes to "Completed" automatically after promotion.',
+    components: {
+      beforeInput: ['@/payload/admin/components/WorkflowStatusBanner'],
+    },
+  },
+};
+
 export const workflowApprovalFields: Field[] = [
   {
     name: 'reviewChecklistComplete',
     type: 'checkbox',
     defaultValue: false,
+    access: {
+      update: ({ req }) => {
+        const role = (req.user as Record<string, unknown> | undefined)?.role as string | undefined;
+        return role === 'admin' || role === 'editor';
+      },
+    },
     admin: {
       position: 'sidebar',
       condition: (data) =>
         data?.workflowStatus === 'in_review' ||
         data?.workflowStatus === 'approved' ||
         data?.workflowStatus === 'published',
-      description: 'Confirm required review checklist has been completed before approval/publish.',
+      description: 'Editors/admins only: confirm the review checklist is complete before approving.',
     },
   },
   {

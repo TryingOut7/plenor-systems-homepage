@@ -47,7 +47,7 @@ export default function UniversalSections({
     visited: ReadonlySet<string>,
     depth: number,
   ): ((section: import('@/payload/cms').PageSection, index: number, keyPrefix?: string) => ReactNode) => {
-    return (section, index, keyPrefix = '') => {
+    function renderSectionNode(section: import('@/payload/cms').PageSection, index: number, keyPrefix = ''): ReactNode {
       const sectionId = section.id ? String(section.id) : '';
       const sectionKey = `${keyPrefix}${sectionId || index}`;
       if (depth >= MAX_NEST_DEPTH) {
@@ -147,7 +147,8 @@ export default function UniversalSections({
         inquiryFormLabels,
         renderNestedSection,
       });
-    };
+    }
+    return renderSectionNode;
   };
 
   const renderSection = makeRenderSection(new Set(), 0);

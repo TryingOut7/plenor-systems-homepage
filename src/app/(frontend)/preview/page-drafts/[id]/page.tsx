@@ -49,8 +49,6 @@ function mapDraftToPreviewPage(args: {
     id: String(draft.id ?? fallbackSlug),
     title,
     slug,
-    pageMode: 'builder',
-    templateKey: undefined,
     presetKey: 'custom',
     presetContent: undefined,
     isActive: true,

@@ -40,14 +40,26 @@ const STATUS_META: Record<string, BadgeMeta> = {
     border: '#86EFAC',
     text: '#166534',
   },
+  promoted: {
+    label: 'PROMOTED',
+    background: '#F0FDF4',
+    border: '#86EFAC',
+    text: '#166534',
+  },
 };
 
-const LifecycleBadgeCell = ({ rowData }: DefaultCellComponentProps) => {
+const LifecycleBadgeCell = ({ collectionSlug, rowData }: DefaultCellComponentProps) => {
   const workflowStatus =
     rowData && typeof rowData === 'object' && typeof rowData.workflowStatus === 'string'
       ? rowData.workflowStatus
       : '';
-  const meta = STATUS_META[workflowStatus];
+
+  const resolvedKey =
+    workflowStatus === 'published' && collectionSlug === 'page-drafts'
+      ? 'promoted'
+      : workflowStatus;
+
+  const meta = STATUS_META[resolvedKey];
   if (!meta) return null;
 
   return (

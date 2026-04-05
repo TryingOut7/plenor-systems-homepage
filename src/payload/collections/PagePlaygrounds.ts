@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, Where } from 'payload';
 import { pageSectionBlocks, modernPageSectionBlockSlugs } from '../blocks/pageSections.ts';
 import { createdByField } from '../fields/ownership.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
@@ -15,7 +15,7 @@ export const PagePlaygrounds: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['workspaceBadge', 'name', 'visibility', 'createDraftAction', 'createPresetAction', 'expiresAt', 'updatedAt'],
+    defaultColumns: ['workspaceBadge', 'name', 'visibility', 'createDraftAction', 'createPresetAction', 'updatedAt'],
     group: 'Pages',
     description: 'Safe sandbox area for trying layouts and section combinations before creating a draft.',
     components: {
@@ -29,7 +29,19 @@ export const PagePlaygrounds: CollectionConfig = {
     },
   },
   access: {
-    read: ({ req }) => !!req.user,
+    read: ({ req }) => {
+      if (!req.user) return false;
+      const user = req.user as Record<string, unknown>;
+      const role = user.role as string;
+      if (['admin', 'editor'].includes(role)) return true;
+      const where: Where = {
+        or: [
+          { visibility: { equals: 'team' } },
+          { createdBy: { equals: user.id } },
+        ],
+      };
+      return where;
+    },
     create: ({ req }) =>
       !!req.user &&
       ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
@@ -107,16 +119,7 @@ export const PagePlaygrounds: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
-      },
-    },
-    {
-      name: 'expiresAt',
-      type: 'date',
-      admin: {
-        position: 'sidebar',
-        date: {
-          pickerAppearance: 'dayAndTime',
-        },
+        description: 'Private playgrounds are visible only to you. Team playgrounds are visible to all logged-in users.',
       },
     },
     {
@@ -130,7 +133,7 @@ export const PagePlaygrounds: CollectionConfig = {
       filterOptions: modernPageSectionBlockSlugs,
       admin: {
         description:
-          'Manage forms in the Forms collection and place them using Form Embed sections.',
+          'Experiment freely with page layouts. Nothing here is live. When you are happy with a layout use "Create Draft" or "Create Preset" to move it into the review pipeline. Manage forms in the Forms collection and embed them using Form Section blocks.',
         components: {
           beforeInput: ['@/payload/admin/components/CmsEditorTrainingHint'],
         },

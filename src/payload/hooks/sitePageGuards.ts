@@ -634,7 +634,10 @@ export const sitePagePublishGuardsBeforeChange: CollectionBeforeChangeHook = ({
     throw new Error(`[ERROR_SAVE][SPG_COMPLETENESS] ${completeness.ERROR_SAVE.join(' | ')}`);
   }
 
-  if (publishPath && completeness.ERROR_PUBLISH.length > 0) {
+  const bypassPublishGuards =
+    context && typeof context === 'object' && (context as Record<string, unknown>).bypassPublishGuards === true;
+
+  if (publishPath && completeness.ERROR_PUBLISH.length > 0 && !bypassPublishGuards) {
     reportGuardFailure({
       req,
       code: 'SPG_COMPLETENESS_PUBLISH_BLOCK',

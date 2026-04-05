@@ -9,8 +9,8 @@ import { createdByField } from '../fields/ownership.ts';
 export const PagePresets: CollectionConfig = {
   slug: 'page-presets',
   labels: {
-    singular: 'Preset',
-    plural: 'Presets',
+    singular: 'Section Template',
+    plural: 'Section Templates',
   },
   admin: {
     useAsTitle: 'name',
@@ -24,7 +24,7 @@ export const PagePresets: CollectionConfig = {
       'updatedAt',
     ],
     group: 'Pages',
-    description: 'Reusable page blueprints. Presets do not own routes and cannot be published directly.',
+    description: 'Reusable page layouts (section templates). Templates do not own routes — use "Create Draft" to start a new draft from one.',
     components: {
       beforeList: ['@/payload/admin/components/TrashNotFoundBanner'],
       edit: {
@@ -114,6 +114,7 @@ export const PagePresets: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
+        description: 'Core: system-managed preset for a primary site page. Landing/Campaign: purpose-built layouts. Internal: back-office or utility pages. Custom: team-created layouts.',
       },
     },
     {
@@ -150,7 +151,7 @@ export const PagePresets: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
-        description: 'Editable mode allows add/remove/reorder of sections in drafts created from this preset.',
+        description: 'Locked structure prevents adding, removing, or reordering sections in drafts created from this template. Content within sections can still be edited.',
       },
     },
     {
@@ -160,7 +161,7 @@ export const PagePresets: CollectionConfig = {
       filterOptions: modernPageSectionBlockSlugs,
       admin: {
         description:
-          'Manage forms in the Forms collection and place them using Form Embed sections.',
+          'Define the reusable section layout for this template. Use "Create Draft" to instantiate a new draft from this template. Manage forms in the Forms collection and embed them using Form Section blocks.',
         components: {
           beforeInput: ['@/payload/admin/components/CmsEditorTrainingHint'],
         },
@@ -183,6 +184,7 @@ export const PagePresets: CollectionConfig = {
       admin: {
         position: 'sidebar',
         readOnly: true,
+        description: 'Records whether this template was captured manually or from an existing page, draft, or playground.',
       },
     },
     {
@@ -195,6 +197,7 @@ export const PagePresets: CollectionConfig = {
       admin: {
         position: 'sidebar',
         readOnly: true,
+        condition: (_, siblingData) => siblingData?.sourceType === 'from-live',
       },
     },
     {
@@ -207,6 +210,7 @@ export const PagePresets: CollectionConfig = {
       admin: {
         position: 'sidebar',
         readOnly: true,
+        condition: (_, siblingData) => siblingData?.sourceType === 'from-draft',
       },
     },
     {
@@ -219,10 +223,12 @@ export const PagePresets: CollectionConfig = {
       admin: {
         position: 'sidebar',
         readOnly: true,
+        condition: (_, siblingData) => siblingData?.sourceType === 'from-playground',
       },
     },
     {
       name: 'createdFromSnapshotAt',
+      label: 'Captured At',
       type: 'date',
       access: {
         update: () => false,
@@ -230,6 +236,7 @@ export const PagePresets: CollectionConfig = {
       admin: {
         position: 'sidebar',
         readOnly: true,
+        description: 'Timestamp when the section layout was snapshotted from its source document.',
       },
     },
     createdByField,

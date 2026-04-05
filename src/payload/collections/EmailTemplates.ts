@@ -13,7 +13,7 @@ export const EmailTemplates: CollectionConfig = {
     read: ({ req }) => !!req.user,
     create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
-    delete: ({ req }) => !!req.user && (req.user as Record<string, unknown>).role === 'admin',
+    delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   fields: [
     {

@@ -5,7 +5,7 @@ export const AuditLogs: CollectionConfig = {
   slug: 'audit-logs',
   admin: {
     useAsTitle: 'summary',
-    defaultColumns: ['summary', 'riskTier', 'action', 'collection', 'fieldPath', 'user', 'ipAddress', 'createdAt'],
+    defaultColumns: ['summary', 'riskTier', 'action', 'collection', 'documentTitle', 'user', 'createdAt'],
     group: 'System',
   },
   access: {
@@ -78,12 +78,6 @@ export const AuditLogs: CollectionConfig = {
         position: 'sidebar',
         description: 'Routine = normal content change, System = high-risk settings or policy-governed changes.',
       },
-    },
-    {
-      name: 'changedAt',
-      type: 'date',
-      required: true,
-      admin: { position: 'sidebar' },
     },
     {
       name: 'summary',

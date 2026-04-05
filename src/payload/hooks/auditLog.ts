@@ -197,7 +197,6 @@ function buildAuditEntryData(args: {
     oldValueSummary,
     newValueSummary,
     riskTier,
-    changedAt: new Date().toISOString(),
     summary: `${userRecord.email || 'Unknown'} changed ${collection}.${fieldPath}: ${summarizeTransition(oldValueSummary, newValueSummary)}`,
   };
 }
@@ -405,7 +404,7 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
 }) => {
   invalidateCmsGlobalCaches(global.slug);
   if (!context?.autosave) {
-    revalidateGlobalContent(global.slug);
+    revalidateGlobalContent();
   }
   if (!req.user) return doc;
   if (context?.autosave) return doc;

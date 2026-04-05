@@ -1,6 +1,6 @@
 import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload';
 import { pageSectionBlocks, modernPageSectionBlockSlugs } from '../blocks/pageSections.ts';
-import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
+import { pageDraftWorkflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
 import { buildSeoFields } from '../fields/seo.ts';
 import { createdByField } from '../fields/ownership.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
@@ -86,6 +86,10 @@ const hydrateSectionsFromPresetBeforeChange: CollectionBeforeChangeHook = async 
     : [];
   incoming.sections = cloneValueWithoutIds(presetSections);
 
+  if (presetRecord?.structureMode === 'locked') {
+    incoming.sectionsLocked = true;
+  }
+
   const title =
     typeof incoming.title === 'string' ? incoming.title.trim() : '';
   if (!title) {
@@ -97,6 +101,46 @@ const hydrateSectionsFromPresetBeforeChange: CollectionBeforeChangeHook = async 
   }
 
   return incoming;
+};
+
+type SectionRecord = Record<string, unknown>;
+
+const validateLockedSectionsBeforeChange: CollectionBeforeChangeHook = ({
+  data,
+  originalDoc,
+  operation: op,
+}) => {
+  if (op !== 'update') return data;
+
+  const incoming = data as Record<string, unknown>;
+  const original = originalDoc as Record<string, unknown> | undefined;
+
+  if (!original?.sectionsLocked) return data;
+
+  const incomingSections = Array.isArray(incoming.sections)
+    ? (incoming.sections as SectionRecord[])
+    : null;
+  if (!incomingSections) return data;
+
+  const originalSections = Array.isArray(original.sections)
+    ? (original.sections as SectionRecord[])
+    : [];
+
+  if (incomingSections.length !== originalSections.length) {
+    throw new Error(
+      'This draft was created from a locked-structure preset. Sections cannot be added or removed.',
+    );
+  }
+
+  for (let i = 0; i < incomingSections.length; i++) {
+    if (incomingSections[i]?.blockType !== originalSections[i]?.blockType) {
+      throw new Error(
+        'This draft was created from a locked-structure preset. Section types and order cannot be changed.',
+      );
+    }
+  }
+
+  return data;
 };
 
 const normalizeDraftSourceReferencesBeforeChange: CollectionBeforeChangeHook = ({ data }) => {
@@ -171,6 +215,7 @@ export const PageDrafts: CollectionConfig = {
       normalizeTargetSlugBeforeChange,
       normalizeDraftSourceReferencesBeforeChange,
       hydrateSectionsFromPresetBeforeChange,
+      validateLockedSectionsBeforeChange,
       workflowBeforeChange,
       migrateLegacySectionsBeforeChange,
       migrateGuideInquirySectionsBeforeChange,
@@ -248,6 +293,7 @@ export const PageDrafts: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
+        description: 'Where the initial sections come from. "From Preset" copies the template sections; locked presets prevent structural changes after creation.',
       },
     },
     {
@@ -288,7 +334,7 @@ export const PageDrafts: CollectionConfig = {
       filterOptions: modernPageSectionBlockSlugs,
       admin: {
         description:
-          'Manage forms in the Forms collection and place them using Form Embed sections.',
+          'Build the page layout. Add, reorder, and configure sections. If this draft was created from a locked-structure template the section order and types are fixed — you can edit content within each section but cannot add or remove sections. Manage forms in the Forms collection and embed them using Form Section blocks.',
         components: {
           beforeInput: ['@/payload/admin/components/CmsEditorTrainingHint'],
         },
@@ -301,8 +347,19 @@ export const PageDrafts: CollectionConfig = {
         description: 'Internal notes for reviewers and future maintainers.',
       },
     },
+    {
+      name: 'sectionsLocked',
+      type: 'checkbox',
+      defaultValue: false,
+      access: {
+        update: () => false,
+      },
+      admin: {
+        condition: () => false,
+      },
+    },
     createdByField,
-    workflowStatusField,
+    pageDraftWorkflowStatusField,
     ...workflowApprovalFields,
     ...buildSeoFields({ canonicalSystemTier: true }),
   ],

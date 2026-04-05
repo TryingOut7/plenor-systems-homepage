@@ -34,9 +34,7 @@ export const UISettings: GlobalConfig = {
   versions: {
     max: 25,
     drafts: {
-      autosave: {
-        interval: 1000,
-      },
+      autosave: false,
     },
   },
   hooks: {
@@ -85,7 +83,7 @@ export const UISettings: GlobalConfig = {
                 { name: 'cookieText', type: 'text', defaultValue: '#FFFFFF', admin: { description: cssValueHint } },
                 { name: 'cookieLink', type: 'text', defaultValue: '#93C5FD', admin: { description: cssValueHint } },
 
-                { name: 'navBackground', type: 'text', defaultValue: 'transparent', admin: { description: cssValueHint } },
+                { name: 'navBackground', type: 'text', defaultValue: 'transparent', admin: { description: `Navbar container background color (top of page). ${cssValueHint}` } },
                 { name: 'navScrolledBackground', type: 'text', defaultValue: '#FFFFFF', admin: { description: cssValueHint } },
                 { name: 'navBorder', type: 'text', defaultValue: '#E5E7EB', admin: { description: cssValueHint } },
               ],
@@ -223,7 +221,7 @@ export const UISettings: GlobalConfig = {
                 { name: 'ghostBackgroundHover', type: 'text', defaultValue: '#F0F4FA', admin: { description: cssValueHint } },
                 { name: 'ghostText', type: 'text', defaultValue: '#1B2D4F', admin: { description: cssValueHint } },
 
-                { name: 'navBackground', type: 'text', defaultValue: '#1B2D4F', admin: { description: cssValueHint } },
+                { name: 'navBackground', type: 'text', defaultValue: '#1B2D4F', admin: { description: `Navbar CTA button background color (not the navbar container). ${cssValueHint}` } },
                 { name: 'navBackgroundHover', type: 'text', defaultValue: '#2A4270', admin: { description: cssValueHint } },
                 { name: 'navText', type: 'text', defaultValue: '#FFFFFF', admin: { description: cssValueHint } },
               ],

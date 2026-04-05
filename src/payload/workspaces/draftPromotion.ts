@@ -74,6 +74,9 @@ export async function promoteDraftToLive(args: {
     user,
   });
 
+  let livePageId: string | number;
+  let isNew: boolean;
+
   if (existing.docs.length > 0) {
     const existingPage = asRecord(existing.docs[0]);
     const pageId = existingPage.id as string | number;
@@ -91,28 +94,37 @@ export async function promoteDraftToLive(args: {
       },
     });
 
-    return { id: pageId, isNew: false, slug: targetSlug };
+    livePageId = pageId;
+    isNew = false;
+  } else {
+    const created = await payload.create({
+      collection: 'site-pages',
+      depth: 0,
+      overrideAccess: false,
+      user,
+      context: { bypassPublishGuards: true },
+      data: {
+        title,
+        slug: targetSlug,
+        sections: sectionsForCreate,
+        seo: seoForCreate,
+        workflowStatus: 'published',
+        isActive: true,
+      },
+    });
+
+    const createdRecord = asRecord(created);
+    livePageId = (createdRecord.id as string | number) ?? '';
+    isNew = true;
   }
 
-  const created = await payload.create({
-    collection: 'site-pages',
+  await payload.update({
+    collection: 'page-drafts',
+    id: draftId,
     depth: 0,
-    overrideAccess: false,
-    user,
-    data: {
-      title,
-      slug: targetSlug,
-      sections: sectionsForCreate,
-      seo: seoForCreate,
-      workflowStatus: 'draft',
-      isActive: false,
-    },
+    overrideAccess: true,
+    data: { workflowStatus: 'published' },
   });
 
-  const createdRecord = asRecord(created);
-  return {
-    id: (createdRecord.id as string | number) ?? '',
-    isNew: true,
-    slug: targetSlug,
-  };
+  return { id: livePageId, isNew, slug: targetSlug };
 }

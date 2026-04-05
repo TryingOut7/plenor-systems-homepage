@@ -10,7 +10,6 @@ import {
   UnderlineFeature,
   UnorderedListFeature,
 } from '@payloadcms/richtext-lexical';
-import { seoFields } from '../fields/seo.ts';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
 import { createdByField } from '../fields/ownership.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
@@ -125,13 +124,6 @@ export const Testimonials: CollectionConfig = {
       },
     },
     {
-      name: 'publishedAt',
-      type: 'date',
-      admin: {
-        position: 'sidebar',
-      },
-    },
-    {
       name: 'tags',
       type: 'array',
       fields: [
@@ -146,6 +138,5 @@ export const Testimonials: CollectionConfig = {
     createdByField,
     workflowStatusField,
     ...workflowApprovalFields,
-    ...seoFields,
   ],
 };

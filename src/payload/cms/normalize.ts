@@ -28,7 +28,6 @@ const DEFAULT_SITE_PAGES: Record<string, SitePage> = DEFAULT_SITE_PAGE_SLUGS.red
   acc[presetKey] = {
     title: DEFAULT_PAGE_TITLES[presetKey],
     slug: presetKey,
-    pageMode: 'builder',
     presetKey,
     presetContent: {},
     isActive: true,

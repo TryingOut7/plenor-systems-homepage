@@ -1,6 +1,8 @@
 import type { CollectionConfig } from 'payload';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
+import { createdByField } from '../fields/ownership.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
+import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
 import { validateHttpUrl } from '../validation/url.ts';
 
@@ -25,7 +27,7 @@ export const TeamMembers: CollectionConfig = {
     delete: ({ req }) => !!req.user && ['admin'].includes((req.user as Record<string, unknown>).role as string),
   },
   hooks: {
-    beforeChange: [workflowBeforeChange],
+    beforeChange: [stampCreatedByBeforeChange, workflowBeforeChange],
     afterChange: [workflowAfterChange, auditAfterChange],
     afterDelete: [auditAfterDelete],
   },
@@ -44,6 +46,7 @@ export const TeamMembers: CollectionConfig = {
       defaultValue: 0,
       admin: { position: 'sidebar', description: 'Sort order (lower = first)' },
     },
+    createdByField,
     workflowStatusField,
     ...workflowApprovalFields,
   ],

@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth, useField } from '@payloadcms/ui';
+import { useAuth, useDocumentInfo, useField } from '@payloadcms/ui';
 import type { FieldLabelClientComponent } from 'payload';
 import { useCallback, useState } from 'react';
 
@@ -48,25 +48,35 @@ const STATUS_TONES: Record<string, StatusTone> = {
     background: '#F0FDF4',
     text: '#166534',
   },
+  published_draft: {
+    title: 'Completed — promoted to live',
+    body: 'This draft has been promoted. The live page now reflects its content.',
+    border: '#15803D',
+    background: '#F0FDF4',
+    text: '#166534',
+  },
 };
 
 const WorkflowStatusBanner: FieldLabelClientComponent = (props) => {
   const data = (props as { data?: Record<string, unknown> }).data || {};
   const { user } = useAuth();
+  const { docConfig } = useDocumentInfo();
   const { formProcessing, setValue, value } = useField<string>({ path: 'workflowStatus' });
   const [queuedForReview, setQueuedForReview] = useState(false);
 
-  const status = typeof value === 'string'
+  const isDraft = docConfig?.slug === 'page-drafts';
+  const rawStatus = typeof value === 'string'
     ? value
     : (typeof data.workflowStatus === 'string' ? data.workflowStatus : 'draft');
+  const status = rawStatus === 'published' && isDraft ? 'published_draft' : rawStatus;
   const rejectionReason =
-    status === 'rejected' && typeof data.rejectionReason === 'string'
+    rawStatus === 'rejected' && typeof data.rejectionReason === 'string'
       ? data.rejectionReason.trim()
       : '';
   const role = typeof user === 'object' && user && 'role' in user
     ? String((user as Record<string, unknown>).role || '')
     : '';
-  const canSubmitForReview = role === 'author' && status === 'draft';
+  const canSubmitForReview = role === 'author' && rawStatus === 'draft';
 
   const tone = STATUS_TONES[status] || STATUS_TONES.draft;
 

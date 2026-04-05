@@ -121,7 +121,6 @@ export async function seedSitePages(): Promise<SeedSitePagesResult> {
           collection: 'site-pages',
           id: String(current.id),
           data: {
-            pageMode: 'builder',
             presetKey: page.presetKey,
             presetContent: presetRoot,
             isActive: true,
@@ -153,7 +152,6 @@ export async function seedSitePages(): Promise<SeedSitePagesResult> {
       data: {
         title: page.title,
         slug: page.slug,
-        pageMode: 'builder',
         presetKey: page.presetKey,
         presetContent: presetRoot,
         isActive: true,
