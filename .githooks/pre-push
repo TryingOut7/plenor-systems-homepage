@@ -40,8 +40,11 @@ if [ -z "${DATABASE_URI:-}" ] && [ -z "${DATABASE_URL:-}" ]; then
 fi
 
 echo "🔍 [pre-push] Checking for pending backend migrations..."
+# Command substitution must not trip `set -e` when migrate-status exits non-zero.
+set +e
 migrate_status_output=$(node scripts/db/migrate-status.mjs --check 2>&1)
 migrate_exit=$?
+set -e
 if echo "$migrate_status_output" | grep -qE "Missing DATABASE_URI|Missing DATABASE_URL|Connection refused|ECONNREFUSED|connect ENOENT"; then
   echo "   ⚠️  DB unreachable locally — skipping pending migration check."
   echo "   CI will verify and apply migrations on deploy."
