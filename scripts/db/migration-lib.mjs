@@ -18,38 +18,45 @@ function parseMigrationFilename(name) {
   };
 }
 
+/**
+ * Strip sslmode from the connection string so that pg honours the ssl object
+ * option exclusively. Newer pg versions treat sslmode=require as verify-full,
+ * which rejects Supabase's certificate chain even when rejectUnauthorized=false
+ * is set on the pool/client config.
+ */
+function normalizeConnectionString(uri) {
+  return uri
+    .replace(/[?&]sslmode=[^&]*/gi, (match) => (match.startsWith('?') ? '?' : ''))
+    .replace(/\?&/, '?')
+    .replace(/\?$/, '');
+}
+
 function resolveSsl(connectionString) {
   try {
     const parsed = new URL(connectionString);
     const sslMode = parsed.searchParams.get('sslmode');
-    if (sslMode === 'disable') {
-      return false;
-    }
-
-    if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
-      return false;
-    }
+    if (sslMode === 'disable') return false;
+    if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') return false;
   } catch {
     // Fall through to env-driven default.
   }
 
   return {
-    rejectUnauthorized:
-      process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true',
+    rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true',
   };
 }
 
 function getDatabaseUri() {
-  const databaseUri =
+  const raw =
     process.env.POSTGRES_URL?.trim() ||
     process.env.DATABASE_URI?.trim() ||
     process.env.DATABASE_URL?.trim();
-  if (!databaseUri) {
+  if (!raw) {
     throw new Error(
       'Missing POSTGRES_URL environment variable (or legacy DATABASE_URI / DATABASE_URL).',
     );
   }
-  return databaseUri;
+  return normalizeConnectionString(raw);
 }
 
 export async function withDatabaseClient(run) {
