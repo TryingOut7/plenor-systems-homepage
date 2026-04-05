@@ -64,7 +64,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     for (const tag of body.tags ?? []) {
       if (typeof tag === 'string' && tag.trim()) {
-        revalidateTag(tag.trim());
+        revalidateTag(tag.trim(), 'max');
         revalidated.push(`tag:${tag.trim()}`);
       }
     }

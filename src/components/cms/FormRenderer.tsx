@@ -238,16 +238,22 @@ export default function FormRenderer({
     setLoading(true);
     setError(null);
 
+    // For alias resolution, use the dedicated /api/form-ids endpoint (single raw pg
+    // query with CDN caching) instead of Payload REST which runs countDistinct + find
+    // and causes connection contention on Vercel Hobby's single PgBouncer slot.
     const fetchForm: Promise<FormData> = resolveAlias
-      ? fetch(`/api/forms?where[templateKey][equals]=${resolveAlias}&limit=1&depth=1`)
+      ? fetch('/api/form-ids')
           .then((res) => {
-            if (!res.ok) throw new Error('Failed to load form');
-            return res.json();
+            if (!res.ok) throw new Error('Failed to load form IDs');
+            return res.json() as Promise<{ guide: number | null; inquiry: number | null }>;
           })
-          .then((data: { docs?: FormData[] }) => {
-            const found = Array.isArray(data.docs) ? data.docs[0] : undefined;
-            if (!found) throw new Error('Form not found');
-            return found;
+          .then(({ guide, inquiry }) => {
+            const resolvedId = resolveAlias === 'guide' ? guide : resolveAlias === 'inquiry' ? inquiry : null;
+            if (!resolvedId) throw new Error('Form not found');
+            return fetch(`/api/forms/${resolvedId}?depth=1`).then((res) => {
+              if (!res.ok) throw new Error('Failed to load form');
+              return res.json() as Promise<FormData>;
+            });
           })
       : fetch(`/api/forms/${formId}?depth=1`).then((res) => {
           if (!res.ok) throw new Error('Failed to load form');
