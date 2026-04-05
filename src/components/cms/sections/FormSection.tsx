@@ -5,11 +5,23 @@ import { asSectionRecord } from './utils';
 
 function formRelationshipToId(form: unknown): string {
   if (form == null) return '';
-  if (typeof form === 'number' || typeof form === 'bigint') return String(form);
-  if (typeof form === 'string') return form;
+  if (typeof form === 'number' || typeof form === 'bigint') {
+    if (typeof form === 'number' && isNaN(form)) return '';
+    return String(form);
+  }
+  if (typeof form === 'string') {
+    // Only accept strings that look like numeric IDs. Reject alias strings like
+    // 'guide' or 'inquiry' — those should have been resolved to real IDs before
+    // reaching here. If they weren't (e.g. DB error during alias resolution),
+    // passing them through causes a NaN query in the Payload REST handler.
+    return /^\d+$/.test(form.trim()) ? form.trim() : '';
+  }
   if (typeof form === 'object' && 'id' in form) {
     const id = (form as { id?: unknown }).id;
-    if (id != null) return String(id);
+    if (id != null) {
+      const strId = String(id).trim();
+      return /^\d+$/.test(strId) ? strId : '';
+    }
   }
   return '';
 }
