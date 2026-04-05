@@ -173,6 +173,12 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Skip admin panel — those routes should never be redirected, and checking
+  // redirect rules on admin cold starts wastes a PgBouncer connection slot.
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    return NextResponse.next();
+  }
+
   // Skip framework internals (HMR, chunks, image optimizer, RSC endpoints).
   if (pathname.startsWith('/_next/')) {
     return NextResponse.next();
