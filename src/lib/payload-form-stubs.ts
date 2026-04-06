@@ -9,13 +9,13 @@
 import { getPayload } from '@/payload/client';
 import type { FormTemplateKey } from '@/domain/forms/formTemplates';
 
-let guideFormId: number | string | null = null;
-let inquiryFormId: number | string | null = null;
+let guideFormId: number | null = null;
+let inquiryFormId: number | null = null;
 
 async function getOrCreateStub(
   title: string,
   templateKey: FormTemplateKey,
-): Promise<number | string> {
+): Promise<number> {
   const payload = await getPayload();
   const existing = await payload.find({
     collection: 'forms',
@@ -29,7 +29,7 @@ async function getOrCreateStub(
     overrideAccess: true,
   });
   if (existing.docs[0]) {
-    const doc = existing.docs[0] as { id?: number | string; templateKey?: unknown };
+    const doc = existing.docs[0] as { id: number; templateKey?: unknown };
     if (doc.id && doc.templateKey !== templateKey) {
       await payload.update({
         collection: 'forms',
@@ -42,7 +42,7 @@ async function getOrCreateStub(
       });
     }
     if (doc.id != null) {
-      return doc.id;
+      return Number(doc.id);
     }
   }
   const created = await payload.create({
@@ -50,15 +50,15 @@ async function getOrCreateStub(
     data: { title, templateKey, fields: [] },
     overrideAccess: true,
   });
-  return created.id;
+  return Number(created.id);
 }
 
-export async function getGuideFormId(): Promise<number | string> {
+export async function getGuideFormId(): Promise<number> {
   if (!guideFormId) guideFormId = await getOrCreateStub('Guide Download', 'guide');
   return guideFormId;
 }
 
-export async function getInquiryFormId(): Promise<number | string> {
+export async function getInquiryFormId(): Promise<number> {
   if (!inquiryFormId) inquiryFormId = await getOrCreateStub('Inquiry', 'inquiry');
   return inquiryFormId;
 }
