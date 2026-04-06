@@ -63,6 +63,7 @@ export const Testimonials: CollectionConfig = {
     afterChange: [workflowAfterChange, auditAfterChange],
     afterDelete: [auditAfterDelete],
   },
+  versions: { drafts: true },
   trash: true,
   enableQueryPresets: true,
   fields: [

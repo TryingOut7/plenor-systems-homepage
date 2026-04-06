@@ -207,7 +207,19 @@ export const PageDrafts: CollectionConfig = {
       !!req.user &&
       ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
     update: authorScopedUpdate,
-    delete: authorScopedUpdate,
+    delete: ({ req }) => {
+      if (!req.user) return false;
+      const role = (req.user as Record<string, unknown>).role as string;
+      if (['admin', 'editor'].includes(role)) return true;
+
+      if (role === 'author') {
+        return {
+          createdBy: { equals: (req.user as Record<string, unknown>).id as string | number },
+          workflowStatus: { equals: 'draft' },
+        };
+      }
+      return false;
+    },
   },
   hooks: {
     beforeChange: [

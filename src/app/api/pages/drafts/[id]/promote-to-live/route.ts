@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { promoteDraftToLive } from '@/application/workspaces/workspaceMutationService';
 import { proxyRequestToBackend } from '@/infrastructure/http/backendProxy';
 import { createPayloadWorkspaceMutationRepository } from '@/infrastructure/workspaces/payloadWorkspaceMutationRepository';
-import { requirePresetCreatorUser, toApiErrorResponse } from '../../../_shared';
+import { requirePublisherUser, toApiErrorResponse } from '../../../_shared';
 
 async function shouldRetryPromotionLocally(response: NextResponse): Promise<boolean> {
   if (response.status !== 400) return false;
@@ -35,7 +35,7 @@ export async function POST(
     );
   }
 
-  const { payload, user, errorResponse } = await requirePresetCreatorUser(request);
+  const { payload, user, errorResponse } = await requirePublisherUser(request);
   if (errorResponse || !user) return errorResponse as NextResponse;
 
   try {

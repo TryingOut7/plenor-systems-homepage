@@ -563,16 +563,6 @@ export default buildConfig({
     },
   },
 
-  // ─── Jobs Queue ───────────────────────────────────────────────────────────
-  jobs: {
-    access: {
-      queue: ({ req }) => userHasAnyRole(req, contentManagerRoles),
-      run: ({ req }) => userHasAnyRole(req, contentManagerRoles),
-    },
-    tasks: [],
-    workflows: [],
-    deleteJobOnComplete: true,
-  },
 
   collections: [
     {

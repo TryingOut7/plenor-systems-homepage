@@ -362,6 +362,11 @@ export const auditAfterDelete: CollectionAfterDeleteHook = async ({
     collectionSlug: collection.slug,
     doc,
   });
+  revalidateCollectionContent(
+    collection.slug as Parameters<typeof revalidateCollectionContent>[0],
+    {},
+    doc as Record<string, unknown>,
+  );
   if (!req.user) return doc;
 
   const userRecord = req.user as UserRecord;

@@ -1,4 +1,4 @@
-import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload';
+import type { CollectionConfig } from 'payload';
 import { buildSeoFields } from '../fields/seo.ts';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
 import { createdByField } from '../fields/ownership.ts';
@@ -17,86 +17,6 @@ import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigrati
 import { sitePagePublishGuardsBeforeChange } from '../hooks/sitePageGuards.ts';
 import { withFieldTier } from '../fields/fieldTier.ts';
 
-function asObject(value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
-  return value as Record<string, unknown>;
-}
-
-function readEffectivePresetKey(incoming: Record<string, unknown>, original: Record<string, unknown>): string {
-  const incomingPreset = incoming.presetKey;
-  if (typeof incomingPreset === 'string') return incomingPreset;
-
-  const originalPreset = original.presetKey;
-  if (typeof originalPreset === 'string') return originalPreset;
-
-  return 'custom';
-}
-
-function readEffectiveSlug(incoming: Record<string, unknown>, original: Record<string, unknown>): string {
-  const incomingSlug = incoming.slug;
-  if (typeof incomingSlug === 'string') return incomingSlug.trim().replace(/^\/+|\/+$/g, '');
-
-  const originalSlug = original.slug;
-  if (typeof originalSlug === 'string') return originalSlug.trim().replace(/^\/+|\/+$/g, '');
-
-  return '';
-}
-
-function readEffectiveIsActive(
-  incoming: Record<string, unknown>,
-  original: Record<string, unknown>,
-): boolean {
-  if (typeof incoming.isActive === 'boolean') return incoming.isActive;
-  if (typeof original.isActive === 'boolean') return original.isActive;
-
-  // Field default is false for newly created pages (admin/editor must activate).
-  return false;
-}
-
-const enforceSitePageActivationRules: CollectionBeforeChangeHook = async ({
-  data,
-  originalDoc,
-  operation,
-  req,
-}) => {
-  const incoming = asObject(data);
-  const original = asObject(originalDoc);
-
-  if (operation !== 'create' && operation !== 'update') return incoming;
-
-  const nextPresetKey = readEffectivePresetKey(incoming, original);
-  const nextSlug = readEffectiveSlug(incoming, original);
-  const nextIsActive = readEffectiveIsActive(incoming, original);
-  if (nextPresetKey !== 'home' || nextSlug !== 'home' || !nextIsActive) return incoming;
-
-  const currentId = incoming.id ?? original.id;
-  const excludeSelf =
-    typeof currentId === 'string' || typeof currentId === 'number'
-      ? [{ id: { not_equals: String(currentId) } }]
-      : [];
-
-  const result = await req.payload.find({
-    collection: 'site-pages',
-    where: {
-      and: [
-        { presetKey: { equals: 'home' } },
-        { isActive: { equals: true } },
-        ...excludeSelf,
-      ],
-    },
-    limit: 1,
-    depth: 0,
-    overrideAccess: true,
-  });
-
-  if (result.docs.length > 0) {
-    throw new Error(
-      'Only one active page can use slug "home". Deactivate the current Home page first.',
-    );
-  }
-
-  return incoming;
-};
 
 export const SitePages: CollectionConfig = {
   slug: 'site-pages',
@@ -144,7 +64,6 @@ export const SitePages: CollectionConfig = {
       migrateLegacySectionsBeforeChange,
       migrateGuideInquirySectionsBeforeChange,
       sitePagePublishGuardsBeforeChange,
-      enforceSitePageActivationRules,
     ],
     afterChange: [workflowAfterChange, auditAfterChange],
     afterDelete: [auditAfterDelete],

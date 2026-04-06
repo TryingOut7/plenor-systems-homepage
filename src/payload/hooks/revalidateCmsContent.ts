@@ -44,10 +44,13 @@ export function revalidateCollectionContent(
     return;
   }
 
-  // For other collections, only revalidate when publishing (status → published).
+  // For other collections, revalidate when publishing, unpublishing, or deleting a published item.
   const isPublishing = currentStatus === 'published';
   const wasAlreadyPublished = previousStatus === 'published';
-  if (!isPublishing) return;
+  const isDeleting = currentStatus === undefined;
+  const isUnpublishing = wasAlreadyPublished && currentStatus !== 'published';
+
+  if (!isPublishing && !wasAlreadyPublished && !isDeleting) return;
 
   switch (collectionSlug) {
     case 'site-pages': {

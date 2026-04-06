@@ -40,6 +40,42 @@ export async function requirePresetCreatorUser(request: NextRequest): Promise<{
   };
 }
 
+export async function requirePublisherUser(request: NextRequest): Promise<{
+  errorResponse: NextResponse | null;
+  payload: Awaited<ReturnType<typeof getPayloadRouteSession>>['payload'];
+  user: TypedUser | null;
+}> {
+  const { payload, user, role } = await getPayloadRouteSession(request);
+
+  if (!user) {
+    return {
+      payload,
+      user: null,
+      errorResponse: NextResponse.json(
+        { success: false, message: 'Authentication required.' },
+        { status: 401 },
+      ),
+    };
+  }
+
+  if (role !== 'admin') {
+    return {
+      payload,
+      user: null,
+      errorResponse: NextResponse.json(
+        { success: false, message: 'Only admins can publish pages to production.' },
+        { status: 403 },
+      ),
+    };
+  }
+
+  return {
+    payload,
+    user,
+    errorResponse: null,
+  };
+}
+
 export async function readJsonBody(request: NextRequest): Promise<Record<string, unknown>> {
   try {
     const body = await request.json();

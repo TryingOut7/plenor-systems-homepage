@@ -36,7 +36,7 @@ const PromoteDraftToLiveButton = (
     operation: 'update',
     permissions,
     user,
-    allowedRoles: ['admin', 'editor'],
+    allowedRoles: ['admin'],
   });
 
   if (!canPromote || docConfig?.slug !== 'page-drafts' || !id) return null;

@@ -66,7 +66,7 @@ export const pageDraftWorkflowStatusField: Field = {
   admin: {
     position: 'sidebar',
     description:
-      'Authors: submit to "Awaiting Review" when ready. Editors: approve or request changes. Use the Promote to Live button to publish. Status changes to "Completed" automatically after promotion.',
+      'Authors: submit to "Awaiting Review" when ready. Editors: approve or request changes. Administrators: Use the "Promote to Live" button to publish. Lifecycle status changes to "Completed" automatically after promotion.',
     components: {
       beforeInput: ['@/payload/admin/components/WorkflowStatusBanner'],
     },

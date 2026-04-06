@@ -102,7 +102,6 @@ export async function promoteDraftToLive(args: {
       depth: 0,
       overrideAccess: false,
       user,
-      context: { bypassPublishGuards: true },
       data: {
         title,
         slug: targetSlug,
@@ -110,6 +109,7 @@ export async function promoteDraftToLive(args: {
         seo: seoForCreate,
         workflowStatus: 'published',
         isActive: true,
+        createdBy: draftData.createdBy,
       },
     });
 
