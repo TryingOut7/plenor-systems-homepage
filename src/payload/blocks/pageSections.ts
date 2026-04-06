@@ -54,7 +54,7 @@ function withModernEditorMetadata(block: Block): Block {
   };
 }
 
-export const modernPageSectionBlocks: Block[] = [
+const modernPageSectionBlocks: Block[] = [
   HeroSection,
   RichTextSection,
   CtaSection,

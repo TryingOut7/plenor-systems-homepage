@@ -17,10 +17,6 @@ export function findSection(
   });
 }
 
-export function findSectionsByType(sections: PageSection[], blockType: string): PageSection[] {
-  return sections.filter((section) => section.blockType === blockType);
-}
-
 export function getRows(section: PageSection | undefined): unknown[] {
   if (!section || !Array.isArray(section.rows)) return [];
   return section.rows;

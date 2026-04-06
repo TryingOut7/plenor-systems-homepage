@@ -20,7 +20,6 @@ export type {
 export {
   getBlogPostBySlug,
   getCollectionData,
-  getRedirectRules,
   getServiceItemBySlug,
   getSitemapSlugs,
   getSitePageBySlug,
