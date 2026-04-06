@@ -29,6 +29,13 @@ const SKIP_PAYLOAD = parseFlag(process.argv, '--skip-payload');
 const ROOT = process.cwd();
 
 const DB_ENV_KEYS = ['POSTGRES_URL', 'DATABASE_URI', 'DATABASE_URL'];
+const PAYLOAD_BOOTSTRAP_CORE_TABLES = [
+  'users',
+  'media',
+  'forms',
+  'site_pages',
+  'payload_locked_documents_rels',
+];
 
 function hasDatabaseConnectionString() {
   return DB_ENV_KEYS.some((key) => {
@@ -187,6 +194,29 @@ async function hasPayloadDevPushMarker() {
   }
 }
 
+async function getMissingPayloadBootstrapTables() {
+  try {
+    return await withDatabaseClient(async (client) => {
+      const result = await client.query(
+        `
+          SELECT table_name
+          FROM unnest($1::text[]) AS table_name
+          WHERE to_regclass(format('public.%s', table_name)) IS NULL
+          ORDER BY table_name ASC
+        `,
+        [PAYLOAD_BOOTSTRAP_CORE_TABLES],
+      );
+      return result.rows.map((row) => String(row.table_name));
+    });
+  } catch (error) {
+    throw new Error(
+      `Unable to detect payload bootstrap table state: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
+}
+
 async function main() {
   await loadLocalEnvFallback();
 
@@ -223,6 +253,21 @@ async function main() {
   }
 
   const steps = [];
+
+  if (!CHECK_ONLY && !SKIP_PAYLOAD) {
+    const missingCoreTables = await getMissingPayloadBootstrapTables();
+    if (missingCoreTables.length > 0) {
+      console.warn(
+        `⚠️  Missing core Payload tables (${missingCoreTables.join(', ')}). ` +
+          'Running one-time schema bootstrap before migrations.',
+      );
+      steps.push({
+        label: 'Bootstrap Payload base schema (fresh DB guard)',
+        command: node,
+        args: ['--import', 'tsx', 'scripts/db/bootstrap-payload-schema.mjs'],
+      });
+    }
+  }
 
   if (CHECK_ONLY) {
     steps.push({
