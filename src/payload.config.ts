@@ -941,18 +941,15 @@ export default buildConfig({
     // ── Vercel Blob Storage ───────────────────────────────────────────────────
     // Must run after plugins that register upload collections (e.g. import-export)
     // so adapter assignment includes those collections.
-    ...(hasBlobReadWriteToken
-      ? [
-          vercelBlobStorage({
-            collections: {
-              media: true,
-              exports: true,
-              imports: true,
-            },
-            token: blobReadWriteToken,
-          }),
-        ]
-      : []),
+    vercelBlobStorage({
+      enabled: !!blobReadWriteToken,
+      collections: {
+        media: true,
+        exports: true,
+        imports: true,
+      },
+      token: blobReadWriteToken ?? '',
+    }),
 
   ],
 });
