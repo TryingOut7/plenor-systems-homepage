@@ -10,7 +10,7 @@ export const SiteSettings: GlobalConfig = {
   },
   access: {
     read: () => true,
-    update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
+    update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
   },
   versions: {
     max: 25,

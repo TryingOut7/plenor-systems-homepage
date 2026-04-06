@@ -37,11 +37,11 @@ export const PagePresets: CollectionConfig = {
   access: {
     read: ({ req }) => !!req.user,
     create: ({ req }) =>
-      !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
+      !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
     update: ({ req }) =>
-      !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
+      !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
     delete: ({ req }) =>
-      !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
+      !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
   },
   hooks: {
     beforeChange: [

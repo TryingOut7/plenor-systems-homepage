@@ -49,9 +49,9 @@ export const Testimonials: CollectionConfig = {
       if (req.user) return true;
       return { workflowStatus: { equals: 'published' } };
     },
-    create: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
+    create: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as unknown as Record<string, unknown>).role as string),
     update: authorScopedUpdate,
-    delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
+    delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
   },
   hooks: {
     beforeChange: [

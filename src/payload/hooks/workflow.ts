@@ -74,12 +74,12 @@ function throwWorkflowValidationError(args: {
   });
 }
 
-async function resolveWorkflowNotifyEmail(req: {
-  payload?: {
-    findGlobal?: (args: { slug: string; depth: number; overrideAccess: boolean }) => Promise<unknown>;
-  };
-}): Promise<string> {
-  const findGlobal = req.payload?.findGlobal;
+async function resolveWorkflowNotifyEmail(req: unknown): Promise<string> {
+  const reqRecord = req && typeof req === 'object' ? (req as Record<string, unknown>) : {};
+  const payloadRecord = reqRecord.payload && typeof reqRecord.payload === 'object' ? (reqRecord.payload as Record<string, unknown>) : {};
+  const findGlobal = typeof payloadRecord.findGlobal === 'function'
+    ? payloadRecord.findGlobal as (args: { slug: string; depth: number; overrideAccess: boolean }) => Promise<unknown>
+    : undefined;
   try {
     const siteSettings = findGlobal
       ? await findGlobal({
@@ -211,7 +211,7 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
 
   // Stamp submission attribution when an author submits for review.
   if (newStatus === 'in_review') {
-    const user = req.user as UserRecord | undefined;
+    const user = req.user as unknown as UserRecord | undefined;
     data.submittedBy = user?.id || null;
     data.submittedAt = new Date().toISOString();
   }
@@ -277,7 +277,7 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
     // approvedBy attribution is left intact; only a same-pass direct publish stamps here.
     const isDirectPublishBypass = newStatus === 'published' && oldStatus !== 'approved';
     if (newStatus === 'approved' || isDirectPublishBypass) {
-      const user = req.user as UserRecord | undefined;
+      const user = req.user as unknown as UserRecord | undefined;
       data.approvedBy = user?.id || null;
       data.approvedAt = new Date().toISOString();
     }
@@ -356,7 +356,7 @@ export const workflowAfterChange: CollectionAfterChangeHook = async ({
 
   // Classify in_review → draft transitions by who performed them.
   const isDraftReturn = newStatus === 'draft' && oldStatus === 'in_review';
-  const actor = req.user as UserRecord | undefined;
+  const actor = req.user as unknown as UserRecord | undefined;
   const actorRole = (actor as Record<string, unknown> | undefined)?.role as string | undefined;
   const isAuthorWithdrawal = isDraftReturn && actorRole === 'author';
   const isEditorReturn = isDraftReturn && !isAuthorWithdrawal; // editor or admin initiated
@@ -431,7 +431,7 @@ export const workflowAfterChange: CollectionAfterChangeHook = async ({
             depth: 0,
             overrideAccess: true,
           });
-          const submitterEmail = (submitter as Record<string, unknown>)?.email as string | undefined;
+          const submitterEmail = (submitter as unknown as Record<string, unknown>)?.email as string | undefined;
             if (submitterEmail && submitterEmail !== adminEmail) {
               await req.payload.sendEmail({
                 to: submitterEmail,

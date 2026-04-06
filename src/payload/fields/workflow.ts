@@ -113,7 +113,7 @@ export const workflowApprovalFields: Field[] = [
     defaultValue: false,
     access: {
       update: ({ req }) => {
-        const role = (req.user as Record<string, unknown> | undefined)?.role as string | undefined;
+        const role = (req.user as unknown as Record<string, unknown> | undefined)?.role as string | undefined;
         return role === 'admin' || role === 'editor';
       },
     },
@@ -168,7 +168,7 @@ export const workflowApprovalFields: Field[] = [
     type: 'textarea',
     access: {
       update: ({ req }) => {
-        const role = (req.user as Record<string, unknown> | undefined)?.role as string | undefined;
+        const role = (req.user as unknown as Record<string, unknown> | undefined)?.role as string | undefined;
         return role === 'admin' || role === 'editor';
       },
     },

@@ -7,13 +7,13 @@ import type { Access } from 'payload';
 export const authorScopedUpdate: Access = ({ req }) => {
   if (!req.user) return false;
 
-  const role = (req.user as Record<string, unknown>).role as string;
+  const role = (req.user as unknown as Record<string, unknown>).role as string;
 
   if (['admin', 'editor'].includes(role)) return true;
 
   if (role === 'author') {
     return {
-      createdBy: { equals: (req.user as Record<string, unknown>).id },
+      createdBy: { equals: (req.user as unknown as Record<string, unknown>).id },
     };
   }
 
@@ -30,13 +30,13 @@ export const authorScopedUpdate: Access = ({ req }) => {
 export const authorScopedDelete: Access = ({ req }) => {
   if (!req.user) return false;
 
-  const role = (req.user as Record<string, unknown>).role as string;
+  const role = (req.user as unknown as Record<string, unknown>).role as string;
 
   if (['admin', 'editor'].includes(role)) return true;
 
   if (role === 'author') {
     return {
-      createdBy: { equals: (req.user as Record<string, unknown>).id },
+      createdBy: { equals: (req.user as unknown as Record<string, unknown>).id },
     };
   }
 

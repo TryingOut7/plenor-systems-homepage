@@ -1,4 +1,4 @@
-import type { Payload, TypedUser } from 'payload';
+import type { Payload, RequiredDataFromCollectionSlug, TypedUser } from 'payload';
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -110,7 +110,7 @@ export async function promoteDraftToLive(args: {
         workflowStatus: 'published',
         isActive: true,
         createdBy: draftData.createdBy,
-      },
+      } as unknown as RequiredDataFromCollectionSlug<'site-pages'>,
     });
 
     const createdRecord = asRecord(created);

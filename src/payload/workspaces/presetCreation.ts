@@ -1,4 +1,4 @@
-import type { CollectionSlug, Payload, TypedUser } from 'payload';
+import type { CollectionSlug, Payload, RequiredDataFromCollectionSlug, TypedUser } from 'payload';
 
 const PRESET_CATEGORIES = new Set(['core', 'landing', 'campaign', 'internal', 'custom']);
 
@@ -167,10 +167,10 @@ async function createPresetFromSource(args: {
       sourceDraft: sourceType === 'from-draft' ? source.id : undefined,
       sourcePlayground: sourceType === 'from-playground' ? source.id : undefined,
       createdFromSnapshotAt: new Date().toISOString(),
-    },
+    } as unknown as RequiredDataFromCollectionSlug<'page-presets'>,
   });
 
-  const createdRecord = created as UnknownRecord;
+  const createdRecord = created as unknown as UnknownRecord;
   return {
     id: (createdRecord.id as string | number) ?? '',
     name: readTrimmedString(createdRecord.name) || normalizedMeta.name,
@@ -302,10 +302,10 @@ async function createDraftFromSource(args: {
       sourcePlayground: sourceType === 'from-playground' ? source.id : undefined,
       sourcePreset: sourceType === 'from-preset' ? source.id : undefined,
       workflowStatus: 'draft',
-    },
+    } as unknown as RequiredDataFromCollectionSlug<'page-drafts'>,
   });
 
-  const createdRecord = created as UnknownRecord;
+  const createdRecord = created as unknown as UnknownRecord;
   return {
     id: (createdRecord.id as string | number) ?? '',
     title: readTrimmedString(createdRecord.title) || title,

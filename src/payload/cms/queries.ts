@@ -86,7 +86,7 @@ export const getSiteSettings = cache(async function getSiteSettings(
       return draft ? null : setCache(siteSettingsCache, null);
     }
 
-    const d = data as Record<string, unknown>;
+    const d = data as unknown as Record<string, unknown>;
     const normalized: SiteSettings = {
       siteName: d.siteName as string | undefined,
       brandTagline: d.brandTagline as string | undefined,
@@ -148,7 +148,7 @@ export const getUISettings = cache(async function getUISettings(
     );
     if (!data) return draft ? null : setCache(uiSettingsCache, null);
 
-    const d = data as Record<string, unknown>;
+    const d = data as unknown as Record<string, unknown>;
     const normalized: UISettings = {
       colors: d.colors as UISettings['colors'],
       typography: d.typography as UISettings['typography'],
@@ -202,7 +202,7 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(
       }),
       `find:site-pages:${normalizedSlug}`,
     );
-    const doc = liveResult.docs[0] as Record<string, unknown> | undefined;
+    const doc = liveResult.docs[0] as unknown as Record<string, unknown> | undefined;
 
     if (!doc && draft) {
       const draftResult = await withPayloadTimeout(
@@ -218,7 +218,7 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(
         `find:page-drafts:${normalizedSlug}`,
       );
 
-      const draftDoc = draftResult.docs[0] as Record<string, unknown> | undefined;
+      const draftDoc = draftResult.docs[0] as unknown as Record<string, unknown> | undefined;
       if (draftDoc) {
         const draftSections = Array.isArray(draftDoc.sections)
           ? draftDoc.sections.map(normalizeSection)

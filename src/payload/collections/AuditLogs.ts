@@ -9,7 +9,7 @@ export const AuditLogs: CollectionConfig = {
     group: 'System',
   },
   access: {
-    read: ({ req }) => !!req.user && (req.user as Record<string, unknown>).role === 'admin',
+    read: ({ req }) => !!req.user && (req.user as unknown as Record<string, unknown>).role === 'admin',
     create: () => false,
     update: () => false,
     delete: () => false,

@@ -615,7 +615,7 @@ export default buildConfig({
         create: ({ req }) => userHasAnyRole(req, ['admin']),
         update: ({ req }) => {
           if (userHasAnyRole(req, ['admin'])) return true;
-          const userId = (req.user as Record<string, unknown> | undefined)?.id;
+          const userId = (req.user as unknown as Record<string, unknown> | undefined)?.id;
           if (typeof userId !== 'string' && typeof userId !== 'number') return false;
           return { id: { equals: String(userId) } };
         },

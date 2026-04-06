@@ -1,3 +1,4 @@
+import type { RequiredDataFromCollectionSlug } from 'payload';
 import { getPayload } from '@/payload/client';
 import { buildCorePresetSections } from '../presets/corePagePresets.ts';
 
@@ -85,7 +86,7 @@ export async function seedSitePages(): Promise<SeedSitePagesResult> {
     depth: 0,
     overrideAccess: true,
   });
-  const globalPresetRoot = asObject((siteSettings as Record<string, unknown>)?.corePresetContent);
+  const globalPresetRoot = asObject((siteSettings as unknown as Record<string, unknown>)?.corePresetContent);
 
   const items: SeedResultItem[] = [];
   let created = 0;
@@ -100,8 +101,8 @@ export async function seedSitePages(): Promise<SeedSitePagesResult> {
       overrideAccess: true,
     });
 
-    const current = found.docs[0] as {
-      id?: string;
+    const current = found.docs[0] as unknown as {
+      id?: string | number;
       sections?: unknown;
       presetContent?: unknown;
     } | undefined;
@@ -125,7 +126,7 @@ export async function seedSitePages(): Promise<SeedSitePagesResult> {
             presetContent: presetRoot,
             isActive: true,
             sections: generatedSections,
-          },
+          } as unknown as RequiredDataFromCollectionSlug<'site-pages'>,
           overrideAccess: true,
         });
         existing += 1;
@@ -156,7 +157,7 @@ export async function seedSitePages(): Promise<SeedSitePagesResult> {
         presetContent: presetRoot,
         isActive: true,
         sections: generatedSections,
-      },
+      } as unknown as RequiredDataFromCollectionSlug<'site-pages'>,
       overrideAccess: true,
     });
 
@@ -165,7 +166,7 @@ export async function seedSitePages(): Promise<SeedSitePagesResult> {
       slug: page.slug,
       title: page.title,
       action: 'created',
-      id: String((createdDoc as { id?: string })?.id ?? ''),
+      id: String((createdDoc as unknown as { id?: string | number })?.id ?? ''),
     });
   }
 

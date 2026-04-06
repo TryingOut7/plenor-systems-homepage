@@ -1,3 +1,4 @@
+import type { RequiredDataFromCollectionSlug } from 'payload';
 import { getPayload } from '@/payload/client';
 import { FORM_TEMPLATES } from '@/payload/forms/formTemplates';
 
@@ -66,7 +67,7 @@ export async function seedForms(): Promise<SeedFormsResult> {
         submitButtonLabel: template.submitButtonLabel,
         confirmationType: 'message',
         confirmationMessage: template.confirmationMessage,
-      },
+      } as unknown as RequiredDataFromCollectionSlug<'forms'>,
       overrideAccess: true,
     });
 

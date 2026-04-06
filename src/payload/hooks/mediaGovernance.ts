@@ -54,7 +54,7 @@ export const mediaGovernanceBeforeChange: CollectionBeforeChangeHook = ({
     incoming.attributionText = attributionText;
   }
 
-  const user = req.user as RecordValue | undefined;
+  const user = req.user as unknown as RecordValue | undefined;
   const requestedStatus = readString(incoming.mediaQaStatus);
   if (requestedStatus === 'approved' && !canApproveMedia(user)) {
     throw new Error('Media governance: only editors/admins can set mediaQaStatus=approved.');

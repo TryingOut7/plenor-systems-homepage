@@ -32,7 +32,7 @@ export const PagePlaygrounds: CollectionConfig = {
   access: {
     read: ({ req }) => {
       if (!req.user) return false;
-      const user = req.user as Record<string, unknown>;
+      const user = req.user as unknown as Record<string, unknown>;
       const role = user.role as string;
       if (['admin', 'editor'].includes(role)) return true;
       const where: Where = {
@@ -45,7 +45,7 @@ export const PagePlaygrounds: CollectionConfig = {
     },
     create: ({ req }) =>
       !!req.user &&
-      ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
+      ['admin', 'editor', 'author'].includes((req.user as unknown as Record<string, unknown>).role as string),
     update: authorScopedUpdate,
     delete: authorScopedDelete,
 

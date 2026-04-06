@@ -1,4 +1,4 @@
-import type { Payload, TypedUser } from 'payload';
+import type { Payload, RequiredDataFromCollectionSlug, TypedUser } from 'payload';
 import { resolveFormTemplate, type FormTemplateKey } from './formTemplates';
 
 type UnknownRecord = Record<string, unknown>;
@@ -47,7 +47,7 @@ export async function createOrGetFormTemplate(args: {
   });
 
   if (existingByKey.docs.length > 0) {
-    const existingRecord = existingByKey.docs[0] as UnknownRecord;
+    const existingRecord = existingByKey.docs[0] as unknown as UnknownRecord;
     return {
       created: false,
       id: (existingRecord.id as number | string) ?? '',
@@ -71,7 +71,7 @@ export async function createOrGetFormTemplate(args: {
   });
 
   if (existing.docs.length > 0) {
-    const existingRecord = existing.docs[0] as UnknownRecord;
+    const existingRecord = existing.docs[0] as unknown as UnknownRecord;
     const existingId = (existingRecord.id as number | string) ?? '';
     const existingTemplateKey = readTrimmedString(existingRecord.templateKey);
 
@@ -107,10 +107,10 @@ export async function createOrGetFormTemplate(args: {
       submitButtonLabel: template.submitButtonLabel,
       confirmationType: 'message',
       confirmationMessage: cloneValue(template.confirmationMessage),
-    },
+    } as unknown as RequiredDataFromCollectionSlug<'forms'>,
   });
 
-  const createdRecord = created as UnknownRecord;
+  const createdRecord = created as unknown as UnknownRecord;
   return {
     created: true,
     id: (createdRecord.id as number | string) ?? '',

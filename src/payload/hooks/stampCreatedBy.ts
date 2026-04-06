@@ -14,7 +14,7 @@ export const stampCreatedByBeforeChange: CollectionBeforeChangeHook = async ({
   // Do not overwrite if explicitly provided
   if (data.createdBy) return data;
 
-  const user = req.user as Record<string, unknown> | undefined;
+  const user = req.user as unknown as Record<string, unknown> | undefined;
   if (user?.id) {
     return { ...data, createdBy: user.id };
   }

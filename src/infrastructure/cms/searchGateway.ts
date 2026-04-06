@@ -49,7 +49,7 @@ async function findPublishedDocuments(params: {
     page: 1,
   });
 
-  return found.docs as Array<Record<string, unknown>>;
+  return found.docs as unknown as Array<Record<string, unknown>>;
 }
 
 export const payloadSearchRepository: SearchRepository = {

@@ -79,7 +79,7 @@ const hydrateSectionsFromPresetBeforeChange: CollectionBeforeChangeHook = async 
 
   const presetRecord =
     preset && typeof preset === 'object' && !Array.isArray(preset)
-      ? (preset as Record<string, unknown>)
+      ? (preset as unknown as Record<string, unknown>)
       : null;
   const presetSections = Array.isArray(presetRecord?.sections)
     ? (presetRecord?.sections as unknown[])
@@ -205,16 +205,16 @@ export const PageDrafts: CollectionConfig = {
     read: ({ req }) => !!req.user,
     create: ({ req }) =>
       !!req.user &&
-      ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
+      ['admin', 'editor', 'author'].includes((req.user as unknown as Record<string, unknown>).role as string),
     update: authorScopedUpdate,
     delete: ({ req }) => {
       if (!req.user) return false;
-      const role = (req.user as Record<string, unknown>).role as string;
+      const role = (req.user as unknown as Record<string, unknown>).role as string;
       if (['admin', 'editor'].includes(role)) return true;
 
       if (role === 'author') {
         return {
-          createdBy: { equals: (req.user as Record<string, unknown>).id as string | number },
+          createdBy: { equals: (req.user as unknown as Record<string, unknown>).id as string | number },
           workflowStatus: { equals: 'draft' },
         };
       }
