@@ -420,6 +420,29 @@ function normalizeDatabaseConnectionString(uri?: string): string | undefined {
     .replace(/\?$/, '');
 }
 
+function resolveDatabaseSslOption(
+  connectionString: string | undefined,
+): false | { rejectUnauthorized: boolean } {
+  if (!connectionString) {
+    return { rejectUnauthorized: dbRejectUnauthorized };
+  }
+
+  try {
+    const parsed = new URL(connectionString);
+    const sslMode = parsed.searchParams.get('sslmode');
+    if (sslMode === 'disable') return false;
+
+    const host = parsed.hostname.toLowerCase();
+    if (host === 'localhost' || host === '127.0.0.1' || host === '::1') {
+      return false;
+    }
+  } catch {
+    // Keep TLS enabled for unparseable connection strings.
+  }
+
+  return { rejectUnauthorized: dbRejectUnauthorized };
+}
+
 const databaseConnectionString = normalizeDatabaseConnectionString(
   process.env.POSTGRES_URL || process.env.DATABASE_URI || process.env.DATABASE_URL,
 );
@@ -726,7 +749,7 @@ export default buildConfig({
     migrationDir: path.join(__dirname, '../migrations/payload'),
     pool: {
       connectionString: databaseConnectionString,
-      ssl: { rejectUnauthorized: dbRejectUnauthorized },
+      ssl: resolveDatabaseSslOption(databaseConnectionString),
       max: resolveDatabasePoolMax(Boolean(process.env.VERCEL)),
       idleTimeoutMillis: process.env.VERCEL ? 10000 : 30000,
       connectionTimeoutMillis: 30000,
