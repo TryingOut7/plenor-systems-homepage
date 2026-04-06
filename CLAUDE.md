@@ -107,29 +107,43 @@ npm run payload          # Payload CLI passthrough
 
 ## Adding a New Field or Collection (Schema Change Workflow)
 
-When you add or modify a Payload collection or field, follow these steps — **do not write SQL by hand**.
+When you add or modify a Payload collection or field, follow these steps. **Do not write SQL for Payload-managed tables by hand.**
 
 ### For Payload-managed schema (collections, globals, fields)
 
 ```bash
 # 1. Add/change the field or collection in src/payload/collections/* or src/payload/globals/*
+#    IMPORTANT: Use relative paths and explicit .ts extensions for all internal imports.
 
-# 2. Start dev server with schema push enabled — Payload auto-alters your local DB
-npm run dev:schema-push
+# 2. Update the Schema Manifest (Source of Truth for pre-push)
+#    Add/remove the field in scripts/db/schema-manifest.mjs to prevent 'pre-push' drift errors.
 
-# 3. Stop the server. Auto-generate the migration file from the schema diff
+# 3. Generate the migration file from the schema diff
 npm run generate:migration
 # → Creates migrations/payload/<timestamp>_<name>.ts automatically
 
 # 4. Apply the migration to confirm it runs cleanly
 npm run db:migrate:payload
 
-# 5. Commit both the collection change and the generated migration file
-git add src/payload/collections/... migrations/payload/...
+# 5. Commit both the collection change, manifest change, and the generated migration file
+git add src/payload/collections/... migrations/payload/... scripts/db/schema-manifest.mjs
 git commit -m "feat: add <field> to <Collection>"
 ```
 
-CI runs `npm run db:migrate:payload` on every push. If you forget to generate the migration, CI will detect the pending schema drift and fail.
+### ESM Compliance & Import Rules (Critical)
+
+Payload is configured as a **Native ESM** project (`"type": "module"` in `package.json`).
+- **Extensions are Mandatory:** All internal imports (hooks, utils, blocks) MUST include the `.ts` or `.js` extension.
+- **Relative Paths:** Prefer relative paths over deep aliases in CMS-related files to avoid resolution errors during CLI migration execution.
+
+### Database Stability & Troubleshooting
+
+- **Migrations > Push:** In local dev with Supabase, `PAYLOAD_DB_PUSH=true` (or `npm run dev:schema-push`) may crash due to Drizzle-ORM parameter binding issues. **Prefer generating and running migrations.**
+- **Table Names:** Collection `slug` (e.g., `reusable-sections`) and `dbName` (e.g., `reuse_sec`) often differ. Always check the config before writing manual repair scripts.
+- **Schema Manifest:** If a column is intentionally dropped, it MUST be removed from `scripts/db/schema-manifest.mjs`, otherwise the `pre-push` hook will block you and generate redundant repair migrations.
+- **Diagnostics:** Use programmatic test routes (like `/api/test-runner` if available) to verify CRUD operations across all core collections after a complex migration.
+
+CI runs `npm run db:migrate:payload` on every push. If you forget to generate the migration or update the manifest, CI/pre-push will fail.
 
 ### For backend operational tables (guide_submissions, outbox, idempotency, etc.)
 
