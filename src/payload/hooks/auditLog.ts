@@ -277,7 +277,7 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
   // Skip autosave to avoid flooding audit logs
   if (context?.autosave) return doc;
 
-  const userRecord = req.user as UserRecord;
+  const userRecord = req.user as any as UserRecord;
   const ipAddress = extractIpAddress(req);
   const title = getDocTitle(doc as Record<string, unknown>);
   const action = operation === 'create' ? AUDIT_ACTIONS.CREATE : AUDIT_ACTIONS.UPDATE;
@@ -301,7 +301,7 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
         riskTier: collectionRiskTier,
         ipAddress,
       }),
-    });
+    } as any);
 
     const systemPaths = listSystemFieldPathsForCollection(collection.slug);
     if (systemPaths.length > 0) {
@@ -333,7 +333,7 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
             riskTier: 'system',
             ipAddress,
           }),
-        });
+        } as any);
         alertHighRiskAuditEvent({
           action,
           collection: collection.slug,
@@ -369,7 +369,7 @@ export const auditAfterDelete: CollectionAfterDeleteHook = async ({
   );
   if (!req.user) return doc;
 
-  const userRecord = req.user as UserRecord;
+  const userRecord = req.user as any as UserRecord;
   const ipAddress = extractIpAddress(req);
   const title = getDocTitle(doc as Record<string, unknown>);
   const riskTier: AuditRiskTier = isSystemRiskCollection(collection.slug)
@@ -392,7 +392,7 @@ export const auditAfterDelete: CollectionAfterDeleteHook = async ({
         riskTier,
         ipAddress,
       }),
-    });
+    } as any);
   } catch (err) {
     req.payload.logger.error({ err, msg: 'Failed to write audit log' });
   }
@@ -414,7 +414,7 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
   if (!req.user) return doc;
   if (context?.autosave) return doc;
 
-  const userRecord = req.user as UserRecord;
+  const userRecord = req.user as any as UserRecord;
   const ipAddress = extractIpAddress(req);
   const title = global.slug;
   const action = AUDIT_ACTIONS.UPDATE;
@@ -438,7 +438,7 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
         riskTier: globalRiskTier,
         ipAddress,
       }),
-    });
+    } as any);
 
     const systemPaths = listSystemFieldPathsForCollection(global.slug);
     if (systemPaths.length > 0) {
@@ -470,7 +470,7 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
             riskTier: 'system',
             ipAddress,
           }),
-        });
+        } as any);
         alertHighRiskAuditEvent({
           action,
           collection: global.slug,
