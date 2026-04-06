@@ -72,6 +72,73 @@ CREATE TABLE IF NOT EXISTS public.page_presets_tags (
   tag varchar
 );
 
+-- On fresh environments, Payload schema-push can pre-create these tables with
+-- slightly different columns. Backfill missing columns so this migration remains
+-- safe and repeatable before adding indexes/constraints.
+ALTER TABLE IF EXISTS public.page_drafts
+  ADD COLUMN IF NOT EXISTS title varchar,
+  ADD COLUMN IF NOT EXISTS target_slug varchar,
+  ADD COLUMN IF NOT EXISTS source_type varchar DEFAULT 'blank',
+  ADD COLUMN IF NOT EXISTS source_page_id integer,
+  ADD COLUMN IF NOT EXISTS source_preset_id integer,
+  ADD COLUMN IF NOT EXISTS source_playground_id integer,
+  ADD COLUMN IF NOT EXISTS editor_notes text,
+  ADD COLUMN IF NOT EXISTS created_by_id integer,
+  ADD COLUMN IF NOT EXISTS workflow_status varchar DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS review_checklist_complete boolean DEFAULT false,
+  ADD COLUMN IF NOT EXISTS review_summary text,
+  ADD COLUMN IF NOT EXISTS reviewed_by_id integer,
+  ADD COLUMN IF NOT EXISTS reviewed_at timestamptz,
+  ADD COLUMN IF NOT EXISTS approved_by_id integer,
+  ADD COLUMN IF NOT EXISTS approved_at timestamptz,
+  ADD COLUMN IF NOT EXISTS rejection_reason text,
+  ADD COLUMN IF NOT EXISTS seo_meta_title varchar,
+  ADD COLUMN IF NOT EXISTS seo_meta_description varchar,
+  ADD COLUMN IF NOT EXISTS seo_og_title varchar,
+  ADD COLUMN IF NOT EXISTS seo_og_description varchar,
+  ADD COLUMN IF NOT EXISTS seo_og_image_id integer,
+  ADD COLUMN IF NOT EXISTS seo_canonical_url varchar,
+  ADD COLUMN IF NOT EXISTS seo_noindex boolean DEFAULT false,
+  ADD COLUMN IF NOT EXISTS seo_nofollow boolean DEFAULT false,
+  ADD COLUMN IF NOT EXISTS seo_include_in_sitemap boolean DEFAULT true,
+  ADD COLUMN IF NOT EXISTS meta_title varchar,
+  ADD COLUMN IF NOT EXISTS meta_description varchar,
+  ADD COLUMN IF NOT EXISTS meta_image_id integer,
+  ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS created_at timestamptz DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
+
+ALTER TABLE IF EXISTS public.page_presets
+  ADD COLUMN IF NOT EXISTS name varchar,
+  ADD COLUMN IF NOT EXISTS category varchar DEFAULT 'custom',
+  ADD COLUMN IF NOT EXISTS description text,
+  ADD COLUMN IF NOT EXISTS thumbnail_id integer,
+  ADD COLUMN IF NOT EXISTS structure_mode varchar DEFAULT 'editable',
+  ADD COLUMN IF NOT EXISTS source_type varchar DEFAULT 'manual',
+  ADD COLUMN IF NOT EXISTS source_live_page_id integer,
+  ADD COLUMN IF NOT EXISTS source_draft_id integer,
+  ADD COLUMN IF NOT EXISTS created_from_snapshot_at timestamptz,
+  ADD COLUMN IF NOT EXISTS created_by_id integer,
+  ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS created_at timestamptz DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
+
+ALTER TABLE IF EXISTS public.page_playgrounds
+  ADD COLUMN IF NOT EXISTS name varchar,
+  ADD COLUMN IF NOT EXISTS visibility varchar DEFAULT 'private',
+  ADD COLUMN IF NOT EXISTS expires_at timestamptz,
+  ADD COLUMN IF NOT EXISTS notes text,
+  ADD COLUMN IF NOT EXISTS created_by_id integer,
+  ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS created_at timestamptz DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
+
+ALTER TABLE IF EXISTS public.page_presets_tags
+  ADD COLUMN IF NOT EXISTS _order integer,
+  ADD COLUMN IF NOT EXISTS _parent_id integer,
+  ADD COLUMN IF NOT EXISTS id varchar,
+  ADD COLUMN IF NOT EXISTS tag varchar;
+
 CREATE INDEX IF NOT EXISTS page_drafts_created_at_idx ON public.page_drafts(created_at);
 CREATE INDEX IF NOT EXISTS page_drafts_updated_at_idx ON public.page_drafts(updated_at);
 CREATE INDEX IF NOT EXISTS page_drafts_deleted_at_idx ON public.page_drafts(deleted_at);
