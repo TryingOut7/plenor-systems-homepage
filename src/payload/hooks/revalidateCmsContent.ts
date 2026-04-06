@@ -17,13 +17,12 @@ type CollectionSlug =
   | 'logos'
   | 'redirect-rules';
 
-function safeRevalidatePath(path: string, type?: 'page' | 'layout'): void {
+async function safeRevalidatePath(path: string, type?: 'page' | 'layout'): Promise<void> {
   try {
     // Dynamic import so this file is safe to import in non-Next environments
     // (Payload CLI, seed scripts). The actual revalidatePath is only available
     // when running inside Next.js.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { revalidatePath } = require('next/cache') as {
+    const { revalidatePath } = await import('next/cache') as {
       revalidatePath: (path: string, type?: 'page' | 'layout') => void;
     };
     revalidatePath(path, type);
@@ -31,7 +30,7 @@ function safeRevalidatePath(path: string, type?: 'page' | 'layout'): void {
     if (
       err instanceof Error &&
       (err.message.includes("Cannot find module 'next/cache'") ||
-        (err as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND')
+        (err as any).code === 'MODULE_NOT_FOUND')
     ) {
       // Not in a Next.js context (Payload CLI, scripts) — skip dynamically
       return;
@@ -41,17 +40,17 @@ function safeRevalidatePath(path: string, type?: 'page' | 'layout'): void {
   }
 }
 
-export function revalidateCollectionContent(
+export async function revalidateCollectionContent(
   collectionSlug: CollectionSlug,
   doc: Record<string, unknown>,
   previousDoc: Record<string, unknown> | undefined,
-): void {
-  const currentStatus = doc.workflowStatus as string | undefined;
-  const previousStatus = previousDoc?.workflowStatus as string | undefined;
+): Promise<void> {
+  const currentStatus = (doc.workflowStatus || doc._status) as string | undefined;
+  const previousStatus = (previousDoc?.workflowStatus || previousDoc?._status) as string | undefined;
 
   // For redirect-rules, always revalidate because they apply globally.
   if (collectionSlug === 'redirect-rules') {
-    revalidateAllFrontendPages();
+    await revalidateAllFrontendPages();
     return;
   }
 
@@ -71,34 +70,34 @@ export function revalidateCollectionContent(
       const slug = doc.slug as string | undefined;
       if (slug) {
         // Revalidate the specific CMS page.
-        safeRevalidatePath(slug === 'home' ? '/' : `/${slug}`, 'page');
+        await safeRevalidatePath(slug === 'home' ? '/' : `/${slug}`, 'page');
         // Also clear the catch-all dynamic route.
-        safeRevalidatePath('/[...slug]', 'page');
+        await safeRevalidatePath('/[...slug]', 'page');
       }
       // Sitemap may have changed.
-      safeRevalidatePath('/sitemap.xml');
+      await safeRevalidatePath('/sitemap.xml');
       break;
     }
     case 'service-items': {
       const slug = doc.slug as string | undefined;
       if (slug) {
-        safeRevalidatePath(`/services/${slug}`, 'page');
+        await safeRevalidatePath(`/services/${slug}`, 'page');
       }
       // Services listing and any dynamic list sections showing service items.
-      safeRevalidatePath('/services', 'page');
-      safeRevalidatePath('/[...slug]', 'page');
-      safeRevalidatePath('/sitemap.xml');
+      await safeRevalidatePath('/services', 'page');
+      await safeRevalidatePath('/[...slug]', 'page');
+      await safeRevalidatePath('/sitemap.xml');
       break;
     }
     case 'blog-posts': {
       const slug = doc.slug as string | undefined;
       if (slug) {
-        safeRevalidatePath(`/blog/${slug}`, 'page');
+        await safeRevalidatePath(`/blog/${slug}`, 'page');
       }
       // Blog index and any dynamic list sections showing blog posts.
-      safeRevalidatePath('/blog', 'page');
-      safeRevalidatePath('/[...slug]', 'page');
-      safeRevalidatePath('/sitemap.xml');
+      await safeRevalidatePath('/blog', 'page');
+      await safeRevalidatePath('/[...slug]', 'page');
+      await safeRevalidatePath('/sitemap.xml');
       break;
     }
     case 'testimonials':
@@ -106,12 +105,12 @@ export function revalidateCollectionContent(
     case 'logos': {
       // These appear in dynamic list sections or team/logo sections across pages.
       if (!wasAlreadyPublished) {
-        revalidateAllFrontendPages();
+        await revalidateAllFrontendPages();
       } else {
         // Already published — targeted revalidation of pages most likely to show them.
-        safeRevalidatePath('/', 'page');
-        safeRevalidatePath('/about', 'page');
-        safeRevalidatePath('/[...slug]', 'page');
+        await safeRevalidatePath('/', 'page');
+        await safeRevalidatePath('/about', 'page');
+        await safeRevalidatePath('/[...slug]', 'page');
       }
       break;
     }
@@ -120,23 +119,23 @@ export function revalidateCollectionContent(
   }
 }
 
-export function revalidateGlobalContent(): void {
+export async function revalidateGlobalContent(): Promise<void> {
   // Any global change (site-settings, ui-settings) affects the shared layout
   // rendered on every page, so revalidate everything.
-  revalidateAllFrontendPages();
+  await revalidateAllFrontendPages();
 }
 
-function revalidateAllFrontendPages(): void {
-  safeRevalidatePath('/', 'layout');
-  safeRevalidatePath('/about', 'page');
-  safeRevalidatePath('/services', 'page');
-  safeRevalidatePath('/pricing', 'page');
-  safeRevalidatePath('/contact', 'page');
-  safeRevalidatePath('/privacy', 'page');
-  safeRevalidatePath('/[...slug]', 'page');
-  safeRevalidatePath('/services/[slug]', 'page');
-  safeRevalidatePath('/blog', 'page');
-  safeRevalidatePath('/blog/[slug]', 'page');
-  safeRevalidatePath('/sitemap.xml');
-  safeRevalidatePath('/robots.txt');
+async function revalidateAllFrontendPages(): Promise<void> {
+  await safeRevalidatePath('/', 'layout');
+  await safeRevalidatePath('/about', 'page');
+  await safeRevalidatePath('/services', 'page');
+  await safeRevalidatePath('/pricing', 'page');
+  await safeRevalidatePath('/contact', 'page');
+  await safeRevalidatePath('/privacy', 'page');
+  await safeRevalidatePath('/[...slug]', 'page');
+  await safeRevalidatePath('/services/[slug]', 'page');
+  await safeRevalidatePath('/blog', 'page');
+  await safeRevalidatePath('/blog/[slug]', 'page');
+  await safeRevalidatePath('/sitemap.xml');
+  await safeRevalidatePath('/robots.txt');
 }

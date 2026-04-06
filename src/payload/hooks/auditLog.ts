@@ -267,7 +267,7 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
     doc,
     previousDoc,
   });
-  revalidateCollectionContent(
+  await revalidateCollectionContent(
     collection.slug as Parameters<typeof revalidateCollectionContent>[0],
     doc as Record<string, unknown>,
     previousDoc as Record<string, unknown> | undefined,
@@ -362,7 +362,7 @@ export const auditAfterDelete: CollectionAfterDeleteHook = async ({
     collectionSlug: collection.slug,
     doc,
   });
-  revalidateCollectionContent(
+  await revalidateCollectionContent(
     collection.slug as Parameters<typeof revalidateCollectionContent>[0],
     {},
     doc as Record<string, unknown>,
@@ -409,7 +409,7 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
 }) => {
   invalidateCmsGlobalCaches(global.slug);
   if (!context?.autosave) {
-    revalidateGlobalContent();
+    await revalidateGlobalContent();
   }
   if (!req.user) return doc;
   if (context?.autosave) return doc;
