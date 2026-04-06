@@ -2,6 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "npm ci",
+  "buildCommand": "npm run check:runtime && npm run check:payload-importmap && next build",
+  "releaseCommand": "npm run db:migrate:backend && npm run db:migrate:payload",
   "regions": ["iad1"],
   "redirects": [
     {
