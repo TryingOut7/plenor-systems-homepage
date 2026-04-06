@@ -8,7 +8,7 @@ This app is designed to run on **Vercel** (Next.js) with **Supabase Postgres** a
 |-------------|--------|
 | **Node.js 20.x** | `package.json` `engines`, `.nvmrc`, and `npm run check:runtime` enforce this. In Vercel **Project → Settings → General → Node.js Version**, choose **20.x** if it does not follow `engines` automatically. |
 | **Install** | `vercel.json` uses `npm ci` for reproducible installs. |
-| **Build** | Default `npm run build` runs backend SQL migrations, **Payload** migrations, schema drift check, then `next build`. The build needs **`POSTGRES_URL`** (and secrets) available during the build. |
+| **Build** | Default `npm run build` runs `npm run db:schema:ensure` (backend SQL migrations, Payload migrations, pending-migration checks, schema drift check, enum-manifest parity), then `next build`. The build needs **`POSTGRES_URL`** (or `DATABASE_URI` / `DATABASE_URL`) and secrets available during the build. |
 
 ## Vercel environment variables
 
@@ -25,6 +25,8 @@ Set at least these for **Production** (and **Preview** where builds run against 
 
 Optional: `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, split-backend vars (`BACKEND_INTERNAL_URL`, API keys), `CRM_WEBHOOK_*`.
 
+Important migration rule: do not run Payload schema push (`PAYLOAD_DB_PUSH=true`) against the same DB you use for migrations/staging/production. If `payload_migrations` contains `batch = -1`, automated deploy migrations can fail or block on prompts.
+
 ## Supabase
 
 - **Migrations**: Backend SQL lives in `migrations/versions/`; Payload migrations in `migrations/payload/`. Production applies them via the build pipeline (`npm run build` includes both chains).
@@ -37,7 +39,8 @@ Cron jobs are declared in `vercel.json`. They require a **paid** Vercel plan tha
 
 ## Smoke checks after deploy
 
-1. `GET /` and a CMS-driven page load.
-2. `POST /api/guide` or contact flow with valid origin (rate limit + DB).
-3. Payload admin `/admin` login.
-4. Cron routes return 401 without `Authorization: Bearer <CRON_SECRET>` in production.
+1. `GET /health/ready` returns `200` and `dependencies.schemaContract.ready=true` in production.
+2. `GET /` and a CMS-driven page load.
+3. `POST /api/guide` or contact flow with valid origin (rate limit + DB).
+4. Payload admin `/admin` login.
+5. Cron routes return 401 without `Authorization: Bearer <CRON_SECRET>` in production.

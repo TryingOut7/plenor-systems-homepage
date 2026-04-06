@@ -33,9 +33,9 @@ elif [ -f ".env" ]; then
 fi
 
 # ── Verify DB connectivity is available ─────────────────────────────────────
-if [ -z "${DATABASE_URI:-}" ] && [ -z "${DATABASE_URL:-}" ]; then
-  echo "⚠️  pre-push: DATABASE_URI / DATABASE_URL not set — skipping schema checks."
-  echo "   Add DATABASE_URI to .env.local to enable schema drift detection."
+if [ -z "${POSTGRES_URL:-}" ] && [ -z "${DATABASE_URI:-}" ] && [ -z "${DATABASE_URL:-}" ]; then
+  echo "⚠️  pre-push: POSTGRES_URL / DATABASE_URI / DATABASE_URL not set — skipping schema checks."
+  echo "   Add one of those vars to .env.local to enable schema drift detection."
   exit 0
 fi
 
@@ -45,14 +45,14 @@ set +e
 migrate_status_output=$(node scripts/db/migrate-status.mjs --check 2>&1)
 migrate_exit=$?
 set -e
-if echo "$migrate_status_output" | grep -qE "Missing DATABASE_URI|Missing DATABASE_URL|Connection refused|ECONNREFUSED|connect ENOENT"; then
+if echo "$migrate_status_output" | grep -qE "Missing POSTGRES_URL|Missing DATABASE_URI|Missing DATABASE_URL|Connection refused|ECONNREFUSED|connect ENOENT"; then
   echo "   ⚠️  DB unreachable locally — skipping pending migration check."
   echo "   CI will verify and apply migrations on deploy."
 elif [ $migrate_exit -ne 0 ]; then
   echo "$migrate_status_output"
   echo ""
   echo "❌ [pre-push] Pending migrations found. Either:"
-  echo "   • Run 'npm run db:migrate' to apply them locally, OR"
+  echo "   • Run 'npm run db:migrate:backend' to apply them locally, OR"
   echo "   • Commit missing migration files before pushing."
   exit 1
 else

@@ -149,6 +149,10 @@ describe('backend route integration', () => {
 
     expect(ready.statusCode).toBe(200);
     expect(ready.json().dependencies).toBeTruthy();
+    expect(ready.json().dependencies.schemaContract).toBeTruthy();
+    expect(ready.json().dependencies.schemaContract.required).toBe(false);
+    expect(ready.json().dependencies.schemaContract.ready).toBe(false);
+    expect(ready.json().dependencies.schemaContract.error).toContain('POSTGRES_URL');
 
     const unauthorizedMetrics = await app.inject({
       method: 'GET',
@@ -191,6 +195,8 @@ describe('backend route integration', () => {
       expect(
         ready.json().dependencies.persistence.requiredPersistenceTablesReady,
       ).toBe(false);
+      expect(ready.json().dependencies.schemaContract.required).toBe(true);
+      expect(ready.json().dependencies.schemaContract.ready).toBe(false);
     } finally {
       await prodApp.close();
     }

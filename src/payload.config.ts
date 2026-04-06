@@ -420,7 +420,9 @@ function normalizeDatabaseConnectionString(uri?: string): string | undefined {
     .replace(/\?$/, '');
 }
 
-const databaseConnectionString = normalizeDatabaseConnectionString(process.env.DATABASE_URI || process.env.DATABASE_URL);
+const databaseConnectionString = normalizeDatabaseConnectionString(
+  process.env.POSTGRES_URL || process.env.DATABASE_URI || process.env.DATABASE_URL,
+);
 const adminTheme = parseEnumEnv(process.env.PAYLOAD_ADMIN_THEME, adminThemeValues) || 'all';
 const adminAvatar = parseEnumEnv(process.env.PAYLOAD_ADMIN_AVATAR, adminAvatarValues) || 'default';
 const adminToastDuration = parseNumberEnv(process.env.PAYLOAD_ADMIN_TOAST_DURATION_MS);

@@ -68,6 +68,10 @@ Current backend routes:
 - `POST /v1/admin/submissions/{id}/replay-side-effects` (admin API key, supports `Idempotency-Key`)
 - `GET /v1/integrations/status` (internal/admin API key)
 
+Readiness behavior:
+- `GET /health/ready` now includes `dependencies.schemaContract` and, in production, fails with `503` if required DB schema tables/columns/functions are missing.
+- Optional tuning: `BACKEND_SCHEMA_READINESS_CACHE_MS` (default `60000`) and `BACKEND_REQUIRE_SCHEMA_CONTRACT` (`true` by default in production, `false` in non-production).
+
 ## Environment Variables
 
 See `.env.example` for all variables:
@@ -113,6 +117,8 @@ See `.env.example` for all variables:
 npm run build
 ```
 
+`npm run build` now includes `npm run db:schema:ensure` before `next build`, so deploys fail fast if backend/Payload migrations are not aligned or schema drift is detected.
+
 ## Production (Vercel + Supabase)
 
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for Node version, required environment variables, cron, and smoke checks.
@@ -120,6 +126,20 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for Node version, required environm
 ## Database Migrations
 
 Versioned backend persistence migrations live in `migrations/versions` (including shared rate-limit counters for distributed throttling).
+
+Apply migrations and verify drift in one command (recommended for deploy/startup workflows):
+
+```bash
+npm run db:schema:ensure
+```
+
+Check-only mode (no writes, fails if drift/pending backend or Payload migrations exist):
+
+```bash
+npm run db:schema:ensure:check
+```
+
+If you see a Payload warning like “run Payload in dev mode” / “data loss will occur”, that DB has a dev-push marker (`payload_migrations.batch = -1`). For production safety, use a fresh database (recommended) or clear that marker after a one-time interactive migration run.
 
 Apply pending migrations:
 

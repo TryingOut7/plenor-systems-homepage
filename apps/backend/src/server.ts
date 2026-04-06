@@ -13,6 +13,7 @@ import { tryHandleIdempotentReplay, persistIdempotentResult } from './middleware
 import { createRateLimitHook } from './middleware/rateLimit';
 import { requireApiRole } from './middleware/requireRole';
 import { getBackendMetricsSnapshot, recordBackendRequest } from './observability/metricsRegistry';
+import { checkSchemaContractReadiness } from './health/schemaContractReadiness';
 import * as integrationStatusService from '@/application/integrations/integrationStatusService';
 import * as formTemplateService from '@/application/forms/formTemplateService';
 import * as contentGateway from '@/infrastructure/cms/contentGateway';
@@ -136,6 +137,12 @@ export function buildBackendServer(): FastifyInstance {
 
   const isDev = process.env.NODE_ENV !== 'production';
   const isProduction = process.env.NODE_ENV === 'production';
+  const schemaContractRequired =
+    process.env.BACKEND_REQUIRE_SCHEMA_CONTRACT === 'true' ||
+    (isProduction && process.env.BACKEND_REQUIRE_SCHEMA_CONTRACT !== 'false');
+  const schemaReadinessCacheMs = Number(
+    process.env.BACKEND_SCHEMA_READINESS_CACHE_MS || '60000',
+  );
   const isVitestRuntime =
     process.env.VITEST === 'true' ||
     process.env.VITEST_WORKER_ID != null;
@@ -344,7 +351,37 @@ export function buildBackendServer(): FastifyInstance {
       persistenceError = error instanceof Error ? error.message : String(error);
     }
 
-    const ready = cmsReady && (!isProduction || persistentStoreReady);
+    let schemaContractReady = true;
+    let schemaContractMissingTables: string[] = [];
+    let schemaContractMissingColumns: Array<{ table: string; column: string }> = [];
+    let schemaContractMissingFunctions: string[] = [];
+    let schemaContractError: string | null = null;
+    let schemaContractCheckedAt: string | null = null;
+    let schemaContractRequiredTableCount = 0;
+    let schemaContractRequiredColumnCount = 0;
+
+    if (!hasPayloadDatabaseConnection) {
+      schemaContractReady = false;
+      schemaContractError = 'POSTGRES_URL is not configured.';
+    } else {
+      const schemaStatus = await checkSchemaContractReadiness({
+        cacheTtlMs: schemaReadinessCacheMs,
+        logger: request.log,
+      });
+      schemaContractReady = schemaStatus.ready;
+      schemaContractMissingTables = schemaStatus.missingTables;
+      schemaContractMissingColumns = schemaStatus.missingColumns;
+      schemaContractMissingFunctions = schemaStatus.missingFunctions;
+      schemaContractError = schemaStatus.error;
+      schemaContractCheckedAt = schemaStatus.checkedAt;
+      schemaContractRequiredTableCount = schemaStatus.requiredTableCount;
+      schemaContractRequiredColumnCount = schemaStatus.requiredColumnCount;
+    }
+
+    const ready =
+      cmsReady &&
+      (!isProduction || persistentStoreReady) &&
+      (!schemaContractRequired || schemaContractReady);
     return reply.status(ready ? 200 : 503).send({
       ok: ready,
       service: 'plenor-backend',
@@ -362,6 +399,20 @@ export function buildBackendServer(): FastifyInstance {
           requiredPersistenceTablesReady: persistentStoreReady,
           idempotencyAndOutboxPersistentStoreReady: persistentStoreReady,
           error: persistenceError,
+        },
+        schemaContract: {
+          required: schemaContractRequired,
+          ready: schemaContractReady,
+          checkedAt: schemaContractCheckedAt,
+          requiredTableCount: schemaContractRequiredTableCount,
+          requiredColumnCount: schemaContractRequiredColumnCount,
+          missingTableCount: schemaContractMissingTables.length,
+          missingTables: schemaContractMissingTables.slice(0, 25),
+          missingColumnCount: schemaContractMissingColumns.length,
+          missingColumns: schemaContractMissingColumns.slice(0, 50),
+          missingFunctionCount: schemaContractMissingFunctions.length,
+          missingFunctions: schemaContractMissingFunctions.slice(0, 10),
+          error: schemaContractError,
         },
       },
     });
