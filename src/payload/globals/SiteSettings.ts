@@ -343,13 +343,6 @@ export const SiteSettings: GlobalConfig = {
                   defaultValue:
                     'We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.',
                 },
-                withFieldTier({
-                  name: 'workflowNotifyEmail',
-                  type: 'email',
-                  admin: {
-                    description: 'Optional inbox for workflow status notifications (review/approve/publish/reject).',
-                  },
-                }, 'system'),
               ],
             },
             {
@@ -392,6 +385,13 @@ export const SiteSettings: GlobalConfig = {
                     description: 'Privacy policy URL used in transactional emails and legal links.',
                   },
                 },
+                withFieldTier({
+                  name: 'workflowNotifyEmail',
+                  type: 'email',
+                  admin: {
+                    description: 'Optional inbox for workflow status notifications (review/approve/publish/reject). Belongs here because it is a routing/notification target, not email template content.',
+                  },
+                }, 'system'),
               ],
             },
           ],

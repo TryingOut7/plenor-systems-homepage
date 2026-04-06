@@ -29,16 +29,17 @@ function cleanConnectionString(uri: string): string {
     .replace(/\?$/, '');
 }
 
-// Module-level pool — reused across warm Lambda invocations for this route.
-// Isolated from Payload's own pool so the two don't compete for the same slot.
-let redirectPool: Pool | null = null;
+declare global {
+  // eslint-disable-next-line no-var
+  var _redirectPool: Pool | undefined;
+}
 
 function getRedirectPool(): Pool {
-  if (!redirectPool) {
+  if (!globalThis._redirectPool) {
     const raw = resolveDbConnectionString();
     if (!raw) throw new Error('No database connection string configured');
     const rejectUnauthorized = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false';
-    redirectPool = new Pool({
+    globalThis._redirectPool = new Pool({
       connectionString: cleanConnectionString(raw),
       ssl: { rejectUnauthorized },
       max: 1,
@@ -46,7 +47,7 @@ function getRedirectPool(): Pool {
       connectionTimeoutMillis: 30_000,
     });
   }
-  return redirectPool;
+  return globalThis._redirectPool;
 }
 
 export async function GET() {

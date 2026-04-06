@@ -35,8 +35,10 @@ import { importExportPlugin } from '@payloadcms/plugin-import-export';
 
 // ─── Email Adapters ───────────────────────────────────────────────────────────
 import { resendAdapter } from '@payloadcms/email-resend';
+import { consoleEmailAdapter } from './payload/email/consoleEmailAdapter.ts';
 
 // ─── Collections & Globals ────────────────────────────────────────────────────
+
 import { Media } from './payload/collections/Media.ts';
 import { ServiceItems } from './payload/collections/ServiceItems.ts';
 import { SitePages } from './payload/collections/SitePages.ts';
@@ -58,6 +60,7 @@ import { CleanPasteFeature } from './payload/editor/features/cleanPasteFeature.t
 import {
   parseFormTemplateKey,
 } from './domain/forms/formTemplates.ts';
+import type { CollectionConfig } from 'payload';
 import { normalizeFormBuilderData } from './payload/forms/formBuilderNormalization.ts';
 
 validateEnv();
@@ -148,6 +151,36 @@ const serverURL = resolveServerURL();
 const blobReadWriteToken = process.env.BLOB_READ_WRITE_TOKEN;
 const hasBlobReadWriteToken =
   typeof blobReadWriteToken === 'string' && blobReadWriteToken.length > 0;
+
+// Import/Export is only active on Vercel with a blob token. When absent, inject
+// a banner component into the affected collections so admins understand why the
+// feature is unavailable and what step is needed to restore it.
+const importExportEnabled = Boolean(process.env.VERCEL) && hasBlobReadWriteToken;
+
+const IMPORT_EXPORT_BANNER_PATH =
+  '@/payload/admin/components/ImportExportUnavailableBanner';
+
+/**
+ * Injects the ImportExportUnavailableBanner into a collection's beforeList
+ * when Import/Export is not active. When the plugin IS active, returns the
+ * collection unchanged so Payload renders the native import/export controls.
+ */
+function withImportExportBanner<T extends CollectionConfig>(collection: T): T {
+  if (importExportEnabled) return collection;
+  const existing = collection.admin?.components?.beforeList ?? [];
+  const beforeList = Array.isArray(existing) ? existing : [existing];
+  return {
+    ...collection,
+    admin: {
+      ...collection.admin,
+      components: {
+        ...collection.admin?.components,
+        beforeList: [...beforeList, IMPORT_EXPORT_BANNER_PATH],
+      },
+    },
+  };
+}
+
 const dbRejectUnauthorized = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true';
 const dbPushRequested = process.env.PAYLOAD_DB_PUSH === 'true';
 const dbPushConfirmed = process.env.PAYLOAD_CONFIRM_SCHEMA_PUSH === 'true';
@@ -654,17 +687,17 @@ export default buildConfig({
         },
       ],
     },
-    Media,
-    ServiceItems,
-    SitePages,
+    withImportExportBanner(Media),
+    withImportExportBanner(ServiceItems),
+    withImportExportBanner(SitePages),
     PageDrafts,
     PagePresets,
     PagePlaygrounds,
-    ReusableSections,
-    RedirectRules,
-    BlogPosts,
+    withImportExportBanner(ReusableSections),
+    withImportExportBanner(RedirectRules),
+    withImportExportBanner(BlogPosts),
     BlogCategories,
-    Testimonials,
+    withImportExportBanner(Testimonials),
     AuditLogs,
     TeamMembers,
     Logos,
@@ -710,15 +743,31 @@ export default buildConfig({
   },
 
   // ─── Email ────────────────────────────────────────────────────────────────────
-  ...(process.env.RESEND_API_KEY
-    ? {
-        email: resendAdapter({
-          apiKey: process.env.RESEND_API_KEY,
-          defaultFromAddress: process.env.RESEND_FROM_EMAIL || 'noreply@example.com',
-          defaultFromName: process.env.RESEND_FROM_NAME || 'Website',
-        }),
+  email: (() => {
+    if (process.env.RESEND_API_KEY) {
+      if (!process.env.RESEND_FROM_EMAIL) {
+        throw new Error('RESEND_FROM_EMAIL is required when RESEND_API_KEY is provided.');
       }
-    : {}),
+      return resendAdapter({
+        apiKey: process.env.RESEND_API_KEY,
+        defaultFromAddress: process.env.RESEND_FROM_EMAIL,
+        defaultFromName: process.env.RESEND_FROM_NAME || 'Website',
+      });
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'Email configuration is missing! RESEND_API_KEY must be provided in production to prevent silent email loss.',
+      );
+    }
+
+    console.info(
+      'ℹ️ INFO: RESEND_API_KEY is missing. ' +
+        'Using consoleEmailAdapter — outgoing emails will be printed to stdout.',
+    );
+    return consoleEmailAdapter();
+  })(),
+
 
   // ─── GraphQL ──────────────────────────────────────────────────────────────────
   graphQL: {
@@ -790,10 +839,6 @@ export default buildConfig({
         slug: 'forms',
         enableQueryPresets: true,
         hooks: {
-          beforeValidate: [
-            ({ data, operation, originalDoc }) =>
-              normalizeFormBuilderData({ data, operation, originalDoc }),
-          ],
           beforeChange: [
             ({ data, operation, originalDoc }) =>
               normalizeFormBuilderData({ data, operation, originalDoc }),
@@ -816,6 +861,18 @@ export default buildConfig({
               readOnly: true,
               description:
                 'Immutable template discriminator used by frontend submission routing.',
+            },
+          },
+          {
+            name: 'emailTemplate',
+            type: 'relationship',
+            relationTo: 'email-templates',
+            required: false,
+            admin: {
+              position: 'sidebar',
+              condition: (data) => data?.templateKey === 'guide',
+              description:
+                'Email template to use when delivering a guide to the subscriber. Only applies to forms with templateKey = "guide".',
             },
           },
         ],
@@ -869,24 +926,17 @@ export default buildConfig({
 
     // ── Import/Export Plugin ───────────────────────────────────────────────────
     // Import and export collection data as CSV or JSON
-    // NOTE: Disabled locally — LibSQL cannot handle special chars in Google Drive
-    // path. Also disabled when blob storage is not configured to avoid Vercel
-    // upload collections running without persistent storage.
-    ...(process.env.VERCEL && hasBlobReadWriteToken
-      ? [
-          importExportPlugin({
-            collections: [
-              { slug: 'service-items' },
-              { slug: 'site-pages' },
-              { slug: 'reusable-sections' },
-              { slug: 'redirect-rules' },
-              { slug: 'blog-posts' },
-              { slug: 'testimonials' },
-              { slug: 'media' },
-            ],
-          }),
-        ]
-      : []),
+    importExportPlugin({
+      collections: [
+        { slug: 'service-items' },
+        { slug: 'site-pages' },
+        { slug: 'reusable-sections' },
+        { slug: 'redirect-rules' },
+        { slug: 'blog-posts' },
+        { slug: 'testimonials' },
+        { slug: 'media' },
+      ],
+    }),
 
     // ── Vercel Blob Storage ───────────────────────────────────────────────────
     // Must run after plugins that register upload collections (e.g. import-export)

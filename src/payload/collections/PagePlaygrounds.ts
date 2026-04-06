@@ -5,7 +5,8 @@ import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
 import { migrateGuideInquirySectionsBeforeChange } from '../hooks/guideInquirySectionMigration.ts';
 import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigration.ts';
-import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
+import { authorScopedUpdate, authorScopedDelete } from '../access/authorScopedAccess.ts';
+
 
 export const PagePlaygrounds: CollectionConfig = {
   slug: 'page-playgrounds',
@@ -46,7 +47,8 @@ export const PagePlaygrounds: CollectionConfig = {
       !!req.user &&
       ['admin', 'editor', 'author'].includes((req.user as Record<string, unknown>).role as string),
     update: authorScopedUpdate,
-    delete: authorScopedUpdate,
+    delete: authorScopedDelete,
+
   },
   hooks: {
     beforeChange: [

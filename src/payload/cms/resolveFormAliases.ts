@@ -1,10 +1,22 @@
-import { getGuideFormId, getInquiryFormId } from '@/lib/payload-form-stubs';
+import { getGuideFormId, getInquiryFormId } from '../../lib/payload-form-stubs.ts';
+import { isFormAliasKey } from '../../domain/forms/formTemplates.ts';
 import type { PageSection, SitePage } from './types.ts';
 
 /**
  * Preset and fallback page data use `form: 'guide' | 'inquiry'` aliases. Payload's
  * REST API and the public form fetch expect a real `forms` document id. Resolve
  * aliases here so the client always receives a concrete id.
+ *
+ * ── SYNC POINT ───────────────────────────────────────────────────────────────
+ * The set of recognised alias strings is defined in
+ * `src/domain/forms/formTemplates.ts` (`FORM_ALIAS_KEYS`).
+ *
+ * To add a new embeddable alias:
+ *   1. Add the key to `FORM_ALIAS_KEYS` in formTemplates.ts.
+ *   2. Export `get<Alias>FormId()` from `payload-form-stubs.ts`.
+ *   3. Handle the new key in `resolveFormEmbedAliasesInSections()` below.
+ *   4. The `/api/form-ids` route will pick up the new key automatically.
+ * ─────────────────────────────────────────────────────────────────────────────
  */
 export async function resolveFormEmbedAliasesInSitePage(
   page: SitePage | null,
@@ -18,6 +30,8 @@ export async function resolveFormEmbedAliasesInSitePage(
 export async function resolveFormEmbedAliasesInSections(
   sections: PageSection[],
 ): Promise<PageSection[]> {
+  // Use the shared `isFormAliasKey` guard so alias detection is always driven
+  // from `FORM_ALIAS_KEYS` in formTemplates.ts — not from duplicated string literals.
   const needGuide = sections.some(
     (s) => s.blockType === 'formSection' && s.form === 'guide',
   );
@@ -41,7 +55,7 @@ export async function resolveFormEmbedAliasesInSections(
     return sections.map((section) => {
       if (
         section.blockType !== 'formSection' ||
-        (section.form !== 'guide' && section.form !== 'inquiry')
+        !isFormAliasKey(section.form)
       ) {
         return section;
       }

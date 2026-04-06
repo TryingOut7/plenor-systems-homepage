@@ -209,7 +209,23 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
     });
   }
 
-  // Stamp approval metadata and review attribution when a reviewer approves/publishes.
+  // Stamp submission attribution when an author submits for review.
+  if (newStatus === 'in_review') {
+    const user = req.user as UserRecord | undefined;
+    data.submittedBy = user?.id || null;
+    data.submittedAt = new Date().toISOString();
+  }
+
+  // Stamp approval attribution and run review-gate validation when approving or publishing.
+  //
+  // I-02 fix: approvedBy/approvedAt must NOT be overwritten when an admin publishes
+  // a document that was already approved by an editor. The approver identity is set
+  // once — at the approved transition — and preserved through publication.
+  //
+  // Stamping rules:
+  //   approved → stamp always (editor/admin is the approver)
+  //   published from non-approved (direct bypass) → stamp because no approval step ran
+  //   published from approved → do NOT stamp; preserve the editor's approvedBy attribution
   if (newStatus === 'approved' || newStatus === 'published') {
     const reviewSummary = readTrimmedString(data.reviewSummary);
     if (reviewSummary.length < 10) {
@@ -256,21 +272,51 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
       });
     }
 
-    const user = req.user as UserRecord | undefined;
-    data.reviewedBy = user?.id || null;
-    data.reviewedAt = new Date().toISOString();
-    data.approvedBy = user?.id || null;
-    data.approvedAt = new Date().toISOString();
+    // Stamp the approver only at the approval step itself, or on a direct-publish bypass.
+    // When publishing from an already-approved state (approved → published) the editor's
+    // approvedBy attribution is left intact; only a same-pass direct publish stamps here.
+    const isDirectPublishBypass = newStatus === 'published' && oldStatus !== 'approved';
+    if (newStatus === 'approved' || isDirectPublishBypass) {
+      const user = req.user as UserRecord | undefined;
+      data.approvedBy = user?.id || null;
+      data.approvedAt = new Date().toISOString();
+    }
+  }
+
+  // Require a rejection reason before allowing a rejected transition.
+  if (newStatus === 'rejected') {
+    const rejectionReason = readTrimmedString(data.rejectionReason);
+    if (rejectionReason.length < 5) {
+      logWorkflowBlock({
+        req,
+        code: 'WF_REJECTION_REASON_REQUIRED',
+        role,
+        oldStatus,
+        newStatus,
+        reason: 'rejectionReason must contain at least 5 characters before rejecting.',
+      });
+      throwWorkflowValidationError({
+        req,
+        collection: collectionSlug,
+        errors: [
+          {
+            path: 'rejectionReason',
+            message:
+              'Workflow [WF_REJECTION_REASON_REQUIRED]: A rejection reason of at least 5 characters is required before rejecting.',
+          },
+        ],
+      });
+    }
   }
 
   // Clear approval fields when moving back to draft or rejected
   if (newStatus === 'draft' || newStatus === 'rejected') {
     data.approvedBy = null;
     data.approvedAt = null;
-    data.reviewedBy = null;
-    data.reviewedAt = null;
     if (newStatus === 'draft') {
       data.reviewChecklistComplete = false;
+      data.submittedBy = null;
+      data.submittedAt = null;
     }
   }
 
@@ -280,6 +326,22 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
 /**
  * afterChange hook: sends email notification when workflow status changes.
  * Requires RESEND_API_KEY to be set; silently skips otherwise.
+ *
+ * I-04 / I-05 fix:
+ *   The previous code used `isAuthorWithdrawal` based only on status values
+ *   (in_review → draft), making it fire for editor-initiated returns as well.
+ *   This caused the notification to be labelled "withdrawn from review" even
+ *   when an editor moved content back to draft, which is semantically wrong and
+ *   left the original author with no indication that an editor acted on their work.
+ *
+ *   Fixes:
+ *   1. Determine the actor's role to distinguish author self-withdrawal from
+ *      editor/admin-initiated return.
+ *   2. Use role-appropriate notification labels.
+ *   3. When an editor or admin returns content to draft, send a second notification
+ *      directly to the original submitter (author) so they know their work was returned.
+ *      The submitter's email is resolved from previousDoc.submittedBy (read before the
+ *      hook clears it during the draft transition).
  */
 export const workflowAfterChange: CollectionAfterChangeHook = async ({
   doc,
@@ -292,41 +354,106 @@ export const workflowAfterChange: CollectionAfterChangeHook = async ({
 
   if (!newStatus || newStatus === oldStatus) return doc;
 
-  // Only notify on meaningful transitions
-  const notifyStatuses = ['in_review', 'approved', 'rejected', 'published'];
-  if (!notifyStatuses.includes(newStatus)) return doc;
-
+  // Classify in_review → draft transitions by who performed them.
+  const isDraftReturn = newStatus === 'draft' && oldStatus === 'in_review';
   const actor = req.user as UserRecord | undefined;
+  const actorRole = (actor as Record<string, unknown> | undefined)?.role as string | undefined;
+  const isAuthorWithdrawal = isDraftReturn && actorRole === 'author';
+  const isEditorReturn = isDraftReturn && !isAuthorWithdrawal; // editor or admin initiated
+
+  // Skip transitions that have no notification value.
+  const notifyStatuses = ['in_review', 'approved', 'rejected', 'published'];
+  if (!notifyStatuses.includes(newStatus) && !isDraftReturn) return doc;
+
   const actorEmail = (actor?.email as string) || 'System';
-  const docTitle = (doc as Record<string, unknown>).title ||
+  const docTitleRaw =
+    (doc as Record<string, unknown>).title ||
     (doc as Record<string, unknown>).name ||
     (doc as Record<string, unknown>).personName ||
     String((doc as Record<string, unknown>).id);
 
-  const subject = `[Workflow] ${collection.slug}: "${docTitle}" → ${newStatus}`;
-  const text = [
-    `Document: ${docTitle}`,
-    `Collection: ${collection.slug}`,
-    `Status: ${oldStatus || 'new'} → ${newStatus}`,
-    `Changed by: ${actorEmail}`,
-    newStatus === 'rejected'
-      ? `Reason: ${(doc as Record<string, unknown>).rejectionReason || '(none provided)'}`
-      : '',
-  ]
-    .filter(Boolean)
-    .join('\n');
+  // L-02 Fix: Sanitize injected document title to prevent newline injection
+  // or excessive length in email subjects.
+  const docTitle = String(docTitleRaw)
+    .replace(/[\r\n\t]+/g, ' ')
+    .trim()
+    .slice(0, 150);
 
+  // Build a role-accurate status label.
+  let statusLabel: string;
+  if (isAuthorWithdrawal) {
+    statusLabel = 'withdrawn from review';
+  } else if (isEditorReturn) {
+    statusLabel = 'returned to draft';
+  } else {
+    statusLabel = newStatus;
+  }
+
+  const buildNotificationText = (extraLines: string[] = []): string =>
+    [
+      `Document: ${docTitle}`,
+      `Collection: ${collection.slug}`,
+      `Status: ${oldStatus || 'new'} → ${statusLabel}`,
+      `Changed by: ${actorEmail}`,
+      newStatus === 'rejected'
+        ? `Reason: ${(doc as Record<string, unknown>).rejectionReason || '(none provided)'}`
+        : '',
+      ...extraLines,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+  const subject = `[Workflow] ${collection.slug}: "${docTitle}" → ${statusLabel}`;
   try {
+    // Notify the admin workflow inbox on all meaningful transitions.
     const adminEmail = await resolveWorkflowNotifyEmail(req);
-    if (!adminEmail) return doc;
+    if (adminEmail) {
+      await req.payload.sendEmail({
+        to: adminEmail,
+        subject,
+        text: buildNotificationText(),
+      });
+    }
 
-    const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@example.com';
-    await req.payload.sendEmail({
-      from: fromEmail,
-      to: adminEmail,
-      subject,
-      text,
-    });
+    // I-04/I-05: When an editor or admin returns content to draft, the original
+    // submitter (author) must also be notified so they are not left wondering what
+    // happened to their submission. The submitter email is read from previousDoc
+    // because the beforeChange hook clears submittedBy during draft transitions.
+    if (isEditorReturn) {
+      const submittedById = (previousDoc as Record<string, unknown> | undefined)?.submittedBy;
+      if (submittedById) {
+        try {
+          const submitter = await req.payload.findByID({
+            collection: 'users',
+            id: typeof submittedById === 'object'
+              ? String((submittedById as Record<string, unknown>).id ?? submittedById)
+              : String(submittedById),
+            depth: 0,
+            overrideAccess: true,
+          });
+          const submitterEmail = (submitter as Record<string, unknown>)?.email as string | undefined;
+            if (submitterEmail && submitterEmail !== adminEmail) {
+              await req.payload.sendEmail({
+                to: submitterEmail,
+                subject: `[Workflow] Your submission "${docTitle}" has been returned to draft`,
+                text: buildNotificationText([
+                  '',
+                  `Your submission has been returned to draft by ${actorEmail}.`,
+                  'Please review any feedback and resubmit when ready.',
+                ]),
+              });
+            }
+        } catch (submitterErr) {
+          // A failure to notify the submitter must never block the workflow.
+          req.payload.logger.error({
+            err: submitterErr,
+            msg: 'Workflow submitter notification failed — admin was notified but author was not',
+            collection: collection.slug,
+            documentId: String((doc as Record<string, unknown>).id),
+          });
+        }
+      }
+    }
   } catch (err) {
     req.payload.logger.error({
       err,

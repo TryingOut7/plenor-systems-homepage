@@ -1,4 +1,4 @@
-import { isFormTemplateKey, type FormTemplateKey } from '@/domain/forms/formTemplates';
+import { isFormTemplateKey, type FormTemplateKey } from '../../domain/forms/formTemplates.ts';
 
 type FormTemplate = {
   confirmationMessage: Record<string, unknown>;

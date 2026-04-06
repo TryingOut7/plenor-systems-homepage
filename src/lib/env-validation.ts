@@ -1,4 +1,9 @@
-const REQUIRED_VARS = ['PAYLOAD_SECRET', 'NEXT_PUBLIC_SERVER_URL'] as const;
+const REQUIRED_VARS = [
+  'PAYLOAD_SECRET',
+  'NEXT_PUBLIC_SERVER_URL',
+  'RESEND_API_KEY',
+  'RESEND_FROM_EMAIL',
+] as const;
 
 const REQUIRED_SUPABASE_VARS = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'] as const;
 
@@ -36,6 +41,7 @@ export function validateEnv(): void {
   allMissing.push(...missing);
   allMissing.push(...missingSupabase);
   if (missingCronSecret) allMissing.push('CRON_SECRET');
+
 
   if (allMissing.length > 0) {
     throw new Error(

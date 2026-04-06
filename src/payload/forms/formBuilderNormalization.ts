@@ -1,7 +1,7 @@
 import {
   formatSupportedFormTemplateKeys,
   parseFormTemplateKey,
-} from '@/domain/forms/formTemplates';
+} from '../../domain/forms/formTemplates.ts';
 
 function buildLexicalParagraph(text: string): Record<string, unknown> {
   return {

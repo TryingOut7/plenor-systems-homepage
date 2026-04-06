@@ -6,6 +6,8 @@
  * failure here never blocks the CMS save.
  */
 
+import { invalidateCmsCollectionCaches } from '../cms/cache.ts';
+
 type CollectionSlug =
   | 'site-pages'
   | 'service-items'
@@ -25,8 +27,17 @@ function safeRevalidatePath(path: string, type?: 'page' | 'layout'): void {
       revalidatePath: (path: string, type?: 'page' | 'layout') => void;
     };
     revalidatePath(path, type);
-  } catch {
-    // Not in a Next.js context (CLI, tests) — skip silently.
+  } catch (err) {
+    if (
+      err instanceof Error &&
+      (err.message.includes("Cannot find module 'next/cache'") ||
+        (err as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND')
+    ) {
+      // Not in a Next.js context (Payload CLI, scripts) — skip dynamically
+      return;
+    }
+    // eslint-disable-next-line no-console
+    console.error(`[CMS Revalidation]: Failed to revalidate path "${path}"`, err);
   }
 }
 
@@ -48,9 +59,12 @@ export function revalidateCollectionContent(
   const isPublishing = currentStatus === 'published';
   const wasAlreadyPublished = previousStatus === 'published';
   const isDeleting = currentStatus === undefined;
-  const isUnpublishing = wasAlreadyPublished && currentStatus !== 'published';
 
   if (!isPublishing && !wasAlreadyPublished && !isDeleting) return;
+
+  // Clear in-process module-level caches so the next render doesn't serve
+  // stale published data after an unpublish or delete.
+  invalidateCmsCollectionCaches({ collectionSlug, doc, previousDoc });
 
   switch (collectionSlug) {
     case 'site-pages': {

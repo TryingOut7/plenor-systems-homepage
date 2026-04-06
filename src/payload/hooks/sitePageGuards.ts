@@ -10,7 +10,6 @@ type GuardLifecycleEvent =
   | 'submit_for_review'
   | 'approve'
   | 'publish'
-  | 'scheduled_publish_execution'
   | 'update_published_document';
 
 type GuardRule = {
@@ -237,25 +236,12 @@ function resolvePresetKey(incoming: SectionRecord, original: SectionRecord): Sit
 function resolveGuardLifecycleEvent(args: {
   oldStatus: string;
   newStatus: string;
-  req: unknown;
-  context: unknown;
+  req?: { user?: unknown };
+  context?: unknown;
 }): GuardLifecycleEvent {
-  const { oldStatus, newStatus, req, context } = args;
+  const { oldStatus, newStatus } = args;
   if (newStatus === 'published') {
     if (oldStatus === 'published') return 'update_published_document';
-
-    const contextRecord = context && typeof context === 'object'
-      ? (context as Record<string, unknown>)
-      : {};
-    const requestRecord = req && typeof req === 'object' ? (req as Record<string, unknown>) : {};
-    const hasUser = !!requestRecord.user;
-    const scheduledFlag =
-      contextRecord.scheduledPublish === true ||
-      contextRecord.isScheduledExecution === true ||
-      contextRecord.scheduler === true;
-    if (!hasUser || scheduledFlag) {
-      return 'scheduled_publish_execution';
-    }
     return 'publish';
   }
   if (newStatus === 'in_review' && oldStatus !== 'in_review') return 'submit_for_review';
@@ -268,7 +254,6 @@ function isPublishLifecycleEvent(event: GuardLifecycleEvent): boolean {
     event === 'submit_for_review' ||
     event === 'approve' ||
     event === 'publish' ||
-    event === 'scheduled_publish_execution' ||
     event === 'update_published_document'
   );
 }
@@ -595,12 +580,7 @@ export const sitePagePublishGuardsBeforeChange: CollectionBeforeChangeHook = ({
     typeof original.workflowStatus === 'string' ? original.workflowStatus : 'draft';
   const newStatus =
     typeof incoming.workflowStatus === 'string' ? incoming.workflowStatus : oldStatus;
-  const lifecycleEvent = resolveGuardLifecycleEvent({
-    oldStatus,
-    newStatus,
-    req,
-    context,
-  });
+  const lifecycleEvent = resolveGuardLifecycleEvent({ oldStatus, newStatus, req });
   const publishPath = isPublishLifecycleEvent(lifecycleEvent);
   const logger = resolvePayloadLogger(req);
 

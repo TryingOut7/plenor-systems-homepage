@@ -11,7 +11,6 @@ import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
 import { applyCorePresetSections } from '../hooks/sitePagePreset.ts';
 import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
-import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
 import { migrateGuideInquirySectionsBeforeChange } from '../hooks/guideInquirySectionMigration.ts';
 import { migrateLegacySectionsBeforeChange } from '../hooks/legacySectionMigration.ts';
 import { sitePagePublishGuardsBeforeChange } from '../hooks/sitePageGuards.ts';
@@ -52,7 +51,8 @@ export const SitePages: CollectionConfig = {
       return { workflowStatus: { equals: 'published' }, isActive: { equals: true } };
     },
     create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
-    update: authorScopedUpdate,
+    update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
+
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as Record<string, unknown>).role as string),
   },
   hooks: {

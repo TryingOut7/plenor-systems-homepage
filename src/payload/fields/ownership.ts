@@ -9,4 +9,7 @@ export const createdByField: Field = {
     readOnly: true,
     description: 'The user who originally created this document.',
   },
+  access: {
+    update: () => false,
+  },
 };

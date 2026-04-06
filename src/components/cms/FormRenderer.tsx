@@ -24,6 +24,7 @@ interface FormData {
   id: string;
   title: string;
   templateKey?: 'guide' | 'inquiry' | 'newsletter';
+  emailTemplate?: { id: string | number } | string | number | null;
   fields: FormField[];
   submitButtonLabel?: string;
   confirmationType?: 'message' | 'redirect';
@@ -73,12 +74,18 @@ function resolveSubmitTarget(
   payload: unknown;
 } {
   if (form.templateKey === 'guide') {
+    const resolvedTemplateId =
+      form.emailTemplate && typeof form.emailTemplate === 'object'
+        ? (form.emailTemplate as { id: string | number }).id
+        : typeof form.emailTemplate === 'string' || typeof form.emailTemplate === 'number'
+          ? form.emailTemplate
+          : undefined;
     return {
       endpoint: '/api/guide',
       payload: {
         name: readTextValue(values, 'firstName') || readTextValue(values, 'name'),
         email: readTextValue(values, 'email'),
-        templateId: formId,
+        ...(resolvedTemplateId !== undefined ? { templateId: resolvedTemplateId } : {}),
       },
     };
   }

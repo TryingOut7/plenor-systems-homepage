@@ -167,6 +167,14 @@ export const PagePresets: CollectionConfig = {
         },
       },
     },
+    // ── Provenance fields ──────────────────────────────────────────────────
+    // These fields record how and where the preset was originally captured.
+    // They are intentionally immutable (update: () => false) because they
+    // are audit/lineage data, not editorial metadata. Changing them would
+    // misrepresent the preset's origin and break any tooling that relies on
+    // provenance for diffing, re-capture, or audit trails. To "fix" a
+    // preset's content or label, edit the name/description/category fields
+    // above; to re-capture layout from a different source, create a new preset.
     {
       name: 'sourceType',
       type: 'select',
@@ -179,12 +187,13 @@ export const PagePresets: CollectionConfig = {
         { label: 'From Playground', value: 'from-playground' },
       ],
       access: {
+        // Provenance — cannot be changed after creation. Create a new preset to re-capture.
         update: () => false,
       },
       admin: {
         position: 'sidebar',
         readOnly: true,
-        description: 'Records whether this template was captured manually or from an existing page, draft, or playground.',
+        description: 'Records how this preset was originally captured. Read-only — provenance cannot be changed after creation.',
       },
     },
     {
@@ -192,11 +201,13 @@ export const PagePresets: CollectionConfig = {
       type: 'relationship',
       relationTo: 'site-pages',
       access: {
+        // Provenance — cannot be changed after creation.
         update: () => false,
       },
       admin: {
         position: 'sidebar',
         readOnly: true,
+        description: 'The live page this preset was captured from. Read-only provenance field.',
         condition: (_, siblingData) => siblingData?.sourceType === 'from-live',
       },
     },
@@ -205,11 +216,13 @@ export const PagePresets: CollectionConfig = {
       type: 'relationship',
       relationTo: 'page-drafts',
       access: {
+        // Provenance — cannot be changed after creation.
         update: () => false,
       },
       admin: {
         position: 'sidebar',
         readOnly: true,
+        description: 'The draft this preset was captured from. Read-only provenance field.',
         condition: (_, siblingData) => siblingData?.sourceType === 'from-draft',
       },
     },
@@ -218,11 +231,13 @@ export const PagePresets: CollectionConfig = {
       type: 'relationship',
       relationTo: 'page-playgrounds',
       access: {
+        // Provenance — cannot be changed after creation.
         update: () => false,
       },
       admin: {
         position: 'sidebar',
         readOnly: true,
+        description: 'The playground this preset was captured from. Read-only provenance field.',
         condition: (_, siblingData) => siblingData?.sourceType === 'from-playground',
       },
     },
@@ -231,12 +246,13 @@ export const PagePresets: CollectionConfig = {
       label: 'Captured At',
       type: 'date',
       access: {
+        // Provenance — cannot be changed after creation.
         update: () => false,
       },
       admin: {
         position: 'sidebar',
         readOnly: true,
-        description: 'Timestamp when the section layout was snapshotted from its source document.',
+        description: 'Timestamp when the section layout was snapshotted from its source document. Read-only provenance field.',
       },
     },
     createdByField,

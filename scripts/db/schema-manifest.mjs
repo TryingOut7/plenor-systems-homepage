@@ -27,6 +27,8 @@ const varchar_default = (v) => `character varying DEFAULT '${v}'`;
 const WORKFLOW_REVIEW_COLUMNS = {
   deleted_at: timestamptz,
   workflow_status: varchar_default('draft'),
+  submitted_by_id: integer,
+  submitted_at: timestamptz,
   review_checklist_complete: boolean_false,
   review_summary: text,
   reviewed_by_id: integer,
@@ -212,6 +214,7 @@ function buildManifest() {
   columns['forms'] = {
     ...columns['forms'],
     template_key: varchar,
+    email_template_id: integer,
   };
 
   columns['form_submissions'] = {
@@ -244,6 +247,8 @@ function buildManifest() {
     locale:                     varchar_default('en'),
     translation_group_id:       varchar,
     workflow_status:            varchar_default('draft'),
+    submitted_by_id:            integer,
+    submitted_at:               timestamptz,
     review_checklist_complete:  boolean_false,
     review_summary:             text,
     reviewed_by_id:             integer,
@@ -259,6 +264,35 @@ function buildManifest() {
   columns['testimonials'] = {
     ...columns['testimonials'],
     name: varchar,
+    submitted_by_id: integer,
+    submitted_at: timestamptz,
+  };
+
+  // ---------------------------------------------------------------------------
+  // service_items
+  // ---------------------------------------------------------------------------
+  columns['service_items'] = {
+    ...columns['service_items'],
+    submitted_by_id: integer,
+    submitted_at: timestamptz,
+  };
+
+  // ---------------------------------------------------------------------------
+  // blog_posts
+  // ---------------------------------------------------------------------------
+  columns['blog_posts'] = {
+    ...columns['blog_posts'],
+    submitted_by_id: integer,
+    submitted_at: timestamptz,
+  };
+
+  // ---------------------------------------------------------------------------
+  // site_pages
+  // ---------------------------------------------------------------------------
+  columns['site_pages'] = {
+    ...columns['site_pages'],
+    submitted_by_id: integer,
+    submitted_at: timestamptz,
   };
 
   // ---------------------------------------------------------------------------

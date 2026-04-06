@@ -75,6 +75,39 @@ export const pageDraftWorkflowStatusField: Field = {
 
 export const workflowApprovalFields: Field[] = [
   {
+    name: 'submittedBy',
+    type: 'relationship',
+    relationTo: 'users',
+    access: {
+      update: () => false,
+    },
+    admin: {
+      position: 'sidebar',
+      readOnly: true,
+      condition: (data) =>
+        data?.workflowStatus === 'in_review' ||
+        data?.workflowStatus === 'approved' ||
+        data?.workflowStatus === 'published' ||
+        data?.workflowStatus === 'rejected',
+    },
+  },
+  {
+    name: 'submittedAt',
+    type: 'date',
+    access: {
+      update: () => false,
+    },
+    admin: {
+      position: 'sidebar',
+      readOnly: true,
+      condition: (data) =>
+        data?.workflowStatus === 'in_review' ||
+        data?.workflowStatus === 'approved' ||
+        data?.workflowStatus === 'published' ||
+        data?.workflowStatus === 'rejected',
+    },
+  },
+  {
     name: 'reviewChecklistComplete',
     type: 'checkbox',
     defaultValue: false,
@@ -103,31 +136,6 @@ export const workflowApprovalFields: Field[] = [
         data?.workflowStatus === 'approved' ||
         data?.workflowStatus === 'published',
       description: 'Reviewer notes summarizing quality checks and decision rationale.',
-    },
-  },
-  {
-    name: 'reviewedBy',
-    type: 'relationship',
-    relationTo: 'users',
-    access: {
-      update: () => false,
-    },
-    admin: {
-      position: 'sidebar',
-      readOnly: true,
-      condition: (data) => data?.workflowStatus === 'approved' || data?.workflowStatus === 'published',
-    },
-  },
-  {
-    name: 'reviewedAt',
-    type: 'date',
-    access: {
-      update: () => false,
-    },
-    admin: {
-      position: 'sidebar',
-      readOnly: true,
-      condition: (data) => data?.workflowStatus === 'approved' || data?.workflowStatus === 'published',
     },
   },
   {
