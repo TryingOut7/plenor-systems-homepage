@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run DB Schema Ensure (bootstrap + backend + payload)
+      - name: Run DB Schema Ensure (payload + backend)
         run: npm run db:schema:ensure
 
       - name: Predeploy Guardrails
