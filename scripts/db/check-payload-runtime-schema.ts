@@ -6,7 +6,25 @@ type NamedSchemaObject = {
 };
 
 function readMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
+  if (error instanceof Error) {
+    const messages = [error.message];
+    let current: unknown = error;
+    let depth = 0;
+    while (depth < 4) {
+      if (!current || typeof current !== 'object' || !('cause' in current)) break;
+      const cause = (current as { cause?: unknown }).cause;
+      if (!cause) break;
+      if (cause instanceof Error) {
+        messages.push(`cause: ${cause.message}`);
+        current = cause;
+        depth += 1;
+        continue;
+      }
+      messages.push(`cause: ${String(cause)}`);
+      break;
+    }
+    return messages.join(' | ');
+  }
   return String(error);
 }
 

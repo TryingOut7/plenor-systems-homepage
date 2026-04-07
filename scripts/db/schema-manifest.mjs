@@ -309,6 +309,9 @@ function buildManifest() {
   columns['testimonials'] = {
     ...columns['testimonials'],
     name: varchar,
+    meta_title: varchar,
+    meta_description: varchar,
+    meta_image_id: integer,
     submitted_by_id: integer,
     submitted_at: timestamptz,
   };
@@ -336,6 +339,7 @@ function buildManifest() {
   // ---------------------------------------------------------------------------
   columns['site_pages'] = {
     ...columns['site_pages'],
+    parent_id: integer,
     submitted_by_id: integer,
     submitted_at: timestamptz,
   };
