@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import PageChromeOverrides from '@/components/PageChromeOverrides';
 import UniversalSections from '@/components/cms/UniversalSections';
 import { getCollectionData, getSiteSettings, type SitePage } from '@/payload/cms';
@@ -30,6 +31,12 @@ function normalizeSlug(value: unknown, fallback: string): string {
 function asRecord(value: unknown): UnknownRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
   return value as UnknownRecord;
+}
+
+function resolveAdminBasePath(): string {
+  const configured = process.env.PAYLOAD_ROUTE_ADMIN?.trim();
+  if (!configured) return '/admin';
+  return configured.startsWith('/') ? configured : `/${configured}`;
 }
 
 function mapDraftToPreviewPage(args: {
@@ -90,6 +97,9 @@ export default async function DraftPreviewPage({
       overrideAccess: true,
     })
     .catch(() => null);
+  if (!draftDoc) {
+    notFound();
+  }
 
   const draft = asRecord(draftDoc);
   const previewPage = mapDraftToPreviewPage({
@@ -98,7 +108,37 @@ export default async function DraftPreviewPage({
   });
 
   if (!Array.isArray(previewPage.sections) || previewPage.sections.length === 0) {
-    notFound();
+    const adminBasePath = resolveAdminBasePath();
+    const editDraftHref = `${adminBasePath}/collections/page-drafts/${encodeURIComponent(
+      resolvedParams.id,
+    )}`;
+
+    return (
+      <section
+        aria-labelledby="preview-empty-title"
+        style={{
+          maxWidth: '680px',
+          margin: '120px auto',
+          padding: '28px 24px',
+          borderRadius: '16px',
+          border: '1px solid #E2E8F0',
+          background: '#FFFFFF',
+          boxShadow: '0 12px 28px rgba(15, 23, 42, 0.08)',
+        }}
+      >
+        <h1 id="preview-empty-title" style={{ margin: 0, fontSize: '1.5rem', color: '#0F172A' }}>
+          Nothing to preview yet
+        </h1>
+        <p style={{ marginTop: '12px', marginBottom: 0, color: '#334155', lineHeight: 1.6 }}>
+          Add at least one section to this draft, then refresh this preview.
+        </p>
+        <p style={{ marginTop: '14px', marginBottom: 0 }}>
+          <Link href={editDraftHref} style={{ color: '#1D4ED8', textDecoration: 'underline' }}>
+            Open this draft in CMS
+          </Link>
+        </p>
+      </section>
+    );
   }
 
   const [collectionData, siteSettings] = await Promise.all([
@@ -118,4 +158,3 @@ export default async function DraftPreviewPage({
     </>
   );
 }
-

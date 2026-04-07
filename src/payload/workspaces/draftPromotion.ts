@@ -123,6 +123,7 @@ export async function promoteDraftToLive(args: {
     id: draftId,
     depth: 0,
     overrideAccess: true,
+    user,
     data: { workflowStatus: 'published' },
   });
 

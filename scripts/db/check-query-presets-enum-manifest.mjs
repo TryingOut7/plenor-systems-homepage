@@ -133,7 +133,7 @@ async function run() {
       console.error(`   - ${slug}`);
     }
     console.error(
-      '\nUpdate scripts/db/schema-manifest.mjs (SCHEMA_ENUM_MANIFEST) and add/apply migration(s).',
+      '\nRun payload DB schema + migration workflow and apply migrations before deploy.',
     );
     process.exit(1);
   }

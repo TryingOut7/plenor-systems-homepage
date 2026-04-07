@@ -54,10 +54,12 @@ describe('draftPromotion workspace service', () => {
 
     const payload = buildMockPayload({ draft });
 
+    const actingUser = { id: 'user_1', role: 'editor' } as unknown as TypedUser;
+
     await promoteDraftToLive({
       draftId: 'draft_nested',
       payload: payload as unknown as Payload,
-      user: { id: 'user_1', role: 'editor' } as unknown as TypedUser,
+      user: actingUser,
     });
 
     expect(payload.create).toHaveBeenCalledTimes(1);
@@ -82,6 +84,16 @@ describe('draftPromotion workspace service', () => {
 
     expect((draft.sections as Array<Record<string, unknown>>)[0].id).toBe('hero_row');
     expect((draft.seo as Record<string, unknown>).id).toBe('seo_row');
+
+    const draftStatusUpdateArgs = payload.update.mock.calls
+      .map(([args]) => args as Record<string, unknown>)
+      .find((args) => args.collection === 'page-drafts');
+
+    expect(draftStatusUpdateArgs).toBeDefined();
+    expect((draftStatusUpdateArgs as { user?: unknown }).user).toBe(actingUser);
+    expect((draftStatusUpdateArgs as { data?: Record<string, unknown> }).data).toMatchObject({
+      workflowStatus: 'published',
+    });
   });
 
   it('strips nested ids when updating an existing live page', async () => {

@@ -4,6 +4,7 @@ import { buildConfig } from 'payload';
 import { validateEnv } from './lib/env-validation.ts';
 import { resolveDatabasePoolMax } from './payload/databasePool.ts';
 import { acceptedLanguages, type AcceptedLanguages } from '@payloadcms/translations';
+import { enTranslations } from '@payloadcms/translations/languages/en';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -201,7 +202,6 @@ function resolveDatabaseSslOption(
   return { rejectUnauthorized: dbRejectUnauthorized };
 }
 
-const isProductionRuntime = process.env.NODE_ENV === 'production';
 const dbPushEnv = process.env.PAYLOAD_DB_PUSH?.trim();
 const dbPushConfirmed = process.env.PAYLOAD_CONFIRM_SCHEMA_PUSH === 'true';
 const parsedDbPushEnv =
@@ -211,18 +211,18 @@ const parsedDbPushEnv =
       ? false
       : undefined;
 
-// Align with Payload's recommended Postgres dev workflow:
-// local/dev defaults to push mode, production defaults to migrations-only.
-let dbPushSchema = !isProductionRuntime;
+// Migrations-first workflow for all environments.
+// Schema push remains available, but only via explicit opt-in.
+let dbPushSchema = false;
 if (parsedDbPushEnv !== undefined) {
   dbPushSchema = parsedDbPushEnv;
 }
 
-if (isProductionRuntime && dbPushSchema && !dbPushConfirmed) {
+if (dbPushSchema && !dbPushConfirmed) {
   dbPushSchema = false;
   console.warn(
-    'PAYLOAD_DB_PUSH=true ignored in production because PAYLOAD_CONFIRM_SCHEMA_PUSH is not set to true. ' +
-      'Set both env vars to opt into production schema push explicitly.',
+    'PAYLOAD_DB_PUSH=true ignored because PAYLOAD_CONFIRM_SCHEMA_PUSH is not set to true. ' +
+      'Set both env vars to opt into schema push explicitly.',
   );
 }
 const adminThemeValues = ['all', 'dark', 'light'] as const;
@@ -434,6 +434,15 @@ function userHasAnyRole(req: { user?: unknown } | undefined, allowedRoles: reado
   return !!userRole && allowedRoles.includes(userRole);
 }
 
+function readAuthenticatedUserId(req: { user?: unknown } | undefined): string | null {
+  const user = req?.user;
+  if (!user || typeof user !== 'object') return null;
+  const candidateId = (user as Record<string, unknown>).id;
+  if (typeof candidateId === 'number') return String(candidateId);
+  if (typeof candidateId === 'string' && candidateId.trim()) return candidateId.trim();
+  return null;
+}
+
 function withUndefinedToDefault<T>(value: T | undefined, fallback: T): T {
   return value === undefined ? fallback : value;
 }
@@ -583,6 +592,16 @@ export default buildConfig({
   routes: rootRoutes,
   i18n: {
     fallbackLanguage: adminFallbackLanguage,
+    translations: {
+      en: {
+        ...enTranslations,
+        error: {
+          ...enTranslations.error,
+          unauthorized:
+            "Unauthorized. If you're already logged in, your account may not have permission for this action.",
+        },
+      },
+    },
   },
   admin: {
     user: 'users',
@@ -642,10 +661,15 @@ export default buildConfig({
         verify: false,
       },
       access: {
-        admin: ({ req }) => userHasAnyRole(req, allRoles),
+        admin: ({ req }) => userHasAnyRole(req, contentManagerRoles),
         // Relationship fields (e.g. workflow approvedBy) in non-admin collections
-        // need to resolve user documents for all authenticated CMS users.
-        read: ({ req }) => !!req.user,
+        // must still resolve, but lower-privilege users should only resolve self.
+        read: ({ req }) => {
+          if (userHasAnyRole(req, contentManagerRoles)) return true;
+          const userId = readAuthenticatedUserId(req);
+          if (!userId) return false;
+          return { id: { equals: userId } };
+        },
         create: ({ req }) => userHasAnyRole(req, ['admin']),
         update: ({ req }) => {
           if (userHasAnyRole(req, ['admin'])) return true;

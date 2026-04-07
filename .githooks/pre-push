@@ -4,11 +4,8 @@
 # Runs two checks:
 #   1. Pending SQL migrations (migrations/versions/) — ensures nothing was
 #      committed to the migration directory but not yet applied.
-#   2. Schema drift (columns + critical enum labels) — compares
-#      scripts/db/schema-manifest.mjs against the actual database and
-#      auto-generates a repair migration if needed.
-#   3. Query-presets enum manifest parity — ensures every collection with
-#      enableQueryPresets is represented in the managed enum manifest.
+#   2. Payload generated-schema parity — verifies all expected Payload tables,
+#      columns, and enum labels exist in the target DB.
 #
 # To install: npm run hooks:install
 # To skip (emergency only): git push --no-verify
@@ -60,17 +57,11 @@ else
 fi
 
 echo ""
-echo "🔍 [pre-push] Checking query-presets enum manifest parity..."
-node scripts/db/check-query-presets-enum-manifest.mjs
-echo "   ✓ Query-presets enum manifest is in sync."
-
-echo ""
-echo "🔍 [pre-push] Checking for schema drift..."
-if ! node scripts/db/schema-drift.mjs 2>&1; then
+echo "🔍 [pre-push] Checking Payload generated-schema parity..."
+if ! node scripts/db/check-payload-generated-schema-parity.mjs 2>&1; then
   echo ""
   echo "❌ [pre-push] Schema drift detected."
-  echo "   A repair migration was generated. Review it, commit it, then push again."
-  echo "   (See instructions above for the exact git commands.)"
+  echo "   Create/apply migrations, then run db:schema:ensure:check before pushing."
   exit 1
 fi
 echo "   ✓ Schema is up to date."

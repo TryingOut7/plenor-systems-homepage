@@ -114,6 +114,7 @@ const { createPayloadWorkspaceMutationRepository } =
 
 const PRESET_CREATOR_ROLES = new Set(['admin', 'editor']);
 const WORKSPACE_ROLES = new Set(['admin', 'editor', 'author']);
+const PUBLISHER_ROLES = new Set(['admin']);
 
 function asRecord(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
@@ -673,8 +674,8 @@ export function buildBackendServer(): FastifyInstance {
     const session = await requireWorkspaceSession(
       request,
       reply,
-      PRESET_CREATOR_ROLES,
-      'Only admins and editors can promote drafts.',
+      PUBLISHER_ROLES,
+      'Only admins can promote drafts to live.',
     );
     if (!session) return reply;
 

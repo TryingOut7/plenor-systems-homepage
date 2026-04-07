@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 
 const CONSENT_STORAGE_KEY = 'plenor_cookie_consent';
@@ -20,19 +21,33 @@ export default function CookieBanner({
   privacyLabel = 'Privacy Policy',
   privacyHref = '/privacy',
 }: CookieBannerProps) {
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return !window.localStorage.getItem(CONSENT_STORAGE_KEY);
-  });
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    try {
+      setVisible(!window.localStorage.getItem(CONSENT_STORAGE_KEY));
+    } catch {
+      // If storage is blocked, still show consent controls.
+      setVisible(true);
+    }
+  }, []);
 
   function accept() {
-    localStorage.setItem(CONSENT_STORAGE_KEY, 'accepted');
+    try {
+      localStorage.setItem(CONSENT_STORAGE_KEY, 'accepted');
+    } catch {
+      // Ignore storage write errors; closing the banner remains best-effort.
+    }
     setVisible(false);
     window.dispatchEvent(new CustomEvent('cookie_consent_accepted'));
   }
 
   function decline() {
-    localStorage.setItem(CONSENT_STORAGE_KEY, 'declined');
+    try {
+      localStorage.setItem(CONSENT_STORAGE_KEY, 'declined');
+    } catch {
+      // Ignore storage write errors; closing the banner remains best-effort.
+    }
     setVisible(false);
     window.dispatchEvent(new CustomEvent('cookie_consent_declined'));
   }

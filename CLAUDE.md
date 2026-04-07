@@ -74,8 +74,8 @@ npm run db:migrate:payload              # Apply pending CMS migrations (migratio
 npm run db:migrate:payload:status       # Show applied/pending CMS migrations
 npm run db:check:payload            # Check Payload schema against actual DB
 npm run db:repair:payload           # Repair Payload schema drift in the DB
-npm run db:schema:drift             # Check schema manifest vs live DB; auto-generate repair migration if needed
-npm run db:schema:drift:check       # Check only, no file write
+npm run db:schema:drift             # Alias: runs Payload generated-schema parity check (no longer auto-generates repair migrations)
+npm run db:schema:drift:check       # Alias for db:schema:drift (--check-only flag ignored; use db:schema:ensure:check instead)
 npm run hooks:install               # Wire up .githooks/ into .git/hooks/ (run once after cloning)
 npm run backup                      # Run database backup script
 
@@ -213,8 +213,8 @@ npm run hooks:install
 ### Manual drift check
 
 ```bash
-npm run db:schema:drift          # check + auto-generate migration if needed
-npm run db:schema:drift:check    # check only, no file write
+npm run db:schema:ensure:check   # check Payload generated-schema parity against live DB
+npm run db:schema:drift          # deprecated alias — delegates to generated-schema parity check
 ```
 
 ## Environment Variables

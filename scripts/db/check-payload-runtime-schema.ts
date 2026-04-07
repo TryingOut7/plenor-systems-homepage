@@ -66,7 +66,9 @@ async function run() {
   }
 
   try {
-    if ('destroy' in payload.db && typeof payload.db.destroy === 'function') {
+    if ('destroy' in payload && typeof payload.destroy === 'function') {
+      await payload.destroy();
+    } else if ('destroy' in payload.db && typeof payload.db.destroy === 'function') {
       await payload.db.destroy();
     }
   } catch {
@@ -84,6 +86,7 @@ async function run() {
   console.log(
     `✅ Payload runtime schema check passed (${collectionSlugs.length} collections, ${globalSlugs.length} globals).`,
   );
+  process.exit(0);
 }
 
 run().catch((error) => {
