@@ -118,7 +118,9 @@ function tryParseUrl(value: string): URL | null {
 
 function resolveServerURL(): string {
   const runtimePort = resolveRuntimePort();
-  const configuredServerUrl = process.env.NEXT_PUBLIC_SERVER_URL?.trim() || '';
+  const configuredServerUrl =
+    process.env.NEXT_PUBLIC_SERVER_URL?.trim() ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '');
   if (configuredServerUrl) {
     const normalizedConfiguredUrl = /^https?:\/\//i.test(configuredServerUrl)
       ? configuredServerUrl

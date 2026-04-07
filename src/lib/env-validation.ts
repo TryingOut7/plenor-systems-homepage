@@ -1,6 +1,5 @@
 const REQUIRED_VARS = [
   'PAYLOAD_SECRET',
-  'NEXT_PUBLIC_SERVER_URL',
   'RESEND_API_KEY',
   'RESEND_FROM_EMAIL',
 ] as const;
@@ -36,8 +35,11 @@ export function validateEnv(): void {
   // every cron invocation returns 401 and the outbox is never processed.
   const missingCronSecret = !process.env.CRON_SECRET;
 
+  const missingServerUrl = !process.env.NEXT_PUBLIC_SERVER_URL && !process.env.VERCEL_URL;
+
   const allMissing: string[] = [];
   if (missingDatabase) allMissing.push('POSTGRES_URL');
+  if (missingServerUrl) allMissing.push('NEXT_PUBLIC_SERVER_URL (or VERCEL_URL)');
   allMissing.push(...missing);
   allMissing.push(...missingSupabase);
   if (missingCronSecret) allMissing.push('CRON_SECRET');
