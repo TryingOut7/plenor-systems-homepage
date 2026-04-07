@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { resolveDatabasePoolMax } from '@/payload/databasePool';
 
 describe('resolveDatabasePoolMax', () => {
-  it('uses a single connection on Vercel', () => {
-    expect(resolveDatabasePoolMax(true)).toBe(1);
+  it('uses a bounded concurrent pool on Vercel', () => {
+    expect(resolveDatabasePoolMax(true)).toBe(5);
   });
 
   it('uses a wider pool locally', () => {

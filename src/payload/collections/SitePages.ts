@@ -1,4 +1,8 @@
-import type { CollectionConfig } from 'payload';
+import {
+  ValidationError,
+  type CollectionBeforeChangeHook,
+  type CollectionConfig,
+} from 'payload';
 import { buildSeoFields } from '../fields/seo.ts';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
 import { createdByField } from '../fields/ownership.ts';
@@ -14,6 +18,68 @@ import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { sitePagePublishGuardsBeforeChange } from '../hooks/sitePageGuards.ts';
 import { withFieldTier } from '../fields/fieldTier.ts';
 
+function normalizeSlugCandidate(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  return value.trim().replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/');
+}
+
+function readDocumentId(value: unknown): string | null {
+  if (typeof value === 'number') return String(value);
+  if (typeof value === 'string' && value.trim()) return value.trim();
+  return null;
+}
+
+export const ensureUniqueSitePageSlugBeforeChange: CollectionBeforeChangeHook = async ({
+  collection,
+  data,
+  operation,
+  originalDoc,
+  req,
+}) => {
+  if (operation !== 'create' && operation !== 'update') return data;
+
+  const incoming = data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
+  const slugCandidate = incoming.slug ?? (originalDoc as Record<string, unknown> | undefined)?.slug;
+  const normalizedSlug = normalizeSlugCandidate(slugCandidate);
+  if (!normalizedSlug) return data;
+
+  const currentId = readDocumentId((originalDoc as Record<string, unknown> | undefined)?.id);
+  const existing = await req.payload.find({
+    collection: 'site-pages',
+    where: {
+      slug: { equals: normalizedSlug },
+    },
+    limit: 5,
+    depth: 0,
+    overrideAccess: true,
+  });
+
+  const conflictingDoc = existing.docs.find((doc: unknown) => {
+    const docId = readDocumentId((doc as Record<string, unknown>).id);
+    if (!docId) return false;
+    if (!currentId) return true;
+    return docId !== currentId;
+  }) as Record<string, unknown> | undefined;
+  if (!conflictingDoc) return data;
+
+  const conflictingTitle =
+    typeof conflictingDoc.title === 'string' && conflictingDoc.title.trim()
+      ? conflictingDoc.title.trim()
+      : `ID ${readDocumentId(conflictingDoc.id) || 'unknown'}`;
+  const slugMessage = `Slug "${normalizedSlug}" is already used by "${conflictingTitle}". Choose a different slug.`;
+
+  throw new ValidationError({
+    collection: typeof collection?.slug === 'string' ? collection.slug : 'site-pages',
+    req,
+    errors: [
+      {
+        path: 'slug',
+        label: slugMessage,
+        message: slugMessage,
+      },
+    ],
+  });
+};
 
 export const SitePages: CollectionConfig = {
   slug: 'site-pages',
@@ -57,6 +123,7 @@ export const SitePages: CollectionConfig = {
     beforeChange: [
       stampCreatedByBeforeChange,
       normalizeSlugBeforeChange,
+      ensureUniqueSitePageSlugBeforeChange,
       workflowBeforeChange,
       applyCorePresetSections,
       sitePagePublishGuardsBeforeChange,

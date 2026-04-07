@@ -1,9 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
 
 const CONSENT_STORAGE_KEY = 'plenor_cookie_consent';
+
+function subscribeToStorage(callback: () => void): () => void {
+  window.addEventListener('storage', callback);
+  return () => window.removeEventListener('storage', callback);
+}
+
+function getConsentSnapshot(): string | null {
+  try {
+    return window.localStorage.getItem(CONSENT_STORAGE_KEY);
+  } catch {
+    // If storage is blocked, treat as no consent stored.
+    return null;
+  }
+}
 
 interface CookieBannerProps {
   message?: string;
@@ -20,24 +34,32 @@ export default function CookieBanner({
   privacyLabel = 'Privacy Policy',
   privacyHref = '/privacy',
 }: CookieBannerProps) {
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return !window.localStorage.getItem(CONSENT_STORAGE_KEY);
-  });
+  // useSyncExternalStore avoids the setState-in-effect anti-pattern.
+  // Server snapshot returns a non-null string so the banner stays hidden during SSR.
+  const consent = useSyncExternalStore(subscribeToStorage, getConsentSnapshot, () => 'ssr');
+
+  function setConsent(value: string, eventName: string) {
+    try {
+      localStorage.setItem(CONSENT_STORAGE_KEY, value);
+      // Dispatch storage event so this tab re-reads the snapshot.
+      window.dispatchEvent(new StorageEvent('storage', { key: CONSENT_STORAGE_KEY }));
+    } catch {
+      // Ignore storage write errors; closing the banner remains best-effort.
+    }
+    window.dispatchEvent(new CustomEvent(eventName));
+  }
 
   function accept() {
-    localStorage.setItem(CONSENT_STORAGE_KEY, 'accepted');
-    setVisible(false);
-    window.dispatchEvent(new CustomEvent('cookie_consent_accepted'));
+    setConsent('accepted', 'cookie_consent_accepted');
   }
 
   function decline() {
-    localStorage.setItem(CONSENT_STORAGE_KEY, 'declined');
-    setVisible(false);
-    window.dispatchEvent(new CustomEvent('cookie_consent_declined'));
+    setConsent('declined', 'cookie_consent_declined');
   }
 
-  if (!visible) return null;
+  // consent === null means no value in localStorage → show banner.
+  // Any other value (SSR placeholder or stored consent string) → hide.
+  if (consent !== null) return null;
 
   return (
     <div

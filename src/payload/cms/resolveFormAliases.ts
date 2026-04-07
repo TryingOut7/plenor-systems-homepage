@@ -1,5 +1,6 @@
 import { getGuideFormId, getInquiryFormId } from '../../lib/payload-form-stubs.ts';
 import { isFormAliasKey } from '../../domain/forms/formTemplates.ts';
+import { shouldSkipPayload } from './cache.ts';
 import type { PageSection, SitePage } from './types.ts';
 
 /**
@@ -30,6 +31,18 @@ export async function resolveFormEmbedAliasesInSitePage(
 export async function resolveFormEmbedAliasesInSections(
   sections: PageSection[],
 ): Promise<PageSection[]> {
+  function clearAliasesFromSections(input: PageSection[]): PageSection[] {
+    return input.map((section) => {
+      if (
+        section.blockType !== 'formSection' ||
+        !isFormAliasKey(section.form)
+      ) {
+        return section;
+      }
+      return { ...section, form: null, formAlias: section.form };
+    });
+  }
+
   // Use the shared `isFormAliasKey` guard so alias detection is always driven
   // from `FORM_ALIAS_KEYS` in formTemplates.ts — not from duplicated string literals.
   const needGuide = sections.some(
@@ -40,6 +53,7 @@ export async function resolveFormEmbedAliasesInSections(
   );
 
   if (!needGuide && !needInquiry) return sections;
+  if (shouldSkipPayload()) return clearAliasesFromSections(sections);
 
   let guideId: number | string | null = null;
   let inquiryId: number | string | null = null;
@@ -52,15 +66,7 @@ export async function resolveFormEmbedAliasesInSections(
     // clear alias strings so they don't reach FormRenderer as invalid Payload REST IDs
     // (e.g. /api/forms/guide → NaN query). Preserve the alias as `formAlias` so the
     // client component can retry resolution via the Payload REST where-clause.
-    return sections.map((section) => {
-      if (
-        section.blockType !== 'formSection' ||
-        !isFormAliasKey(section.form)
-      ) {
-        return section;
-      }
-      return { ...section, form: null, formAlias: section.form };
-    });
+    return clearAliasesFromSections(sections);
   }
 
   return sections.map((section) => {

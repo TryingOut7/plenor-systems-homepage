@@ -6,8 +6,7 @@
  *   2) Sync Payload relation hotfix table.
  *   3) Apply Payload migrations.
  *   4) Verify no backend migrations remain pending.
- *   5) Verify query-presets enum manifest parity.
- *   6) Verify enum/column/table drift against schema manifest.
+ *   5) Verify table/column/enum parity against Payload generated schema.
  *
  * Check mode:
  *   node scripts/db/schema-ensure.mjs --check-only
@@ -243,6 +242,11 @@ async function main() {
         args: ['migrate:status'],
         validateOutput: assertPayloadStatusHasNoPendingMigrations,
       });
+      steps.push({
+        label: 'Payload runtime schema check',
+        command: node,
+        args: ['--import', 'tsx', 'scripts/db/check-payload-runtime-schema.ts'],
+      });
     }
   } else {
     steps.push({
@@ -278,6 +282,11 @@ async function main() {
         args: ['migrate:status'],
         validateOutput: assertPayloadStatusHasNoPendingMigrations,
       });
+      steps.push({
+        label: 'Payload runtime schema check',
+        command: node,
+        args: ['--import', 'tsx', 'scripts/db/check-payload-runtime-schema.ts'],
+      });
     }
 
     steps.push({
@@ -288,16 +297,13 @@ async function main() {
 
   }
 
-  steps.push({
-    label: 'Query-presets enum manifest parity',
-    command: node,
-    args: ['scripts/db/check-query-presets-enum-manifest.mjs'],
-  });
-  steps.push({
-    label: 'Schema drift check',
-    command: node,
-    args: ['scripts/db/schema-drift.mjs', '--check-only'],
-  });
+  if (!SKIP_PAYLOAD) {
+    steps.push({
+      label: 'Payload generated schema parity',
+      command: node,
+      args: ['scripts/db/check-payload-generated-schema-parity.mjs'],
+    });
+  }
 
   for (const step of steps) {
     await runStep(step.label, step.command, step.args, step.validateOutput);

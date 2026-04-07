@@ -23,7 +23,10 @@ export default function DraftModeBanner() {
       }}
       role="status"
     >
-      <span>Draft mode active — viewing unpublished content</span>
+      <span>
+        Preview mode is active in this browser. You may be seeing unpublished content that public
+        visitors cannot see yet.
+      </span>
       <Link
         href="/api/draft-mode/disable"
         style={{
@@ -33,7 +36,7 @@ export default function DraftModeBanner() {
           whiteSpace: 'nowrap',
         }}
       >
-        Exit preview
+        Exit preview to verify public view
       </Link>
     </div>
   );

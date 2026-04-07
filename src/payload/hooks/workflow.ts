@@ -3,16 +3,21 @@ import {
   type CollectionBeforeChangeHook,
   type CollectionAfterChangeHook,
 } from 'payload';
-import type { WorkflowStatus } from '../fields/workflow.ts';
+import {
+  getAllowedWorkflowTransitions,
+  resolveWorkflowRole,
+  type WorkflowRole,
+  type WorkflowStatus,
+} from '../workflow/stateMachine.ts';
 
 type UserRecord = Record<string, unknown>;
 type PayloadLogger = {
   warn?: (payload: unknown) => void;
 };
 
-function getUserRole(req: { user?: unknown }): string | null {
+function getUserRole(req: { user?: unknown }): WorkflowRole | null {
   const user = req.user as UserRecord | undefined;
-  return (user?.role as string) || null;
+  return resolveWorkflowRole(user?.role);
 }
 
 function readTrimmedString(value: unknown): string {
@@ -102,38 +107,6 @@ async function resolveWorkflowNotifyEmail(req: unknown): Promise<string> {
 }
 
 /**
- * Allowed state transitions per role.
- * Each key is a "from" status mapping to which statuses each role may move to.
- */
-const transitions: Record<WorkflowStatus, Partial<Record<string, WorkflowStatus[]>>> = {
-  draft: {
-    author: ['in_review'],
-    editor: ['in_review', 'approved'],
-    admin: ['in_review', 'approved', 'published'],
-  },
-  in_review: {
-    author: ['draft'], // withdraw
-    editor: ['approved', 'rejected', 'draft'],
-    admin: ['approved', 'rejected', 'published', 'draft'],
-  },
-  approved: {
-    author: [],
-    editor: ['draft'],
-    admin: ['published', 'draft'],
-  },
-  rejected: {
-    author: ['draft'],
-    editor: ['draft', 'in_review'],
-    admin: ['draft', 'in_review', 'approved', 'published'],
-  },
-  published: {
-    author: [],
-    editor: ['draft'],
-    admin: ['draft', 'in_review'],
-  },
-};
-
-/**
  * beforeChange hook: validates workflow transitions and stamps approval metadata.
  */
 export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
@@ -150,11 +123,19 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
   const newStatus = data.workflowStatus as WorkflowStatus | undefined;
   if (!newStatus) return data;
 
-  // On create, authors must start as draft; editors/admins may choose a status
+  // On create, authors may start in draft or submit directly to review.
+  // Any forbidden status selection is normalized to draft to keep creation resilient.
   if (operation === 'create') {
     const role = getUserRole(req);
-    if (role === 'author' && newStatus !== 'draft') {
+    if (role === 'author' && newStatus !== 'draft' && newStatus !== 'in_review') {
       data.workflowStatus = 'draft';
+    }
+
+    // If author submits directly to review during creation, stamp submission metadata.
+    if (role === 'author' && data.workflowStatus === 'in_review') {
+      const user = req.user as unknown as UserRecord | undefined;
+      data.submittedBy = user?.id || null;
+      data.submittedAt = new Date().toISOString();
     }
     return data;
   }
@@ -187,7 +168,7 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
     });
   }
 
-  const allowed = transitions[oldStatus]?.[role] || [];
+  const allowed = getAllowedWorkflowTransitions({ fromStatus: oldStatus, role });
   if (!allowed.includes(newStatus)) {
     logWorkflowBlock({
       req,
@@ -227,7 +208,7 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
   //   published from non-approved (direct bypass) → stamp because no approval step ran
   //   published from approved → do NOT stamp; preserve the editor's approvedBy attribution
   if (newStatus === 'approved' || newStatus === 'published') {
-    const reviewSummary = readTrimmedString(data.reviewSummary);
+    const reviewSummary = readTrimmedString(data.reviewSummary ?? originalDoc?.reviewSummary);
     if (reviewSummary.length < 10) {
       logWorkflowBlock({
         req,
@@ -250,7 +231,9 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
       });
     }
 
-    if (data.reviewChecklistComplete !== true) {
+    const reviewChecklistComplete =
+      (data.reviewChecklistComplete ?? originalDoc?.reviewChecklistComplete) === true;
+    if (!reviewChecklistComplete) {
       logWorkflowBlock({
         req,
         code: 'WF_REVIEW_CHECKLIST_REQUIRED',
@@ -285,7 +268,7 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
 
   // Require a rejection reason before allowing a rejected transition.
   if (newStatus === 'rejected') {
-    const rejectionReason = readTrimmedString(data.rejectionReason);
+    const rejectionReason = readTrimmedString(data.rejectionReason ?? originalDoc?.rejectionReason);
     if (rejectionReason.length < 5) {
       logWorkflowBlock({
         req,

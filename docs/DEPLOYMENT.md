@@ -2,13 +2,15 @@
 
 This app is designed to run on **Vercel** (Next.js) with **Supabase Postgres** as the single database. Operational tables (`guide_submissions`, rate limits, outbox) and **Payload CMS** must use the **same** `POSTGRES_URL` / project as `SUPABASE_URL`.
 
+For day-to-day schema change workflow, see `docs/DB_WORKFLOW.md`.
+
 ## Runtime requirements
 
 | Requirement | Notes |
 |-------------|--------|
 | **Node.js 20.x** | `package.json` `engines`, `.nvmrc`, and `npm run check:runtime` enforce this. In Vercel **Project → Settings → General → Node.js Version**, choose **20.x** if it does not follow `engines` automatically. |
 | **Install** | `vercel.json` uses `npm ci` for reproducible installs. |
-| **Build** | Default `npm run build` runs `npm run db:schema:ensure` (backend SQL migrations, Payload migrations, pending-migration checks, schema drift check, enum-manifest parity), then `next build`. The build needs **`POSTGRES_URL`** (or `DATABASE_URI` / `DATABASE_URL`) and secrets available during the build. |
+| **Build** | Default `npm run build` runs `npm run db:schema:ensure` (backend SQL migrations, Payload migrations, pending-migration checks, Payload runtime schema check, generated-schema parity check), then `next build`. The build needs **`POSTGRES_URL`** (or `DATABASE_URI` / `DATABASE_URL`) and secrets available during the build. |
 
 ## Vercel environment variables
 

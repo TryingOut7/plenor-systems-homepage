@@ -1,4 +1,11 @@
 import type { Field } from 'payload';
+import {
+  getAllowedWorkflowStatusesForDocument,
+  normalizeWorkflowStatus,
+  resolveWorkflowRole,
+  workflowStatuses,
+  type WorkflowStatus,
+} from '../workflow/stateMachine.ts';
 
 /**
  * Workflow status values for content that needs editorial approval.
@@ -13,15 +20,45 @@ import type { Field } from 'payload';
  * - Only admins can move: approved → published
  * - rejected → draft (author revises and resubmits)
  */
-export const workflowStatuses = [
-  'draft',
-  'in_review',
-  'approved',
-  'rejected',
-  'published',
-] as const;
+export { workflowStatuses, type WorkflowStatus };
 
-export type WorkflowStatus = (typeof workflowStatuses)[number];
+type OptionLike = string | { label: string; value: string };
+
+function toOptionValue(option: OptionLike): string {
+  return typeof option === 'string' ? option : option.value;
+}
+
+function filterWorkflowStatusOptions(args: {
+  data: Record<string, unknown> | undefined;
+  options: OptionLike[];
+  req: { user?: unknown } | undefined;
+  siblingData: Record<string, unknown> | undefined;
+}): OptionLike[] {
+  const dataRecord = args.data && typeof args.data === 'object' ? args.data : {};
+  const siblingRecord =
+    args.siblingData && typeof args.siblingData === 'object' ? args.siblingData : {};
+  const reqRecord = args.req && typeof args.req === 'object' ? args.req : {};
+  const roleCandidate =
+    reqRecord.user && typeof reqRecord.user === 'object'
+      ? (reqRecord.user as Record<string, unknown>).role
+      : undefined;
+  const role = resolveWorkflowRole(roleCandidate);
+  if (!role) return args.options;
+
+  const rawStatus = siblingRecord.workflowStatus ?? dataRecord.workflowStatus;
+  const currentStatus = normalizeWorkflowStatus(rawStatus, 'draft');
+  const allowedStatuses = new Set<WorkflowStatus>(
+    getAllowedWorkflowStatusesForDocument({
+      role,
+      currentStatus,
+    }),
+  );
+
+  return args.options.filter((option) =>
+    workflowStatuses.includes(toOptionValue(option) as WorkflowStatus) &&
+    allowedStatuses.has(toOptionValue(option) as WorkflowStatus),
+  );
+}
 
 export const workflowStatusField: Field = {
   name: 'workflowStatus',
@@ -35,6 +72,13 @@ export const workflowStatusField: Field = {
     { label: 'Changes Requested', value: 'rejected' },
     { label: 'Live', value: 'published' },
   ],
+  filterOptions: ({ data, options, req, siblingData }) =>
+    filterWorkflowStatusOptions({
+      data,
+      options: options as OptionLike[],
+      req,
+      siblingData,
+    }),
   admin: {
     position: 'sidebar',
     description:
@@ -63,6 +107,13 @@ export const pageDraftWorkflowStatusField: Field = {
     { label: 'Changes Requested', value: 'rejected' },
     { label: 'Completed (Promoted)', value: 'published' },
   ],
+  filterOptions: ({ data, options, req, siblingData }) =>
+    filterWorkflowStatusOptions({
+      data,
+      options: options as OptionLike[],
+      req,
+      siblingData,
+    }),
   admin: {
     position: 'sidebar',
     description:
