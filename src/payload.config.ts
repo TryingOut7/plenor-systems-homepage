@@ -182,6 +182,23 @@ function withImportExportBanner<T extends CollectionConfig>(collection: T): T {
 }
 
 const dbRejectUnauthorized = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true';
+
+function resolveDatabaseSslOption(
+  connectionString: string | undefined,
+): { rejectUnauthorized: boolean } | false {
+  if (!connectionString) return { rejectUnauthorized: false };
+  try {
+    const url = new URL(connectionString);
+    const host = url.hostname;
+    if (host === 'localhost' || host === '127.0.0.1' || host === '::1') {
+      return false;
+    }
+  } catch {
+    // unparseable connection string — assume remote, use SSL
+  }
+  return { rejectUnauthorized: dbRejectUnauthorized };
+}
+
 const dbPushRequested = process.env.PAYLOAD_DB_PUSH === 'true';
 const dbPushConfirmed = process.env.PAYLOAD_CONFIRM_SCHEMA_PUSH === 'true';
 const dbPushSchema = dbPushRequested && dbPushConfirmed;
@@ -726,7 +743,7 @@ export default buildConfig({
     migrationDir: path.join(__dirname, '../migrations/payload'),
     pool: {
       connectionString: databaseConnectionString,
-      ssl: { rejectUnauthorized: dbRejectUnauthorized },
+      ssl: resolveDatabaseSslOption(databaseConnectionString),
       max: resolveDatabasePoolMax(Boolean(process.env.VERCEL)),
       idleTimeoutMillis: process.env.VERCEL ? 10000 : 30000,
       connectionTimeoutMillis: 30000,

@@ -162,7 +162,7 @@ function resolveRedirectTarget(
   return toPath;
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip proxy for Payload API routes to avoid self-referential fetch deadlock.
