@@ -42,6 +42,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Bootstrap Payload DB Core Schema Stubs
+        run: node scripts/db/bootstrap-payload-schema.mjs
+
       - name: Run DB Migrations (backend tables)
         run: npm run db:migrate:backend
 
