@@ -91,7 +91,11 @@ export default function SimpleTableSection({
                           key={`${sectionKey}-row-${rowIndex}-cell-${cellIndex}`}
                           style={{ color: resolvedBodyColor }}
                         >
-                          {String(value || '')}
+                          {cellIndex === 0 ? (
+                            <span>{String(value || '')}</span>
+                          ) : (
+                            String(value || '')
+                          )}
                         </td>
                       );
                     })}

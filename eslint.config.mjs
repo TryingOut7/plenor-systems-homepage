@@ -109,6 +109,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "packages/api-client/src/generated.ts",
+    "src/payload-generated-schema.ts",
   ]),
 ]);
 
