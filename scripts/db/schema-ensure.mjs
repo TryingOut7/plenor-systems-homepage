@@ -243,6 +243,11 @@ async function main() {
         args: ['migrate:status'],
         validateOutput: assertPayloadStatusHasNoPendingMigrations,
       });
+      steps.push({
+        label: 'Payload runtime schema check',
+        command: node,
+        args: ['--import', 'tsx', 'scripts/db/check-payload-runtime-schema.ts'],
+      });
     }
   } else {
     steps.push({
@@ -277,6 +282,11 @@ async function main() {
         command: payloadBin,
         args: ['migrate:status'],
         validateOutput: assertPayloadStatusHasNoPendingMigrations,
+      });
+      steps.push({
+        label: 'Payload runtime schema check',
+        command: node,
+        args: ['--import', 'tsx', 'scripts/db/check-payload-runtime-schema.ts'],
       });
     }
 

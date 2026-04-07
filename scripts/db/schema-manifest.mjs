@@ -17,6 +17,7 @@ const varchar = 'character varying';
 const text = 'text';
 const integer = 'integer';
 const boolean_false = 'boolean DEFAULT false';
+const boolean_true = 'boolean DEFAULT true';
 const timestamptz = 'timestamptz';
 const numeric = (n) => (n !== undefined ? `numeric DEFAULT ${n}` : 'numeric');
 const varchar_default = (v) => `character varying DEFAULT '${v}'`;
@@ -217,10 +218,50 @@ function buildManifest() {
     expires_at: timestamptz,
   };
 
+  columns['site_pages_breadcrumbs'] = {
+    ...columns['site_pages_breadcrumbs'],
+    _order: integer,
+    _parent_id: integer,
+    id: varchar,
+    doc_id: integer,
+    url: varchar,
+    label: varchar,
+  };
+
+  columns['testimonials_tags'] = {
+    ...columns['testimonials_tags'],
+    _order: integer,
+    _parent_id: integer,
+    id: varchar,
+    tag: varchar,
+  };
+
   columns['forms'] = {
     ...columns['forms'],
     template_key: varchar,
     email_template_id: integer,
+  };
+
+  // ---------------------------------------------------------------------------
+  // users (auth/admin read path)
+  // ---------------------------------------------------------------------------
+  columns['users'] = {
+    ...columns['users'],
+    name: varchar,
+    role: `public.enum_users_role DEFAULT 'editor'::public.enum_users_role`,
+    cms_lane_preference:
+      `public.enum_users_cms_lane_preference DEFAULT 'simple'::public.enum_users_cms_lane_preference`,
+    can_manage_system_fields: boolean_false,
+    show_cms_training_hints: boolean_true,
+    enable_a_p_i_key: 'boolean',
+    api_key: varchar,
+    api_key_index: varchar,
+    reset_password_token: varchar,
+    reset_password_expiration: timestamptz,
+    salt: varchar,
+    hash: varchar,
+    login_attempts: numeric(0),
+    lock_until: timestamptz,
   };
 
   columns['form_submissions'] = {
@@ -392,6 +433,8 @@ export const SCHEMA_MANIFEST = buildManifest();
  * when Payload collection slugs evolve faster than applied SQL migrations.
  */
 export const SCHEMA_ENUM_MANIFEST = {
+  'public.enum_users_role': ['admin', 'editor', 'author'],
+  'public.enum_users_cms_lane_preference': ['simple', 'advanced'],
   'public.enum_payload_query_presets_related_collection': [
     'users',
     'media',
@@ -424,6 +467,8 @@ export const REQUIRED_TABLES = [
   'nav_children',
   '_nav_children_v',
   'users_sessions',
+  'site_pages_breadcrumbs',
+  'testimonials_tags',
   'forms',
   'form_submissions',
   ...BLOCK_TABLES,

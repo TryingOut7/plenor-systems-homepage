@@ -87,6 +87,18 @@ CREATE TABLE IF NOT EXISTS public.site_pages (
   updated_at  timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS public.site_pages_breadcrumbs (
+  _order      integer           NOT NULL DEFAULT 0,
+  _parent_id  integer           NOT NULL REFERENCES public.site_pages(id) ON DELETE CASCADE,
+  id          character varying PRIMARY KEY,
+  doc_id      integer,
+  url         character varying,
+  label       character varying
+);
+
+CREATE INDEX IF NOT EXISTS site_pages_breadcrumbs_parent_order_idx
+  ON public.site_pages_breadcrumbs (_parent_id, _order);
+
 CREATE TABLE IF NOT EXISTS public._site_pages_v (
   id          serial      PRIMARY KEY,
   created_at  timestamptz NOT NULL DEFAULT now(),
@@ -122,6 +134,16 @@ CREATE TABLE IF NOT EXISTS public.testimonials (
   created_at  timestamptz NOT NULL DEFAULT now(),
   updated_at  timestamptz NOT NULL DEFAULT now()
 );
+
+CREATE TABLE IF NOT EXISTS public.testimonials_tags (
+  _order      integer           NOT NULL DEFAULT 0,
+  _parent_id  integer           NOT NULL REFERENCES public.testimonials(id) ON DELETE CASCADE,
+  id          character varying PRIMARY KEY,
+  tag         character varying NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS testimonials_tags_parent_order_idx
+  ON public.testimonials_tags (_parent_id, _order);
 
 CREATE TABLE IF NOT EXISTS public._testimonials_v (
   id          serial      PRIMARY KEY,
