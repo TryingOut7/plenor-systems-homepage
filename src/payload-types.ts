@@ -1914,6 +1914,15 @@ export interface SitePage {
      */
     image?: (number | null) | Media;
   };
+  parent?: (number | null) | SitePage;
+  breadcrumbs?:
+    | {
+        doc?: (number | null) | SitePage;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -9450,6 +9459,15 @@ export interface SitePagesSelect<T extends boolean = true> {
         title?: T;
         description?: T;
         image?: T;
+      };
+  parent?: T;
+  breadcrumbs?:
+    | T
+    | {
+        doc?: T;
+        url?: T;
+        label?: T;
+        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;
