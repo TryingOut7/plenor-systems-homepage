@@ -30,12 +30,11 @@ async function safeRevalidatePath(path: string, type?: 'page' | 'layout'): Promi
     if (
       err instanceof Error &&
       (err.message.includes("Cannot find module 'next/cache'") ||
-        (err as any).code === 'MODULE_NOT_FOUND')
+        (err as { code?: string }).code === 'MODULE_NOT_FOUND')
     ) {
       // Not in a Next.js context (Payload CLI, scripts) — skip dynamically
       return;
     }
-    // eslint-disable-next-line no-console
     console.error(`[CMS Revalidation]: Failed to revalidate path "${path}"`, err);
   }
 }

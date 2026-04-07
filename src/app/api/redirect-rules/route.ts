@@ -12,7 +12,7 @@
  */
 import { Pool } from 'pg';
 import { NextResponse } from 'next/server';
-import { resolveDbConnectionString } from '@/lib/env-validation';
+import { resolveDbConnectionString } from '@/infrastructure/db/connectionConfig';
 
 interface RedirectRuleRow {
   from_path: string;
@@ -30,7 +30,6 @@ function cleanConnectionString(uri: string): string {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var _redirectPool: Pool | undefined;
 }
 
