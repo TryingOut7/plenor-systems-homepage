@@ -1,4 +1,4 @@
-import type { MigrateUpArgs } from '@payloadcms/db-postgres';
+import type { MigrateDownArgs, MigrateUpArgs } from '@payloadcms/db-postgres';
 import { sql } from '@payloadcms/db-postgres';
 
 /**
@@ -35,5 +35,20 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`ALTER TABLE testimonials DROP COLUMN IF EXISTS meta_image_id`);
 }
 
-// Columns are not restored on rollback — they are no longer in the schema.
-export async function down(): Promise<void> {}
+export async function down({ db }: MigrateDownArgs): Promise<void> {
+  await db.execute(sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS published_at timestamptz`);
+
+  await db.execute(sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS seo_meta_title varchar`);
+  await db.execute(sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS seo_meta_description varchar`);
+  await db.execute(sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS seo_og_title varchar`);
+  await db.execute(sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS seo_og_description varchar`);
+  await db.execute(sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS seo_og_image_id integer`);
+  await db.execute(sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS seo_canonical_url varchar`);
+  await db.execute(sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS seo_noindex boolean`);
+  await db.execute(sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS seo_nofollow boolean`);
+  await db.execute(sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS seo_include_in_sitemap boolean`);
+
+  await db.execute(sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS meta_title varchar`);
+  await db.execute(sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS meta_description varchar`);
+  await db.execute(sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS meta_image_id integer`);
+}

@@ -201,17 +201,30 @@ function resolveDatabaseSslOption(
   return { rejectUnauthorized: dbRejectUnauthorized };
 }
 
-const dbPushRequested = process.env.PAYLOAD_DB_PUSH === 'true';
+const isProductionRuntime = process.env.NODE_ENV === 'production';
+const dbPushEnv = process.env.PAYLOAD_DB_PUSH?.trim();
 const dbPushConfirmed = process.env.PAYLOAD_CONFIRM_SCHEMA_PUSH === 'true';
-const dbPushSchema = dbPushRequested && dbPushConfirmed;
+const parsedDbPushEnv =
+  dbPushEnv === 'true'
+    ? true
+    : dbPushEnv === 'false'
+      ? false
+      : undefined;
 
-if (dbPushRequested && !dbPushConfirmed) {
+// Align with Payload's recommended Postgres dev workflow:
+// local/dev defaults to push mode, production defaults to migrations-only.
+let dbPushSchema = !isProductionRuntime;
+if (parsedDbPushEnv !== undefined) {
+  dbPushSchema = parsedDbPushEnv;
+}
+
+if (isProductionRuntime && dbPushSchema && !dbPushConfirmed) {
+  dbPushSchema = false;
   console.warn(
-    'PAYLOAD_DB_PUSH=true ignored because PAYLOAD_CONFIRM_SCHEMA_PUSH is not set to true. ' +
-      'Set both env vars to opt into schema push explicitly.',
+    'PAYLOAD_DB_PUSH=true ignored in production because PAYLOAD_CONFIRM_SCHEMA_PUSH is not set to true. ' +
+      'Set both env vars to opt into production schema push explicitly.',
   );
 }
-const enableNestedDocsPlugin = process.env.PAYLOAD_ENABLE_NESTED_DOCS === 'true';
 const adminThemeValues = ['all', 'dark', 'light'] as const;
 const adminAvatarValues = ['default', 'gravatar'] as const;
 const adminMetaOGImageValues = ['dynamic', 'off', 'static'] as const;
@@ -813,21 +826,17 @@ export default buildConfig({
     // NOTE: We intentionally use the custom `redirect-rules` collection as the
     // single source of truth for redirects and keep plugin-based redirects off.
 
-    ...(enableNestedDocsPlugin
-      ? [
-          // ── Nested Docs Plugin ──────────────────────────────────────────────────
-          // Enables parent/child hierarchical relationships and breadcrumbs
-          nestedDocsPlugin({
-            collections: ['site-pages'],
-            generateLabel: (_, doc) => (doc as Record<string, unknown>)?.title as string || 'Untitled',
-            generateURL: (docs) =>
-              docs.reduce(
-                (url, doc) => `${url}/${(doc as Record<string, unknown>)?.slug || ''}`,
-                '',
-              ),
-          }),
-        ]
-      : []),
+    // ── Nested Docs Plugin ──────────────────────────────────────────────────
+    // Keep this deterministic across environments to avoid migration drift.
+    nestedDocsPlugin({
+      collections: ['site-pages'],
+      generateLabel: (_, doc) => (doc as Record<string, unknown>)?.title as string || 'Untitled',
+      generateURL: (docs) =>
+        docs.reduce(
+          (url, doc) => `${url}/${(doc as Record<string, unknown>)?.slug || ''}`,
+          '',
+        ),
+    }),
 
     // ── Search Plugin ─────────────────────────────────────────────────────────
     // Indexes content for fast full-text search

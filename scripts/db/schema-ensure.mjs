@@ -6,8 +6,8 @@
  *   2) Sync Payload relation hotfix table.
  *   3) Apply Payload migrations.
  *   4) Verify no backend migrations remain pending.
- *   5) Verify enum/column/table drift against schema manifest.
- *   6) Verify query-presets enum manifest parity.
+ *   5) Verify query-presets enum manifest parity.
+ *   6) Verify enum/column/table drift against schema manifest.
  *
  * Check mode:
  *   node scripts/db/schema-ensure.mjs --check-only
@@ -286,11 +286,6 @@ async function main() {
       args: ['scripts/db/migrate-status.mjs', '--check'],
     });
 
-    steps.push({
-      label: 'Sync schema manifest columns/enums',
-      command: node,
-      args: ['scripts/db/sync-schema-manifest.mjs'],
-    });
   }
 
   steps.push({
