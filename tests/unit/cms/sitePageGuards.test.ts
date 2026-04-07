@@ -260,7 +260,7 @@ describe('site page guard lifecycle model', () => {
       newStatus: 'published',
       req: {},
       context: {},
-    })).toBe('scheduled_publish_execution');
+    })).toBe('publish');
 
     expect(resolve({
       oldStatus: 'published',

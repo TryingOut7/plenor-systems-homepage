@@ -113,9 +113,14 @@ describe('draftPromotion workspace service', () => {
       user: { id: 'user_2', role: 'editor' } as unknown as TypedUser,
     });
 
-    expect(payload.update).toHaveBeenCalledTimes(1);
-    const updateArgs = payload.update.mock.calls[0][0];
-    const data = updateArgs.data as Record<string, unknown>;
+    expect(payload.update).toHaveBeenCalledTimes(2);
+
+    const sitePageUpdateArgs = payload.update.mock.calls
+      .map(([args]) => args as Record<string, unknown>)
+      .find((args) => args.collection === 'site-pages');
+
+    expect(sitePageUpdateArgs).toBeDefined();
+    const data = (sitePageUpdateArgs as { data: Record<string, unknown> }).data;
     expect(data.sections).toEqual([
       {
         blockType: 'pricingTableSection',

@@ -208,6 +208,15 @@ function buildManifest() {
   // ---------------------------------------------------------------------------
   // forms / form_submissions
   // ---------------------------------------------------------------------------
+  columns['users_sessions'] = {
+    ...columns['users_sessions'],
+    _order: integer,
+    _parent_id: integer,
+    id: varchar,
+    created_at: timestamptz,
+    expires_at: timestamptz,
+  };
+
   columns['forms'] = {
     ...columns['forms'],
     template_key: varchar,
@@ -414,6 +423,7 @@ export const REQUIRED_TABLES = [
   '_site_settings_v_version_navigation_links',
   'nav_children',
   '_nav_children_v',
+  'users_sessions',
   'forms',
   'form_submissions',
   ...BLOCK_TABLES,

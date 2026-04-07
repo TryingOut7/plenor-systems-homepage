@@ -32,6 +32,8 @@ describe('validateEnv', () => {
       POSTGRES_URL: 'postgres://localhost/db',
       PAYLOAD_SECRET: 'secret',
       NEXT_PUBLIC_SERVER_URL: 'https://example.com',
+      RESEND_API_KEY: 'resend-api-key',
+      RESEND_FROM_EMAIL: 'noreply@example.com',
       SUPABASE_URL: 'https://proj.supabase.co',
       SUPABASE_SERVICE_ROLE_KEY: 'service-role-key',
       CRON_SECRET: 'cron-secret',
@@ -46,6 +48,8 @@ describe('validateEnv', () => {
       DATABASE_URI: 'postgres://localhost/db',
       PAYLOAD_SECRET: 'secret',
       NEXT_PUBLIC_SERVER_URL: 'https://example.com',
+      RESEND_API_KEY: 'resend-api-key',
+      RESEND_FROM_EMAIL: 'noreply@example.com',
       SUPABASE_URL: 'https://proj.supabase.co',
       SUPABASE_SERVICE_ROLE_KEY: 'service-role-key',
       CRON_SECRET: 'cron-secret',
@@ -94,8 +98,13 @@ describe('validateEnv', () => {
       PAYLOAD_SECRET: undefined,
       NEXT_PUBLIC_SERVER_URL: undefined,
     });
-    expect(() => validateEnv()).toThrow(
-      'Missing required environment variables: POSTGRES_URL, PAYLOAD_SECRET, NEXT_PUBLIC_SERVER_URL',
-    );
+    expect(() => validateEnv()).toThrow(/POSTGRES_URL/);
+    expect(() => validateEnv()).toThrow(/PAYLOAD_SECRET/);
+    expect(() => validateEnv()).toThrow(/NEXT_PUBLIC_SERVER_URL \(or VERCEL_URL\)/);
+    expect(() => validateEnv()).toThrow(/RESEND_API_KEY/);
+    expect(() => validateEnv()).toThrow(/RESEND_FROM_EMAIL/);
+    expect(() => validateEnv()).toThrow(/SUPABASE_URL/);
+    expect(() => validateEnv()).toThrow(/SUPABASE_SERVICE_ROLE_KEY/);
+    expect(() => validateEnv()).toThrow(/CRON_SECRET/);
   });
 });

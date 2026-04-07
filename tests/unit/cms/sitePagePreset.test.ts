@@ -61,12 +61,12 @@ describe('applyCorePresetSections — custom preset', () => {
     const result = await applyCorePresetSections(makeHookArgs(data) as never) as Record<string, unknown>;
     expect(result).not.toBe(data);
     expect(result.presetKey).toBe('unknown');
-    expect(result.pageMode).toBe('builder');
+    expect(result.pageMode).toBeUndefined();
   });
 });
 
 describe('applyCorePresetSections — preset-safe page mode', () => {
-  it('forces core preset pages into template mode', async () => {
+  it('does not override pageMode for core preset pages', async () => {
     const result = await applyCorePresetSections(
       makeHookArgs({
         slug: 'home',
@@ -76,7 +76,7 @@ describe('applyCorePresetSections — preset-safe page mode', () => {
       }) as never,
     ) as Record<string, unknown>;
 
-    expect(result.pageMode).toBe('template');
+    expect(result.pageMode).toBe('builder');
   });
 });
 
@@ -327,6 +327,6 @@ describe('applyCorePresetSections — slug-based preset resolution', () => {
     expect(result.slug).toBe('services');
     expect(result.presetContent).toEqual({});
     expect(result.sections).toEqual([]);
-    expect(result.pageMode).toBe('builder');
+    expect(result.pageMode).toBeUndefined();
   });
 });

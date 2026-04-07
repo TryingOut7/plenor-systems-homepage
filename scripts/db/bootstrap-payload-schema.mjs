@@ -60,6 +60,17 @@ CREATE TABLE IF NOT EXISTS public.users (
 
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON public.users (email);
 
+CREATE TABLE IF NOT EXISTS public.users_sessions (
+  _order      integer           NOT NULL DEFAULT 0,
+  _parent_id  integer           NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  id          character varying PRIMARY KEY,
+  created_at  timestamptz       NOT NULL DEFAULT now(),
+  expires_at  timestamptz       NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS users_sessions_parent_order_idx
+  ON public.users_sessions (_parent_id, _order);
+
 -- ─── Media ────────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS public.media (

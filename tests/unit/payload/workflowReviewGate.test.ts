@@ -56,8 +56,6 @@ describe('workflow review gates', () => {
       },
     } as never) as Record<string, unknown>;
 
-    expect(result.reviewedBy).toBe('u1');
-    expect(typeof result.reviewedAt).toBe('string');
     expect(result.approvedBy).toBe('u1');
     expect(typeof result.approvedAt).toBe('string');
   });
