@@ -9,9 +9,19 @@ BEGIN;
 ALTER TABLE IF EXISTS public.audit_logs
   ADD COLUMN IF NOT EXISTS actor_id varchar;
 
-UPDATE public.audit_logs
-SET actor_id = COALESCE(actor_id, user_id::text, 'system')
-WHERE actor_id IS NULL;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'audit_logs'
+      AND column_name = 'user_id'
+  ) THEN
+    UPDATE public.audit_logs
+    SET actor_id = COALESCE(actor_id, user_id::text, 'system')
+    WHERE actor_id IS NULL;
+  END IF;
+END $$;
 
 -- ---------------------------------------------------------------------------
 -- Localization + review metadata for content collections
