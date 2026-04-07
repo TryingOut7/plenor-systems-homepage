@@ -1,6 +1,7 @@
 import type { CollectionBeforeChangeHook } from 'payload';
 import { buildCorePresetSections } from '../presets/corePagePresets.ts';
-import { STRUCTURAL_KEY_PATTERN, hasLegacySections } from './legacySectionMigration.ts';
+
+const STRUCTURAL_KEY_PATTERN = /^[a-z][a-z0-9-]{2,63}$/;
 
 type SitePagePreset = 'custom' | 'home' | 'services' | 'about' | 'pricing' | 'contact';
 type GuardSeverity = 'ERROR_SAVE' | 'ERROR_PUBLISH' | 'WARN' | 'INFO';
@@ -560,10 +561,6 @@ export const sitePagePublishGuardsBeforeChange: CollectionBeforeChangeHook = ({
   );
   const originalSections = normalizeSectionStructuralKeys(asSectionArray(original.sections));
   incoming.sections = sections;
-
-  if (hasLegacySections(sections)) {
-    throw new Error('Legacy sections cannot be saved. Convert the document before persisting changes.');
-  }
 
   const structuralErrors = validateStructuralKeys(sections, originalSections, preset, templateSections);
   const completeness = runCompletenessRules(preset, sections);

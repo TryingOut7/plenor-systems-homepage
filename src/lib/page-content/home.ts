@@ -93,7 +93,7 @@ export function resolveHomePageData(
     (section) =>
       section.blockType === 'formSection' &&
       String(section.structuralKey || '').trim() === 'home-guide-form',
-  ) || findSection(safeSections, 'guideFormSection');
+  );
 
   const hero = findSection(safeSections, 'heroSection');
   const problem =

@@ -44,8 +44,7 @@ const BLOCK_TABLES = [
   'form_sec', 'team_sec', 'logo_band', 'quote_sec', 'tabs_sec',
   'privacy_note', 'img_sec', 'vid_sec',
   'simple_table', 'cmp_table', 'dyn_list', 'split_sec', 'reuse_sec_ref',
-  'divider', 'legacy_hero', 'legacy_narrative', 'legacy_stage',
-  'legacy_audience', 'legacy_checklist', 'legacy_quote', 'legacy_cta',
+  'divider',
 ];
 
 // ---------------------------------------------------------------------------
