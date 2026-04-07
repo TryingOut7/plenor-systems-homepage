@@ -34,6 +34,7 @@
     "db:migrate:payload:status": "payload migrate:status",
     "db:check:payload": "node scripts/db/check-payload-schema.mjs",
     "db:repair:payload": "node scripts/db/repair-payload-schema.mjs",
+    "db:schema:manifest-sync": "node scripts/db/sync-schema-manifest.mjs",
     "db:schema:drift": "node scripts/db/schema-drift.mjs",
     "db:schema:drift:check": "node scripts/db/schema-drift.mjs --check-only",
     "hooks:install": "bash scripts/install-git-hooks.sh",
