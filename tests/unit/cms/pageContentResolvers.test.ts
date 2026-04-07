@@ -78,11 +78,11 @@ describe('page content resolvers', () => {
         ],
       },
       {
-        blockType: 'guideFormSection',
-        label: 'Guide Label',
+        blockType: 'formSection',
+        structuralKey: 'home-guide-form',
+        sectionLabel: 'Guide Label',
         heading: 'Guide Heading',
-        highlightText: 'Guide Highlight',
-        body: 'Guide Body',
+        subheading: 'Guide Highlight\n\nGuide Body',
       },
     ] as never[]);
 

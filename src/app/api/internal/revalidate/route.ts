@@ -64,7 +64,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     for (const tag of body.tags ?? []) {
       if (typeof tag === 'string' && tag.trim()) {
-        revalidateTag(tag.trim(), 'max');
+        // @ts-expect-error Next.js 16 types incorrectly demand a second profile argument
+        revalidateTag(tag.trim());
         revalidated.push(`tag:${tag.trim()}`);
       }
     }

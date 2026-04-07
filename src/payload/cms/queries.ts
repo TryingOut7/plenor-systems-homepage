@@ -507,7 +507,7 @@ export const getSitemapSlugs = cache(async function getSitemapSlugs(): Promise<S
   }
 });
 
-const getRedirectRules = cache(async function getRedirectRules(): Promise<RedirectRule[]> {
+export const getRedirectRules = cache(async function getRedirectRules(): Promise<RedirectRule[]> {
   const cached = getFromCache(redirectRulesCache.entry);
   if (cached !== undefined) return cached;
   if (shouldSkipPayload()) return setCache(redirectRulesCache, [], 10_000);

@@ -15,13 +15,12 @@
 import type { EmailAdapter, SendEmailOptions } from 'payload';
 
 export function consoleEmailAdapter(): EmailAdapter {
-  return ({ payload }) => ({
+  return () => ({
     name: 'console-email-adapter',
     defaultFromAddress: process.env.RESEND_FROM_EMAIL || 'noreply@localhost',
     defaultFromName: process.env.RESEND_FROM_NAME || 'Website (dev)',
     sendEmail: async (options: SendEmailOptions): Promise<void> => {
       const border = '─'.repeat(60);
-      // eslint-disable-next-line no-console
       console.log(
         [
           '',

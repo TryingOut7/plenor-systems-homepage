@@ -51,11 +51,6 @@
     "generate:migration": "payload migrate:create",
     "seed:site-pages": "node scripts/seed-site-pages.mjs",
     "seed:forms": "node scripts/seed-forms.mjs",
-    "migrate:legacy-sections": "node --import tsx scripts/migrate-legacy-sections.mjs --report=.tmp/legacy-migration-report.json",
-    "migrate:legacy-sections:apply": "node --import tsx scripts/migrate-legacy-sections.mjs --apply --report=.tmp/legacy-migration-report.json",
-    "migrate:legacy-sections:cutover-check": "node --import tsx scripts/check-legacy-cutover.mjs --report=.tmp/legacy-migration-report.json",
-    "migrate:guide-inquiry-sections": "node --import tsx scripts/migrate-guide-inquiry-sections.mjs --report=.tmp/guide-inquiry-form-migration-report.json",
-    "migrate:guide-inquiry-sections:apply": "node --import tsx scripts/migrate-guide-inquiry-sections.mjs --apply --report=.tmp/guide-inquiry-form-migration-report.json",
     "cms:audit:dashboard": "npx -y node@20 --import tsx scripts/generate-audit-dashboard.mjs",
     "cms:schema:check": "npx -y node@20 --import tsx scripts/check-cms-schema-governance.mjs",
     "backup": "bash scripts/backup.sh"
@@ -77,6 +72,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "next": "16.2.0",
     "payload": "^3.79.1",
+    "pg": "^8.13.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "resend": "^6.9.3",
@@ -85,6 +81,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

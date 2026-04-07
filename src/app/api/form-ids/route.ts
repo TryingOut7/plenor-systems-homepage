@@ -24,12 +24,12 @@
  */
 import { Pool } from 'pg';
 import { NextResponse } from 'next/server';
-import { resolveDbConnectionString } from '@/lib/env-validation';
+import { resolveDbConnectionString } from '@/infrastructure/db/connectionConfig';
 import {
   FORM_ALIAS_KEYS,
   buildFormAliasKeysQueryParam,
   type FormAliasKey,
-} from '@/domain/forms/formTemplates';
+} from '@/application/forms/formAliasService';
 
 interface FormIdRow {
   id: number;
@@ -44,7 +44,6 @@ function cleanConnectionString(uri: string): string {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var _formIdsPool: Pool | undefined;
 }
 

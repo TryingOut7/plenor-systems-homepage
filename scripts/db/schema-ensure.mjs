@@ -246,6 +246,11 @@ async function main() {
     }
   } else {
     steps.push({
+      label: 'Bootstrap Payload core table stubs (fresh-DB safe)',
+      command: node,
+      args: ['scripts/db/bootstrap-payload-schema.mjs'],
+    });
+    steps.push({
       label: 'Apply backend SQL migrations',
       command: node,
       args: ['scripts/db/migrate.mjs'],
