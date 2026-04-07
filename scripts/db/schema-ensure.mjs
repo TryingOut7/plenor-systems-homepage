@@ -285,6 +285,12 @@ async function main() {
       command: node,
       args: ['scripts/db/migrate-status.mjs', '--check'],
     });
+
+    steps.push({
+      label: 'Sync schema manifest columns/enums',
+      command: node,
+      args: ['scripts/db/sync-schema-manifest.mjs'],
+    });
   }
 
   steps.push({
