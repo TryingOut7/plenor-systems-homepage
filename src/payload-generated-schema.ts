@@ -602,6 +602,71 @@ export const dl_source = pgEnum("dl_source", [
 ]);
 export const dl_view_mode = pgEnum("dl_view_mode", ["cards", "list", "table"]);
 export const dl_sort_dir = pgEnum("dl_sort_dir", ["asc", "desc"]);
+export const enum_org_feed_theme = pgEnum("enum_org_feed_theme", [
+  "navy",
+  "charcoal",
+  "black",
+  "white",
+  "light",
+]);
+export const enum_org_feed_size = pgEnum("enum_org_feed_size", [
+  "compact",
+  "regular",
+  "spacious",
+]);
+export const enum_org_feed_heading_size = pgEnum("enum_org_feed_heading_size", [
+  "xs",
+  "sm",
+  "md",
+  "lg",
+  "xl",
+]);
+export const enum_org_feed_text_align = pgEnum("enum_org_feed_text_align", [
+  "left",
+  "center",
+  "right",
+]);
+export const enum_org_feed_heading_tag = pgEnum("enum_org_feed_heading_tag", [
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+]);
+export const enum_org_feed_feed_type = pgEnum("enum_org_feed_feed_type", [
+  "events",
+  "spotlight",
+  "learning",
+]);
+export const enum_org_feed_source_mode = pgEnum("enum_org_feed_source_mode", [
+  "featured",
+  "manual",
+  "automatic",
+]);
+export const enum_org_feed_columns = pgEnum("enum_org_feed_columns", [
+  "1",
+  "2",
+  "3",
+  "4",
+]);
+export const enum_org_feed_event_status = pgEnum("enum_org_feed_event_status", [
+  "upcoming_planned",
+  "current_ongoing",
+  "past_completed",
+]);
+export const enum_org_feed_spotlight_category = pgEnum(
+  "enum_org_feed_spotlight_category",
+  [
+    "student",
+    "teacher",
+    "volunteer",
+    "local_organization",
+    "local_prominent_artist",
+  ],
+);
+export const enum_org_feed_learning_category = pgEnum(
+  "enum_org_feed_learning_category",
+  ["knowledge_sharing", "college_prep", "mentorship"],
+);
 export const enum_split_sec_theme = pgEnum("enum_split_sec_theme", [
   "navy",
   "charcoal",
@@ -2618,6 +2683,65 @@ export const dyn_list = pgTable(
   ],
 );
 
+export const org_feed = pgTable(
+  "org_feed",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    _path: text("_path").notNull(),
+    id: varchar("id").primaryKey(),
+    structuralKey: varchar("structural_key"),
+    theme: enum_org_feed_theme("theme").default("white"),
+    sectionLabel: varchar("section_label"),
+    backgroundColor: varchar("background_color"),
+    size: enum_org_feed_size("size").default("regular"),
+    anchorId: varchar("anchor_id"),
+    customClassName: varchar("custom_class_name"),
+    isHidden: boolean("is_hidden").default(false),
+    visibleFrom: timestamp("visible_from", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    visibleUntil: timestamp("visible_until", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    headingSize: enum_org_feed_heading_size("heading_size"),
+    textAlign: enum_org_feed_text_align("text_align"),
+    headingTag: enum_org_feed_heading_tag("heading_tag"),
+    heading: varchar("heading"),
+    subheading: varchar("subheading"),
+    feedType: enum_org_feed_feed_type("feed_type").default("events"),
+    sourceMode: enum_org_feed_source_mode("source_mode").default("featured"),
+    limit: numeric("limit", { mode: "number" }).default(3),
+    columns: enum_org_feed_columns("columns").default("3"),
+    includeCta: boolean("include_cta").default(true),
+    ctaLabel: varchar("cta_label"),
+    ctaHref: varchar("cta_href"),
+    eventStatus:
+      enum_org_feed_event_status("event_status").default("upcoming_planned"),
+    spotlightCategory:
+      enum_org_feed_spotlight_category("spotlight_category").default("student"),
+    learningCategory:
+      enum_org_feed_learning_category("learning_category").default(
+        "knowledge_sharing",
+      ),
+    blockName: varchar("block_name"),
+  },
+  (columns) => [
+    index("org_feed_order_idx").on(columns._order),
+    index("org_feed_parent_id_idx").on(columns._parentID),
+    index("org_feed_path_idx").on(columns._path),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [site_pages.id],
+      name: "org_feed_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
 export const split_sec = pgTable(
   "split_sec",
   {
@@ -2932,6 +3056,9 @@ export const site_pages_rels = pgTable(
     path: varchar("path").notNull(),
     "team-membersID": integer("team_members_id"),
     logosID: integer("logos_id"),
+    "org-eventsID": integer("org_events_id"),
+    "org-spotlightID": integer("org_spotlight_id"),
+    "org-learningID": integer("org_learning_id"),
   },
   (columns) => [
     index("site_pages_rels_order_idx").on(columns.order),
@@ -2939,6 +3066,11 @@ export const site_pages_rels = pgTable(
     index("site_pages_rels_path_idx").on(columns.path),
     index("site_pages_rels_team_members_id_idx").on(columns["team-membersID"]),
     index("site_pages_rels_logos_id_idx").on(columns.logosID),
+    index("site_pages_rels_org_events_id_idx").on(columns["org-eventsID"]),
+    index("site_pages_rels_org_spotlight_id_idx").on(
+      columns["org-spotlightID"],
+    ),
+    index("site_pages_rels_org_learning_id_idx").on(columns["org-learningID"]),
     foreignKey({
       columns: [columns["parent"]],
       foreignColumns: [site_pages.id],
@@ -2953,6 +3085,21 @@ export const site_pages_rels = pgTable(
       columns: [columns["logosID"]],
       foreignColumns: [logos.id],
       name: "site_pages_rels_logos_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-eventsID"]],
+      foreignColumns: [org_events.id],
+      name: "site_pages_rels_org_events_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-spotlightID"]],
+      foreignColumns: [org_spotlight.id],
+      name: "site_pages_rels_org_spotlight_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-learningID"]],
+      foreignColumns: [org_learning.id],
+      name: "site_pages_rels_org_learning_fk",
     }).onDelete("cascade"),
   ],
 );
@@ -8811,6 +8958,13 @@ export const relations_dyn_list = relations(dyn_list, ({ one }) => ({
     relationName: "_blocks_dynamicListSection",
   }),
 }));
+export const relations_org_feed = relations(org_feed, ({ one }) => ({
+  _parentID: one(site_pages, {
+    fields: [org_feed._parentID],
+    references: [site_pages.id],
+    relationName: "_blocks_orgFeedSection",
+  }),
+}));
 export const relations_split_sec = relations(split_sec, ({ one }) => ({
   _parentID: one(site_pages, {
     fields: [split_sec._parentID],
@@ -8887,6 +9041,21 @@ export const relations_site_pages_rels = relations(
       references: [logos.id],
       relationName: "logos",
     }),
+    "org-eventsID": one(org_events, {
+      fields: [site_pages_rels["org-eventsID"]],
+      references: [org_events.id],
+      relationName: "org-events",
+    }),
+    "org-spotlightID": one(org_spotlight, {
+      fields: [site_pages_rels["org-spotlightID"]],
+      references: [org_spotlight.id],
+      relationName: "org-spotlight",
+    }),
+    "org-learningID": one(org_learning, {
+      fields: [site_pages_rels["org-learningID"]],
+      references: [org_learning.id],
+      relationName: "org-learning",
+    }),
   }),
 );
 export const relations_site_pages = relations(site_pages, ({ one, many }) => ({
@@ -8940,6 +9109,9 @@ export const relations_site_pages = relations(site_pages, ({ one, many }) => ({
   }),
   _blocks_dynamicListSection: many(dyn_list, {
     relationName: "_blocks_dynamicListSection",
+  }),
+  _blocks_orgFeedSection: many(org_feed, {
+    relationName: "_blocks_orgFeedSection",
   }),
   _blocks_splitSection: many(split_sec, {
     relationName: "_blocks_splitSection",
@@ -9059,6 +9231,9 @@ export const relations_page_drafts = relations(
     _blocks_dynamicListSection: many(dyn_list, {
       relationName: "_blocks_dynamicListSection",
     }),
+    _blocks_orgFeedSection: many(org_feed, {
+      relationName: "_blocks_orgFeedSection",
+    }),
     _blocks_splitSection: many(split_sec, {
       relationName: "_blocks_splitSection",
     }),
@@ -9165,6 +9340,9 @@ export const relations_page_presets = relations(
     _blocks_dynamicListSection: many(dyn_list, {
       relationName: "_blocks_dynamicListSection",
     }),
+    _blocks_orgFeedSection: many(org_feed, {
+      relationName: "_blocks_orgFeedSection",
+    }),
     _blocks_splitSection: many(split_sec, {
       relationName: "_blocks_splitSection",
     }),
@@ -9253,6 +9431,9 @@ export const relations_page_playgrounds = relations(
     _blocks_dynamicListSection: many(dyn_list, {
       relationName: "_blocks_dynamicListSection",
     }),
+    _blocks_orgFeedSection: many(org_feed, {
+      relationName: "_blocks_orgFeedSection",
+    }),
     _blocks_splitSection: many(split_sec, {
       relationName: "_blocks_splitSection",
     }),
@@ -9323,6 +9504,9 @@ export const relations_reuse_sec = relations(reuse_sec, ({ one, many }) => ({
   }),
   _blocks_dynamicListSection: many(dyn_list, {
     relationName: "_blocks_dynamicListSection",
+  }),
+  _blocks_orgFeedSection: many(org_feed, {
+    relationName: "_blocks_orgFeedSection",
   }),
   _blocks_splitSection: many(split_sec, {
     relationName: "_blocks_splitSection",
@@ -11147,6 +11331,17 @@ type DatabaseSchema = {
   dl_source: typeof dl_source;
   dl_view_mode: typeof dl_view_mode;
   dl_sort_dir: typeof dl_sort_dir;
+  enum_org_feed_theme: typeof enum_org_feed_theme;
+  enum_org_feed_size: typeof enum_org_feed_size;
+  enum_org_feed_heading_size: typeof enum_org_feed_heading_size;
+  enum_org_feed_text_align: typeof enum_org_feed_text_align;
+  enum_org_feed_heading_tag: typeof enum_org_feed_heading_tag;
+  enum_org_feed_feed_type: typeof enum_org_feed_feed_type;
+  enum_org_feed_source_mode: typeof enum_org_feed_source_mode;
+  enum_org_feed_columns: typeof enum_org_feed_columns;
+  enum_org_feed_event_status: typeof enum_org_feed_event_status;
+  enum_org_feed_spotlight_category: typeof enum_org_feed_spotlight_category;
+  enum_org_feed_learning_category: typeof enum_org_feed_learning_category;
   enum_split_sec_theme: typeof enum_split_sec_theme;
   enum_split_sec_size: typeof enum_split_sec_size;
   enum_split_sec_heading_size: typeof enum_split_sec_heading_size;
@@ -11291,6 +11486,7 @@ type DatabaseSchema = {
   cmp_features: typeof cmp_features;
   cmp_table: typeof cmp_table;
   dyn_list: typeof dyn_list;
+  org_feed: typeof org_feed;
   split_sec: typeof split_sec;
   reuse_sec_ref: typeof reuse_sec_ref;
   spacer: typeof spacer;
@@ -11435,6 +11631,7 @@ type DatabaseSchema = {
   relations_cmp_features: typeof relations_cmp_features;
   relations_cmp_table: typeof relations_cmp_table;
   relations_dyn_list: typeof relations_dyn_list;
+  relations_org_feed: typeof relations_org_feed;
   relations_split_sec: typeof relations_split_sec;
   relations_reuse_sec_ref: typeof relations_reuse_sec_ref;
   relations_spacer: typeof relations_spacer;

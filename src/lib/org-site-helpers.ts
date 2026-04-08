@@ -1,3 +1,14 @@
+// Re-export org-site domain constants so components can import from @/lib without
+// violating the architecture boundary (src/components/** cannot import @/domain/**).
+export {
+  EVENT_STATUSES,
+  LEARNING_CATEGORIES,
+  SPOTLIGHT_CATEGORIES,
+  type EventStatus,
+  type LearningCategory,
+  type SpotlightCategory,
+} from '@/domain/org-site/constants';
+
 export type MediaAsset = {
   url: string;
   alt: string;

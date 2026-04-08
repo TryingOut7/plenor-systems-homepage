@@ -24,6 +24,7 @@ export const MODERN_SECTION_UI: Record<string, SectionUiMeta> = {
   simpleTableSection: { singular: 'Basic Table', plural: 'Basic Tables', group: 'Data', color: '#4F46E5', icon: 'T' },
   comparisonTableSection: { singular: 'Comparison Table', plural: 'Comparison Tables', group: 'Data', color: '#6D28D9', icon: 'C' },
   dynamicListSection: { singular: 'Auto List', plural: 'Auto Lists', group: 'Data', color: '#7C2D12', icon: 'A' },
+  orgFeedSection: { singular: 'Org Feed', plural: 'Org Feeds', group: 'Data', color: '#0F766E', icon: 'O' },
   splitSection: { singular: 'Two Column Content', plural: 'Two Column Content Blocks', group: 'Layout', color: '#1E3A8A', icon: '2' },
   reusableSectionReference: { singular: 'Section Library Embed', plural: 'Section Library Embeds', group: 'Layout', color: '#0F172A', icon: 'R' },
   spacerSection: { singular: 'Spacer', plural: 'Spacers', group: 'Layout', color: '#6B7280', icon: '+' },

@@ -16,6 +16,7 @@ import { VideoSection } from './sections/VideoSection.ts';
 import { SimpleTableSection } from './sections/SimpleTableSection.ts';
 import { ComparisonTableSection } from './sections/ComparisonTableSection.ts';
 import { DynamicListSection } from './sections/DynamicListSection.ts';
+import { OrgFeedSection } from './sections/OrgFeedSection.ts';
 import { SplitSection } from './sections/SplitSection.ts';
 import { ReusableSectionReference } from './sections/ReusableSectionReference.ts';
 import { SpacerSection } from './sections/SpacerSection.ts';
@@ -72,6 +73,7 @@ const modernPageSectionBlocks: Block[] = [
   SimpleTableSection,
   ComparisonTableSection,
   DynamicListSection,
+  OrgFeedSection,
   SplitSection,
   ReusableSectionReference,
   SpacerSection,

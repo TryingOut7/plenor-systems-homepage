@@ -9,6 +9,7 @@ import FormSection from './FormSection';
 import HeroSection from './HeroSection';
 import ImageSection from './ImageSection';
 import LogoBandSection from './LogoBandSection';
+import OrgFeedSection from './OrgFeedSection';
 import PrivacyNoteSection from './PrivacyNoteSection';
 import QuoteSection from './QuoteSection';
 import ReusableSectionReference from './ReusableSectionReference';
@@ -39,6 +40,7 @@ export const SECTION_RENDERERS: Record<string, SectionRenderer> = {
   simpleTableSection: SimpleTableSection,
   comparisonTableSection: ComparisonTableSection,
   dynamicListSection: DynamicListSection,
+  orgFeedSection: OrgFeedSection,
   splitSection: SplitSection,
   reusableSectionReference: ReusableSectionReference,
   spacerSection: SpacerSection,
