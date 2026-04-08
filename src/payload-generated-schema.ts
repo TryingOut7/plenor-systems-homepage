@@ -667,6 +667,141 @@ export const enum_org_feed_learning_category = pgEnum(
   "enum_org_feed_learning_category",
   ["knowledge_sharing", "college_prep", "mentorship"],
 );
+export const enum_org_evt_detail_theme = pgEnum("enum_org_evt_detail_theme", [
+  "navy",
+  "charcoal",
+  "black",
+  "white",
+  "light",
+]);
+export const enum_org_evt_detail_size = pgEnum("enum_org_evt_detail_size", [
+  "compact",
+  "regular",
+  "spacious",
+]);
+export const enum_org_evt_detail_heading_size = pgEnum(
+  "enum_org_evt_detail_heading_size",
+  ["xs", "sm", "md", "lg", "xl"],
+);
+export const enum_org_evt_detail_text_align = pgEnum(
+  "enum_org_evt_detail_text_align",
+  ["left", "center", "right"],
+);
+export const enum_org_evt_detail_heading_tag = pgEnum(
+  "enum_org_evt_detail_heading_tag",
+  ["h1", "h2", "h3", "h4"],
+);
+export const enum_org_evt_reg_theme = pgEnum("enum_org_evt_reg_theme", [
+  "navy",
+  "charcoal",
+  "black",
+  "white",
+  "light",
+]);
+export const enum_org_evt_reg_size = pgEnum("enum_org_evt_reg_size", [
+  "compact",
+  "regular",
+  "spacious",
+]);
+export const enum_org_evt_reg_heading_size = pgEnum(
+  "enum_org_evt_reg_heading_size",
+  ["xs", "sm", "md", "lg", "xl"],
+);
+export const enum_org_evt_reg_text_align = pgEnum(
+  "enum_org_evt_reg_text_align",
+  ["left", "center", "right"],
+);
+export const enum_org_evt_reg_heading_tag = pgEnum(
+  "enum_org_evt_reg_heading_tag",
+  ["h1", "h2", "h3", "h4"],
+);
+export const enum_org_spot_detail_theme = pgEnum("enum_org_spot_detail_theme", [
+  "navy",
+  "charcoal",
+  "black",
+  "white",
+  "light",
+]);
+export const enum_org_spot_detail_size = pgEnum("enum_org_spot_detail_size", [
+  "compact",
+  "regular",
+  "spacious",
+]);
+export const enum_org_spot_detail_heading_size = pgEnum(
+  "enum_org_spot_detail_heading_size",
+  ["xs", "sm", "md", "lg", "xl"],
+);
+export const enum_org_spot_detail_text_align = pgEnum(
+  "enum_org_spot_detail_text_align",
+  ["left", "center", "right"],
+);
+export const enum_org_spot_detail_heading_tag = pgEnum(
+  "enum_org_spot_detail_heading_tag",
+  ["h1", "h2", "h3", "h4"],
+);
+export const enum_org_learn_detail_theme = pgEnum(
+  "enum_org_learn_detail_theme",
+  ["navy", "charcoal", "black", "white", "light"],
+);
+export const enum_org_learn_detail_size = pgEnum("enum_org_learn_detail_size", [
+  "compact",
+  "regular",
+  "spacious",
+]);
+export const enum_org_learn_detail_heading_size = pgEnum(
+  "enum_org_learn_detail_heading_size",
+  ["xs", "sm", "md", "lg", "xl"],
+);
+export const enum_org_learn_detail_text_align = pgEnum(
+  "enum_org_learn_detail_text_align",
+  ["left", "center", "right"],
+);
+export const enum_org_learn_detail_heading_tag = pgEnum(
+  "enum_org_learn_detail_heading_tag",
+  ["h1", "h2", "h3", "h4"],
+);
+export const enum_org_about_detail_theme = pgEnum(
+  "enum_org_about_detail_theme",
+  ["navy", "charcoal", "black", "white", "light"],
+);
+export const enum_org_about_detail_size = pgEnum("enum_org_about_detail_size", [
+  "compact",
+  "regular",
+  "spacious",
+]);
+export const enum_org_about_detail_heading_size = pgEnum(
+  "enum_org_about_detail_heading_size",
+  ["xs", "sm", "md", "lg", "xl"],
+);
+export const enum_org_about_detail_text_align = pgEnum(
+  "enum_org_about_detail_text_align",
+  ["left", "center", "right"],
+);
+export const enum_org_about_detail_heading_tag = pgEnum(
+  "enum_org_about_detail_heading_tag",
+  ["h1", "h2", "h3", "h4"],
+);
+export const enum_org_sponsors_sec_theme = pgEnum(
+  "enum_org_sponsors_sec_theme",
+  ["navy", "charcoal", "black", "white", "light"],
+);
+export const enum_org_sponsors_sec_size = pgEnum("enum_org_sponsors_sec_size", [
+  "compact",
+  "regular",
+  "spacious",
+]);
+export const enum_org_sponsors_sec_heading_size = pgEnum(
+  "enum_org_sponsors_sec_heading_size",
+  ["xs", "sm", "md", "lg", "xl"],
+);
+export const enum_org_sponsors_sec_text_align = pgEnum(
+  "enum_org_sponsors_sec_text_align",
+  ["left", "center", "right"],
+);
+export const enum_org_sponsors_sec_heading_tag = pgEnum(
+  "enum_org_sponsors_sec_heading_tag",
+  ["h1", "h2", "h3", "h4"],
+);
 export const enum_split_sec_theme = pgEnum("enum_split_sec_theme", [
   "navy",
   "charcoal",
@@ -2720,6 +2855,7 @@ export const org_feed = pgTable(
     includeCta: boolean("include_cta").default(true),
     ctaLabel: varchar("cta_label"),
     ctaHref: varchar("cta_href"),
+    itemBasePath: varchar("item_base_path"),
     eventStatus:
       enum_org_feed_event_status("event_status").default("upcoming_planned"),
     spotlightCategory:
@@ -2738,6 +2874,288 @@ export const org_feed = pgTable(
       columns: [columns["_parentID"]],
       foreignColumns: [site_pages.id],
       name: "org_feed_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_evt_detail = pgTable(
+  "org_evt_detail",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    _path: text("_path").notNull(),
+    id: varchar("id").primaryKey(),
+    structuralKey: varchar("structural_key"),
+    theme: enum_org_evt_detail_theme("theme").default("white"),
+    sectionLabel: varchar("section_label"),
+    backgroundColor: varchar("background_color"),
+    size: enum_org_evt_detail_size("size").default("regular"),
+    anchorId: varchar("anchor_id"),
+    customClassName: varchar("custom_class_name"),
+    isHidden: boolean("is_hidden").default(false),
+    visibleFrom: timestamp("visible_from", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    visibleUntil: timestamp("visible_until", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    headingSize: enum_org_evt_detail_heading_size("heading_size"),
+    textAlign: enum_org_evt_detail_text_align("text_align"),
+    headingTag: enum_org_evt_detail_heading_tag("heading_tag"),
+    event: integer("event_id").references(() => org_events.id, {
+      onDelete: "set null",
+    }),
+    showRegistrationCta: boolean("show_registration_cta").default(true),
+    blockName: varchar("block_name"),
+  },
+  (columns) => [
+    index("org_evt_detail_order_idx").on(columns._order),
+    index("org_evt_detail_parent_id_idx").on(columns._parentID),
+    index("org_evt_detail_path_idx").on(columns._path),
+    index("org_evt_detail_event_idx").on(columns.event),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [site_pages.id],
+      name: "org_evt_detail_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_evt_reg = pgTable(
+  "org_evt_reg",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    _path: text("_path").notNull(),
+    id: varchar("id").primaryKey(),
+    structuralKey: varchar("structural_key"),
+    theme: enum_org_evt_reg_theme("theme").default("white"),
+    sectionLabel: varchar("section_label"),
+    backgroundColor: varchar("background_color"),
+    size: enum_org_evt_reg_size("size").default("regular"),
+    anchorId: varchar("anchor_id"),
+    customClassName: varchar("custom_class_name"),
+    isHidden: boolean("is_hidden").default(false),
+    visibleFrom: timestamp("visible_from", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    visibleUntil: timestamp("visible_until", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    headingSize: enum_org_evt_reg_heading_size("heading_size"),
+    textAlign: enum_org_evt_reg_text_align("text_align"),
+    headingTag: enum_org_evt_reg_heading_tag("heading_tag"),
+    event: integer("event_id").references(() => org_events.id, {
+      onDelete: "set null",
+    }),
+    blockName: varchar("block_name"),
+  },
+  (columns) => [
+    index("org_evt_reg_order_idx").on(columns._order),
+    index("org_evt_reg_parent_id_idx").on(columns._parentID),
+    index("org_evt_reg_path_idx").on(columns._path),
+    index("org_evt_reg_event_idx").on(columns.event),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [site_pages.id],
+      name: "org_evt_reg_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_spot_detail = pgTable(
+  "org_spot_detail",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    _path: text("_path").notNull(),
+    id: varchar("id").primaryKey(),
+    structuralKey: varchar("structural_key"),
+    theme: enum_org_spot_detail_theme("theme").default("white"),
+    sectionLabel: varchar("section_label"),
+    backgroundColor: varchar("background_color"),
+    size: enum_org_spot_detail_size("size").default("regular"),
+    anchorId: varchar("anchor_id"),
+    customClassName: varchar("custom_class_name"),
+    isHidden: boolean("is_hidden").default(false),
+    visibleFrom: timestamp("visible_from", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    visibleUntil: timestamp("visible_until", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    headingSize: enum_org_spot_detail_heading_size("heading_size"),
+    textAlign: enum_org_spot_detail_text_align("text_align"),
+    headingTag: enum_org_spot_detail_heading_tag("heading_tag"),
+    spotlightEntry: integer("spotlight_entry_id").references(
+      () => org_spotlight.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    showCategoryNav: boolean("show_category_nav").default(true),
+    blockName: varchar("block_name"),
+  },
+  (columns) => [
+    index("org_spot_detail_order_idx").on(columns._order),
+    index("org_spot_detail_parent_id_idx").on(columns._parentID),
+    index("org_spot_detail_path_idx").on(columns._path),
+    index("org_spot_detail_spotlight_entry_idx").on(columns.spotlightEntry),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [site_pages.id],
+      name: "org_spot_detail_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_learn_detail = pgTable(
+  "org_learn_detail",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    _path: text("_path").notNull(),
+    id: varchar("id").primaryKey(),
+    structuralKey: varchar("structural_key"),
+    theme: enum_org_learn_detail_theme("theme").default("white"),
+    sectionLabel: varchar("section_label"),
+    backgroundColor: varchar("background_color"),
+    size: enum_org_learn_detail_size("size").default("regular"),
+    anchorId: varchar("anchor_id"),
+    customClassName: varchar("custom_class_name"),
+    isHidden: boolean("is_hidden").default(false),
+    visibleFrom: timestamp("visible_from", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    visibleUntil: timestamp("visible_until", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    headingSize: enum_org_learn_detail_heading_size("heading_size"),
+    textAlign: enum_org_learn_detail_text_align("text_align"),
+    headingTag: enum_org_learn_detail_heading_tag("heading_tag"),
+    learningEntry: integer("learning_entry_id").references(
+      () => org_learning.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    showCategoryNav: boolean("show_category_nav").default(true),
+    blockName: varchar("block_name"),
+  },
+  (columns) => [
+    index("org_learn_detail_order_idx").on(columns._order),
+    index("org_learn_detail_parent_id_idx").on(columns._parentID),
+    index("org_learn_detail_path_idx").on(columns._path),
+    index("org_learn_detail_learning_entry_idx").on(columns.learningEntry),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [site_pages.id],
+      name: "org_learn_detail_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_about_detail = pgTable(
+  "org_about_detail",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    _path: text("_path").notNull(),
+    id: varchar("id").primaryKey(),
+    structuralKey: varchar("structural_key"),
+    theme: enum_org_about_detail_theme("theme").default("white"),
+    sectionLabel: varchar("section_label"),
+    backgroundColor: varchar("background_color"),
+    size: enum_org_about_detail_size("size").default("regular"),
+    anchorId: varchar("anchor_id"),
+    customClassName: varchar("custom_class_name"),
+    isHidden: boolean("is_hidden").default(false),
+    visibleFrom: timestamp("visible_from", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    visibleUntil: timestamp("visible_until", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    headingSize: enum_org_about_detail_heading_size("heading_size"),
+    textAlign: enum_org_about_detail_text_align("text_align"),
+    headingTag: enum_org_about_detail_heading_tag("heading_tag"),
+    profile: integer("profile_id").references(() => org_about_profiles.id, {
+      onDelete: "set null",
+    }),
+    showCategoryNav: boolean("show_category_nav").default(true),
+    blockName: varchar("block_name"),
+  },
+  (columns) => [
+    index("org_about_detail_order_idx").on(columns._order),
+    index("org_about_detail_parent_id_idx").on(columns._parentID),
+    index("org_about_detail_path_idx").on(columns._path),
+    index("org_about_detail_profile_idx").on(columns.profile),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [site_pages.id],
+      name: "org_about_detail_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_sponsors_sec = pgTable(
+  "org_sponsors_sec",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    _path: text("_path").notNull(),
+    id: varchar("id").primaryKey(),
+    structuralKey: varchar("structural_key"),
+    theme: enum_org_sponsors_sec_theme("theme").default("white"),
+    sectionLabel: varchar("section_label"),
+    backgroundColor: varchar("background_color"),
+    size: enum_org_sponsors_sec_size("size").default("regular"),
+    anchorId: varchar("anchor_id"),
+    customClassName: varchar("custom_class_name"),
+    isHidden: boolean("is_hidden").default(false),
+    visibleFrom: timestamp("visible_from", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    visibleUntil: timestamp("visible_until", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    headingSize: enum_org_sponsors_sec_heading_size("heading_size"),
+    textAlign: enum_org_sponsors_sec_text_align("text_align"),
+    headingTag: enum_org_sponsors_sec_heading_tag("heading_tag"),
+    blockName: varchar("block_name"),
+  },
+  (columns) => [
+    index("org_sponsors_sec_order_idx").on(columns._order),
+    index("org_sponsors_sec_parent_id_idx").on(columns._parentID),
+    index("org_sponsors_sec_path_idx").on(columns._path),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [site_pages.id],
+      name: "org_sponsors_sec_parent_id_fk",
     }).onDelete("cascade"),
   ],
 );
@@ -8965,6 +9383,88 @@ export const relations_org_feed = relations(org_feed, ({ one }) => ({
     relationName: "_blocks_orgFeedSection",
   }),
 }));
+export const relations_org_evt_detail = relations(
+  org_evt_detail,
+  ({ one }) => ({
+    _parentID: one(site_pages, {
+      fields: [org_evt_detail._parentID],
+      references: [site_pages.id],
+      relationName: "_blocks_orgEventDetailSection",
+    }),
+    event: one(org_events, {
+      fields: [org_evt_detail.event],
+      references: [org_events.id],
+      relationName: "event",
+    }),
+  }),
+);
+export const relations_org_evt_reg = relations(org_evt_reg, ({ one }) => ({
+  _parentID: one(site_pages, {
+    fields: [org_evt_reg._parentID],
+    references: [site_pages.id],
+    relationName: "_blocks_orgEventRegistrationSection",
+  }),
+  event: one(org_events, {
+    fields: [org_evt_reg.event],
+    references: [org_events.id],
+    relationName: "event",
+  }),
+}));
+export const relations_org_spot_detail = relations(
+  org_spot_detail,
+  ({ one }) => ({
+    _parentID: one(site_pages, {
+      fields: [org_spot_detail._parentID],
+      references: [site_pages.id],
+      relationName: "_blocks_orgSpotlightDetailSection",
+    }),
+    spotlightEntry: one(org_spotlight, {
+      fields: [org_spot_detail.spotlightEntry],
+      references: [org_spotlight.id],
+      relationName: "spotlightEntry",
+    }),
+  }),
+);
+export const relations_org_learn_detail = relations(
+  org_learn_detail,
+  ({ one }) => ({
+    _parentID: one(site_pages, {
+      fields: [org_learn_detail._parentID],
+      references: [site_pages.id],
+      relationName: "_blocks_orgLearningDetailSection",
+    }),
+    learningEntry: one(org_learning, {
+      fields: [org_learn_detail.learningEntry],
+      references: [org_learning.id],
+      relationName: "learningEntry",
+    }),
+  }),
+);
+export const relations_org_about_detail = relations(
+  org_about_detail,
+  ({ one }) => ({
+    _parentID: one(site_pages, {
+      fields: [org_about_detail._parentID],
+      references: [site_pages.id],
+      relationName: "_blocks_orgAboutDetailSection",
+    }),
+    profile: one(org_about_profiles, {
+      fields: [org_about_detail.profile],
+      references: [org_about_profiles.id],
+      relationName: "profile",
+    }),
+  }),
+);
+export const relations_org_sponsors_sec = relations(
+  org_sponsors_sec,
+  ({ one }) => ({
+    _parentID: one(site_pages, {
+      fields: [org_sponsors_sec._parentID],
+      references: [site_pages.id],
+      relationName: "_blocks_orgSponsorsSection",
+    }),
+  }),
+);
 export const relations_split_sec = relations(split_sec, ({ one }) => ({
   _parentID: one(site_pages, {
     fields: [split_sec._parentID],
@@ -9113,6 +9613,24 @@ export const relations_site_pages = relations(site_pages, ({ one, many }) => ({
   _blocks_orgFeedSection: many(org_feed, {
     relationName: "_blocks_orgFeedSection",
   }),
+  _blocks_orgEventDetailSection: many(org_evt_detail, {
+    relationName: "_blocks_orgEventDetailSection",
+  }),
+  _blocks_orgEventRegistrationSection: many(org_evt_reg, {
+    relationName: "_blocks_orgEventRegistrationSection",
+  }),
+  _blocks_orgSpotlightDetailSection: many(org_spot_detail, {
+    relationName: "_blocks_orgSpotlightDetailSection",
+  }),
+  _blocks_orgLearningDetailSection: many(org_learn_detail, {
+    relationName: "_blocks_orgLearningDetailSection",
+  }),
+  _blocks_orgAboutDetailSection: many(org_about_detail, {
+    relationName: "_blocks_orgAboutDetailSection",
+  }),
+  _blocks_orgSponsorsSection: many(org_sponsors_sec, {
+    relationName: "_blocks_orgSponsorsSection",
+  }),
   _blocks_splitSection: many(split_sec, {
     relationName: "_blocks_splitSection",
   }),
@@ -9234,6 +9752,24 @@ export const relations_page_drafts = relations(
     _blocks_orgFeedSection: many(org_feed, {
       relationName: "_blocks_orgFeedSection",
     }),
+    _blocks_orgEventDetailSection: many(org_evt_detail, {
+      relationName: "_blocks_orgEventDetailSection",
+    }),
+    _blocks_orgEventRegistrationSection: many(org_evt_reg, {
+      relationName: "_blocks_orgEventRegistrationSection",
+    }),
+    _blocks_orgSpotlightDetailSection: many(org_spot_detail, {
+      relationName: "_blocks_orgSpotlightDetailSection",
+    }),
+    _blocks_orgLearningDetailSection: many(org_learn_detail, {
+      relationName: "_blocks_orgLearningDetailSection",
+    }),
+    _blocks_orgAboutDetailSection: many(org_about_detail, {
+      relationName: "_blocks_orgAboutDetailSection",
+    }),
+    _blocks_orgSponsorsSection: many(org_sponsors_sec, {
+      relationName: "_blocks_orgSponsorsSection",
+    }),
     _blocks_splitSection: many(split_sec, {
       relationName: "_blocks_splitSection",
     }),
@@ -9343,6 +9879,24 @@ export const relations_page_presets = relations(
     _blocks_orgFeedSection: many(org_feed, {
       relationName: "_blocks_orgFeedSection",
     }),
+    _blocks_orgEventDetailSection: many(org_evt_detail, {
+      relationName: "_blocks_orgEventDetailSection",
+    }),
+    _blocks_orgEventRegistrationSection: many(org_evt_reg, {
+      relationName: "_blocks_orgEventRegistrationSection",
+    }),
+    _blocks_orgSpotlightDetailSection: many(org_spot_detail, {
+      relationName: "_blocks_orgSpotlightDetailSection",
+    }),
+    _blocks_orgLearningDetailSection: many(org_learn_detail, {
+      relationName: "_blocks_orgLearningDetailSection",
+    }),
+    _blocks_orgAboutDetailSection: many(org_about_detail, {
+      relationName: "_blocks_orgAboutDetailSection",
+    }),
+    _blocks_orgSponsorsSection: many(org_sponsors_sec, {
+      relationName: "_blocks_orgSponsorsSection",
+    }),
     _blocks_splitSection: many(split_sec, {
       relationName: "_blocks_splitSection",
     }),
@@ -9434,6 +9988,24 @@ export const relations_page_playgrounds = relations(
     _blocks_orgFeedSection: many(org_feed, {
       relationName: "_blocks_orgFeedSection",
     }),
+    _blocks_orgEventDetailSection: many(org_evt_detail, {
+      relationName: "_blocks_orgEventDetailSection",
+    }),
+    _blocks_orgEventRegistrationSection: many(org_evt_reg, {
+      relationName: "_blocks_orgEventRegistrationSection",
+    }),
+    _blocks_orgSpotlightDetailSection: many(org_spot_detail, {
+      relationName: "_blocks_orgSpotlightDetailSection",
+    }),
+    _blocks_orgLearningDetailSection: many(org_learn_detail, {
+      relationName: "_blocks_orgLearningDetailSection",
+    }),
+    _blocks_orgAboutDetailSection: many(org_about_detail, {
+      relationName: "_blocks_orgAboutDetailSection",
+    }),
+    _blocks_orgSponsorsSection: many(org_sponsors_sec, {
+      relationName: "_blocks_orgSponsorsSection",
+    }),
     _blocks_splitSection: many(split_sec, {
       relationName: "_blocks_splitSection",
     }),
@@ -9507,6 +10079,24 @@ export const relations_reuse_sec = relations(reuse_sec, ({ one, many }) => ({
   }),
   _blocks_orgFeedSection: many(org_feed, {
     relationName: "_blocks_orgFeedSection",
+  }),
+  _blocks_orgEventDetailSection: many(org_evt_detail, {
+    relationName: "_blocks_orgEventDetailSection",
+  }),
+  _blocks_orgEventRegistrationSection: many(org_evt_reg, {
+    relationName: "_blocks_orgEventRegistrationSection",
+  }),
+  _blocks_orgSpotlightDetailSection: many(org_spot_detail, {
+    relationName: "_blocks_orgSpotlightDetailSection",
+  }),
+  _blocks_orgLearningDetailSection: many(org_learn_detail, {
+    relationName: "_blocks_orgLearningDetailSection",
+  }),
+  _blocks_orgAboutDetailSection: many(org_about_detail, {
+    relationName: "_blocks_orgAboutDetailSection",
+  }),
+  _blocks_orgSponsorsSection: many(org_sponsors_sec, {
+    relationName: "_blocks_orgSponsorsSection",
   }),
   _blocks_splitSection: many(split_sec, {
     relationName: "_blocks_splitSection",
@@ -11342,6 +11932,36 @@ type DatabaseSchema = {
   enum_org_feed_event_status: typeof enum_org_feed_event_status;
   enum_org_feed_spotlight_category: typeof enum_org_feed_spotlight_category;
   enum_org_feed_learning_category: typeof enum_org_feed_learning_category;
+  enum_org_evt_detail_theme: typeof enum_org_evt_detail_theme;
+  enum_org_evt_detail_size: typeof enum_org_evt_detail_size;
+  enum_org_evt_detail_heading_size: typeof enum_org_evt_detail_heading_size;
+  enum_org_evt_detail_text_align: typeof enum_org_evt_detail_text_align;
+  enum_org_evt_detail_heading_tag: typeof enum_org_evt_detail_heading_tag;
+  enum_org_evt_reg_theme: typeof enum_org_evt_reg_theme;
+  enum_org_evt_reg_size: typeof enum_org_evt_reg_size;
+  enum_org_evt_reg_heading_size: typeof enum_org_evt_reg_heading_size;
+  enum_org_evt_reg_text_align: typeof enum_org_evt_reg_text_align;
+  enum_org_evt_reg_heading_tag: typeof enum_org_evt_reg_heading_tag;
+  enum_org_spot_detail_theme: typeof enum_org_spot_detail_theme;
+  enum_org_spot_detail_size: typeof enum_org_spot_detail_size;
+  enum_org_spot_detail_heading_size: typeof enum_org_spot_detail_heading_size;
+  enum_org_spot_detail_text_align: typeof enum_org_spot_detail_text_align;
+  enum_org_spot_detail_heading_tag: typeof enum_org_spot_detail_heading_tag;
+  enum_org_learn_detail_theme: typeof enum_org_learn_detail_theme;
+  enum_org_learn_detail_size: typeof enum_org_learn_detail_size;
+  enum_org_learn_detail_heading_size: typeof enum_org_learn_detail_heading_size;
+  enum_org_learn_detail_text_align: typeof enum_org_learn_detail_text_align;
+  enum_org_learn_detail_heading_tag: typeof enum_org_learn_detail_heading_tag;
+  enum_org_about_detail_theme: typeof enum_org_about_detail_theme;
+  enum_org_about_detail_size: typeof enum_org_about_detail_size;
+  enum_org_about_detail_heading_size: typeof enum_org_about_detail_heading_size;
+  enum_org_about_detail_text_align: typeof enum_org_about_detail_text_align;
+  enum_org_about_detail_heading_tag: typeof enum_org_about_detail_heading_tag;
+  enum_org_sponsors_sec_theme: typeof enum_org_sponsors_sec_theme;
+  enum_org_sponsors_sec_size: typeof enum_org_sponsors_sec_size;
+  enum_org_sponsors_sec_heading_size: typeof enum_org_sponsors_sec_heading_size;
+  enum_org_sponsors_sec_text_align: typeof enum_org_sponsors_sec_text_align;
+  enum_org_sponsors_sec_heading_tag: typeof enum_org_sponsors_sec_heading_tag;
   enum_split_sec_theme: typeof enum_split_sec_theme;
   enum_split_sec_size: typeof enum_split_sec_size;
   enum_split_sec_heading_size: typeof enum_split_sec_heading_size;
@@ -11487,6 +12107,12 @@ type DatabaseSchema = {
   cmp_table: typeof cmp_table;
   dyn_list: typeof dyn_list;
   org_feed: typeof org_feed;
+  org_evt_detail: typeof org_evt_detail;
+  org_evt_reg: typeof org_evt_reg;
+  org_spot_detail: typeof org_spot_detail;
+  org_learn_detail: typeof org_learn_detail;
+  org_about_detail: typeof org_about_detail;
+  org_sponsors_sec: typeof org_sponsors_sec;
   split_sec: typeof split_sec;
   reuse_sec_ref: typeof reuse_sec_ref;
   spacer: typeof spacer;
@@ -11632,6 +12258,12 @@ type DatabaseSchema = {
   relations_cmp_table: typeof relations_cmp_table;
   relations_dyn_list: typeof relations_dyn_list;
   relations_org_feed: typeof relations_org_feed;
+  relations_org_evt_detail: typeof relations_org_evt_detail;
+  relations_org_evt_reg: typeof relations_org_evt_reg;
+  relations_org_spot_detail: typeof relations_org_spot_detail;
+  relations_org_learn_detail: typeof relations_org_learn_detail;
+  relations_org_about_detail: typeof relations_org_about_detail;
+  relations_org_sponsors_sec: typeof relations_org_sponsors_sec;
   relations_split_sec: typeof relations_split_sec;
   relations_reuse_sec_ref: typeof relations_reuse_sec_ref;
   relations_spacer: typeof relations_spacer;

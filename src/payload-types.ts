@@ -1789,13 +1789,9 @@ export interface SitePage {
              */
             event: number | OrgEvent;
             /**
-             * Show a registration button when the event has registration enabled.
+             * Show the registration module when the event requires registration.
              */
             showRegistrationCta?: boolean | null;
-            /**
-             * Path to the registration page for this event (e.g. /events/my-concert/register). Required when Show Registration CTA is enabled.
-             */
-            registrationPagePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgEventDetailSection';
@@ -1854,10 +1850,6 @@ export interface SitePage {
              * The event whose registration form to render.
              */
             event: number | OrgEvent;
-            /**
-             * The URL path of this registration page (e.g. /events/my-concert/register). Used to build shareable status links.
-             */
-            thisPagePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgEventRegistrationSection';
@@ -1920,10 +1912,6 @@ export interface SitePage {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /spotlight). Used to build links like /spotlight/mentors.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgSpotlightDetailSection';
@@ -1986,10 +1974,6 @@ export interface SitePage {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /learning). Used to build links like /learning/workshops.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgLearningDetailSection';
@@ -2052,10 +2036,6 @@ export interface SitePage {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /about). Used to build links like /about/team.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgAboutDetailSection';
@@ -4600,13 +4580,9 @@ export interface ReusableSection {
              */
             event: number | OrgEvent;
             /**
-             * Show a registration button when the event has registration enabled.
+             * Show the registration module when the event requires registration.
              */
             showRegistrationCta?: boolean | null;
-            /**
-             * Path to the registration page for this event (e.g. /events/my-concert/register). Required when Show Registration CTA is enabled.
-             */
-            registrationPagePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgEventDetailSection';
@@ -4665,10 +4641,6 @@ export interface ReusableSection {
              * The event whose registration form to render.
              */
             event: number | OrgEvent;
-            /**
-             * The URL path of this registration page (e.g. /events/my-concert/register). Used to build shareable status links.
-             */
-            thisPagePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgEventRegistrationSection';
@@ -4731,10 +4703,6 @@ export interface ReusableSection {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /spotlight). Used to build links like /spotlight/mentors.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgSpotlightDetailSection';
@@ -4797,10 +4765,6 @@ export interface ReusableSection {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /learning). Used to build links like /learning/workshops.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgLearningDetailSection';
@@ -4863,10 +4827,6 @@ export interface ReusableSection {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /about). Used to build links like /about/team.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgAboutDetailSection';
@@ -6559,13 +6519,9 @@ export interface PageDraft {
              */
             event: number | OrgEvent;
             /**
-             * Show a registration button when the event has registration enabled.
+             * Show the registration module when the event requires registration.
              */
             showRegistrationCta?: boolean | null;
-            /**
-             * Path to the registration page for this event (e.g. /events/my-concert/register). Required when Show Registration CTA is enabled.
-             */
-            registrationPagePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgEventDetailSection';
@@ -6624,10 +6580,6 @@ export interface PageDraft {
              * The event whose registration form to render.
              */
             event: number | OrgEvent;
-            /**
-             * The URL path of this registration page (e.g. /events/my-concert/register). Used to build shareable status links.
-             */
-            thisPagePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgEventRegistrationSection';
@@ -6690,10 +6642,6 @@ export interface PageDraft {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /spotlight). Used to build links like /spotlight/mentors.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgSpotlightDetailSection';
@@ -6756,10 +6704,6 @@ export interface PageDraft {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /learning). Used to build links like /learning/workshops.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgLearningDetailSection';
@@ -6822,10 +6766,6 @@ export interface PageDraft {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /about). Used to build links like /about/team.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgAboutDetailSection';
@@ -8516,13 +8456,9 @@ export interface PagePreset {
              */
             event: number | OrgEvent;
             /**
-             * Show a registration button when the event has registration enabled.
+             * Show the registration module when the event requires registration.
              */
             showRegistrationCta?: boolean | null;
-            /**
-             * Path to the registration page for this event (e.g. /events/my-concert/register). Required when Show Registration CTA is enabled.
-             */
-            registrationPagePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgEventDetailSection';
@@ -8581,10 +8517,6 @@ export interface PagePreset {
              * The event whose registration form to render.
              */
             event: number | OrgEvent;
-            /**
-             * The URL path of this registration page (e.g. /events/my-concert/register). Used to build shareable status links.
-             */
-            thisPagePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgEventRegistrationSection';
@@ -8647,10 +8579,6 @@ export interface PagePreset {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /spotlight). Used to build links like /spotlight/mentors.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgSpotlightDetailSection';
@@ -8713,10 +8641,6 @@ export interface PagePreset {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /learning). Used to build links like /learning/workshops.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgLearningDetailSection';
@@ -8779,10 +8703,6 @@ export interface PagePreset {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /about). Used to build links like /about/team.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgAboutDetailSection';
@@ -10443,13 +10363,9 @@ export interface PagePlayground {
              */
             event: number | OrgEvent;
             /**
-             * Show a registration button when the event has registration enabled.
+             * Show the registration module when the event requires registration.
              */
             showRegistrationCta?: boolean | null;
-            /**
-             * Path to the registration page for this event (e.g. /events/my-concert/register). Required when Show Registration CTA is enabled.
-             */
-            registrationPagePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgEventDetailSection';
@@ -10508,10 +10424,6 @@ export interface PagePlayground {
              * The event whose registration form to render.
              */
             event: number | OrgEvent;
-            /**
-             * The URL path of this registration page (e.g. /events/my-concert/register). Used to build shareable status links.
-             */
-            thisPagePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgEventRegistrationSection';
@@ -10574,10 +10486,6 @@ export interface PagePlayground {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /spotlight). Used to build links like /spotlight/mentors.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgSpotlightDetailSection';
@@ -10640,10 +10548,6 @@ export interface PagePlayground {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /learning). Used to build links like /learning/workshops.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgLearningDetailSection';
@@ -10706,10 +10610,6 @@ export interface PagePlayground {
              * Show the category navigation bar.
              */
             showCategoryNav?: boolean | null;
-            /**
-             * Base path for category nav links (e.g. /about). Used to build links like /about/team.
-             */
-            categoryNavBasePath?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgAboutDetailSection';
@@ -12424,7 +12324,6 @@ export interface SitePagesSelect<T extends boolean = true> {
               headingTag?: T;
               event?: T;
               showRegistrationCta?: T;
-              registrationPagePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -12445,7 +12344,6 @@ export interface SitePagesSelect<T extends boolean = true> {
               textAlign?: T;
               headingTag?: T;
               event?: T;
-              thisPagePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -12467,7 +12365,6 @@ export interface SitePagesSelect<T extends boolean = true> {
               headingTag?: T;
               spotlightEntry?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -12489,7 +12386,6 @@ export interface SitePagesSelect<T extends boolean = true> {
               headingTag?: T;
               learningEntry?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -12511,7 +12407,6 @@ export interface SitePagesSelect<T extends boolean = true> {
               headingTag?: T;
               profile?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -13200,7 +13095,6 @@ export interface PageDraftsSelect<T extends boolean = true> {
               headingTag?: T;
               event?: T;
               showRegistrationCta?: T;
-              registrationPagePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -13221,7 +13115,6 @@ export interface PageDraftsSelect<T extends boolean = true> {
               textAlign?: T;
               headingTag?: T;
               event?: T;
-              thisPagePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -13243,7 +13136,6 @@ export interface PageDraftsSelect<T extends boolean = true> {
               headingTag?: T;
               spotlightEntry?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -13265,7 +13157,6 @@ export interface PageDraftsSelect<T extends boolean = true> {
               headingTag?: T;
               learningEntry?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -13287,7 +13178,6 @@ export interface PageDraftsSelect<T extends boolean = true> {
               headingTag?: T;
               profile?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -13964,7 +13854,6 @@ export interface PagePresetsSelect<T extends boolean = true> {
               headingTag?: T;
               event?: T;
               showRegistrationCta?: T;
-              registrationPagePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -13985,7 +13874,6 @@ export interface PagePresetsSelect<T extends boolean = true> {
               textAlign?: T;
               headingTag?: T;
               event?: T;
-              thisPagePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -14007,7 +13895,6 @@ export interface PagePresetsSelect<T extends boolean = true> {
               headingTag?: T;
               spotlightEntry?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -14029,7 +13916,6 @@ export interface PagePresetsSelect<T extends boolean = true> {
               headingTag?: T;
               learningEntry?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -14051,7 +13937,6 @@ export interface PagePresetsSelect<T extends boolean = true> {
               headingTag?: T;
               profile?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -14702,7 +14587,6 @@ export interface PagePlaygroundsSelect<T extends boolean = true> {
               headingTag?: T;
               event?: T;
               showRegistrationCta?: T;
-              registrationPagePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -14723,7 +14607,6 @@ export interface PagePlaygroundsSelect<T extends boolean = true> {
               textAlign?: T;
               headingTag?: T;
               event?: T;
-              thisPagePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -14745,7 +14628,6 @@ export interface PagePlaygroundsSelect<T extends boolean = true> {
               headingTag?: T;
               spotlightEntry?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -14767,7 +14649,6 @@ export interface PagePlaygroundsSelect<T extends boolean = true> {
               headingTag?: T;
               learningEntry?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -14789,7 +14670,6 @@ export interface PagePlaygroundsSelect<T extends boolean = true> {
               headingTag?: T;
               profile?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -15434,7 +15314,6 @@ export interface ReusableSectionsSelect<T extends boolean = true> {
               headingTag?: T;
               event?: T;
               showRegistrationCta?: T;
-              registrationPagePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -15455,7 +15334,6 @@ export interface ReusableSectionsSelect<T extends boolean = true> {
               textAlign?: T;
               headingTag?: T;
               event?: T;
-              thisPagePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -15477,7 +15355,6 @@ export interface ReusableSectionsSelect<T extends boolean = true> {
               headingTag?: T;
               spotlightEntry?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -15499,7 +15376,6 @@ export interface ReusableSectionsSelect<T extends boolean = true> {
               headingTag?: T;
               learningEntry?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
@@ -15521,7 +15397,6 @@ export interface ReusableSectionsSelect<T extends boolean = true> {
               headingTag?: T;
               profile?: T;
               showCategoryNav?: T;
-              categoryNavBasePath?: T;
               id?: T;
               blockName?: T;
             };
