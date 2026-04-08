@@ -14,7 +14,11 @@ async function shouldRetryPromotionLocally(response: NextResponse): Promise<bool
     .catch(() => null) as Record<string, unknown> | null;
   const message = typeof body?.message === 'string' ? body.message : '';
 
-  return /field is invalid:\s*id/i.test(message);
+  return (
+    /field is invalid:\s*id/i.test(message) ||
+    /field is invalid:\s*reviewsummary/i.test(message) ||
+    /field is invalid:\s*reviewchecklistcomplete/i.test(message)
+  );
 }
 
 export async function POST(
@@ -31,7 +35,7 @@ export async function POST(
     if (!fallbackToLocal) return proxied;
 
     console.warn(
-      'Backend promote-to-live returned invalid id validation; retrying through local Payload mutation path.',
+      'Backend promote-to-live returned field validation mismatch; retrying through local Payload mutation path.',
     );
   }
 

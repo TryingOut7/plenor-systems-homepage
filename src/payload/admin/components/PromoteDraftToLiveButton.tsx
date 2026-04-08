@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth, useDocumentInfo } from '@payloadcms/ui';
+import { useAuth, useDocumentInfo, useForm, useFormModified, useFormProcessing } from '@payloadcms/ui';
 import type { BeforeDocumentControlsClientProps } from 'payload';
 import { useState } from 'react';
 import { canRunCollectionAction } from './permissionUtils';
@@ -29,6 +29,9 @@ const PromoteDraftToLiveButton = (
 ) => {
   const { permissions, user } = useAuth<UserRecord>();
   const { id, docConfig } = useDocumentInfo();
+  const { submit } = useForm();
+  const isFormModified = useFormModified();
+  const isFormProcessing = useFormProcessing();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const canPromote = canRunCollectionAction({
@@ -49,6 +52,21 @@ const PromoteDraftToLiveButton = (
 
     try {
       setIsSubmitting(true);
+
+      // Persist current form edits first so promotion uses the latest workflow fields.
+      if (isFormModified) {
+        const saveResult = await submit({
+          disableSuccessStatus: true,
+        });
+
+        if (!saveResult) {
+          window.alert(
+            'Could not save this draft. Please fix validation errors, save, and try promoting again.',
+          );
+          return;
+        }
+      }
+
       const response = await fetch(
         `/api/pages/drafts/${encodeURIComponent(String(id))}/promote-to-live`,
         {
@@ -88,7 +106,7 @@ const PromoteDraftToLiveButton = (
     <button
       type="button"
       onClick={handlePromote}
-      disabled={isSubmitting}
+      disabled={isSubmitting || isFormProcessing}
       style={{
         border: '1px solid #2563EB',
         background: '#2563EB',
@@ -97,8 +115,8 @@ const PromoteDraftToLiveButton = (
         padding: '7px 10px',
         fontSize: '12px',
         fontWeight: 600,
-        cursor: isSubmitting ? 'not-allowed' : 'pointer',
-        opacity: isSubmitting ? 0.65 : 1,
+        cursor: isSubmitting || isFormProcessing ? 'not-allowed' : 'pointer',
+        opacity: isSubmitting || isFormProcessing ? 0.65 : 1,
       }}
     >
       {isSubmitting ? 'Promoting…' : 'Promote to Live'}
