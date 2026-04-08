@@ -6,8 +6,6 @@ import {
   buildContentSecurityPolicy,
   resolveLocalDevelopmentOrigins,
 } from "./src/lib/external-resource-policy";
-import { resolveCommunityBasePath } from "./src/lib/community-site-config";
-
 function normalizeRoutePath(value: string | undefined, fallback: string): string {
   if (!value) return fallback;
   return value.startsWith("/") ? value : `/${value}`;
@@ -43,20 +41,6 @@ const nextConfig: NextConfig = {
       : resolveAllowedDevOriginsForNextConfig(process.env),
   turbopack: {
     root: path.resolve(__dirname),
-  },
-  async rewrites() {
-    const basePath = resolveCommunityBasePath();
-    if (!basePath || basePath === '/community') return [];
-    return [
-      {
-        source: basePath,
-        destination: '/community',
-      },
-      {
-        source: `${basePath}/:path*`,
-        destination: '/community/:path*',
-      },
-    ];
   },
   async headers() {
     const isProduction = process.env.NODE_ENV === 'production';

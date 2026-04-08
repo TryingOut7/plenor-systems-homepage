@@ -183,6 +183,69 @@ export const getOrgEventBySlug = cache(async function getOrgEventBySlug(
   }
 });
 
+export const getOrgSpotlightById = cache(async function getOrgSpotlightById(
+  id: number | string,
+  options: OrgReadOptions = {},
+): Promise<OrgSpotlight | null> {
+  try {
+    const payload = await getPayload();
+    const doc = (await payload.findByID({
+      collection: 'org-spotlight',
+      id,
+      depth: 2,
+      ...queryDraftOptions(options),
+    })) as OrgSpotlight | null;
+
+    if (!doc) return null;
+    if (!includeForRead(doc, options)) return null;
+    return doc;
+  } catch {
+    return null;
+  }
+});
+
+export const getOrgLearningById = cache(async function getOrgLearningById(
+  id: number | string,
+  options: OrgReadOptions = {},
+): Promise<OrgLearning | null> {
+  try {
+    const payload = await getPayload();
+    const doc = (await payload.findByID({
+      collection: 'org-learning',
+      id,
+      depth: 2,
+      ...queryDraftOptions(options),
+    })) as OrgLearning | null;
+
+    if (!doc) return null;
+    if (!includeForRead(doc, options)) return null;
+    return doc;
+  } catch {
+    return null;
+  }
+});
+
+export const getOrgAboutById = cache(async function getOrgAboutById(
+  id: number | string,
+  options: OrgReadOptions = {},
+): Promise<OrgAboutProfile | null> {
+  try {
+    const payload = await getPayload();
+    const doc = (await payload.findByID({
+      collection: 'org-about-profiles',
+      id,
+      depth: 2,
+      ...queryDraftOptions(options),
+    })) as OrgAboutProfile | null;
+
+    if (!doc) return null;
+    if (!includeForRead(doc, options)) return null;
+    return doc;
+  } catch {
+    return null;
+  }
+});
+
 export const getOrgEventsByStatus = cache(async function getOrgEventsByStatus(
   status: EventStatus,
   options: OrgReadOptions = {},

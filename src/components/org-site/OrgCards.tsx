@@ -96,7 +96,7 @@ function MediaOrPlaceholder({
   );
 }
 
-export function OrgEventCard({ event, href }: { event: OrgEvent; href: string }) {
+export function OrgEventCard({ event, href }: { event: OrgEvent; href?: string }) {
   const hero = extractMediaAsset(event.heroImage);
 
   return (
@@ -121,11 +121,13 @@ export function OrgEventCard({ event, href }: { event: OrgEvent; href: string })
         {formatEventTimeLabel(event.startDate, event.eventTimezone)}
       </p>
       <p style={{ margin: 0, color: 'var(--ui-color-text)', lineHeight: 1.6 }}>{event.shortSummary}</p>
-      <p style={{ margin: 'auto 0 0', paddingTop: '10px' }}>
-        <Link href={href} style={{ fontWeight: 700, color: 'var(--ui-color-primary)' }}>
-          View event
-        </Link>
-      </p>
+      {href ? (
+        <p style={{ margin: 'auto 0 0', paddingTop: '10px' }}>
+          <Link href={href} style={{ fontWeight: 700, color: 'var(--ui-color-primary)' }}>
+            View event
+          </Link>
+        </p>
+      ) : null}
     </CardShell>
   );
 }
@@ -135,7 +137,7 @@ export function OrgSpotlightCard({
   href,
 }: {
   spotlight: OrgSpotlight;
-  href: string;
+  href?: string;
 }) {
   const image = extractMediaAsset(spotlight.thumbnailImage);
 
@@ -158,11 +160,13 @@ export function OrgSpotlightCard({
         <p style={{ margin: 0, color: 'var(--ui-color-text-muted)', fontSize: '14px' }}>{spotlight.roleTitle}</p>
       ) : null}
       <p style={{ margin: 0, color: 'var(--ui-color-text)', lineHeight: 1.6 }}>{spotlight.shortSummary}</p>
-      <p style={{ margin: 'auto 0 0', paddingTop: '10px' }}>
-        <Link href={href} style={{ fontWeight: 700, color: 'var(--ui-color-primary)' }}>
-          Read spotlight
-        </Link>
-      </p>
+      {href ? (
+        <p style={{ margin: 'auto 0 0', paddingTop: '10px' }}>
+          <Link href={href} style={{ fontWeight: 700, color: 'var(--ui-color-primary)' }}>
+            Read spotlight
+          </Link>
+        </p>
+      ) : null}
     </CardShell>
   );
 }
@@ -172,7 +176,7 @@ export function OrgLearningCard({
   href,
 }: {
   learning: OrgLearning;
-  href: string;
+  href?: string;
 }) {
   const image = extractMediaAsset(learning.thumbnail);
 
@@ -195,11 +199,13 @@ export function OrgLearningCard({
         <p style={{ margin: 0, color: 'var(--ui-color-text-muted)', fontSize: '14px' }}>{learning.author}</p>
       ) : null}
       <p style={{ margin: 0, color: 'var(--ui-color-text)', lineHeight: 1.6 }}>{learning.shortSummary}</p>
-      <p style={{ margin: 'auto 0 0', paddingTop: '10px' }}>
-        <Link href={href} style={{ fontWeight: 700, color: 'var(--ui-color-primary)' }}>
-          Explore resource
-        </Link>
-      </p>
+      {href ? (
+        <p style={{ margin: 'auto 0 0', paddingTop: '10px' }}>
+          <Link href={href} style={{ fontWeight: 700, color: 'var(--ui-color-primary)' }}>
+            Explore resource
+          </Link>
+        </p>
+      ) : null}
     </CardShell>
   );
 }
@@ -209,7 +215,7 @@ export function OrgAboutCard({
   href,
 }: {
   profile: OrgAboutProfile;
-  href: string;
+  href?: string;
 }) {
   const image = extractMediaAsset(profile.profileImage);
 
@@ -234,11 +240,13 @@ export function OrgAboutCard({
         </p>
       ) : null}
       <p style={{ margin: 0, color: 'var(--ui-color-text)', lineHeight: 1.6 }}>{profile.shortBio}</p>
-      <p style={{ margin: 'auto 0 0', paddingTop: '10px' }}>
-        <Link href={href} style={{ fontWeight: 700, color: 'var(--ui-color-primary)' }}>
-          View profile
-        </Link>
-      </p>
+      {href ? (
+        <p style={{ margin: 'auto 0 0', paddingTop: '10px' }}>
+          <Link href={href} style={{ fontWeight: 700, color: 'var(--ui-color-primary)' }}>
+            View profile
+          </Link>
+        </p>
+      ) : null}
     </CardShell>
   );
 }

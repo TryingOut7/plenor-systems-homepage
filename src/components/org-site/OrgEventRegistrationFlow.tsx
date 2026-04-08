@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import RichText from '@/components/cms/RichText';
-import { buildCommunityHref, type MediaAsset } from '@/lib/org-site-helpers';
+import type { MediaAsset } from '@/lib/org-site-helpers';
 import { ORG_REGISTRATION_STATUSES } from '@/lib/org-site-status';
 import type {
   PaymentConfirmationRequest,
@@ -53,6 +53,14 @@ function readErrorMessage(body: unknown, fallback: string): string {
 
 function normalizePublicId(input: string): string {
   return input.trim();
+}
+
+function normalizeStatusPath(basePath: string): string {
+  const withoutQueryOrHash = basePath.trim().split(/[?#]/, 1)[0] || '';
+  if (!withoutQueryOrHash) return '';
+  const normalized = withoutQueryOrHash.replace(/\/+$/, '');
+  if (!normalized) return '/';
+  return normalized.startsWith('/') ? normalized : `/${normalized.replace(/^\/+/, '')}`;
 }
 
 function getStatusMessage(
@@ -202,8 +210,11 @@ export default function OrgEventRegistrationFlow({
 
   const statusHref = useMemo(() => {
     if (!publicId) return null;
-    return buildCommunityHref(basePath, `events/${event.slug}/register?id=${encodeURIComponent(publicId)}`);
-  }, [basePath, event.slug, publicId]);
+    const query = `id=${encodeURIComponent(publicId)}`;
+    const normalizedPath = normalizeStatusPath(basePath);
+    if (!normalizedPath) return `?${query}`;
+    return `${normalizedPath}?${query}`;
+  }, [basePath, publicId]);
 
   const statusMessage = useMemo(() => {
     if (!statusRecord) return null;
@@ -223,7 +234,12 @@ export default function OrgEventRegistrationFlow({
 
   useEffect(() => {
     if (initialStatusHydratedRef.current) return;
-    const initial = initialPublicId?.trim();
+    const explicitInitial = normalizePublicId(initialPublicId || '');
+    const queryInitial =
+      typeof window !== 'undefined'
+        ? normalizePublicId(new URLSearchParams(window.location.search).get('id') || '')
+        : '';
+    const initial = explicitInitial || queryInitial;
     if (!initial) return;
     initialStatusHydratedRef.current = true;
     void loadStatus(initial);

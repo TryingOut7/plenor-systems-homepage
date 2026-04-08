@@ -1,9 +1,11 @@
 // Re-export org-site domain constants so components can import from @/lib without
 // violating the architecture boundary (src/components/** cannot import @/domain/**).
 export {
+  ABOUT_CATEGORIES,
   EVENT_STATUSES,
   LEARNING_CATEGORIES,
   SPOTLIGHT_CATEGORIES,
+  type AboutCategory,
   type EventStatus,
   type LearningCategory,
   type SpotlightCategory,

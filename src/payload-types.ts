@@ -1701,6 +1701,10 @@ export interface SitePage {
             ctaLabel?: string | null;
             ctaHref?: string | null;
             /**
+             * Base path for card links. E.g. "/events" makes each event card link to "/events/{slug}". Leave blank to suppress card links.
+             */
+            itemBasePath?: string | null;
+            /**
              * Used only for Events + Manual Selection.
              */
             manualEvents?: (number | OrgEvent)[] | null;
@@ -1729,6 +1733,386 @@ export interface SitePage {
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgFeedSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The event to display on this page.
+             */
+            event: number | OrgEvent;
+            /**
+             * Show a registration button when the event has registration enabled.
+             */
+            showRegistrationCta?: boolean | null;
+            /**
+             * Path to the registration page for this event (e.g. /events/my-concert/register). Required when Show Registration CTA is enabled.
+             */
+            registrationPagePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgEventDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The event whose registration form to render.
+             */
+            event: number | OrgEvent;
+            /**
+             * The URL path of this registration page (e.g. /events/my-concert/register). Used to build shareable status links.
+             */
+            thisPagePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgEventRegistrationSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The spotlight entry to display on this page.
+             */
+            spotlightEntry: number | OrgSpotlight;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /spotlight). Used to build links like /spotlight/mentors.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgSpotlightDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The learning resource to display on this page.
+             */
+            learningEntry: number | OrgLearning;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /learning). Used to build links like /learning/workshops.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgLearningDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The about profile to display on this page.
+             */
+            profile: number | OrgAboutProfile;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /about). Used to build links like /about/team.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgAboutDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgSponsorsSection';
           }
         | {
             /**
@@ -2743,6 +3127,110 @@ export interface OrgLearning {
    * Related community spotlight (optional).
    */
   relatedSpotlight?: (number | null) | OrgSpotlight;
+  /**
+   * The user who originally created this document.
+   */
+  createdBy?: (number | null) | User;
+  /**
+   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.
+   */
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  submittedBy?: (number | null) | User;
+  submittedAt?: string | null;
+  /**
+   * Editors/admins only: confirm the review checklist is complete before approving.
+   */
+  reviewChecklistComplete?: boolean | null;
+  /**
+   * Reviewer notes summarizing quality checks and decision rationale.
+   */
+  reviewSummary?: string | null;
+  approvedBy?: (number | null) | User;
+  approvedAt?: string | null;
+  /**
+   * Reason for rejection (visible to the author).
+   */
+  rejectionReason?: string | null;
+  /**
+   * SEO & Open Graph settings
+   */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+    canonicalUrl?: string | null;
+    noindex?: boolean | null;
+    nofollow?: boolean | null;
+    includeInSitemap?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * About profiles: founders, volunteer team members, and mentors.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-about-profiles".
+ */
+export interface OrgAboutProfile {
+  id: number;
+  name: string;
+  /**
+   * Lowercase, hyphenated slug (max 120 characters).
+   */
+  slug: string;
+  category: 'founder' | 'volunteer_team' | 'mentor';
+  /**
+   * Short biography for cards and search snippets (max 320 chars).
+   */
+  shortBio: string;
+  detailContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Profile image (recommended 400×400, 1:1).
+   */
+  profileImage: number | Media;
+  /**
+   * Role or title (e.g. "Co-Founder", "Lead Mentor").
+   */
+  roleTitle?: string | null;
+  /**
+   * Organization or other affiliation.
+   */
+  affiliation?: string | null;
+  /**
+   * Lower values appear first within the same category.
+   */
+  displayOrder?: number | null;
+  /**
+   * Additional images for this profile.
+   */
+  additionalImages?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional external link (e.g. personal website, LinkedIn).
+   */
+  externalLink?: string | null;
   /**
    * The user who originally created this document.
    */
@@ -4024,6 +4512,10 @@ export interface ReusableSection {
             ctaLabel?: string | null;
             ctaHref?: string | null;
             /**
+             * Base path for card links. E.g. "/events" makes each event card link to "/events/{slug}". Leave blank to suppress card links.
+             */
+            itemBasePath?: string | null;
+            /**
              * Used only for Events + Manual Selection.
              */
             manualEvents?: (number | OrgEvent)[] | null;
@@ -4052,6 +4544,386 @@ export interface ReusableSection {
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgFeedSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The event to display on this page.
+             */
+            event: number | OrgEvent;
+            /**
+             * Show a registration button when the event has registration enabled.
+             */
+            showRegistrationCta?: boolean | null;
+            /**
+             * Path to the registration page for this event (e.g. /events/my-concert/register). Required when Show Registration CTA is enabled.
+             */
+            registrationPagePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgEventDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The event whose registration form to render.
+             */
+            event: number | OrgEvent;
+            /**
+             * The URL path of this registration page (e.g. /events/my-concert/register). Used to build shareable status links.
+             */
+            thisPagePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgEventRegistrationSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The spotlight entry to display on this page.
+             */
+            spotlightEntry: number | OrgSpotlight;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /spotlight). Used to build links like /spotlight/mentors.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgSpotlightDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The learning resource to display on this page.
+             */
+            learningEntry: number | OrgLearning;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /learning). Used to build links like /learning/workshops.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgLearningDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The about profile to display on this page.
+             */
+            profile: number | OrgAboutProfile;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /about). Used to build links like /about/team.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgAboutDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgSponsorsSection';
           }
         | {
             /**
@@ -5599,6 +6471,10 @@ export interface PageDraft {
             ctaLabel?: string | null;
             ctaHref?: string | null;
             /**
+             * Base path for card links. E.g. "/events" makes each event card link to "/events/{slug}". Leave blank to suppress card links.
+             */
+            itemBasePath?: string | null;
+            /**
              * Used only for Events + Manual Selection.
              */
             manualEvents?: (number | OrgEvent)[] | null;
@@ -5627,6 +6503,386 @@ export interface PageDraft {
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgFeedSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The event to display on this page.
+             */
+            event: number | OrgEvent;
+            /**
+             * Show a registration button when the event has registration enabled.
+             */
+            showRegistrationCta?: boolean | null;
+            /**
+             * Path to the registration page for this event (e.g. /events/my-concert/register). Required when Show Registration CTA is enabled.
+             */
+            registrationPagePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgEventDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The event whose registration form to render.
+             */
+            event: number | OrgEvent;
+            /**
+             * The URL path of this registration page (e.g. /events/my-concert/register). Used to build shareable status links.
+             */
+            thisPagePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgEventRegistrationSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The spotlight entry to display on this page.
+             */
+            spotlightEntry: number | OrgSpotlight;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /spotlight). Used to build links like /spotlight/mentors.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgSpotlightDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The learning resource to display on this page.
+             */
+            learningEntry: number | OrgLearning;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /learning). Used to build links like /learning/workshops.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgLearningDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The about profile to display on this page.
+             */
+            profile: number | OrgAboutProfile;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /about). Used to build links like /about/team.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgAboutDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgSponsorsSection';
           }
         | {
             /**
@@ -7172,6 +8428,10 @@ export interface PagePreset {
             ctaLabel?: string | null;
             ctaHref?: string | null;
             /**
+             * Base path for card links. E.g. "/events" makes each event card link to "/events/{slug}". Leave blank to suppress card links.
+             */
+            itemBasePath?: string | null;
+            /**
              * Used only for Events + Manual Selection.
              */
             manualEvents?: (number | OrgEvent)[] | null;
@@ -7200,6 +8460,386 @@ export interface PagePreset {
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgFeedSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The event to display on this page.
+             */
+            event: number | OrgEvent;
+            /**
+             * Show a registration button when the event has registration enabled.
+             */
+            showRegistrationCta?: boolean | null;
+            /**
+             * Path to the registration page for this event (e.g. /events/my-concert/register). Required when Show Registration CTA is enabled.
+             */
+            registrationPagePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgEventDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The event whose registration form to render.
+             */
+            event: number | OrgEvent;
+            /**
+             * The URL path of this registration page (e.g. /events/my-concert/register). Used to build shareable status links.
+             */
+            thisPagePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgEventRegistrationSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The spotlight entry to display on this page.
+             */
+            spotlightEntry: number | OrgSpotlight;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /spotlight). Used to build links like /spotlight/mentors.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgSpotlightDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The learning resource to display on this page.
+             */
+            learningEntry: number | OrgLearning;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /learning). Used to build links like /learning/workshops.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgLearningDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The about profile to display on this page.
+             */
+            profile: number | OrgAboutProfile;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /about). Used to build links like /about/team.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgAboutDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgSponsorsSection';
           }
         | {
             /**
@@ -8715,6 +10355,10 @@ export interface PagePlayground {
             ctaLabel?: string | null;
             ctaHref?: string | null;
             /**
+             * Base path for card links. E.g. "/events" makes each event card link to "/events/{slug}". Leave blank to suppress card links.
+             */
+            itemBasePath?: string | null;
+            /**
              * Used only for Events + Manual Selection.
              */
             manualEvents?: (number | OrgEvent)[] | null;
@@ -8743,6 +10387,386 @@ export interface PagePlayground {
             id?: string | null;
             blockName?: string | null;
             blockType: 'orgFeedSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The event to display on this page.
+             */
+            event: number | OrgEvent;
+            /**
+             * Show a registration button when the event has registration enabled.
+             */
+            showRegistrationCta?: boolean | null;
+            /**
+             * Path to the registration page for this event (e.g. /events/my-concert/register). Required when Show Registration CTA is enabled.
+             */
+            registrationPagePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgEventDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The event whose registration form to render.
+             */
+            event: number | OrgEvent;
+            /**
+             * The URL path of this registration page (e.g. /events/my-concert/register). Used to build shareable status links.
+             */
+            thisPagePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgEventRegistrationSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The spotlight entry to display on this page.
+             */
+            spotlightEntry: number | OrgSpotlight;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /spotlight). Used to build links like /spotlight/mentors.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgSpotlightDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The learning resource to display on this page.
+             */
+            learningEntry: number | OrgLearning;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /learning). Used to build links like /learning/workshops.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgLearningDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            /**
+             * The about profile to display on this page.
+             */
+            profile: number | OrgAboutProfile;
+            /**
+             * Show the category navigation bar.
+             */
+            showCategoryNav?: boolean | null;
+            /**
+             * Base path for category nav links (e.g. /about). Used to build links like /about/team.
+             */
+            categoryNavBasePath?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgAboutDetailSection';
+          }
+        | {
+            /**
+             * System-managed structural identity key for preset and migrated sections.
+             */
+            structuralKey?: string | null;
+            /**
+             * Base theme for section typography and button styling
+             */
+            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
+            /**
+             * Optional eyebrow/section label for custom page layouts
+             */
+            sectionLabel?: string | null;
+            /**
+             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
+             */
+            backgroundColor?: string | null;
+            size?: ('compact' | 'regular' | 'spacious') | null;
+            /**
+             * Optional anchor ID for in-page links
+             */
+            anchorId?: string | null;
+            /**
+             * Optional CSS class name
+             */
+            customClassName?: string | null;
+            /**
+             * Hide this section without deleting it
+             */
+            isHidden?: boolean | null;
+            /**
+             * Section becomes visible on this date (optional)
+             */
+            visibleFrom?: string | null;
+            /**
+             * Section is hidden after this date (optional)
+             */
+            visibleUntil?: string | null;
+            /**
+             * Override heading size for this section (default: md)
+             */
+            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
+            /**
+             * Override text alignment for this section
+             */
+            textAlign?: ('left' | 'center' | 'right') | null;
+            /**
+             * HTML heading tag for SEO/accessibility (default: h2)
+             */
+            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'orgSponsorsSection';
           }
         | {
             /**
@@ -9267,110 +11291,6 @@ export interface AuditLog {
   summary: string;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * About profiles: founders, volunteer team members, and mentors.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "org-about-profiles".
- */
-export interface OrgAboutProfile {
-  id: number;
-  name: string;
-  /**
-   * Lowercase, hyphenated slug (max 120 characters).
-   */
-  slug: string;
-  category: 'founder' | 'volunteer_team' | 'mentor';
-  /**
-   * Short biography for cards and search snippets (max 320 chars).
-   */
-  shortBio: string;
-  detailContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Profile image (recommended 400×400, 1:1).
-   */
-  profileImage: number | Media;
-  /**
-   * Role or title (e.g. "Co-Founder", "Lead Mentor").
-   */
-  roleTitle?: string | null;
-  /**
-   * Organization or other affiliation.
-   */
-  affiliation?: string | null;
-  /**
-   * Lower values appear first within the same category.
-   */
-  displayOrder?: number | null;
-  /**
-   * Additional images for this profile.
-   */
-  additionalImages?:
-    | {
-        image: number | Media;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Optional external link (e.g. personal website, LinkedIn).
-   */
-  externalLink?: string | null;
-  /**
-   * The user who originally created this document.
-   */
-  createdBy?: (number | null) | User;
-  /**
-   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.
-   */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
-  submittedBy?: (number | null) | User;
-  submittedAt?: string | null;
-  /**
-   * Editors/admins only: confirm the review checklist is complete before approving.
-   */
-  reviewChecklistComplete?: boolean | null;
-  /**
-   * Reviewer notes summarizing quality checks and decision rationale.
-   */
-  reviewSummary?: string | null;
-  approvedBy?: (number | null) | User;
-  approvedAt?: string | null;
-  /**
-   * Reason for rejection (visible to the author).
-   */
-  rejectionReason?: string | null;
-  /**
-   * SEO & Open Graph settings
-   */
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
-    ogTitle?: string | null;
-    ogDescription?: string | null;
-    ogImage?: (number | null) | Media;
-    canonicalUrl?: string | null;
-    noindex?: boolean | null;
-    nofollow?: boolean | null;
-    includeInSitemap?: boolean | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
@@ -10476,12 +12396,141 @@ export interface SitePagesSelect<T extends boolean = true> {
               includeCta?: T;
               ctaLabel?: T;
               ctaHref?: T;
+              itemBasePath?: T;
               manualEvents?: T;
               manualSpotlight?: T;
               manualLearning?: T;
               eventStatus?: T;
               spotlightCategory?: T;
               learningCategory?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgEventDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              event?: T;
+              showRegistrationCta?: T;
+              registrationPagePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgEventRegistrationSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              event?: T;
+              thisPagePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgSpotlightDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              spotlightEntry?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgLearningDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              learningEntry?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgAboutDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              profile?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgSponsorsSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
               id?: T;
               blockName?: T;
             };
@@ -11123,12 +13172,141 @@ export interface PageDraftsSelect<T extends boolean = true> {
               includeCta?: T;
               ctaLabel?: T;
               ctaHref?: T;
+              itemBasePath?: T;
               manualEvents?: T;
               manualSpotlight?: T;
               manualLearning?: T;
               eventStatus?: T;
               spotlightCategory?: T;
               learningCategory?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgEventDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              event?: T;
+              showRegistrationCta?: T;
+              registrationPagePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgEventRegistrationSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              event?: T;
+              thisPagePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgSpotlightDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              spotlightEntry?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgLearningDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              learningEntry?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgAboutDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              profile?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgSponsorsSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
               id?: T;
               blockName?: T;
             };
@@ -11758,12 +13936,141 @@ export interface PagePresetsSelect<T extends boolean = true> {
               includeCta?: T;
               ctaLabel?: T;
               ctaHref?: T;
+              itemBasePath?: T;
               manualEvents?: T;
               manualSpotlight?: T;
               manualLearning?: T;
               eventStatus?: T;
               spotlightCategory?: T;
               learningCategory?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgEventDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              event?: T;
+              showRegistrationCta?: T;
+              registrationPagePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgEventRegistrationSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              event?: T;
+              thisPagePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgSpotlightDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              spotlightEntry?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgLearningDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              learningEntry?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgAboutDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              profile?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgSponsorsSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
               id?: T;
               blockName?: T;
             };
@@ -12367,12 +14674,141 @@ export interface PagePlaygroundsSelect<T extends boolean = true> {
               includeCta?: T;
               ctaLabel?: T;
               ctaHref?: T;
+              itemBasePath?: T;
               manualEvents?: T;
               manualSpotlight?: T;
               manualLearning?: T;
               eventStatus?: T;
               spotlightCategory?: T;
               learningCategory?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgEventDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              event?: T;
+              showRegistrationCta?: T;
+              registrationPagePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgEventRegistrationSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              event?: T;
+              thisPagePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgSpotlightDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              spotlightEntry?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgLearningDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              learningEntry?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgAboutDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              profile?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgSponsorsSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
               id?: T;
               blockName?: T;
             };
@@ -12970,12 +15406,141 @@ export interface ReusableSectionsSelect<T extends boolean = true> {
               includeCta?: T;
               ctaLabel?: T;
               ctaHref?: T;
+              itemBasePath?: T;
               manualEvents?: T;
               manualSpotlight?: T;
               manualLearning?: T;
               eventStatus?: T;
               spotlightCategory?: T;
               learningCategory?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgEventDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              event?: T;
+              showRegistrationCta?: T;
+              registrationPagePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgEventRegistrationSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              event?: T;
+              thisPagePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgSpotlightDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              spotlightEntry?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgLearningDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              learningEntry?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgAboutDetailSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
+              profile?: T;
+              showCategoryNav?: T;
+              categoryNavBasePath?: T;
+              id?: T;
+              blockName?: T;
+            };
+        orgSponsorsSection?:
+          | T
+          | {
+              structuralKey?: T;
+              theme?: T;
+              sectionLabel?: T;
+              backgroundColor?: T;
+              size?: T;
+              anchorId?: T;
+              customClassName?: T;
+              isHidden?: T;
+              visibleFrom?: T;
+              visibleUntil?: T;
+              headingSize?: T;
+              textAlign?: T;
+              headingTag?: T;
               id?: T;
               blockName?: T;
             };

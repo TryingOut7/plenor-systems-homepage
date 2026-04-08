@@ -19,8 +19,6 @@ import {
   type SpotlightCategory,
 } from '@/lib/org-site-helpers';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
-import { resolveCommunityBasePath } from '@/lib/community-site-config';
-import { buildCommunityHref } from '@/lib/org-site-helpers';
 import type { OrgEvent, OrgLearning, OrgSpotlight } from '@/payload-types';
 import SectionHeading from './shared/SectionHeading';
 import type { SectionRendererProps } from './types';
@@ -128,10 +126,10 @@ const DEFAULT_HEADING: Record<FeedType, string> = {
   learning: 'Resources and Mentorship',
 };
 
-const DEFAULT_CTA: Record<FeedType, { label: string; suffix: string }> = {
-  events: { label: 'Browse all events', suffix: 'events' },
-  spotlight: { label: 'Explore spotlight', suffix: `spotlight/${SPOTLIGHT_CATEGORIES[0]}` },
-  learning: { label: 'Explore learning', suffix: `learning/${LEARNING_CATEGORIES[0]}` },
+const DEFAULT_CTA_LABEL: Record<FeedType, string> = {
+  events: 'Browse all events',
+  spotlight: 'Explore spotlight',
+  learning: 'Explore learning',
 };
 
 const GRID_COLUMNS: Record<'1' | '2' | '3' | '4', string> = {
@@ -151,9 +149,6 @@ async function OrgFeedSectionServer({
   resolvedHeadingColor,
   resolvedMutedColor,
 }: SectionRendererProps) {
-  const basePath = resolveCommunityBasePath();
-  if (!basePath) return null;
-
   const sectionRecord = asSectionRecord(section);
 
   const feedType = parseFeedType(sectionRecord.feedType);
@@ -219,10 +214,16 @@ async function OrgFeedSectionServer({
   const heading = readString(sectionRecord.heading) || DEFAULT_HEADING[feedType];
   const subheading = readString(sectionRecord.subheading);
   const includeCta = sectionRecord.includeCta !== false;
-  const ctaLabel = readString(sectionRecord.ctaLabel) || DEFAULT_CTA[feedType].label;
-  const ctaHref =
-    readString(sectionRecord.ctaHref) ||
-    buildCommunityHref(basePath, DEFAULT_CTA[feedType].suffix);
+  const ctaLabel = readString(sectionRecord.ctaLabel) || DEFAULT_CTA_LABEL[feedType];
+  const ctaHref = readString(sectionRecord.ctaHref) || null;
+
+  const rawItemBasePath = readString(sectionRecord.itemBasePath);
+  const itemBasePath = rawItemBasePath ? rawItemBasePath.replace(/\/+$/, '') : null;
+
+  function buildItemHref(suffix: string): string | undefined {
+    if (!itemBasePath) return undefined;
+    return `${itemBasePath}/${suffix}`;
+  }
 
   const cards =
     feedType === 'events'
@@ -230,7 +231,7 @@ async function OrgFeedSectionServer({
           <OrgEventCard
             key={`${sectionKey}-event-${String(event.id)}`}
             event={event}
-            href={buildCommunityHref(basePath, `events/${event.slug}`)}
+            href={buildItemHref(event.slug)}
           />
         ))
       : feedType === 'spotlight'
@@ -238,17 +239,14 @@ async function OrgFeedSectionServer({
             <OrgSpotlightCard
               key={`${sectionKey}-spotlight-${String(entry.id)}`}
               spotlight={entry}
-              href={buildCommunityHref(
-                basePath,
-                `spotlight/${entry.category}/${entry.slug}`,
-              )}
+              href={buildItemHref(`${entry.category}/${entry.slug}`)}
             />
           ))
         : learning.map((entry) => (
             <OrgLearningCard
               key={`${sectionKey}-learning-${String(entry.id)}`}
               learning={entry}
-              href={buildCommunityHref(basePath, `learning/${entry.category}/${entry.slug}`)}
+              href={buildItemHref(`${entry.category}/${entry.slug}`)}
             />
           ));
 

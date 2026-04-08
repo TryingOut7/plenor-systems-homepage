@@ -1,18 +1,12 @@
-import type { Metadata } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
+import Image from 'next/image';
 import RichText from '@/components/cms/RichText';
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
-import { getOrgSponsorsGlobal } from '@/infrastructure/cms/orgSiteQueries';
+import { getOrgSponsorsGlobal } from '@/lib/org-site-feed';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
-import { resolveCommunityBasePath } from '@/lib/community-site-config';
-import { buildCommunityHref, extractMediaAsset } from '@/lib/org-site-helpers';
-import { resolveSiteUrl } from '@/lib/site-config';
-import { getSiteSettings } from '@/payload/cms';
-
-export const revalidate = 60;
+import { extractMediaAsset } from '@/lib/org-site-helpers';
+import type { SectionRendererProps } from './types';
+import { asSectionRecord } from './utils';
 
 type DisplayOrderKey =
   | 'support_summary'
@@ -52,40 +46,17 @@ function normalizeDisplayOrder(value: unknown): DisplayOrderKey[] {
   return [...ordered, ...missing];
 }
 
-export async function generateMetadata(): Promise<Metadata> {
-  const basePath = resolveCommunityBasePath();
-  if (!basePath) return {};
-
-  const cmsReadOptions = await getCmsReadOptions();
-  const [sponsors, settings] = await Promise.all([
-    getOrgSponsorsGlobal(cmsReadOptions),
-    getSiteSettings(cmsReadOptions),
-  ]);
-  if (!sponsors) return {};
-
-  const siteUrl = resolveSiteUrl(settings);
-  const canonical = `${siteUrl}${buildCommunityHref(basePath, 'sponsors')}`;
-  const title = sponsors.pageTitle || 'Sponsors';
-
-  return {
-    title,
-    description: 'Support the community through sponsorship and giving.',
-    alternates: { canonical },
-    openGraph: {
-      title,
-      description: 'Support the community through sponsorship and giving.',
-      url: canonical,
-    },
-  };
-}
-
-export default async function SponsorsPage() {
-  const basePath = resolveCommunityBasePath();
-  if (!basePath) notFound();
+async function OrgSponsorsSectionServer({
+  section,
+  sectionKey,
+  sectionStyle,
+  innerStyle,
+}: SectionRendererProps) {
+  const sectionRecord = asSectionRecord(section);
 
   const cmsReadOptions = await getCmsReadOptions();
   const sponsors = await getOrgSponsorsGlobal(cmsReadOptions);
-  if (!sponsors) notFound();
+  if (!sponsors) return null;
 
   const zelleQr = extractMediaAsset(sponsors.zelleQrCode);
   const venmoQr = extractMediaAsset(sponsors.venmoQrCode);
@@ -246,7 +217,9 @@ export default async function SponsorsPage() {
                     }}
                   />
                   {logo.label ? (
-                    <p style={{ margin: '8px 0 0', fontSize: '14px', color: 'var(--ui-color-text-muted)' }}>
+                    <p
+                      style={{ margin: '8px 0 0', fontSize: '14px', color: 'var(--ui-color-text-muted)' }}
+                    >
                       {logo.label}
                     </p>
                   ) : null}
@@ -286,26 +259,37 @@ export default async function SponsorsPage() {
   };
 
   return (
-    <article style={{ maxWidth: '980px', margin: '0 auto', padding: '70px 24px 96px' }}>
-      <p className="section-label" style={{ marginBottom: '10px' }}>
-        Sponsors
-      </p>
-      <h1 style={{ marginTop: 0, marginBottom: '14px', fontSize: 'clamp(34px, 5vw, 54px)' }}>
-        {sponsors.pageTitle}
-      </h1>
-
-      {displayOrder.map((key) => sectionRenderers[key])}
-
-      {sponsors.supportContactPath ? (
-        <p style={{ marginTop: '16px' }}>
-          <strong>Support contact:</strong>{' '}
-          <a href={sponsors.supportContactPath}>{sponsors.supportContactPath}</a>
+    <section
+      key={sectionKey}
+      id={typeof sectionRecord.anchorId === 'string' ? sectionRecord.anchorId : undefined}
+      style={sectionStyle}
+      className={
+        typeof sectionRecord.customClassName === 'string'
+          ? sectionRecord.customClassName
+          : undefined
+      }
+    >
+      <div style={{ ...innerStyle, maxWidth: '980px' }}>
+        <p className="section-label" style={{ marginBottom: '10px' }}>
+          Sponsors
         </p>
-      ) : null}
+        <h1 style={{ marginTop: 0, marginBottom: '14px', fontSize: 'clamp(34px, 5vw, 54px)' }}>
+          {sponsors.pageTitle}
+        </h1>
 
-      <p style={{ marginTop: '26px' }}>
-        <Link href={buildCommunityHref(basePath)}>Back to community home</Link>
-      </p>
-    </article>
+        {displayOrder.map((key) => sectionRenderers[key])}
+
+        {sponsors.supportContactPath ? (
+          <p style={{ marginTop: '16px' }}>
+            <strong>Support contact:</strong>{' '}
+            <a href={sponsors.supportContactPath}>{sponsors.supportContactPath}</a>
+          </p>
+        ) : null}
+      </div>
+    </section>
   );
+}
+
+export default function OrgSponsorsSection(props: SectionRendererProps) {
+  return <OrgSponsorsSectionServer {...props} />;
 }

@@ -123,6 +123,14 @@ export const OrgFeedSection: Block = {
       },
     },
     {
+      name: 'itemBasePath',
+      type: 'text',
+      admin: {
+        description:
+          'Base path for card links. E.g. "/events" makes each event card link to "/events/{slug}". Leave blank to suppress card links.',
+      },
+    },
+    {
       name: 'manualEvents',
       type: 'relationship',
       relationTo: 'org-events',

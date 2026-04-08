@@ -17,6 +17,12 @@ import { SimpleTableSection } from './sections/SimpleTableSection.ts';
 import { ComparisonTableSection } from './sections/ComparisonTableSection.ts';
 import { DynamicListSection } from './sections/DynamicListSection.ts';
 import { OrgFeedSection } from './sections/OrgFeedSection.ts';
+import { OrgEventDetailSection } from './sections/OrgEventDetailSection.ts';
+import { OrgEventRegistrationSection } from './sections/OrgEventRegistrationSection.ts';
+import { OrgSpotlightDetailSection } from './sections/OrgSpotlightDetailSection.ts';
+import { OrgLearningDetailSection } from './sections/OrgLearningDetailSection.ts';
+import { OrgAboutDetailSection } from './sections/OrgAboutDetailSection.ts';
+import { OrgSponsorsSection } from './sections/OrgSponsorsSection.ts';
 import { SplitSection } from './sections/SplitSection.ts';
 import { ReusableSectionReference } from './sections/ReusableSectionReference.ts';
 import { SpacerSection } from './sections/SpacerSection.ts';
@@ -74,6 +80,12 @@ const modernPageSectionBlocks: Block[] = [
   ComparisonTableSection,
   DynamicListSection,
   OrgFeedSection,
+  OrgEventDetailSection,
+  OrgEventRegistrationSection,
+  OrgSpotlightDetailSection,
+  OrgLearningDetailSection,
+  OrgAboutDetailSection,
+  OrgSponsorsSection,
   SplitSection,
   ReusableSectionReference,
   SpacerSection,
