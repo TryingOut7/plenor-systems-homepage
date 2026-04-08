@@ -942,9 +942,10 @@ export async function markOutboxJobFailed(
       const maxAttempts = Number(current.data.max_attempts ?? 5);
       const reachedLimit = attempts >= maxAttempts;
       const existingNextAttemptAt = String(current.data.next_attempt_at || nowIso());
+      const backoffMs = Math.min(60_000, 1_000 * 4 ** Math.max(0, attempts - 1));
       const nextAttemptAt = reachedLimit
         ? existingNextAttemptAt
-        : new Date(Date.now() + Math.min(60_000, 1_000 * 2 ** attempts)).toISOString();
+        : new Date(Date.now() + backoffMs).toISOString();
       const status: OutboxStatus = reachedLimit ? 'dead_letter' : 'retrying';
       const updatedAt = nowIso();
 
@@ -998,9 +999,10 @@ export async function markOutboxJobFailed(
 
   const attempts = existing.attempts + 1;
   const reachedLimit = attempts >= existing.maxAttempts;
+  const backoffMs = Math.min(60_000, 1_000 * 4 ** Math.max(0, attempts - 1));
   const nextAttemptAt = reachedLimit
     ? existing.nextAttemptAt
-    : new Date(Date.now() + Math.min(60_000, 1_000 * 2 ** attempts)).toISOString();
+    : new Date(Date.now() + backoffMs).toISOString();
 
   inMemory.outbox.set(jobId, {
     ...existing,

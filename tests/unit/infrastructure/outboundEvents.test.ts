@@ -57,4 +57,25 @@ describe('outbound event model', () => {
       'webhook',
     ]);
   });
+
+  it('maps registration events to email.registration and webhook providers', () => {
+    const jobs = mapEventToOutboxJobs({
+      version: 'v1',
+      id: 'evt-registration',
+      type: 'submission.registration.created',
+      occurredAt: new Date().toISOString(),
+      payload: {
+        publicId: 'reg-1',
+        eventId: 'event-1',
+        eventTitle: 'Concert',
+        submittedAt: new Date().toISOString(),
+        isPaid: true,
+      },
+    });
+
+    expect(jobs.map((job) => job.provider)).toEqual([
+      'email.registration',
+      'webhook',
+    ]);
+  });
 });

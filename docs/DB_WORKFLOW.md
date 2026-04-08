@@ -34,3 +34,7 @@
   - `POSTGRES_URL='<env_db_url>' npm run db:schema:ensure:check`
 - To apply missing migrations to that DB:
   - `POSTGRES_URL='<env_db_url>' npm run db:schema:ensure`
+
+## Operator Queries
+- Registration submission export/delete SQL reference:
+  - `docs/REGISTRATION_SUBMISSIONS_OPERATIONS.md`

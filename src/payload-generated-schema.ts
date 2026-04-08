@@ -862,6 +862,125 @@ export const enum__logos_v_version_status = pgEnum(
   "enum__logos_v_version_status",
   ["draft", "published"],
 );
+export const enum_org_events_event_type = pgEnum("enum_org_events_event_type", [
+  "concert",
+  "competition",
+  "festival",
+  "workshop",
+]);
+export const enum_org_events_event_status = pgEnum(
+  "enum_org_events_event_status",
+  ["upcoming_planned", "current_ongoing", "past_completed"],
+);
+export const enum_org_events_workflow_status = pgEnum(
+  "enum_org_events_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published"],
+);
+export const enum_org_events_status = pgEnum("enum_org_events_status", [
+  "draft",
+  "published",
+]);
+export const enum__org_events_v_version_event_type = pgEnum(
+  "enum__org_events_v_version_event_type",
+  ["concert", "competition", "festival", "workshop"],
+);
+export const enum__org_events_v_version_event_status = pgEnum(
+  "enum__org_events_v_version_event_status",
+  ["upcoming_planned", "current_ongoing", "past_completed"],
+);
+export const enum__org_events_v_version_workflow_status = pgEnum(
+  "enum__org_events_v_version_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published"],
+);
+export const enum__org_events_v_version_status = pgEnum(
+  "enum__org_events_v_version_status",
+  ["draft", "published"],
+);
+export const enum_org_spotlight_category = pgEnum(
+  "enum_org_spotlight_category",
+  [
+    "student",
+    "teacher",
+    "volunteer",
+    "local_organization",
+    "local_prominent_artist",
+  ],
+);
+export const enum_org_spotlight_workflow_status = pgEnum(
+  "enum_org_spotlight_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published"],
+);
+export const enum_org_spotlight_status = pgEnum("enum_org_spotlight_status", [
+  "draft",
+  "published",
+]);
+export const enum__org_spotlight_v_version_category = pgEnum(
+  "enum__org_spotlight_v_version_category",
+  [
+    "student",
+    "teacher",
+    "volunteer",
+    "local_organization",
+    "local_prominent_artist",
+  ],
+);
+export const enum__org_spotlight_v_version_workflow_status = pgEnum(
+  "enum__org_spotlight_v_version_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published"],
+);
+export const enum__org_spotlight_v_version_status = pgEnum(
+  "enum__org_spotlight_v_version_status",
+  ["draft", "published"],
+);
+export const enum_org_about_profiles_category = pgEnum(
+  "enum_org_about_profiles_category",
+  ["founder", "volunteer_team", "mentor"],
+);
+export const enum_org_about_profiles_workflow_status = pgEnum(
+  "enum_org_about_profiles_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published"],
+);
+export const enum_org_about_profiles_status = pgEnum(
+  "enum_org_about_profiles_status",
+  ["draft", "published"],
+);
+export const enum__org_about_profiles_v_version_category = pgEnum(
+  "enum__org_about_profiles_v_version_category",
+  ["founder", "volunteer_team", "mentor"],
+);
+export const enum__org_about_profiles_v_version_workflow_status = pgEnum(
+  "enum__org_about_profiles_v_version_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published"],
+);
+export const enum__org_about_profiles_v_version_status = pgEnum(
+  "enum__org_about_profiles_v_version_status",
+  ["draft", "published"],
+);
+export const enum_org_learning_category = pgEnum("enum_org_learning_category", [
+  "knowledge_sharing",
+  "college_prep",
+  "mentorship",
+]);
+export const enum_org_learning_workflow_status = pgEnum(
+  "enum_org_learning_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published"],
+);
+export const enum_org_learning_status = pgEnum("enum_org_learning_status", [
+  "draft",
+  "published",
+]);
+export const enum__org_learning_v_version_category = pgEnum(
+  "enum__org_learning_v_version_category",
+  ["knowledge_sharing", "college_prep", "mentorship"],
+);
+export const enum__org_learning_v_version_workflow_status = pgEnum(
+  "enum__org_learning_v_version_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published"],
+);
+export const enum__org_learning_v_version_status = pgEnum(
+  "enum__org_learning_v_version_status",
+  ["draft", "published"],
+);
 export const enum_forms_confirmation_type = pgEnum(
   "enum_forms_confirmation_type",
   ["message", "redirect"],
@@ -936,6 +1055,10 @@ export const enum_payload_query_presets_related_collection = pgEnum(
     "testimonials",
     "team-members",
     "logos",
+    "org-events",
+    "org-spotlight",
+    "org-about-profiles",
+    "org-learning",
     "forms",
   ],
 );
@@ -961,6 +1084,54 @@ export const enum_ui_settings_status = pgEnum("enum_ui_settings_status", [
 ]);
 export const enum__ui_settings_v_version_status = pgEnum(
   "enum__ui_settings_v_version_status",
+  ["draft", "published"],
+);
+export const enum_org_sponsors_display_order = pgEnum(
+  "enum_org_sponsors_display_order",
+  [
+    "support_summary",
+    "sponsor_acknowledgment",
+    "donation_instructions",
+    "payment_instructions",
+    "sponsor_logos",
+    "support_faq",
+    "featured_supporter_text",
+  ],
+);
+export const enum_org_sponsors_status = pgEnum("enum_org_sponsors_status", [
+  "draft",
+  "published",
+]);
+export const enum__org_sponsors_v_version_display_order = pgEnum(
+  "enum__org_sponsors_v_version_display_order",
+  [
+    "support_summary",
+    "sponsor_acknowledgment",
+    "donation_instructions",
+    "payment_instructions",
+    "sponsor_logos",
+    "support_faq",
+    "featured_supporter_text",
+  ],
+);
+export const enum__org_sponsors_v_version_status = pgEnum(
+  "enum__org_sponsors_v_version_status",
+  ["draft", "published"],
+);
+export const enum_org_home_features_home_section_order = pgEnum(
+  "enum_org_home_features_home_section_order",
+  ["events", "spotlight", "learning", "sponsors"],
+);
+export const enum_org_home_features_status = pgEnum(
+  "enum_org_home_features_status",
+  ["draft", "published"],
+);
+export const enum__org_home_features_v_version_home_section_order = pgEnum(
+  "enum__org_home_features_v_version_home_section_order",
+  ["events", "spotlight", "learning", "sponsors"],
+);
+export const enum__org_home_features_v_version_status = pgEnum(
+  "enum__org_home_features_v_version_status",
   ["draft", "published"],
 );
 
@@ -4192,6 +4363,1376 @@ export const email_templates = pgTable(
   ],
 );
 
+export const org_events_media_gallery = pgTable(
+  "org_events_media_gallery",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: varchar("id").primaryKey(),
+    image: integer("image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+  },
+  (columns) => [
+    index("org_events_media_gallery_order_idx").on(columns._order),
+    index("org_events_media_gallery_parent_id_idx").on(columns._parentID),
+    index("org_events_media_gallery_image_idx").on(columns.image),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [org_events.id],
+      name: "org_events_media_gallery_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_events_external_links = pgTable(
+  "org_events_external_links",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: varchar("id").primaryKey(),
+    label: varchar("label"),
+    url: varchar("url"),
+  },
+  (columns) => [
+    index("org_events_external_links_order_idx").on(columns._order),
+    index("org_events_external_links_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [org_events.id],
+      name: "org_events_external_links_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_events = pgTable(
+  "org_events",
+  {
+    id: serial("id").primaryKey(),
+    title: varchar("title"),
+    slug: varchar("slug"),
+    eventType: enum_org_events_event_type("event_type"),
+    eventStatus:
+      enum_org_events_event_status("event_status").default("upcoming_planned"),
+    startDate: timestamp("start_date", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    endDate: timestamp("end_date", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    startTime: varchar("start_time"),
+    endTime: varchar("end_time"),
+    eventTimezone: varchar("event_timezone").default("UTC"),
+    shortSummary: varchar("short_summary"),
+    description: jsonb("description"),
+    heroImage: integer("hero_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    venue: varchar("venue"),
+    location: varchar("location"),
+    isFeatured: boolean("is_featured").default(false),
+    displayPriority: numeric("display_priority", { mode: "number" }).default(0),
+    registrationRequired: boolean("registration_required").default(false),
+    paymentRequired: boolean("payment_required").default(false),
+    registrationInstructions: jsonb("registration_instructions"),
+    paymentReferenceFormat: varchar("payment_reference_format"),
+    zelleQrCode: integer("zelle_qr_code_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    venmoQrCode: integer("venmo_qr_code_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    paymentInstructions: jsonb("payment_instructions"),
+    maxRegistrations: numeric("max_registrations", { mode: "number" }),
+    registrationOpensAt: timestamp("registration_opens_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    registrationClosesAt: timestamp("registration_closes_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    displayWindowStart: timestamp("display_window_start", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    displayWindowEnd: timestamp("display_window_end", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    createdBy: integer("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    workflowStatus:
+      enum_org_events_workflow_status("workflow_status").default("draft"),
+    submittedBy: integer("submitted_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    submittedAt: timestamp("submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    reviewChecklistComplete: boolean("review_checklist_complete").default(
+      false,
+    ),
+    reviewSummary: varchar("review_summary"),
+    approvedBy: integer("approved_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    approvedAt: timestamp("approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    rejectionReason: varchar("rejection_reason"),
+    seo_metaTitle: varchar("seo_meta_title"),
+    seo_metaDescription: varchar("seo_meta_description"),
+    seo_ogTitle: varchar("seo_og_title"),
+    seo_ogDescription: varchar("seo_og_description"),
+    seo_ogImage: integer("seo_og_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    seo_canonicalUrl: varchar("seo_canonical_url"),
+    seo_noindex: boolean("seo_noindex").default(false),
+    seo_nofollow: boolean("seo_nofollow").default(false),
+    seo_includeInSitemap: boolean("seo_include_in_sitemap").default(true),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    _status: enum_org_events_status("_status").default("draft"),
+  },
+  (columns) => [
+    uniqueIndex("org_events_slug_idx").on(columns.slug),
+    index("org_events_hero_image_idx").on(columns.heroImage),
+    index("org_events_zelle_qr_code_idx").on(columns.zelleQrCode),
+    index("org_events_venmo_qr_code_idx").on(columns.venmoQrCode),
+    index("org_events_created_by_idx").on(columns.createdBy),
+    index("org_events_submitted_by_idx").on(columns.submittedBy),
+    index("org_events_approved_by_idx").on(columns.approvedBy),
+    index("org_events_seo_seo_og_image_idx").on(columns.seo_ogImage),
+    index("org_events_updated_at_idx").on(columns.updatedAt),
+    index("org_events_created_at_idx").on(columns.createdAt),
+    index("org_events__status_idx").on(columns._status),
+  ],
+);
+
+export const org_events_rels = pgTable(
+  "org_events_rels",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    "org-spotlightID": integer("org_spotlight_id"),
+    "org-learningID": integer("org_learning_id"),
+    "org-eventsID": integer("org_events_id"),
+  },
+  (columns) => [
+    index("org_events_rels_order_idx").on(columns.order),
+    index("org_events_rels_parent_idx").on(columns.parent),
+    index("org_events_rels_path_idx").on(columns.path),
+    index("org_events_rels_org_spotlight_id_idx").on(
+      columns["org-spotlightID"],
+    ),
+    index("org_events_rels_org_learning_id_idx").on(columns["org-learningID"]),
+    index("org_events_rels_org_events_id_idx").on(columns["org-eventsID"]),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [org_events.id],
+      name: "org_events_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-spotlightID"]],
+      foreignColumns: [org_spotlight.id],
+      name: "org_events_rels_org_spotlight_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-learningID"]],
+      foreignColumns: [org_learning.id],
+      name: "org_events_rels_org_learning_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-eventsID"]],
+      foreignColumns: [org_events.id],
+      name: "org_events_rels_org_events_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _org_events_v_version_media_gallery = pgTable(
+  "_org_events_v_version_media_gallery",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: serial("id").primaryKey(),
+    image: integer("image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    _uuid: varchar("_uuid"),
+  },
+  (columns) => [
+    index("_org_events_v_version_media_gallery_order_idx").on(columns._order),
+    index("_org_events_v_version_media_gallery_parent_id_idx").on(
+      columns._parentID,
+    ),
+    index("_org_events_v_version_media_gallery_image_idx").on(columns.image),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_org_events_v.id],
+      name: "_org_events_v_version_media_gallery_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _org_events_v_version_external_links = pgTable(
+  "_org_events_v_version_external_links",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: serial("id").primaryKey(),
+    label: varchar("label"),
+    url: varchar("url"),
+    _uuid: varchar("_uuid"),
+  },
+  (columns) => [
+    index("_org_events_v_version_external_links_order_idx").on(columns._order),
+    index("_org_events_v_version_external_links_parent_id_idx").on(
+      columns._parentID,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_org_events_v.id],
+      name: "_org_events_v_version_external_links_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _org_events_v = pgTable(
+  "_org_events_v",
+  {
+    id: serial("id").primaryKey(),
+    parent: integer("parent_id").references(() => org_events.id, {
+      onDelete: "set null",
+    }),
+    version_title: varchar("version_title"),
+    version_slug: varchar("version_slug"),
+    version_eventType:
+      enum__org_events_v_version_event_type("version_event_type"),
+    version_eventStatus: enum__org_events_v_version_event_status(
+      "version_event_status",
+    ).default("upcoming_planned"),
+    version_startDate: timestamp("version_start_date", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_endDate: timestamp("version_end_date", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_startTime: varchar("version_start_time"),
+    version_endTime: varchar("version_end_time"),
+    version_eventTimezone: varchar("version_event_timezone").default("UTC"),
+    version_shortSummary: varchar("version_short_summary"),
+    version_description: jsonb("version_description"),
+    version_heroImage: integer("version_hero_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_venue: varchar("version_venue"),
+    version_location: varchar("version_location"),
+    version_isFeatured: boolean("version_is_featured").default(false),
+    version_displayPriority: numeric("version_display_priority", {
+      mode: "number",
+    }).default(0),
+    version_registrationRequired: boolean(
+      "version_registration_required",
+    ).default(false),
+    version_paymentRequired: boolean("version_payment_required").default(false),
+    version_registrationInstructions: jsonb(
+      "version_registration_instructions",
+    ),
+    version_paymentReferenceFormat: varchar("version_payment_reference_format"),
+    version_zelleQrCode: integer("version_zelle_qr_code_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_venmoQrCode: integer("version_venmo_qr_code_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_paymentInstructions: jsonb("version_payment_instructions"),
+    version_maxRegistrations: numeric("version_max_registrations", {
+      mode: "number",
+    }),
+    version_registrationOpensAt: timestamp("version_registration_opens_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_registrationClosesAt: timestamp("version_registration_closes_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_displayWindowStart: timestamp("version_display_window_start", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_displayWindowEnd: timestamp("version_display_window_end", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_createdBy: integer("version_created_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_workflowStatus: enum__org_events_v_version_workflow_status(
+      "version_workflow_status",
+    ).default("draft"),
+    version_submittedBy: integer("version_submitted_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_submittedAt: timestamp("version_submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_reviewChecklistComplete: boolean(
+      "version_review_checklist_complete",
+    ).default(false),
+    version_reviewSummary: varchar("version_review_summary"),
+    version_approvedBy: integer("version_approved_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_approvedAt: timestamp("version_approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_rejectionReason: varchar("version_rejection_reason"),
+    version_seo_metaTitle: varchar("version_seo_meta_title"),
+    version_seo_metaDescription: varchar("version_seo_meta_description"),
+    version_seo_ogTitle: varchar("version_seo_og_title"),
+    version_seo_ogDescription: varchar("version_seo_og_description"),
+    version_seo_ogImage: integer("version_seo_og_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_seo_canonicalUrl: varchar("version_seo_canonical_url"),
+    version_seo_noindex: boolean("version_seo_noindex").default(false),
+    version_seo_nofollow: boolean("version_seo_nofollow").default(false),
+    version_seo_includeInSitemap: boolean(
+      "version_seo_include_in_sitemap",
+    ).default(true),
+    version_updatedAt: timestamp("version_updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_createdAt: timestamp("version_created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version__status:
+      enum__org_events_v_version_status("version__status").default("draft"),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    latest: boolean("latest"),
+  },
+  (columns) => [
+    index("_org_events_v_parent_idx").on(columns.parent),
+    index("_org_events_v_version_version_slug_idx").on(columns.version_slug),
+    index("_org_events_v_version_version_hero_image_idx").on(
+      columns.version_heroImage,
+    ),
+    index("_org_events_v_version_version_zelle_qr_code_idx").on(
+      columns.version_zelleQrCode,
+    ),
+    index("_org_events_v_version_version_venmo_qr_code_idx").on(
+      columns.version_venmoQrCode,
+    ),
+    index("_org_events_v_version_version_created_by_idx").on(
+      columns.version_createdBy,
+    ),
+    index("_org_events_v_version_version_submitted_by_idx").on(
+      columns.version_submittedBy,
+    ),
+    index("_org_events_v_version_version_approved_by_idx").on(
+      columns.version_approvedBy,
+    ),
+    index("_org_events_v_version_seo_version_seo_og_image_idx").on(
+      columns.version_seo_ogImage,
+    ),
+    index("_org_events_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_org_events_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_org_events_v_version_version__status_idx").on(
+      columns.version__status,
+    ),
+    index("_org_events_v_created_at_idx").on(columns.createdAt),
+    index("_org_events_v_updated_at_idx").on(columns.updatedAt),
+    index("_org_events_v_latest_idx").on(columns.latest),
+  ],
+);
+
+export const _org_events_v_rels = pgTable(
+  "_org_events_v_rels",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    "org-spotlightID": integer("org_spotlight_id"),
+    "org-learningID": integer("org_learning_id"),
+    "org-eventsID": integer("org_events_id"),
+  },
+  (columns) => [
+    index("_org_events_v_rels_order_idx").on(columns.order),
+    index("_org_events_v_rels_parent_idx").on(columns.parent),
+    index("_org_events_v_rels_path_idx").on(columns.path),
+    index("_org_events_v_rels_org_spotlight_id_idx").on(
+      columns["org-spotlightID"],
+    ),
+    index("_org_events_v_rels_org_learning_id_idx").on(
+      columns["org-learningID"],
+    ),
+    index("_org_events_v_rels_org_events_id_idx").on(columns["org-eventsID"]),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [_org_events_v.id],
+      name: "_org_events_v_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-spotlightID"]],
+      foreignColumns: [org_spotlight.id],
+      name: "_org_events_v_rels_org_spotlight_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-learningID"]],
+      foreignColumns: [org_learning.id],
+      name: "_org_events_v_rels_org_learning_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-eventsID"]],
+      foreignColumns: [org_events.id],
+      name: "_org_events_v_rels_org_events_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_spotlight_additional_images = pgTable(
+  "org_spotlight_additional_images",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: varchar("id").primaryKey(),
+    image: integer("image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+  },
+  (columns) => [
+    index("org_spotlight_additional_images_order_idx").on(columns._order),
+    index("org_spotlight_additional_images_parent_id_idx").on(
+      columns._parentID,
+    ),
+    index("org_spotlight_additional_images_image_idx").on(columns.image),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [org_spotlight.id],
+      name: "org_spotlight_additional_images_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_spotlight = pgTable(
+  "org_spotlight",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name"),
+    slug: varchar("slug"),
+    category: enum_org_spotlight_category("category"),
+    shortSummary: varchar("short_summary"),
+    detailContent: jsonb("detail_content"),
+    thumbnailImage: integer("thumbnail_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    roleTitle: varchar("role_title"),
+    affiliation: varchar("affiliation"),
+    isFeatured: boolean("is_featured").default(false),
+    displayOrder: numeric("display_order", { mode: "number" }).default(0),
+    externalLink: varchar("external_link"),
+    createdBy: integer("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    workflowStatus:
+      enum_org_spotlight_workflow_status("workflow_status").default("draft"),
+    submittedBy: integer("submitted_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    submittedAt: timestamp("submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    reviewChecklistComplete: boolean("review_checklist_complete").default(
+      false,
+    ),
+    reviewSummary: varchar("review_summary"),
+    approvedBy: integer("approved_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    approvedAt: timestamp("approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    rejectionReason: varchar("rejection_reason"),
+    seo_metaTitle: varchar("seo_meta_title"),
+    seo_metaDescription: varchar("seo_meta_description"),
+    seo_ogTitle: varchar("seo_og_title"),
+    seo_ogDescription: varchar("seo_og_description"),
+    seo_ogImage: integer("seo_og_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    seo_canonicalUrl: varchar("seo_canonical_url"),
+    seo_noindex: boolean("seo_noindex").default(false),
+    seo_nofollow: boolean("seo_nofollow").default(false),
+    seo_includeInSitemap: boolean("seo_include_in_sitemap").default(true),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    _status: enum_org_spotlight_status("_status").default("draft"),
+  },
+  (columns) => [
+    uniqueIndex("org_spotlight_slug_idx").on(columns.slug),
+    index("org_spotlight_thumbnail_image_idx").on(columns.thumbnailImage),
+    index("org_spotlight_created_by_idx").on(columns.createdBy),
+    index("org_spotlight_submitted_by_idx").on(columns.submittedBy),
+    index("org_spotlight_approved_by_idx").on(columns.approvedBy),
+    index("org_spotlight_seo_seo_og_image_idx").on(columns.seo_ogImage),
+    index("org_spotlight_updated_at_idx").on(columns.updatedAt),
+    index("org_spotlight_created_at_idx").on(columns.createdAt),
+    index("org_spotlight__status_idx").on(columns._status),
+  ],
+);
+
+export const org_spotlight_rels = pgTable(
+  "org_spotlight_rels",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    "org-eventsID": integer("org_events_id"),
+  },
+  (columns) => [
+    index("org_spotlight_rels_order_idx").on(columns.order),
+    index("org_spotlight_rels_parent_idx").on(columns.parent),
+    index("org_spotlight_rels_path_idx").on(columns.path),
+    index("org_spotlight_rels_org_events_id_idx").on(columns["org-eventsID"]),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [org_spotlight.id],
+      name: "org_spotlight_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-eventsID"]],
+      foreignColumns: [org_events.id],
+      name: "org_spotlight_rels_org_events_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _org_spotlight_v_version_additional_images = pgTable(
+  "_org_spotlight_v_version_additional_images",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: serial("id").primaryKey(),
+    image: integer("image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    _uuid: varchar("_uuid"),
+  },
+  (columns) => [
+    index("_org_spotlight_v_version_additional_images_order_idx").on(
+      columns._order,
+    ),
+    index("_org_spotlight_v_version_additional_images_parent_id_idx").on(
+      columns._parentID,
+    ),
+    index("_org_spotlight_v_version_additional_images_image_idx").on(
+      columns.image,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_org_spotlight_v.id],
+      name: "_org_spotlight_v_version_additional_images_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _org_spotlight_v = pgTable(
+  "_org_spotlight_v",
+  {
+    id: serial("id").primaryKey(),
+    parent: integer("parent_id").references(() => org_spotlight.id, {
+      onDelete: "set null",
+    }),
+    version_name: varchar("version_name"),
+    version_slug: varchar("version_slug"),
+    version_category:
+      enum__org_spotlight_v_version_category("version_category"),
+    version_shortSummary: varchar("version_short_summary"),
+    version_detailContent: jsonb("version_detail_content"),
+    version_thumbnailImage: integer("version_thumbnail_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_roleTitle: varchar("version_role_title"),
+    version_affiliation: varchar("version_affiliation"),
+    version_isFeatured: boolean("version_is_featured").default(false),
+    version_displayOrder: numeric("version_display_order", {
+      mode: "number",
+    }).default(0),
+    version_externalLink: varchar("version_external_link"),
+    version_createdBy: integer("version_created_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_workflowStatus: enum__org_spotlight_v_version_workflow_status(
+      "version_workflow_status",
+    ).default("draft"),
+    version_submittedBy: integer("version_submitted_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_submittedAt: timestamp("version_submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_reviewChecklistComplete: boolean(
+      "version_review_checklist_complete",
+    ).default(false),
+    version_reviewSummary: varchar("version_review_summary"),
+    version_approvedBy: integer("version_approved_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_approvedAt: timestamp("version_approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_rejectionReason: varchar("version_rejection_reason"),
+    version_seo_metaTitle: varchar("version_seo_meta_title"),
+    version_seo_metaDescription: varchar("version_seo_meta_description"),
+    version_seo_ogTitle: varchar("version_seo_og_title"),
+    version_seo_ogDescription: varchar("version_seo_og_description"),
+    version_seo_ogImage: integer("version_seo_og_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_seo_canonicalUrl: varchar("version_seo_canonical_url"),
+    version_seo_noindex: boolean("version_seo_noindex").default(false),
+    version_seo_nofollow: boolean("version_seo_nofollow").default(false),
+    version_seo_includeInSitemap: boolean(
+      "version_seo_include_in_sitemap",
+    ).default(true),
+    version_updatedAt: timestamp("version_updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_createdAt: timestamp("version_created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version__status:
+      enum__org_spotlight_v_version_status("version__status").default("draft"),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    latest: boolean("latest"),
+  },
+  (columns) => [
+    index("_org_spotlight_v_parent_idx").on(columns.parent),
+    index("_org_spotlight_v_version_version_slug_idx").on(columns.version_slug),
+    index("_org_spotlight_v_version_version_thumbnail_image_idx").on(
+      columns.version_thumbnailImage,
+    ),
+    index("_org_spotlight_v_version_version_created_by_idx").on(
+      columns.version_createdBy,
+    ),
+    index("_org_spotlight_v_version_version_submitted_by_idx").on(
+      columns.version_submittedBy,
+    ),
+    index("_org_spotlight_v_version_version_approved_by_idx").on(
+      columns.version_approvedBy,
+    ),
+    index("_org_spotlight_v_version_seo_version_seo_og_image_idx").on(
+      columns.version_seo_ogImage,
+    ),
+    index("_org_spotlight_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_org_spotlight_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_org_spotlight_v_version_version__status_idx").on(
+      columns.version__status,
+    ),
+    index("_org_spotlight_v_created_at_idx").on(columns.createdAt),
+    index("_org_spotlight_v_updated_at_idx").on(columns.updatedAt),
+    index("_org_spotlight_v_latest_idx").on(columns.latest),
+  ],
+);
+
+export const _org_spotlight_v_rels = pgTable(
+  "_org_spotlight_v_rels",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    "org-eventsID": integer("org_events_id"),
+  },
+  (columns) => [
+    index("_org_spotlight_v_rels_order_idx").on(columns.order),
+    index("_org_spotlight_v_rels_parent_idx").on(columns.parent),
+    index("_org_spotlight_v_rels_path_idx").on(columns.path),
+    index("_org_spotlight_v_rels_org_events_id_idx").on(
+      columns["org-eventsID"],
+    ),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [_org_spotlight_v.id],
+      name: "_org_spotlight_v_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-eventsID"]],
+      foreignColumns: [org_events.id],
+      name: "_org_spotlight_v_rels_org_events_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_about_profiles_additional_images = pgTable(
+  "org_about_profiles_additional_images",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: varchar("id").primaryKey(),
+    image: integer("image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+  },
+  (columns) => [
+    index("org_about_profiles_additional_images_order_idx").on(columns._order),
+    index("org_about_profiles_additional_images_parent_id_idx").on(
+      columns._parentID,
+    ),
+    index("org_about_profiles_additional_images_image_idx").on(columns.image),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [org_about_profiles.id],
+      name: "org_about_profiles_additional_images_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_about_profiles = pgTable(
+  "org_about_profiles",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name"),
+    slug: varchar("slug"),
+    category: enum_org_about_profiles_category("category"),
+    shortBio: varchar("short_bio"),
+    detailContent: jsonb("detail_content"),
+    profileImage: integer("profile_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    roleTitle: varchar("role_title"),
+    affiliation: varchar("affiliation"),
+    displayOrder: numeric("display_order", { mode: "number" }).default(0),
+    externalLink: varchar("external_link"),
+    createdBy: integer("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    workflowStatus:
+      enum_org_about_profiles_workflow_status("workflow_status").default(
+        "draft",
+      ),
+    submittedBy: integer("submitted_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    submittedAt: timestamp("submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    reviewChecklistComplete: boolean("review_checklist_complete").default(
+      false,
+    ),
+    reviewSummary: varchar("review_summary"),
+    approvedBy: integer("approved_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    approvedAt: timestamp("approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    rejectionReason: varchar("rejection_reason"),
+    seo_metaTitle: varchar("seo_meta_title"),
+    seo_metaDescription: varchar("seo_meta_description"),
+    seo_ogTitle: varchar("seo_og_title"),
+    seo_ogDescription: varchar("seo_og_description"),
+    seo_ogImage: integer("seo_og_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    seo_canonicalUrl: varchar("seo_canonical_url"),
+    seo_noindex: boolean("seo_noindex").default(false),
+    seo_nofollow: boolean("seo_nofollow").default(false),
+    seo_includeInSitemap: boolean("seo_include_in_sitemap").default(true),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    _status: enum_org_about_profiles_status("_status").default("draft"),
+  },
+  (columns) => [
+    uniqueIndex("org_about_profiles_slug_idx").on(columns.slug),
+    index("org_about_profiles_profile_image_idx").on(columns.profileImage),
+    index("org_about_profiles_created_by_idx").on(columns.createdBy),
+    index("org_about_profiles_submitted_by_idx").on(columns.submittedBy),
+    index("org_about_profiles_approved_by_idx").on(columns.approvedBy),
+    index("org_about_profiles_seo_seo_og_image_idx").on(columns.seo_ogImage),
+    index("org_about_profiles_updated_at_idx").on(columns.updatedAt),
+    index("org_about_profiles_created_at_idx").on(columns.createdAt),
+    index("org_about_profiles__status_idx").on(columns._status),
+  ],
+);
+
+export const _org_about_profiles_v_version_additional_images = pgTable(
+  "_org_about_profiles_v_version_additional_images",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: serial("id").primaryKey(),
+    image: integer("image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    _uuid: varchar("_uuid"),
+  },
+  (columns) => [
+    index("_org_about_profiles_v_version_additional_images_order_idx").on(
+      columns._order,
+    ),
+    index("_org_about_profiles_v_version_additional_images_parent_id_idx").on(
+      columns._parentID,
+    ),
+    index("_org_about_profiles_v_version_additional_images_image_idx").on(
+      columns.image,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_org_about_profiles_v.id],
+      name: "_org_about_profiles_v_version_additional_images_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _org_about_profiles_v = pgTable(
+  "_org_about_profiles_v",
+  {
+    id: serial("id").primaryKey(),
+    parent: integer("parent_id").references(() => org_about_profiles.id, {
+      onDelete: "set null",
+    }),
+    version_name: varchar("version_name"),
+    version_slug: varchar("version_slug"),
+    version_category:
+      enum__org_about_profiles_v_version_category("version_category"),
+    version_shortBio: varchar("version_short_bio"),
+    version_detailContent: jsonb("version_detail_content"),
+    version_profileImage: integer("version_profile_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_roleTitle: varchar("version_role_title"),
+    version_affiliation: varchar("version_affiliation"),
+    version_displayOrder: numeric("version_display_order", {
+      mode: "number",
+    }).default(0),
+    version_externalLink: varchar("version_external_link"),
+    version_createdBy: integer("version_created_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_workflowStatus: enum__org_about_profiles_v_version_workflow_status(
+      "version_workflow_status",
+    ).default("draft"),
+    version_submittedBy: integer("version_submitted_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_submittedAt: timestamp("version_submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_reviewChecklistComplete: boolean(
+      "version_review_checklist_complete",
+    ).default(false),
+    version_reviewSummary: varchar("version_review_summary"),
+    version_approvedBy: integer("version_approved_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_approvedAt: timestamp("version_approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_rejectionReason: varchar("version_rejection_reason"),
+    version_seo_metaTitle: varchar("version_seo_meta_title"),
+    version_seo_metaDescription: varchar("version_seo_meta_description"),
+    version_seo_ogTitle: varchar("version_seo_og_title"),
+    version_seo_ogDescription: varchar("version_seo_og_description"),
+    version_seo_ogImage: integer("version_seo_og_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_seo_canonicalUrl: varchar("version_seo_canonical_url"),
+    version_seo_noindex: boolean("version_seo_noindex").default(false),
+    version_seo_nofollow: boolean("version_seo_nofollow").default(false),
+    version_seo_includeInSitemap: boolean(
+      "version_seo_include_in_sitemap",
+    ).default(true),
+    version_updatedAt: timestamp("version_updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_createdAt: timestamp("version_created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version__status:
+      enum__org_about_profiles_v_version_status("version__status").default(
+        "draft",
+      ),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    latest: boolean("latest"),
+  },
+  (columns) => [
+    index("_org_about_profiles_v_parent_idx").on(columns.parent),
+    index("_org_about_profiles_v_version_version_slug_idx").on(
+      columns.version_slug,
+    ),
+    index("_org_about_profiles_v_version_version_profile_image_idx").on(
+      columns.version_profileImage,
+    ),
+    index("_org_about_profiles_v_version_version_created_by_idx").on(
+      columns.version_createdBy,
+    ),
+    index("_org_about_profiles_v_version_version_submitted_by_idx").on(
+      columns.version_submittedBy,
+    ),
+    index("_org_about_profiles_v_version_version_approved_by_idx").on(
+      columns.version_approvedBy,
+    ),
+    index("_org_about_profiles_v_version_seo_version_seo_og_image_idx").on(
+      columns.version_seo_ogImage,
+    ),
+    index("_org_about_profiles_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_org_about_profiles_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_org_about_profiles_v_version_version__status_idx").on(
+      columns.version__status,
+    ),
+    index("_org_about_profiles_v_created_at_idx").on(columns.createdAt),
+    index("_org_about_profiles_v_updated_at_idx").on(columns.updatedAt),
+    index("_org_about_profiles_v_latest_idx").on(columns.latest),
+  ],
+);
+
+export const org_learning = pgTable(
+  "org_learning",
+  {
+    id: serial("id").primaryKey(),
+    title: varchar("title"),
+    slug: varchar("slug"),
+    category: enum_org_learning_category("category"),
+    shortSummary: varchar("short_summary"),
+    detailContent: jsonb("detail_content"),
+    thumbnail: integer("thumbnail_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    author: varchar("author"),
+    isFeatured: boolean("is_featured").default(false),
+    displayOrder: numeric("display_order", { mode: "number" }).default(0),
+    externalReferenceLink: varchar("external_reference_link"),
+    relatedEvent: integer("related_event_id").references(() => org_events.id, {
+      onDelete: "set null",
+    }),
+    relatedSpotlight: integer("related_spotlight_id").references(
+      () => org_spotlight.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    createdBy: integer("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    workflowStatus:
+      enum_org_learning_workflow_status("workflow_status").default("draft"),
+    submittedBy: integer("submitted_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    submittedAt: timestamp("submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    reviewChecklistComplete: boolean("review_checklist_complete").default(
+      false,
+    ),
+    reviewSummary: varchar("review_summary"),
+    approvedBy: integer("approved_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    approvedAt: timestamp("approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    rejectionReason: varchar("rejection_reason"),
+    seo_metaTitle: varchar("seo_meta_title"),
+    seo_metaDescription: varchar("seo_meta_description"),
+    seo_ogTitle: varchar("seo_og_title"),
+    seo_ogDescription: varchar("seo_og_description"),
+    seo_ogImage: integer("seo_og_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    seo_canonicalUrl: varchar("seo_canonical_url"),
+    seo_noindex: boolean("seo_noindex").default(false),
+    seo_nofollow: boolean("seo_nofollow").default(false),
+    seo_includeInSitemap: boolean("seo_include_in_sitemap").default(true),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    _status: enum_org_learning_status("_status").default("draft"),
+  },
+  (columns) => [
+    uniqueIndex("org_learning_slug_idx").on(columns.slug),
+    index("org_learning_thumbnail_idx").on(columns.thumbnail),
+    index("org_learning_related_event_idx").on(columns.relatedEvent),
+    index("org_learning_related_spotlight_idx").on(columns.relatedSpotlight),
+    index("org_learning_created_by_idx").on(columns.createdBy),
+    index("org_learning_submitted_by_idx").on(columns.submittedBy),
+    index("org_learning_approved_by_idx").on(columns.approvedBy),
+    index("org_learning_seo_seo_og_image_idx").on(columns.seo_ogImage),
+    index("org_learning_updated_at_idx").on(columns.updatedAt),
+    index("org_learning_created_at_idx").on(columns.createdAt),
+    index("org_learning__status_idx").on(columns._status),
+  ],
+);
+
+export const _org_learning_v = pgTable(
+  "_org_learning_v",
+  {
+    id: serial("id").primaryKey(),
+    parent: integer("parent_id").references(() => org_learning.id, {
+      onDelete: "set null",
+    }),
+    version_title: varchar("version_title"),
+    version_slug: varchar("version_slug"),
+    version_category: enum__org_learning_v_version_category("version_category"),
+    version_shortSummary: varchar("version_short_summary"),
+    version_detailContent: jsonb("version_detail_content"),
+    version_thumbnail: integer("version_thumbnail_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_author: varchar("version_author"),
+    version_isFeatured: boolean("version_is_featured").default(false),
+    version_displayOrder: numeric("version_display_order", {
+      mode: "number",
+    }).default(0),
+    version_externalReferenceLink: varchar("version_external_reference_link"),
+    version_relatedEvent: integer("version_related_event_id").references(
+      () => org_events.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_relatedSpotlight: integer(
+      "version_related_spotlight_id",
+    ).references(() => org_spotlight.id, {
+      onDelete: "set null",
+    }),
+    version_createdBy: integer("version_created_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_workflowStatus: enum__org_learning_v_version_workflow_status(
+      "version_workflow_status",
+    ).default("draft"),
+    version_submittedBy: integer("version_submitted_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_submittedAt: timestamp("version_submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_reviewChecklistComplete: boolean(
+      "version_review_checklist_complete",
+    ).default(false),
+    version_reviewSummary: varchar("version_review_summary"),
+    version_approvedBy: integer("version_approved_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_approvedAt: timestamp("version_approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_rejectionReason: varchar("version_rejection_reason"),
+    version_seo_metaTitle: varchar("version_seo_meta_title"),
+    version_seo_metaDescription: varchar("version_seo_meta_description"),
+    version_seo_ogTitle: varchar("version_seo_og_title"),
+    version_seo_ogDescription: varchar("version_seo_og_description"),
+    version_seo_ogImage: integer("version_seo_og_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_seo_canonicalUrl: varchar("version_seo_canonical_url"),
+    version_seo_noindex: boolean("version_seo_noindex").default(false),
+    version_seo_nofollow: boolean("version_seo_nofollow").default(false),
+    version_seo_includeInSitemap: boolean(
+      "version_seo_include_in_sitemap",
+    ).default(true),
+    version_updatedAt: timestamp("version_updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_createdAt: timestamp("version_created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version__status:
+      enum__org_learning_v_version_status("version__status").default("draft"),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    latest: boolean("latest"),
+  },
+  (columns) => [
+    index("_org_learning_v_parent_idx").on(columns.parent),
+    index("_org_learning_v_version_version_slug_idx").on(columns.version_slug),
+    index("_org_learning_v_version_version_thumbnail_idx").on(
+      columns.version_thumbnail,
+    ),
+    index("_org_learning_v_version_version_related_event_idx").on(
+      columns.version_relatedEvent,
+    ),
+    index("_org_learning_v_version_version_related_spotlight_idx").on(
+      columns.version_relatedSpotlight,
+    ),
+    index("_org_learning_v_version_version_created_by_idx").on(
+      columns.version_createdBy,
+    ),
+    index("_org_learning_v_version_version_submitted_by_idx").on(
+      columns.version_submittedBy,
+    ),
+    index("_org_learning_v_version_version_approved_by_idx").on(
+      columns.version_approvedBy,
+    ),
+    index("_org_learning_v_version_seo_version_seo_og_image_idx").on(
+      columns.version_seo_ogImage,
+    ),
+    index("_org_learning_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_org_learning_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_org_learning_v_version_version__status_idx").on(
+      columns.version__status,
+    ),
+    index("_org_learning_v_created_at_idx").on(columns.createdAt),
+    index("_org_learning_v_updated_at_idx").on(columns.updatedAt),
+    index("_org_learning_v_latest_idx").on(columns.latest),
+  ],
+);
+
 export const search = pgTable(
   "search",
   {
@@ -4892,6 +6433,10 @@ export const payload_locked_documents_rels = pgTable(
     "team-membersID": integer("team_members_id"),
     logosID: integer("logos_id"),
     "email-templatesID": integer("email_templates_id"),
+    "org-eventsID": integer("org_events_id"),
+    "org-spotlightID": integer("org_spotlight_id"),
+    "org-about-profilesID": integer("org_about_profiles_id"),
+    "org-learningID": integer("org_learning_id"),
     searchID: integer("search_id"),
     formsID: integer("forms_id"),
     "form-submissionsID": integer("form_submissions_id"),
@@ -4942,6 +6487,18 @@ export const payload_locked_documents_rels = pgTable(
     index("payload_locked_documents_rels_logos_id_idx").on(columns.logosID),
     index("payload_locked_documents_rels_email_templates_id_idx").on(
       columns["email-templatesID"],
+    ),
+    index("payload_locked_documents_rels_org_events_id_idx").on(
+      columns["org-eventsID"],
+    ),
+    index("payload_locked_documents_rels_org_spotlight_id_idx").on(
+      columns["org-spotlightID"],
+    ),
+    index("payload_locked_documents_rels_org_about_profiles_id_idx").on(
+      columns["org-about-profilesID"],
+    ),
+    index("payload_locked_documents_rels_org_learning_id_idx").on(
+      columns["org-learningID"],
     ),
     index("payload_locked_documents_rels_search_id_idx").on(columns.searchID),
     index("payload_locked_documents_rels_forms_id_idx").on(columns.formsID),
@@ -5035,6 +6592,26 @@ export const payload_locked_documents_rels = pgTable(
       columns: [columns["email-templatesID"]],
       foreignColumns: [email_templates.id],
       name: "payload_locked_documents_rels_email_templates_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-eventsID"]],
+      foreignColumns: [org_events.id],
+      name: "payload_locked_documents_rels_org_events_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-spotlightID"]],
+      foreignColumns: [org_spotlight.id],
+      name: "payload_locked_documents_rels_org_spotlight_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-about-profilesID"]],
+      foreignColumns: [org_about_profiles.id],
+      name: "payload_locked_documents_rels_org_about_profiles_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-learningID"]],
+      foreignColumns: [org_learning.id],
+      name: "payload_locked_documents_rels_org_learning_fk",
     }).onDelete("cascade"),
     foreignKey({
       columns: [columns["searchID"]],
@@ -6394,6 +7971,450 @@ export const _ui_settings_v = pgTable(
   ],
 );
 
+export const org_sponsors_sponsor_logos = pgTable(
+  "org_sponsors_sponsor_logos",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: varchar("id").primaryKey(),
+    logo: integer("logo_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    label: varchar("label"),
+  },
+  (columns) => [
+    index("org_sponsors_sponsor_logos_order_idx").on(columns._order),
+    index("org_sponsors_sponsor_logos_parent_id_idx").on(columns._parentID),
+    index("org_sponsors_sponsor_logos_logo_idx").on(columns.logo),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [org_sponsors.id],
+      name: "org_sponsors_sponsor_logos_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_sponsors_support_faq = pgTable(
+  "org_sponsors_support_faq",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: varchar("id").primaryKey(),
+    question: varchar("question"),
+    answer: varchar("answer"),
+  },
+  (columns) => [
+    index("org_sponsors_support_faq_order_idx").on(columns._order),
+    index("org_sponsors_support_faq_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [org_sponsors.id],
+      name: "org_sponsors_support_faq_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_sponsors_display_order = pgTable(
+  "org_sponsors_display_order",
+  {
+    order: integer("order").notNull(),
+    parent: integer("parent_id").notNull(),
+    value: enum_org_sponsors_display_order("value"),
+    id: serial("id").primaryKey(),
+  },
+  (columns) => [
+    index("org_sponsors_display_order_order_idx").on(columns.order),
+    index("org_sponsors_display_order_parent_idx").on(columns.parent),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [org_sponsors.id],
+      name: "org_sponsors_display_order_parent_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_sponsors = pgTable(
+  "org_sponsors",
+  {
+    id: serial("id").primaryKey(),
+    pageTitle: varchar("page_title"),
+    supportSummary: jsonb("support_summary"),
+    sponsorAcknowledgmentContent: jsonb("sponsor_acknowledgment_content"),
+    donationInstructions: jsonb("donation_instructions"),
+    zelleQrCode: integer("zelle_qr_code_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    venmoQrCode: integer("venmo_qr_code_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    paymentInstructionsContent: jsonb("payment_instructions_content"),
+    supportContactPath: varchar("support_contact_path"),
+    featuredSupporterText: jsonb("featured_supporter_text"),
+    _status: enum_org_sponsors_status("_status").default("draft"),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+  },
+  (columns) => [
+    index("org_sponsors_zelle_qr_code_idx").on(columns.zelleQrCode),
+    index("org_sponsors_venmo_qr_code_idx").on(columns.venmoQrCode),
+    index("org_sponsors__status_idx").on(columns._status),
+  ],
+);
+
+export const _org_sponsors_v_version_sponsor_logos = pgTable(
+  "_org_sponsors_v_version_sponsor_logos",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: serial("id").primaryKey(),
+    logo: integer("logo_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    label: varchar("label"),
+    _uuid: varchar("_uuid"),
+  },
+  (columns) => [
+    index("_org_sponsors_v_version_sponsor_logos_order_idx").on(columns._order),
+    index("_org_sponsors_v_version_sponsor_logos_parent_id_idx").on(
+      columns._parentID,
+    ),
+    index("_org_sponsors_v_version_sponsor_logos_logo_idx").on(columns.logo),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_org_sponsors_v.id],
+      name: "_org_sponsors_v_version_sponsor_logos_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _org_sponsors_v_version_support_faq = pgTable(
+  "_org_sponsors_v_version_support_faq",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: serial("id").primaryKey(),
+    question: varchar("question"),
+    answer: varchar("answer"),
+    _uuid: varchar("_uuid"),
+  },
+  (columns) => [
+    index("_org_sponsors_v_version_support_faq_order_idx").on(columns._order),
+    index("_org_sponsors_v_version_support_faq_parent_id_idx").on(
+      columns._parentID,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_org_sponsors_v.id],
+      name: "_org_sponsors_v_version_support_faq_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _org_sponsors_v_version_display_order = pgTable(
+  "_org_sponsors_v_version_display_order",
+  {
+    order: integer("order").notNull(),
+    parent: integer("parent_id").notNull(),
+    value: enum__org_sponsors_v_version_display_order("value"),
+    id: serial("id").primaryKey(),
+  },
+  (columns) => [
+    index("_org_sponsors_v_version_display_order_order_idx").on(columns.order),
+    index("_org_sponsors_v_version_display_order_parent_idx").on(
+      columns.parent,
+    ),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [_org_sponsors_v.id],
+      name: "_org_sponsors_v_version_display_order_parent_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _org_sponsors_v = pgTable(
+  "_org_sponsors_v",
+  {
+    id: serial("id").primaryKey(),
+    version_pageTitle: varchar("version_page_title"),
+    version_supportSummary: jsonb("version_support_summary"),
+    version_sponsorAcknowledgmentContent: jsonb(
+      "version_sponsor_acknowledgment_content",
+    ),
+    version_donationInstructions: jsonb("version_donation_instructions"),
+    version_zelleQrCode: integer("version_zelle_qr_code_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_venmoQrCode: integer("version_venmo_qr_code_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_paymentInstructionsContent: jsonb(
+      "version_payment_instructions_content",
+    ),
+    version_supportContactPath: varchar("version_support_contact_path"),
+    version_featuredSupporterText: jsonb("version_featured_supporter_text"),
+    version__status:
+      enum__org_sponsors_v_version_status("version__status").default("draft"),
+    version_updatedAt: timestamp("version_updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_createdAt: timestamp("version_created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    latest: boolean("latest"),
+  },
+  (columns) => [
+    index("_org_sponsors_v_version_version_zelle_qr_code_idx").on(
+      columns.version_zelleQrCode,
+    ),
+    index("_org_sponsors_v_version_version_venmo_qr_code_idx").on(
+      columns.version_venmoQrCode,
+    ),
+    index("_org_sponsors_v_version_version__status_idx").on(
+      columns.version__status,
+    ),
+    index("_org_sponsors_v_created_at_idx").on(columns.createdAt),
+    index("_org_sponsors_v_updated_at_idx").on(columns.updatedAt),
+    index("_org_sponsors_v_latest_idx").on(columns.latest),
+  ],
+);
+
+export const org_home_features_home_section_order = pgTable(
+  "org_home_features_home_section_order",
+  {
+    order: integer("order").notNull(),
+    parent: integer("parent_id").notNull(),
+    value: enum_org_home_features_home_section_order("value"),
+    id: serial("id").primaryKey(),
+  },
+  (columns) => [
+    index("org_home_features_home_section_order_order_idx").on(columns.order),
+    index("org_home_features_home_section_order_parent_idx").on(columns.parent),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [org_home_features.id],
+      name: "org_home_features_home_section_order_parent_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const org_home_features = pgTable(
+  "org_home_features",
+  {
+    id: serial("id").primaryKey(),
+    eventsPlaceholder: varchar("events_placeholder"),
+    spotlightPlaceholder: varchar("spotlight_placeholder"),
+    learningPlaceholder: varchar("learning_placeholder"),
+    _status: enum_org_home_features_status("_status").default("draft"),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+  },
+  (columns) => [index("org_home_features__status_idx").on(columns._status)],
+);
+
+export const org_home_features_rels = pgTable(
+  "org_home_features_rels",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    "org-eventsID": integer("org_events_id"),
+    "org-spotlightID": integer("org_spotlight_id"),
+    "org-learningID": integer("org_learning_id"),
+  },
+  (columns) => [
+    index("org_home_features_rels_order_idx").on(columns.order),
+    index("org_home_features_rels_parent_idx").on(columns.parent),
+    index("org_home_features_rels_path_idx").on(columns.path),
+    index("org_home_features_rels_org_events_id_idx").on(
+      columns["org-eventsID"],
+    ),
+    index("org_home_features_rels_org_spotlight_id_idx").on(
+      columns["org-spotlightID"],
+    ),
+    index("org_home_features_rels_org_learning_id_idx").on(
+      columns["org-learningID"],
+    ),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [org_home_features.id],
+      name: "org_home_features_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-eventsID"]],
+      foreignColumns: [org_events.id],
+      name: "org_home_features_rels_org_events_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-spotlightID"]],
+      foreignColumns: [org_spotlight.id],
+      name: "org_home_features_rels_org_spotlight_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-learningID"]],
+      foreignColumns: [org_learning.id],
+      name: "org_home_features_rels_org_learning_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _org_home_features_v_version_home_section_order = pgTable(
+  "_org_home_features_v_version_home_section_order",
+  {
+    order: integer("order").notNull(),
+    parent: integer("parent_id").notNull(),
+    value: enum__org_home_features_v_version_home_section_order("value"),
+    id: serial("id").primaryKey(),
+  },
+  (columns) => [
+    index("_org_home_features_v_version_home_section_order_order_idx").on(
+      columns.order,
+    ),
+    index("_org_home_features_v_version_home_section_order_parent_idx").on(
+      columns.parent,
+    ),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [_org_home_features_v.id],
+      name: "_org_home_features_v_version_home_section_order_parent_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _org_home_features_v = pgTable(
+  "_org_home_features_v",
+  {
+    id: serial("id").primaryKey(),
+    version_eventsPlaceholder: varchar("version_events_placeholder"),
+    version_spotlightPlaceholder: varchar("version_spotlight_placeholder"),
+    version_learningPlaceholder: varchar("version_learning_placeholder"),
+    version__status:
+      enum__org_home_features_v_version_status("version__status").default(
+        "draft",
+      ),
+    version_updatedAt: timestamp("version_updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_createdAt: timestamp("version_created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    latest: boolean("latest"),
+  },
+  (columns) => [
+    index("_org_home_features_v_version_version__status_idx").on(
+      columns.version__status,
+    ),
+    index("_org_home_features_v_created_at_idx").on(columns.createdAt),
+    index("_org_home_features_v_updated_at_idx").on(columns.updatedAt),
+    index("_org_home_features_v_latest_idx").on(columns.latest),
+  ],
+);
+
+export const _org_home_features_v_rels = pgTable(
+  "_org_home_features_v_rels",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    "org-eventsID": integer("org_events_id"),
+    "org-spotlightID": integer("org_spotlight_id"),
+    "org-learningID": integer("org_learning_id"),
+  },
+  (columns) => [
+    index("_org_home_features_v_rels_order_idx").on(columns.order),
+    index("_org_home_features_v_rels_parent_idx").on(columns.parent),
+    index("_org_home_features_v_rels_path_idx").on(columns.path),
+    index("_org_home_features_v_rels_org_events_id_idx").on(
+      columns["org-eventsID"],
+    ),
+    index("_org_home_features_v_rels_org_spotlight_id_idx").on(
+      columns["org-spotlightID"],
+    ),
+    index("_org_home_features_v_rels_org_learning_id_idx").on(
+      columns["org-learningID"],
+    ),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [_org_home_features_v.id],
+      name: "_org_home_features_v_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-eventsID"]],
+      foreignColumns: [org_events.id],
+      name: "_org_home_features_v_rels_org_events_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-spotlightID"]],
+      foreignColumns: [org_spotlight.id],
+      name: "_org_home_features_v_rels_org_spotlight_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["org-learningID"]],
+      foreignColumns: [org_learning.id],
+      name: "_org_home_features_v_rels_org_learning_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
 export const relations_users_sessions = relations(
   users_sessions,
   ({ one }) => ({
@@ -7650,6 +9671,527 @@ export const relations__logos_v = relations(_logos_v, ({ one }) => ({
   }),
 }));
 export const relations_email_templates = relations(email_templates, () => ({}));
+export const relations_org_events_media_gallery = relations(
+  org_events_media_gallery,
+  ({ one }) => ({
+    _parentID: one(org_events, {
+      fields: [org_events_media_gallery._parentID],
+      references: [org_events.id],
+      relationName: "mediaGallery",
+    }),
+    image: one(media, {
+      fields: [org_events_media_gallery.image],
+      references: [media.id],
+      relationName: "image",
+    }),
+  }),
+);
+export const relations_org_events_external_links = relations(
+  org_events_external_links,
+  ({ one }) => ({
+    _parentID: one(org_events, {
+      fields: [org_events_external_links._parentID],
+      references: [org_events.id],
+      relationName: "externalLinks",
+    }),
+  }),
+);
+export const relations_org_events_rels = relations(
+  org_events_rels,
+  ({ one }) => ({
+    parent: one(org_events, {
+      fields: [org_events_rels.parent],
+      references: [org_events.id],
+      relationName: "_rels",
+    }),
+    "org-spotlightID": one(org_spotlight, {
+      fields: [org_events_rels["org-spotlightID"]],
+      references: [org_spotlight.id],
+      relationName: "org-spotlight",
+    }),
+    "org-learningID": one(org_learning, {
+      fields: [org_events_rels["org-learningID"]],
+      references: [org_learning.id],
+      relationName: "org-learning",
+    }),
+    "org-eventsID": one(org_events, {
+      fields: [org_events_rels["org-eventsID"]],
+      references: [org_events.id],
+      relationName: "org-events",
+    }),
+  }),
+);
+export const relations_org_events = relations(org_events, ({ one, many }) => ({
+  heroImage: one(media, {
+    fields: [org_events.heroImage],
+    references: [media.id],
+    relationName: "heroImage",
+  }),
+  zelleQrCode: one(media, {
+    fields: [org_events.zelleQrCode],
+    references: [media.id],
+    relationName: "zelleQrCode",
+  }),
+  venmoQrCode: one(media, {
+    fields: [org_events.venmoQrCode],
+    references: [media.id],
+    relationName: "venmoQrCode",
+  }),
+  mediaGallery: many(org_events_media_gallery, {
+    relationName: "mediaGallery",
+  }),
+  externalLinks: many(org_events_external_links, {
+    relationName: "externalLinks",
+  }),
+  createdBy: one(users, {
+    fields: [org_events.createdBy],
+    references: [users.id],
+    relationName: "createdBy",
+  }),
+  submittedBy: one(users, {
+    fields: [org_events.submittedBy],
+    references: [users.id],
+    relationName: "submittedBy",
+  }),
+  approvedBy: one(users, {
+    fields: [org_events.approvedBy],
+    references: [users.id],
+    relationName: "approvedBy",
+  }),
+  seo_ogImage: one(media, {
+    fields: [org_events.seo_ogImage],
+    references: [media.id],
+    relationName: "seo_ogImage",
+  }),
+  _rels: many(org_events_rels, {
+    relationName: "_rels",
+  }),
+}));
+export const relations__org_events_v_version_media_gallery = relations(
+  _org_events_v_version_media_gallery,
+  ({ one }) => ({
+    _parentID: one(_org_events_v, {
+      fields: [_org_events_v_version_media_gallery._parentID],
+      references: [_org_events_v.id],
+      relationName: "version_mediaGallery",
+    }),
+    image: one(media, {
+      fields: [_org_events_v_version_media_gallery.image],
+      references: [media.id],
+      relationName: "image",
+    }),
+  }),
+);
+export const relations__org_events_v_version_external_links = relations(
+  _org_events_v_version_external_links,
+  ({ one }) => ({
+    _parentID: one(_org_events_v, {
+      fields: [_org_events_v_version_external_links._parentID],
+      references: [_org_events_v.id],
+      relationName: "version_externalLinks",
+    }),
+  }),
+);
+export const relations__org_events_v_rels = relations(
+  _org_events_v_rels,
+  ({ one }) => ({
+    parent: one(_org_events_v, {
+      fields: [_org_events_v_rels.parent],
+      references: [_org_events_v.id],
+      relationName: "_rels",
+    }),
+    "org-spotlightID": one(org_spotlight, {
+      fields: [_org_events_v_rels["org-spotlightID"]],
+      references: [org_spotlight.id],
+      relationName: "org-spotlight",
+    }),
+    "org-learningID": one(org_learning, {
+      fields: [_org_events_v_rels["org-learningID"]],
+      references: [org_learning.id],
+      relationName: "org-learning",
+    }),
+    "org-eventsID": one(org_events, {
+      fields: [_org_events_v_rels["org-eventsID"]],
+      references: [org_events.id],
+      relationName: "org-events",
+    }),
+  }),
+);
+export const relations__org_events_v = relations(
+  _org_events_v,
+  ({ one, many }) => ({
+    parent: one(org_events, {
+      fields: [_org_events_v.parent],
+      references: [org_events.id],
+      relationName: "parent",
+    }),
+    version_heroImage: one(media, {
+      fields: [_org_events_v.version_heroImage],
+      references: [media.id],
+      relationName: "version_heroImage",
+    }),
+    version_zelleQrCode: one(media, {
+      fields: [_org_events_v.version_zelleQrCode],
+      references: [media.id],
+      relationName: "version_zelleQrCode",
+    }),
+    version_venmoQrCode: one(media, {
+      fields: [_org_events_v.version_venmoQrCode],
+      references: [media.id],
+      relationName: "version_venmoQrCode",
+    }),
+    version_mediaGallery: many(_org_events_v_version_media_gallery, {
+      relationName: "version_mediaGallery",
+    }),
+    version_externalLinks: many(_org_events_v_version_external_links, {
+      relationName: "version_externalLinks",
+    }),
+    version_createdBy: one(users, {
+      fields: [_org_events_v.version_createdBy],
+      references: [users.id],
+      relationName: "version_createdBy",
+    }),
+    version_submittedBy: one(users, {
+      fields: [_org_events_v.version_submittedBy],
+      references: [users.id],
+      relationName: "version_submittedBy",
+    }),
+    version_approvedBy: one(users, {
+      fields: [_org_events_v.version_approvedBy],
+      references: [users.id],
+      relationName: "version_approvedBy",
+    }),
+    version_seo_ogImage: one(media, {
+      fields: [_org_events_v.version_seo_ogImage],
+      references: [media.id],
+      relationName: "version_seo_ogImage",
+    }),
+    _rels: many(_org_events_v_rels, {
+      relationName: "_rels",
+    }),
+  }),
+);
+export const relations_org_spotlight_additional_images = relations(
+  org_spotlight_additional_images,
+  ({ one }) => ({
+    _parentID: one(org_spotlight, {
+      fields: [org_spotlight_additional_images._parentID],
+      references: [org_spotlight.id],
+      relationName: "additionalImages",
+    }),
+    image: one(media, {
+      fields: [org_spotlight_additional_images.image],
+      references: [media.id],
+      relationName: "image",
+    }),
+  }),
+);
+export const relations_org_spotlight_rels = relations(
+  org_spotlight_rels,
+  ({ one }) => ({
+    parent: one(org_spotlight, {
+      fields: [org_spotlight_rels.parent],
+      references: [org_spotlight.id],
+      relationName: "_rels",
+    }),
+    "org-eventsID": one(org_events, {
+      fields: [org_spotlight_rels["org-eventsID"]],
+      references: [org_events.id],
+      relationName: "org-events",
+    }),
+  }),
+);
+export const relations_org_spotlight = relations(
+  org_spotlight,
+  ({ one, many }) => ({
+    thumbnailImage: one(media, {
+      fields: [org_spotlight.thumbnailImage],
+      references: [media.id],
+      relationName: "thumbnailImage",
+    }),
+    additionalImages: many(org_spotlight_additional_images, {
+      relationName: "additionalImages",
+    }),
+    createdBy: one(users, {
+      fields: [org_spotlight.createdBy],
+      references: [users.id],
+      relationName: "createdBy",
+    }),
+    submittedBy: one(users, {
+      fields: [org_spotlight.submittedBy],
+      references: [users.id],
+      relationName: "submittedBy",
+    }),
+    approvedBy: one(users, {
+      fields: [org_spotlight.approvedBy],
+      references: [users.id],
+      relationName: "approvedBy",
+    }),
+    seo_ogImage: one(media, {
+      fields: [org_spotlight.seo_ogImage],
+      references: [media.id],
+      relationName: "seo_ogImage",
+    }),
+    _rels: many(org_spotlight_rels, {
+      relationName: "_rels",
+    }),
+  }),
+);
+export const relations__org_spotlight_v_version_additional_images = relations(
+  _org_spotlight_v_version_additional_images,
+  ({ one }) => ({
+    _parentID: one(_org_spotlight_v, {
+      fields: [_org_spotlight_v_version_additional_images._parentID],
+      references: [_org_spotlight_v.id],
+      relationName: "version_additionalImages",
+    }),
+    image: one(media, {
+      fields: [_org_spotlight_v_version_additional_images.image],
+      references: [media.id],
+      relationName: "image",
+    }),
+  }),
+);
+export const relations__org_spotlight_v_rels = relations(
+  _org_spotlight_v_rels,
+  ({ one }) => ({
+    parent: one(_org_spotlight_v, {
+      fields: [_org_spotlight_v_rels.parent],
+      references: [_org_spotlight_v.id],
+      relationName: "_rels",
+    }),
+    "org-eventsID": one(org_events, {
+      fields: [_org_spotlight_v_rels["org-eventsID"]],
+      references: [org_events.id],
+      relationName: "org-events",
+    }),
+  }),
+);
+export const relations__org_spotlight_v = relations(
+  _org_spotlight_v,
+  ({ one, many }) => ({
+    parent: one(org_spotlight, {
+      fields: [_org_spotlight_v.parent],
+      references: [org_spotlight.id],
+      relationName: "parent",
+    }),
+    version_thumbnailImage: one(media, {
+      fields: [_org_spotlight_v.version_thumbnailImage],
+      references: [media.id],
+      relationName: "version_thumbnailImage",
+    }),
+    version_additionalImages: many(_org_spotlight_v_version_additional_images, {
+      relationName: "version_additionalImages",
+    }),
+    version_createdBy: one(users, {
+      fields: [_org_spotlight_v.version_createdBy],
+      references: [users.id],
+      relationName: "version_createdBy",
+    }),
+    version_submittedBy: one(users, {
+      fields: [_org_spotlight_v.version_submittedBy],
+      references: [users.id],
+      relationName: "version_submittedBy",
+    }),
+    version_approvedBy: one(users, {
+      fields: [_org_spotlight_v.version_approvedBy],
+      references: [users.id],
+      relationName: "version_approvedBy",
+    }),
+    version_seo_ogImage: one(media, {
+      fields: [_org_spotlight_v.version_seo_ogImage],
+      references: [media.id],
+      relationName: "version_seo_ogImage",
+    }),
+    _rels: many(_org_spotlight_v_rels, {
+      relationName: "_rels",
+    }),
+  }),
+);
+export const relations_org_about_profiles_additional_images = relations(
+  org_about_profiles_additional_images,
+  ({ one }) => ({
+    _parentID: one(org_about_profiles, {
+      fields: [org_about_profiles_additional_images._parentID],
+      references: [org_about_profiles.id],
+      relationName: "additionalImages",
+    }),
+    image: one(media, {
+      fields: [org_about_profiles_additional_images.image],
+      references: [media.id],
+      relationName: "image",
+    }),
+  }),
+);
+export const relations_org_about_profiles = relations(
+  org_about_profiles,
+  ({ one, many }) => ({
+    profileImage: one(media, {
+      fields: [org_about_profiles.profileImage],
+      references: [media.id],
+      relationName: "profileImage",
+    }),
+    additionalImages: many(org_about_profiles_additional_images, {
+      relationName: "additionalImages",
+    }),
+    createdBy: one(users, {
+      fields: [org_about_profiles.createdBy],
+      references: [users.id],
+      relationName: "createdBy",
+    }),
+    submittedBy: one(users, {
+      fields: [org_about_profiles.submittedBy],
+      references: [users.id],
+      relationName: "submittedBy",
+    }),
+    approvedBy: one(users, {
+      fields: [org_about_profiles.approvedBy],
+      references: [users.id],
+      relationName: "approvedBy",
+    }),
+    seo_ogImage: one(media, {
+      fields: [org_about_profiles.seo_ogImage],
+      references: [media.id],
+      relationName: "seo_ogImage",
+    }),
+  }),
+);
+export const relations__org_about_profiles_v_version_additional_images =
+  relations(_org_about_profiles_v_version_additional_images, ({ one }) => ({
+    _parentID: one(_org_about_profiles_v, {
+      fields: [_org_about_profiles_v_version_additional_images._parentID],
+      references: [_org_about_profiles_v.id],
+      relationName: "version_additionalImages",
+    }),
+    image: one(media, {
+      fields: [_org_about_profiles_v_version_additional_images.image],
+      references: [media.id],
+      relationName: "image",
+    }),
+  }));
+export const relations__org_about_profiles_v = relations(
+  _org_about_profiles_v,
+  ({ one, many }) => ({
+    parent: one(org_about_profiles, {
+      fields: [_org_about_profiles_v.parent],
+      references: [org_about_profiles.id],
+      relationName: "parent",
+    }),
+    version_profileImage: one(media, {
+      fields: [_org_about_profiles_v.version_profileImage],
+      references: [media.id],
+      relationName: "version_profileImage",
+    }),
+    version_additionalImages: many(
+      _org_about_profiles_v_version_additional_images,
+      {
+        relationName: "version_additionalImages",
+      },
+    ),
+    version_createdBy: one(users, {
+      fields: [_org_about_profiles_v.version_createdBy],
+      references: [users.id],
+      relationName: "version_createdBy",
+    }),
+    version_submittedBy: one(users, {
+      fields: [_org_about_profiles_v.version_submittedBy],
+      references: [users.id],
+      relationName: "version_submittedBy",
+    }),
+    version_approvedBy: one(users, {
+      fields: [_org_about_profiles_v.version_approvedBy],
+      references: [users.id],
+      relationName: "version_approvedBy",
+    }),
+    version_seo_ogImage: one(media, {
+      fields: [_org_about_profiles_v.version_seo_ogImage],
+      references: [media.id],
+      relationName: "version_seo_ogImage",
+    }),
+  }),
+);
+export const relations_org_learning = relations(org_learning, ({ one }) => ({
+  thumbnail: one(media, {
+    fields: [org_learning.thumbnail],
+    references: [media.id],
+    relationName: "thumbnail",
+  }),
+  relatedEvent: one(org_events, {
+    fields: [org_learning.relatedEvent],
+    references: [org_events.id],
+    relationName: "relatedEvent",
+  }),
+  relatedSpotlight: one(org_spotlight, {
+    fields: [org_learning.relatedSpotlight],
+    references: [org_spotlight.id],
+    relationName: "relatedSpotlight",
+  }),
+  createdBy: one(users, {
+    fields: [org_learning.createdBy],
+    references: [users.id],
+    relationName: "createdBy",
+  }),
+  submittedBy: one(users, {
+    fields: [org_learning.submittedBy],
+    references: [users.id],
+    relationName: "submittedBy",
+  }),
+  approvedBy: one(users, {
+    fields: [org_learning.approvedBy],
+    references: [users.id],
+    relationName: "approvedBy",
+  }),
+  seo_ogImage: one(media, {
+    fields: [org_learning.seo_ogImage],
+    references: [media.id],
+    relationName: "seo_ogImage",
+  }),
+}));
+export const relations__org_learning_v = relations(
+  _org_learning_v,
+  ({ one }) => ({
+    parent: one(org_learning, {
+      fields: [_org_learning_v.parent],
+      references: [org_learning.id],
+      relationName: "parent",
+    }),
+    version_thumbnail: one(media, {
+      fields: [_org_learning_v.version_thumbnail],
+      references: [media.id],
+      relationName: "version_thumbnail",
+    }),
+    version_relatedEvent: one(org_events, {
+      fields: [_org_learning_v.version_relatedEvent],
+      references: [org_events.id],
+      relationName: "version_relatedEvent",
+    }),
+    version_relatedSpotlight: one(org_spotlight, {
+      fields: [_org_learning_v.version_relatedSpotlight],
+      references: [org_spotlight.id],
+      relationName: "version_relatedSpotlight",
+    }),
+    version_createdBy: one(users, {
+      fields: [_org_learning_v.version_createdBy],
+      references: [users.id],
+      relationName: "version_createdBy",
+    }),
+    version_submittedBy: one(users, {
+      fields: [_org_learning_v.version_submittedBy],
+      references: [users.id],
+      relationName: "version_submittedBy",
+    }),
+    version_approvedBy: one(users, {
+      fields: [_org_learning_v.version_approvedBy],
+      references: [users.id],
+      relationName: "version_approvedBy",
+    }),
+    version_seo_ogImage: one(media, {
+      fields: [_org_learning_v.version_seo_ogImage],
+      references: [media.id],
+      relationName: "version_seo_ogImage",
+    }),
+  }),
+);
 export const relations_search_rels = relations(search_rels, ({ one }) => ({
   parent: one(search, {
     fields: [search_rels.parent],
@@ -7966,6 +10508,26 @@ export const relations_payload_locked_documents_rels = relations(
       references: [email_templates.id],
       relationName: "email-templates",
     }),
+    "org-eventsID": one(org_events, {
+      fields: [payload_locked_documents_rels["org-eventsID"]],
+      references: [org_events.id],
+      relationName: "org-events",
+    }),
+    "org-spotlightID": one(org_spotlight, {
+      fields: [payload_locked_documents_rels["org-spotlightID"]],
+      references: [org_spotlight.id],
+      relationName: "org-spotlight",
+    }),
+    "org-about-profilesID": one(org_about_profiles, {
+      fields: [payload_locked_documents_rels["org-about-profilesID"]],
+      references: [org_about_profiles.id],
+      relationName: "org-about-profiles",
+    }),
+    "org-learningID": one(org_learning, {
+      fields: [payload_locked_documents_rels["org-learningID"]],
+      references: [org_learning.id],
+      relationName: "org-learning",
+    }),
     searchID: one(search, {
       fields: [payload_locked_documents_rels.searchID],
       references: [search.id],
@@ -8265,6 +10827,217 @@ export const relations__site_settings_v = relations(
 );
 export const relations_ui_settings = relations(ui_settings, () => ({}));
 export const relations__ui_settings_v = relations(_ui_settings_v, () => ({}));
+export const relations_org_sponsors_sponsor_logos = relations(
+  org_sponsors_sponsor_logos,
+  ({ one }) => ({
+    _parentID: one(org_sponsors, {
+      fields: [org_sponsors_sponsor_logos._parentID],
+      references: [org_sponsors.id],
+      relationName: "sponsorLogos",
+    }),
+    logo: one(media, {
+      fields: [org_sponsors_sponsor_logos.logo],
+      references: [media.id],
+      relationName: "logo",
+    }),
+  }),
+);
+export const relations_org_sponsors_support_faq = relations(
+  org_sponsors_support_faq,
+  ({ one }) => ({
+    _parentID: one(org_sponsors, {
+      fields: [org_sponsors_support_faq._parentID],
+      references: [org_sponsors.id],
+      relationName: "supportFaq",
+    }),
+  }),
+);
+export const relations_org_sponsors_display_order = relations(
+  org_sponsors_display_order,
+  ({ one }) => ({
+    parent: one(org_sponsors, {
+      fields: [org_sponsors_display_order.parent],
+      references: [org_sponsors.id],
+      relationName: "displayOrder",
+    }),
+  }),
+);
+export const relations_org_sponsors = relations(
+  org_sponsors,
+  ({ one, many }) => ({
+    zelleQrCode: one(media, {
+      fields: [org_sponsors.zelleQrCode],
+      references: [media.id],
+      relationName: "zelleQrCode",
+    }),
+    venmoQrCode: one(media, {
+      fields: [org_sponsors.venmoQrCode],
+      references: [media.id],
+      relationName: "venmoQrCode",
+    }),
+    sponsorLogos: many(org_sponsors_sponsor_logos, {
+      relationName: "sponsorLogos",
+    }),
+    supportFaq: many(org_sponsors_support_faq, {
+      relationName: "supportFaq",
+    }),
+    displayOrder: many(org_sponsors_display_order, {
+      relationName: "displayOrder",
+    }),
+  }),
+);
+export const relations__org_sponsors_v_version_sponsor_logos = relations(
+  _org_sponsors_v_version_sponsor_logos,
+  ({ one }) => ({
+    _parentID: one(_org_sponsors_v, {
+      fields: [_org_sponsors_v_version_sponsor_logos._parentID],
+      references: [_org_sponsors_v.id],
+      relationName: "version_sponsorLogos",
+    }),
+    logo: one(media, {
+      fields: [_org_sponsors_v_version_sponsor_logos.logo],
+      references: [media.id],
+      relationName: "logo",
+    }),
+  }),
+);
+export const relations__org_sponsors_v_version_support_faq = relations(
+  _org_sponsors_v_version_support_faq,
+  ({ one }) => ({
+    _parentID: one(_org_sponsors_v, {
+      fields: [_org_sponsors_v_version_support_faq._parentID],
+      references: [_org_sponsors_v.id],
+      relationName: "version_supportFaq",
+    }),
+  }),
+);
+export const relations__org_sponsors_v_version_display_order = relations(
+  _org_sponsors_v_version_display_order,
+  ({ one }) => ({
+    parent: one(_org_sponsors_v, {
+      fields: [_org_sponsors_v_version_display_order.parent],
+      references: [_org_sponsors_v.id],
+      relationName: "version_displayOrder",
+    }),
+  }),
+);
+export const relations__org_sponsors_v = relations(
+  _org_sponsors_v,
+  ({ one, many }) => ({
+    version_zelleQrCode: one(media, {
+      fields: [_org_sponsors_v.version_zelleQrCode],
+      references: [media.id],
+      relationName: "version_zelleQrCode",
+    }),
+    version_venmoQrCode: one(media, {
+      fields: [_org_sponsors_v.version_venmoQrCode],
+      references: [media.id],
+      relationName: "version_venmoQrCode",
+    }),
+    version_sponsorLogos: many(_org_sponsors_v_version_sponsor_logos, {
+      relationName: "version_sponsorLogos",
+    }),
+    version_supportFaq: many(_org_sponsors_v_version_support_faq, {
+      relationName: "version_supportFaq",
+    }),
+    version_displayOrder: many(_org_sponsors_v_version_display_order, {
+      relationName: "version_displayOrder",
+    }),
+  }),
+);
+export const relations_org_home_features_home_section_order = relations(
+  org_home_features_home_section_order,
+  ({ one }) => ({
+    parent: one(org_home_features, {
+      fields: [org_home_features_home_section_order.parent],
+      references: [org_home_features.id],
+      relationName: "homeSectionOrder",
+    }),
+  }),
+);
+export const relations_org_home_features_rels = relations(
+  org_home_features_rels,
+  ({ one }) => ({
+    parent: one(org_home_features, {
+      fields: [org_home_features_rels.parent],
+      references: [org_home_features.id],
+      relationName: "_rels",
+    }),
+    "org-eventsID": one(org_events, {
+      fields: [org_home_features_rels["org-eventsID"]],
+      references: [org_events.id],
+      relationName: "org-events",
+    }),
+    "org-spotlightID": one(org_spotlight, {
+      fields: [org_home_features_rels["org-spotlightID"]],
+      references: [org_spotlight.id],
+      relationName: "org-spotlight",
+    }),
+    "org-learningID": one(org_learning, {
+      fields: [org_home_features_rels["org-learningID"]],
+      references: [org_learning.id],
+      relationName: "org-learning",
+    }),
+  }),
+);
+export const relations_org_home_features = relations(
+  org_home_features,
+  ({ many }) => ({
+    homeSectionOrder: many(org_home_features_home_section_order, {
+      relationName: "homeSectionOrder",
+    }),
+    _rels: many(org_home_features_rels, {
+      relationName: "_rels",
+    }),
+  }),
+);
+export const relations__org_home_features_v_version_home_section_order =
+  relations(_org_home_features_v_version_home_section_order, ({ one }) => ({
+    parent: one(_org_home_features_v, {
+      fields: [_org_home_features_v_version_home_section_order.parent],
+      references: [_org_home_features_v.id],
+      relationName: "version_homeSectionOrder",
+    }),
+  }));
+export const relations__org_home_features_v_rels = relations(
+  _org_home_features_v_rels,
+  ({ one }) => ({
+    parent: one(_org_home_features_v, {
+      fields: [_org_home_features_v_rels.parent],
+      references: [_org_home_features_v.id],
+      relationName: "_rels",
+    }),
+    "org-eventsID": one(org_events, {
+      fields: [_org_home_features_v_rels["org-eventsID"]],
+      references: [org_events.id],
+      relationName: "org-events",
+    }),
+    "org-spotlightID": one(org_spotlight, {
+      fields: [_org_home_features_v_rels["org-spotlightID"]],
+      references: [org_spotlight.id],
+      relationName: "org-spotlight",
+    }),
+    "org-learningID": one(org_learning, {
+      fields: [_org_home_features_v_rels["org-learningID"]],
+      references: [org_learning.id],
+      relationName: "org-learning",
+    }),
+  }),
+);
+export const relations__org_home_features_v = relations(
+  _org_home_features_v,
+  ({ many }) => ({
+    version_homeSectionOrder: many(
+      _org_home_features_v_version_home_section_order,
+      {
+        relationName: "version_homeSectionOrder",
+      },
+    ),
+    _rels: many(_org_home_features_v_rels, {
+      relationName: "_rels",
+    }),
+  }),
+);
 
 type DatabaseSchema = {
   enum_users_role: typeof enum_users_role;
@@ -8428,6 +11201,32 @@ type DatabaseSchema = {
   enum_logos_status: typeof enum_logos_status;
   enum__logos_v_version_workflow_status: typeof enum__logos_v_version_workflow_status;
   enum__logos_v_version_status: typeof enum__logos_v_version_status;
+  enum_org_events_event_type: typeof enum_org_events_event_type;
+  enum_org_events_event_status: typeof enum_org_events_event_status;
+  enum_org_events_workflow_status: typeof enum_org_events_workflow_status;
+  enum_org_events_status: typeof enum_org_events_status;
+  enum__org_events_v_version_event_type: typeof enum__org_events_v_version_event_type;
+  enum__org_events_v_version_event_status: typeof enum__org_events_v_version_event_status;
+  enum__org_events_v_version_workflow_status: typeof enum__org_events_v_version_workflow_status;
+  enum__org_events_v_version_status: typeof enum__org_events_v_version_status;
+  enum_org_spotlight_category: typeof enum_org_spotlight_category;
+  enum_org_spotlight_workflow_status: typeof enum_org_spotlight_workflow_status;
+  enum_org_spotlight_status: typeof enum_org_spotlight_status;
+  enum__org_spotlight_v_version_category: typeof enum__org_spotlight_v_version_category;
+  enum__org_spotlight_v_version_workflow_status: typeof enum__org_spotlight_v_version_workflow_status;
+  enum__org_spotlight_v_version_status: typeof enum__org_spotlight_v_version_status;
+  enum_org_about_profiles_category: typeof enum_org_about_profiles_category;
+  enum_org_about_profiles_workflow_status: typeof enum_org_about_profiles_workflow_status;
+  enum_org_about_profiles_status: typeof enum_org_about_profiles_status;
+  enum__org_about_profiles_v_version_category: typeof enum__org_about_profiles_v_version_category;
+  enum__org_about_profiles_v_version_workflow_status: typeof enum__org_about_profiles_v_version_workflow_status;
+  enum__org_about_profiles_v_version_status: typeof enum__org_about_profiles_v_version_status;
+  enum_org_learning_category: typeof enum_org_learning_category;
+  enum_org_learning_workflow_status: typeof enum_org_learning_workflow_status;
+  enum_org_learning_status: typeof enum_org_learning_status;
+  enum__org_learning_v_version_category: typeof enum__org_learning_v_version_category;
+  enum__org_learning_v_version_workflow_status: typeof enum__org_learning_v_version_workflow_status;
+  enum__org_learning_v_version_status: typeof enum__org_learning_v_version_status;
   enum_forms_confirmation_type: typeof enum_forms_confirmation_type;
   template_key: typeof template_key;
   enum_exports_format: typeof enum_exports_format;
@@ -8449,6 +11248,14 @@ type DatabaseSchema = {
   enum__site_settings_v_version_status: typeof enum__site_settings_v_version_status;
   enum_ui_settings_status: typeof enum_ui_settings_status;
   enum__ui_settings_v_version_status: typeof enum__ui_settings_v_version_status;
+  enum_org_sponsors_display_order: typeof enum_org_sponsors_display_order;
+  enum_org_sponsors_status: typeof enum_org_sponsors_status;
+  enum__org_sponsors_v_version_display_order: typeof enum__org_sponsors_v_version_display_order;
+  enum__org_sponsors_v_version_status: typeof enum__org_sponsors_v_version_status;
+  enum_org_home_features_home_section_order: typeof enum_org_home_features_home_section_order;
+  enum_org_home_features_status: typeof enum_org_home_features_status;
+  enum__org_home_features_v_version_home_section_order: typeof enum__org_home_features_v_version_home_section_order;
+  enum__org_home_features_v_version_status: typeof enum__org_home_features_v_version_status;
   users_sessions: typeof users_sessions;
   users: typeof users;
   media: typeof media;
@@ -8512,6 +11319,26 @@ type DatabaseSchema = {
   logos: typeof logos;
   _logos_v: typeof _logos_v;
   email_templates: typeof email_templates;
+  org_events_media_gallery: typeof org_events_media_gallery;
+  org_events_external_links: typeof org_events_external_links;
+  org_events: typeof org_events;
+  org_events_rels: typeof org_events_rels;
+  _org_events_v_version_media_gallery: typeof _org_events_v_version_media_gallery;
+  _org_events_v_version_external_links: typeof _org_events_v_version_external_links;
+  _org_events_v: typeof _org_events_v;
+  _org_events_v_rels: typeof _org_events_v_rels;
+  org_spotlight_additional_images: typeof org_spotlight_additional_images;
+  org_spotlight: typeof org_spotlight;
+  org_spotlight_rels: typeof org_spotlight_rels;
+  _org_spotlight_v_version_additional_images: typeof _org_spotlight_v_version_additional_images;
+  _org_spotlight_v: typeof _org_spotlight_v;
+  _org_spotlight_v_rels: typeof _org_spotlight_v_rels;
+  org_about_profiles_additional_images: typeof org_about_profiles_additional_images;
+  org_about_profiles: typeof org_about_profiles;
+  _org_about_profiles_v_version_additional_images: typeof _org_about_profiles_v_version_additional_images;
+  _org_about_profiles_v: typeof _org_about_profiles_v;
+  org_learning: typeof org_learning;
+  _org_learning_v: typeof _org_learning_v;
   search: typeof search;
   search_rels: typeof search_rels;
   forms_blocks_checkbox: typeof forms_blocks_checkbox;
@@ -8559,6 +11386,20 @@ type DatabaseSchema = {
   _site_settings_v: typeof _site_settings_v;
   ui_settings: typeof ui_settings;
   _ui_settings_v: typeof _ui_settings_v;
+  org_sponsors_sponsor_logos: typeof org_sponsors_sponsor_logos;
+  org_sponsors_support_faq: typeof org_sponsors_support_faq;
+  org_sponsors_display_order: typeof org_sponsors_display_order;
+  org_sponsors: typeof org_sponsors;
+  _org_sponsors_v_version_sponsor_logos: typeof _org_sponsors_v_version_sponsor_logos;
+  _org_sponsors_v_version_support_faq: typeof _org_sponsors_v_version_support_faq;
+  _org_sponsors_v_version_display_order: typeof _org_sponsors_v_version_display_order;
+  _org_sponsors_v: typeof _org_sponsors_v;
+  org_home_features_home_section_order: typeof org_home_features_home_section_order;
+  org_home_features: typeof org_home_features;
+  org_home_features_rels: typeof org_home_features_rels;
+  _org_home_features_v_version_home_section_order: typeof _org_home_features_v_version_home_section_order;
+  _org_home_features_v: typeof _org_home_features_v;
+  _org_home_features_v_rels: typeof _org_home_features_v_rels;
   relations_users_sessions: typeof relations_users_sessions;
   relations_users: typeof relations_users;
   relations_media: typeof relations_media;
@@ -8622,6 +11463,26 @@ type DatabaseSchema = {
   relations_logos: typeof relations_logos;
   relations__logos_v: typeof relations__logos_v;
   relations_email_templates: typeof relations_email_templates;
+  relations_org_events_media_gallery: typeof relations_org_events_media_gallery;
+  relations_org_events_external_links: typeof relations_org_events_external_links;
+  relations_org_events_rels: typeof relations_org_events_rels;
+  relations_org_events: typeof relations_org_events;
+  relations__org_events_v_version_media_gallery: typeof relations__org_events_v_version_media_gallery;
+  relations__org_events_v_version_external_links: typeof relations__org_events_v_version_external_links;
+  relations__org_events_v_rels: typeof relations__org_events_v_rels;
+  relations__org_events_v: typeof relations__org_events_v;
+  relations_org_spotlight_additional_images: typeof relations_org_spotlight_additional_images;
+  relations_org_spotlight_rels: typeof relations_org_spotlight_rels;
+  relations_org_spotlight: typeof relations_org_spotlight;
+  relations__org_spotlight_v_version_additional_images: typeof relations__org_spotlight_v_version_additional_images;
+  relations__org_spotlight_v_rels: typeof relations__org_spotlight_v_rels;
+  relations__org_spotlight_v: typeof relations__org_spotlight_v;
+  relations_org_about_profiles_additional_images: typeof relations_org_about_profiles_additional_images;
+  relations_org_about_profiles: typeof relations_org_about_profiles;
+  relations__org_about_profiles_v_version_additional_images: typeof relations__org_about_profiles_v_version_additional_images;
+  relations__org_about_profiles_v: typeof relations__org_about_profiles_v;
+  relations_org_learning: typeof relations_org_learning;
+  relations__org_learning_v: typeof relations__org_learning_v;
   relations_search_rels: typeof relations_search_rels;
   relations_search: typeof relations_search;
   relations_forms_blocks_checkbox: typeof relations_forms_blocks_checkbox;
@@ -8669,6 +11530,20 @@ type DatabaseSchema = {
   relations__site_settings_v: typeof relations__site_settings_v;
   relations_ui_settings: typeof relations_ui_settings;
   relations__ui_settings_v: typeof relations__ui_settings_v;
+  relations_org_sponsors_sponsor_logos: typeof relations_org_sponsors_sponsor_logos;
+  relations_org_sponsors_support_faq: typeof relations_org_sponsors_support_faq;
+  relations_org_sponsors_display_order: typeof relations_org_sponsors_display_order;
+  relations_org_sponsors: typeof relations_org_sponsors;
+  relations__org_sponsors_v_version_sponsor_logos: typeof relations__org_sponsors_v_version_sponsor_logos;
+  relations__org_sponsors_v_version_support_faq: typeof relations__org_sponsors_v_version_support_faq;
+  relations__org_sponsors_v_version_display_order: typeof relations__org_sponsors_v_version_display_order;
+  relations__org_sponsors_v: typeof relations__org_sponsors_v;
+  relations_org_home_features_home_section_order: typeof relations_org_home_features_home_section_order;
+  relations_org_home_features_rels: typeof relations_org_home_features_rels;
+  relations_org_home_features: typeof relations_org_home_features;
+  relations__org_home_features_v_version_home_section_order: typeof relations__org_home_features_v_version_home_section_order;
+  relations__org_home_features_v_rels: typeof relations__org_home_features_v_rels;
+  relations__org_home_features_v: typeof relations__org_home_features_v;
 };
 
 declare module "@payloadcms/db-postgres" {

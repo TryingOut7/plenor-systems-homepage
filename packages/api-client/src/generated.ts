@@ -100,6 +100,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/forms/registration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["submitRegistration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/forms/registration/{publicId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getRegistrationStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/forms/registration/{publicId}/payment-confirmation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["submitPaymentConfirmation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/forms/templates/create": {
         parameters: {
             query?: never;
@@ -244,6 +292,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/registration-submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listRegistrationSubmissions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/registration-submissions/{publicId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getRegistrationSubmission"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["patchRegistrationSubmissionStatus"];
+        trace?: never;
+    };
     "/v1/admin/submissions": {
         parameters: {
             query?: never;
@@ -368,7 +448,7 @@ export interface components {
             /** @constant */
             success: false;
             /** @enum {string} */
-            code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_PAYLOAD" | "BACKEND_UNAVAILABLE" | "DEPENDENCY_UNAVAILABLE" | "INTERNAL_ERROR";
+            code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "ALREADY_EXISTS" | "REGISTRATION_FULL" | "REGISTRATION_NOT_OPEN" | "REGISTRATION_CLOSED" | "TRANSITION_FORBIDDEN" | "MISSING_IDEMPOTENCY_KEY" | "RATE_LIMITED" | "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_PAYLOAD" | "BACKEND_UNAVAILABLE" | "DEPENDENCY_UNAVAILABLE" | "INTERNAL_ERROR";
             message: string;
             status: number;
             requestId?: string;
@@ -390,6 +470,94 @@ export interface components {
             email?: string;
             company?: string;
             challenge?: string;
+        };
+        /** @enum {string} */
+        RegistrationStatus: "submitted" | "payment_pending" | "payment_confirmation_submitted" | "payment_confirmed" | "registration_confirmed" | "cancelled_rejected";
+        RegistrationContactPreferences: {
+            email?: boolean;
+            sms?: boolean;
+            phone?: boolean;
+            /** @enum {string} */
+            preferredChannel?: "email" | "sms" | "phone";
+        };
+        RegistrationSubmissionRequest: {
+            eventId: string;
+            name: string;
+            /** Format: email */
+            email: string;
+            participantCount?: number;
+            instrument?: string;
+            ageGroup?: string;
+            contactPreferences?: components["schemas"]["RegistrationContactPreferences"];
+        };
+        RegistrationStatusResponse: {
+            /** Format: uuid */
+            publicId: string;
+            status: components["schemas"]["RegistrationStatus"];
+            userFacingReason?: string | null;
+        };
+        RegistrationSubmissionResponse: components["schemas"]["RegistrationStatusResponse"] & {
+            /** @constant */
+            success: true;
+        };
+        PaymentConfirmationRequest: {
+            payerName: string;
+            /** @enum {string} */
+            paymentMethod: "zelle" | "venmo";
+            amount: number;
+            /** Format: date-time */
+            paymentDate: string;
+            referenceNote?: string;
+        };
+        AdminStatusUpdateRequest: {
+            status: components["schemas"]["RegistrationStatus"];
+            internalReason?: string;
+            userFacingReason?: string;
+        };
+        AdminRegistrationSubmission: {
+            /** Format: uuid */
+            publicId: string;
+            eventId?: string | null;
+            status: components["schemas"]["RegistrationStatus"];
+            registrationPayload: {
+                name?: string;
+                /** Format: email */
+                email?: string;
+                participantCount?: number;
+                instrument?: string;
+                ageGroup?: string;
+                contactPreferences?: components["schemas"]["RegistrationContactPreferences"];
+            };
+            paymentConfirmationPayload?: {
+                payerName?: string;
+                /** @enum {string} */
+                paymentMethod?: "zelle" | "venmo";
+                amount?: number;
+                /** Format: date-time */
+                paymentDate?: string;
+                referenceNote?: string;
+            } | null;
+            internalReason?: string | null;
+            userFacingReason?: string | null;
+            /** Format: date-time */
+            submittedAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        AdminRegistrationSubmissionsListResponse: {
+            items: components["schemas"]["AdminRegistrationSubmission"][];
+            meta: {
+                total: number;
+                page: number;
+                limit: number;
+                totalPages: number;
+                byStatus: {
+                    [key: string]: number;
+                };
+            };
+        };
+        AdminRegistrationSubmissionDetailResponse: {
+            submission: components["schemas"]["AdminRegistrationSubmission"];
         };
         FormSubmissionSuccessResponse: {
             /** @constant */
@@ -839,6 +1007,92 @@ export interface operations {
             500: components["responses"]["ErrorInternal"];
         };
     };
+    submitRegistration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegistrationSubmissionRequest"];
+            };
+        };
+        responses: {
+            /** @description Registration submission accepted. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationSubmissionResponse"];
+                };
+            };
+            400: components["responses"]["ErrorValidation"];
+            409: components["responses"]["ErrorConflict"];
+            422: components["responses"]["ErrorValidation"];
+            429: components["responses"]["ErrorRateLimited"];
+            500: components["responses"]["ErrorInternal"];
+        };
+    };
+    getRegistrationStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Public registration status response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationStatusResponse"];
+                };
+            };
+            400: components["responses"]["ErrorValidation"];
+            404: components["responses"]["ErrorNotFound"];
+            429: components["responses"]["ErrorRateLimited"];
+            500: components["responses"]["ErrorInternal"];
+        };
+    };
+    submitPaymentConfirmation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentConfirmationRequest"];
+            };
+        };
+        responses: {
+            /** @description Payment confirmation accepted or replayed. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationStatusResponse"];
+                };
+            };
+            400: components["responses"]["ErrorValidation"];
+            403: components["responses"]["ErrorForbidden"];
+            404: components["responses"]["ErrorNotFound"];
+            429: components["responses"]["ErrorRateLimited"];
+            500: components["responses"]["ErrorInternal"];
+        };
+    };
     createWorkspaceFormTemplate: {
         parameters: {
             query?: never;
@@ -1088,6 +1342,96 @@ export interface operations {
                 };
             };
             429: components["responses"]["ErrorRateLimited"];
+        };
+    };
+    listRegistrationSubmissions: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                status?: components["schemas"]["RegistrationStatus"];
+                eventId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated registration submissions with status counts. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRegistrationSubmissionsListResponse"];
+                };
+            };
+            400: components["responses"]["ErrorValidation"];
+            401: components["responses"]["ErrorUnauthorized"];
+            403: components["responses"]["ErrorForbidden"];
+            500: components["responses"]["ErrorInternal"];
+        };
+    };
+    getRegistrationSubmission: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Registration submission detail. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRegistrationSubmissionDetailResponse"];
+                };
+            };
+            400: components["responses"]["ErrorValidation"];
+            401: components["responses"]["ErrorUnauthorized"];
+            403: components["responses"]["ErrorForbidden"];
+            404: components["responses"]["ErrorNotFound"];
+            500: components["responses"]["ErrorInternal"];
+        };
+    };
+    patchRegistrationSubmissionStatus: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminStatusUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Registration status updated. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRegistrationSubmissionDetailResponse"];
+                };
+            };
+            400: components["responses"]["ErrorValidation"];
+            401: components["responses"]["ErrorUnauthorized"];
+            403: components["responses"]["ErrorForbidden"];
+            404: components["responses"]["ErrorNotFound"];
+            409: components["responses"]["ErrorConflict"];
+            500: components["responses"]["ErrorInternal"];
         };
     };
     listAdminSubmissions: {

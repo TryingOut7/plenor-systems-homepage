@@ -8,6 +8,7 @@ import { queueCrmEvent } from '@/infrastructure/integrations/crmGateway';
 import {
   sendGuideDeliveryEmail,
   sendInquiryRoutingEmails,
+  sendRegistrationStatusEmail,
 } from '@/infrastructure/integrations/emailGateway';
 import { SignedWebhookProvider } from './signedWebhookProvider';
 import type {
@@ -20,6 +21,16 @@ import type {
 
 class DefaultCrmProvider implements CrmProvider {
   async send(event: OutboundEventV1): Promise<void> {
+    if (
+      event.type !== 'submission.guide.created' &&
+      event.type !== 'submission.inquiry.created'
+    ) {
+      console.info('Skipping CRM dispatch for unsupported event type.', {
+        eventType: event.type,
+      });
+      return;
+    }
+
     await queueCrmEvent({
       eventType: event.type,
       timestamp: event.occurredAt,
@@ -59,6 +70,21 @@ class DefaultEmailProvider implements EmailProvider {
       email: input.email,
       company: input.company,
       challenge: input.challenge,
+    });
+  }
+
+  async sendRegistrationStatusUpdate(input: {
+    event: OutboundEventV1;
+    publicId: string;
+    eventId: string;
+    statusCode: string;
+    statusLabel: string;
+  }): Promise<void> {
+    await sendRegistrationStatusEmail({
+      publicId: input.publicId,
+      eventId: input.eventId,
+      statusCode: input.statusCode,
+      statusLabel: input.statusLabel,
     });
   }
 }

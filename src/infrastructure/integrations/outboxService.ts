@@ -1,4 +1,5 @@
 import type { OutboundEventV1 } from '@plenor/contracts/events';
+import { REGISTRATION_STATUSES } from '@/domain/org-site/constants';
 import { getIntegrationProviders } from '@/infrastructure/integrations/defaultProviders';
 import { mapEventToOutboxJobs } from '@/infrastructure/integrations/outboundEvents';
 import {
@@ -12,6 +13,32 @@ import {
 
 function asEvent(value: unknown): OutboundEventV1<unknown> {
   return value as OutboundEventV1<unknown>;
+}
+
+const STATUS_SUBMITTED = REGISTRATION_STATUSES[0];
+const STATUS_PAYMENT_CONFIRMATION_SUBMITTED = REGISTRATION_STATUSES[2];
+
+function deriveRegistrationStatus(event: OutboundEventV1<unknown>): {
+  statusCode: string;
+  statusLabel: string;
+} {
+  if (event.type === 'submission.registration.created') {
+    return {
+      statusCode: STATUS_SUBMITTED,
+      statusLabel: 'Registration Submitted',
+    };
+  }
+
+  if (event.type === 'submission.registration.payment_confirmation.submitted') {
+    return {
+      statusCode: STATUS_PAYMENT_CONFIRMATION_SUBMITTED,
+      statusLabel: 'Payment Confirmation Submitted',
+    };
+  }
+
+  throw new Error(
+    `Unsupported registration email event type "${event.type}" for email.registration provider.`,
+  );
 }
 
 async function dispatchOutboxJob(job: OutboxJob): Promise<void> {
@@ -49,6 +76,23 @@ async function dispatchOutboxJob(job: OutboxJob): Promise<void> {
       email: String(payload.email || ''),
       company: String(payload.company || ''),
       challenge: String(payload.challenge || ''),
+    });
+    return;
+  }
+
+  if (job.provider === 'email.registration') {
+    const publicIdRaw = payload.publicId;
+    if (typeof publicIdRaw !== 'string' || !publicIdRaw.trim()) {
+      throw new Error('Registration outbox event is missing required payload field "publicId".');
+    }
+
+    const registrationStatus = deriveRegistrationStatus(event);
+    await providers.email.sendRegistrationStatusUpdate({
+      event,
+      publicId: publicIdRaw.trim(),
+      eventId: String(payload.eventId || ''),
+      statusCode: registrationStatus.statusCode,
+      statusLabel: registrationStatus.statusLabel,
     });
     return;
   }

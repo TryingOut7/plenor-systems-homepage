@@ -24,6 +24,8 @@ import * as backendStore from '@/infrastructure/persistence/backendStore';
 import * as searchService from '@/application/search/searchService';
 import * as guideSubmissionService from '@/application/forms/guideSubmissionService';
 import * as inquirySubmissionService from '@/application/forms/inquirySubmissionService';
+import * as registrationAdminService from '@/application/org-site/registrationAdminService';
+import * as registrationSubmissionService from '@/application/org-site/registrationSubmissionService';
 import * as seedSitePagesService from '@/application/internal/seedSitePagesService';
 import * as workspaceMutationService from '@/application/workspaces/workspaceMutationService';
 import * as workspaceErrorStatus from '@/application/workspaces/workspaceErrorStatus';
@@ -76,6 +78,20 @@ const { submitInquiryForm } =
   interopModule<typeof import('@/application/forms/inquirySubmissionService')>(
     inquirySubmissionService,
   );
+const {
+  getRegistrationStatus,
+  submitPaymentConfirmation,
+  submitRegistration,
+} = interopModule<typeof import('@/application/org-site/registrationSubmissionService')>(
+  registrationSubmissionService,
+);
+const {
+  getRegistrationSubmission,
+  listRegistrationSubmissions,
+  updateRegistrationStatus,
+} = interopModule<typeof import('@/application/org-site/registrationAdminService')>(
+  registrationAdminService,
+);
 const { seedSitePagesForRequest } =
   interopModule<typeof import('@/application/internal/seedSitePagesService')>(
     seedSitePagesService,
@@ -123,6 +139,12 @@ function asRecord(value: unknown): Record<string, unknown> {
 
 function readParamId(params: unknown): string {
   const raw = asRecord(params).id;
+  if (typeof raw !== 'string') return '';
+  return raw.trim();
+}
+
+function readParamPublicId(params: unknown): string {
+  const raw = asRecord(params).publicId;
   if (typeof raw !== 'string') return '';
   return raw.trim();
 }
@@ -184,7 +206,7 @@ export function buildBackendServer(): FastifyInstance {
 
   app.register(cors, {
     origin: isDev ? true : allowedOrigins,
-    methods: ['GET', 'POST', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Api-Key', 'Idempotency-Key', 'X-Request-Id'],
     credentials: false,
   });
@@ -509,6 +531,154 @@ export function buildBackendServer(): FastifyInstance {
 
     await persistIdempotentResult({
       routePath: '/v1/forms/inquiry',
+      key: idempotency.key,
+      fingerprint: idempotency.fingerprint,
+      status: result.status,
+      body: responseBody,
+      headers: result.headers,
+    });
+
+    return sendServiceResult(reply, result, request.id);
+  });
+
+  app.post('/v1/forms/registration', async (request, reply) => {
+    const result = await submitRegistration(toRequestContext(request), request.body);
+    return sendServiceResult(reply, result, request.id);
+  });
+
+  app.get('/v1/forms/registration/:publicId', async (request, reply) => {
+    const publicId = readParamPublicId(request.params);
+    const result = await getRegistrationStatus(toRequestContext(request), publicId);
+    return sendServiceResult(reply, result, request.id);
+  });
+
+  app.post('/v1/forms/registration/:publicId/payment-confirmation', async (request, reply) => {
+    const publicId = readParamPublicId(request.params);
+    const result = await submitPaymentConfirmation(
+      toRequestContext(request),
+      publicId,
+      request.body,
+    );
+    return sendServiceResult(reply, result, request.id);
+  });
+
+  app.get('/v1/admin/registration-submissions', async (request, reply) => {
+    const auth = requireApiRole(
+      toRequestContext(request).apiKey,
+      ['admin'],
+    );
+
+    if (!auth.ok) {
+      return reply.status(auth.status).send(
+        toBackendErrorResponse({
+          status: auth.status,
+          requestId: request.id,
+          body: {
+            code: auth.code,
+            message: auth.message,
+          },
+        }),
+      );
+    }
+
+    const result = await listRegistrationSubmissions(toRequestContext(request));
+    return sendServiceResult(reply, result, request.id);
+  });
+
+  app.get('/v1/admin/registration-submissions/:publicId', async (request, reply) => {
+    const auth = requireApiRole(
+      toRequestContext(request).apiKey,
+      ['admin'],
+    );
+
+    if (!auth.ok) {
+      return reply.status(auth.status).send(
+        toBackendErrorResponse({
+          status: auth.status,
+          requestId: request.id,
+          body: {
+            code: auth.code,
+            message: auth.message,
+          },
+        }),
+      );
+    }
+
+    const publicId = readParamPublicId(request.params);
+    const result = await getRegistrationSubmission(toRequestContext(request), publicId);
+    return sendServiceResult(reply, result, request.id);
+  });
+
+  app.patch('/v1/admin/registration-submissions/:publicId', async (request, reply) => {
+    const auth = requireApiRole(
+      toRequestContext(request).apiKey,
+      ['admin'],
+    );
+
+    if (!auth.ok) {
+      return reply.status(auth.status).send(
+        toBackendErrorResponse({
+          status: auth.status,
+          requestId: request.id,
+          body: {
+            code: auth.code,
+            message: auth.message,
+          },
+        }),
+      );
+    }
+
+    const publicId = readParamPublicId(request.params);
+    const routePath = `/v1/admin/registration-submissions/${publicId}`;
+    const rawIdempotencyKey = request.headers['idempotency-key'];
+    const idempotencyKey =
+      typeof rawIdempotencyKey === 'string'
+        ? rawIdempotencyKey
+        : Array.isArray(rawIdempotencyKey)
+          ? rawIdempotencyKey[0]
+          : '';
+
+    if (!idempotencyKey?.trim()) {
+      return reply.status(400).send(
+        toBackendErrorResponse({
+          status: 400,
+          requestId: request.id,
+          body: {
+            code: 'MISSING_IDEMPOTENCY_KEY',
+            message: 'Idempotency-Key header is required.',
+          },
+        }),
+      );
+    }
+
+    const idempotency = await tryHandleIdempotentReplay({
+      request,
+      reply,
+      routePath,
+    });
+    if (idempotency.kind === 'handled') {
+      return reply;
+    }
+
+    const result = await updateRegistrationStatus(
+      toRequestContext(request),
+      publicId,
+      request.body,
+      { role: 'admin', keyId: auth.principal.keyId },
+    );
+
+    const responseBody =
+      result.status >= 400
+        ? toBackendErrorResponse({
+            status: result.status,
+            requestId: request.id,
+            body: result.body as unknown as Record<string, unknown>,
+            headers: result.headers,
+          })
+        : result.body;
+
+    await persistIdempotentResult({
+      routePath,
       key: idempotency.key,
       fingerprint: idempotency.fingerprint,
       status: result.status,

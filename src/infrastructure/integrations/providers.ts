@@ -18,6 +18,13 @@ export interface EmailProvider {
     company: string;
     challenge: string;
   }): Promise<void>;
+  sendRegistrationStatusUpdate(input: {
+    event: OutboundEventV1;
+    publicId: string;
+    eventId: string;
+    statusCode: string;
+    statusLabel: string;
+  }): Promise<void>;
 }
 
 export interface WebhookProvider {

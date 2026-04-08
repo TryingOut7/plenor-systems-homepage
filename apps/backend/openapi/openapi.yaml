@@ -163,6 +163,93 @@ paths:
           $ref: '#/components/responses/ErrorRateLimited'
         '500':
           $ref: '#/components/responses/ErrorInternal'
+  /v1/forms/registration:
+    post:
+      operationId: submitRegistration
+      tags: [forms, org-site]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationSubmissionRequest'
+      responses:
+        '200':
+          description: Registration submission accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationSubmissionResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '409':
+          $ref: '#/components/responses/ErrorConflict'
+        '422':
+          $ref: '#/components/responses/ErrorValidation'
+        '429':
+          $ref: '#/components/responses/ErrorRateLimited'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
+  /v1/forms/registration/{publicId}:
+    get:
+      operationId: getRegistrationStatus
+      tags: [forms, org-site]
+      parameters:
+        - in: path
+          name: publicId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Public registration status response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationStatusResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '429':
+          $ref: '#/components/responses/ErrorRateLimited'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
+  /v1/forms/registration/{publicId}/payment-confirmation:
+    post:
+      operationId: submitPaymentConfirmation
+      tags: [forms, org-site]
+      parameters:
+        - in: path
+          name: publicId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentConfirmationRequest'
+      responses:
+        '200':
+          description: Payment confirmation accepted or replayed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationStatusResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '429':
+          $ref: '#/components/responses/ErrorRateLimited'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
   /v1/forms/templates/create:
     post:
       operationId: createWorkspaceFormTemplate
@@ -421,6 +508,123 @@ paths:
                 $ref: '#/components/schemas/ContentNavigationResponse'
         '429':
           $ref: '#/components/responses/ErrorRateLimited'
+  /v1/admin/registration-submissions:
+    get:
+      operationId: listRegistrationSubmissions
+      tags: [admin, org-site]
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: status
+          required: false
+          schema:
+            $ref: '#/components/schemas/RegistrationStatus'
+        - in: query
+          name: eventId
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated registration submissions with status counts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminRegistrationSubmissionsListResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
+  /v1/admin/registration-submissions/{publicId}:
+    get:
+      operationId: getRegistrationSubmission
+      tags: [admin, org-site]
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - in: path
+          name: publicId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Registration submission detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminRegistrationSubmissionDetailResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
+    patch:
+      operationId: patchRegistrationSubmissionStatus
+      tags: [admin, org-site]
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - in: path
+          name: publicId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminStatusUpdateRequest'
+      responses:
+        '200':
+          description: Registration status updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminRegistrationSubmissionDetailResponse'
+        '400':
+          $ref: '#/components/responses/ErrorValidation'
+        '401':
+          $ref: '#/components/responses/ErrorUnauthorized'
+        '403':
+          $ref: '#/components/responses/ErrorForbidden'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '409':
+          $ref: '#/components/responses/ErrorConflict'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
   /v1/admin/submissions:
     get:
       operationId: listAdminSubmissions
@@ -706,6 +910,12 @@ components:
             - FORBIDDEN
             - NOT_FOUND
             - CONFLICT
+            - ALREADY_EXISTS
+            - REGISTRATION_FULL
+            - REGISTRATION_NOT_OPEN
+            - REGISTRATION_CLOSED
+            - TRANSITION_FORBIDDEN
+            - MISSING_IDEMPOTENCY_KEY
             - RATE_LIMITED
             - IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_PAYLOAD
             - BACKEND_UNAVAILABLE
@@ -748,6 +958,187 @@ components:
           type: string
         challenge:
           type: string
+    RegistrationStatus:
+      type: string
+      enum:
+        - submitted
+        - payment_pending
+        - payment_confirmation_submitted
+        - payment_confirmed
+        - registration_confirmed
+        - cancelled_rejected
+    RegistrationContactPreferences:
+      type: object
+      properties:
+        email:
+          type: boolean
+        sms:
+          type: boolean
+        phone:
+          type: boolean
+        preferredChannel:
+          type: string
+          enum: [email, sms, phone]
+      additionalProperties: false
+    RegistrationSubmissionRequest:
+      type: object
+      required: [eventId, name, email]
+      properties:
+        eventId:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        participantCount:
+          type: integer
+          minimum: 1
+        instrument:
+          type: string
+        ageGroup:
+          type: string
+        contactPreferences:
+          $ref: '#/components/schemas/RegistrationContactPreferences'
+      additionalProperties: false
+    RegistrationStatusResponse:
+      type: object
+      required: [publicId, status]
+      properties:
+        publicId:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/RegistrationStatus'
+        userFacingReason:
+          type: string
+          nullable: true
+    RegistrationSubmissionResponse:
+      allOf:
+        - $ref: '#/components/schemas/RegistrationStatusResponse'
+        - type: object
+          required: [success]
+          properties:
+            success:
+              type: boolean
+              const: true
+    PaymentConfirmationRequest:
+      type: object
+      required: [payerName, paymentMethod, amount, paymentDate]
+      properties:
+        payerName:
+          type: string
+        paymentMethod:
+          type: string
+          enum: [zelle, venmo]
+        amount:
+          type: number
+        paymentDate:
+          type: string
+          format: date-time
+        referenceNote:
+          type: string
+      additionalProperties: false
+    AdminStatusUpdateRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: '#/components/schemas/RegistrationStatus'
+        internalReason:
+          type: string
+        userFacingReason:
+          type: string
+      additionalProperties: false
+    AdminRegistrationSubmission:
+      type: object
+      required:
+        [publicId, status, registrationPayload, submittedAt, updatedAt]
+      properties:
+        publicId:
+          type: string
+          format: uuid
+        eventId:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/RegistrationStatus'
+        registrationPayload:
+          type: object
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+              format: email
+            participantCount:
+              type: integer
+            instrument:
+              type: string
+            ageGroup:
+              type: string
+            contactPreferences:
+              $ref: '#/components/schemas/RegistrationContactPreferences'
+          additionalProperties: false
+        paymentConfirmationPayload:
+          type: object
+          nullable: true
+          properties:
+            payerName:
+              type: string
+            paymentMethod:
+              type: string
+              enum: [zelle, venmo]
+            amount:
+              type: number
+            paymentDate:
+              type: string
+              format: date-time
+            referenceNote:
+              type: string
+          additionalProperties: false
+        internalReason:
+          type: string
+          nullable: true
+        userFacingReason:
+          type: string
+          nullable: true
+        submittedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    AdminRegistrationSubmissionsListResponse:
+      type: object
+      required: [items, meta]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminRegistrationSubmission'
+        meta:
+          type: object
+          required: [total, page, limit, totalPages, byStatus]
+          properties:
+            total:
+              type: integer
+            page:
+              type: integer
+            limit:
+              type: integer
+            totalPages:
+              type: integer
+            byStatus:
+              type: object
+              additionalProperties:
+                type: integer
+    AdminRegistrationSubmissionDetailResponse:
+      type: object
+      required: [submission]
+      properties:
+        submission:
+          $ref: '#/components/schemas/AdminRegistrationSubmission'
     FormSubmissionSuccessResponse:
       type: object
       required: [success]

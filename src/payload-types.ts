@@ -84,6 +84,10 @@ export interface Config {
     'team-members': TeamMember;
     logos: Logo;
     'email-templates': EmailTemplate;
+    'org-events': OrgEvent;
+    'org-spotlight': OrgSpotlight;
+    'org-about-profiles': OrgAboutProfile;
+    'org-learning': OrgLearning;
     search: Search;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -119,6 +123,10 @@ export interface Config {
     'team-members': TeamMembersSelect<false> | TeamMembersSelect<true>;
     logos: LogosSelect<false> | LogosSelect<true>;
     'email-templates': EmailTemplatesSelect<false> | EmailTemplatesSelect<true>;
+    'org-events': OrgEventsSelect<false> | OrgEventsSelect<true>;
+    'org-spotlight': OrgSpotlightSelect<false> | OrgSpotlightSelect<true>;
+    'org-about-profiles': OrgAboutProfilesSelect<false> | OrgAboutProfilesSelect<true>;
+    'org-learning': OrgLearningSelect<false> | OrgLearningSelect<true>;
     search: SearchSelect<false> | SearchSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -139,10 +147,14 @@ export interface Config {
   globals: {
     'site-settings': SiteSetting;
     'ui-settings': UiSetting;
+    'org-sponsors': OrgSponsor;
+    'org-home-features': OrgHomeFeature;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'ui-settings': UiSettingsSelect<false> | UiSettingsSelect<true>;
+    'org-sponsors': OrgSponsorsSelect<false> | OrgSponsorsSelect<true>;
+    'org-home-features': OrgHomeFeaturesSelect<false> | OrgHomeFeaturesSelect<true>;
   };
   locale: null;
   widgets: {
@@ -8284,6 +8296,533 @@ export interface AuditLog {
   createdAt: string;
 }
 /**
+ * Community events: concerts, competitions, festivals, and workshops.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-events".
+ */
+export interface OrgEvent {
+  id: number;
+  title: string;
+  /**
+   * Lowercase, hyphenated slug (max 120 characters).
+   */
+  slug: string;
+  eventType: 'concert' | 'competition' | 'festival' | 'workshop';
+  /**
+   * Editorial status — set manually by authors, not derived from dates.
+   */
+  eventStatus: 'upcoming_planned' | 'current_ongoing' | 'past_completed';
+  startDate: string;
+  /**
+   * Optional for multi-day or multi-session events.
+   */
+  endDate?: string | null;
+  /**
+   * Optional display time text (for example "7:00 PM").
+   */
+  startTime?: string | null;
+  /**
+   * Optional display end time text.
+   */
+  endTime?: string | null;
+  /**
+   * IANA timezone (e.g. "America/New_York"). Defaults to UTC.
+   */
+  eventTimezone?: string | null;
+  /**
+   * Short description for cards and search snippets (max 320 chars).
+   */
+  shortSummary: string;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Primary image (recommended 1200×675, 16:9).
+   */
+  heroImage: number | Media;
+  /**
+   * Venue or location name.
+   */
+  venue?: string | null;
+  /**
+   * Full address or location details.
+   */
+  location?: string | null;
+  isFeatured?: boolean | null;
+  /**
+   * Higher values appear first within the same status bucket.
+   */
+  displayPriority?: number | null;
+  registrationRequired?: boolean | null;
+  /**
+   * Requires registrationRequired to be true.
+   */
+  paymentRequired?: boolean | null;
+  /**
+   * Instructions shown to registrants.
+   */
+  registrationInstructions?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Required note/reference format for payment (e.g. "EventName-LastName").
+   */
+  paymentReferenceFormat?: string | null;
+  /**
+   * Zelle payment QR code image.
+   */
+  zelleQrCode?: (number | null) | Media;
+  /**
+   * Venmo payment QR code image.
+   */
+  venmoQrCode?: (number | null) | Media;
+  /**
+   * Detailed payment instructions including anti-fraud disclaimer.
+   */
+  paymentInstructions?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Maximum registrations (leave empty for unlimited).
+   */
+  maxRegistrations?: number | null;
+  /**
+   * When registration opens (optional).
+   */
+  registrationOpensAt?: string | null;
+  /**
+   * When registration closes (optional).
+   */
+  registrationClosesAt?: string | null;
+  /**
+   * Informational: when this event becomes visible as "current".
+   */
+  displayWindowStart?: string | null;
+  /**
+   * Informational: when this event stops being shown as "current".
+   */
+  displayWindowEnd?: string | null;
+  /**
+   * Related community spotlight entries.
+   */
+  relatedSpotlight?: (number | OrgSpotlight)[] | null;
+  /**
+   * Related learning resources.
+   */
+  relatedLearning?: (number | OrgLearning)[] | null;
+  /**
+   * Sub-events within this festival.
+   */
+  relatedEvents?: (number | OrgEvent)[] | null;
+  /**
+   * Additional images for this event.
+   */
+  mediaGallery?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  externalLinks?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The user who originally created this document.
+   */
+  createdBy?: (number | null) | User;
+  /**
+   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
+   */
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  submittedBy?: (number | null) | User;
+  submittedAt?: string | null;
+  /**
+   * Editors/admins only: confirm the review checklist is complete before approving.
+   */
+  reviewChecklistComplete?: boolean | null;
+  /**
+   * Reviewer notes summarizing quality checks and decision rationale.
+   */
+  reviewSummary?: string | null;
+  approvedBy?: (number | null) | User;
+  approvedAt?: string | null;
+  /**
+   * Reason for rejection (visible to the author).
+   */
+  rejectionReason?: string | null;
+  /**
+   * SEO & Open Graph settings
+   */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+    canonicalUrl?: string | null;
+    noindex?: boolean | null;
+    nofollow?: boolean | null;
+    includeInSitemap?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Community spotlights: students, teachers, volunteers, and local artists.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-spotlight".
+ */
+export interface OrgSpotlight {
+  id: number;
+  name: string;
+  /**
+   * Lowercase, hyphenated slug (max 120 characters).
+   */
+  slug: string;
+  category: 'student' | 'teacher' | 'volunteer' | 'local_organization' | 'local_prominent_artist';
+  /**
+   * Short description for cards and search snippets (max 320 chars).
+   */
+  shortSummary: string;
+  detailContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Profile/thumbnail image (recommended 400×400, 1:1).
+   */
+  thumbnailImage: number | Media;
+  /**
+   * Role or title (e.g. "Piano Student", "Lead Volunteer").
+   */
+  roleTitle?: string | null;
+  /**
+   * School, organization, or other affiliation.
+   */
+  affiliation?: string | null;
+  isFeatured?: boolean | null;
+  /**
+   * Lower values appear first within the same category.
+   */
+  displayOrder?: number | null;
+  /**
+   * Additional images for this spotlight.
+   */
+  additionalImages?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional external link (e.g. personal website, social media).
+   */
+  externalLink?: string | null;
+  /**
+   * Related community events.
+   */
+  relatedEvents?: (number | OrgEvent)[] | null;
+  /**
+   * The user who originally created this document.
+   */
+  createdBy?: (number | null) | User;
+  /**
+   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
+   */
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  submittedBy?: (number | null) | User;
+  submittedAt?: string | null;
+  /**
+   * Editors/admins only: confirm the review checklist is complete before approving.
+   */
+  reviewChecklistComplete?: boolean | null;
+  /**
+   * Reviewer notes summarizing quality checks and decision rationale.
+   */
+  reviewSummary?: string | null;
+  approvedBy?: (number | null) | User;
+  approvedAt?: string | null;
+  /**
+   * Reason for rejection (visible to the author).
+   */
+  rejectionReason?: string | null;
+  /**
+   * SEO & Open Graph settings
+   */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+    canonicalUrl?: string | null;
+    noindex?: boolean | null;
+    nofollow?: boolean | null;
+    includeInSitemap?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Learning resources: knowledge sharing, college prep, and mentorship.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-learning".
+ */
+export interface OrgLearning {
+  id: number;
+  title: string;
+  /**
+   * Lowercase, hyphenated slug (max 120 characters).
+   */
+  slug: string;
+  category: 'knowledge_sharing' | 'college_prep' | 'mentorship';
+  /**
+   * Short description for cards and search snippets (max 320 chars).
+   */
+  shortSummary: string;
+  detailContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Optional thumbnail image (recommended 800×600, 4:3).
+   */
+  thumbnail?: (number | null) | Media;
+  /**
+   * Author or contributor name (optional).
+   */
+  author?: string | null;
+  isFeatured?: boolean | null;
+  /**
+   * Lower values appear first within the same category.
+   */
+  displayOrder?: number | null;
+  /**
+   * Optional external reference or resource link.
+   */
+  externalReferenceLink?: string | null;
+  /**
+   * Related community event (optional).
+   */
+  relatedEvent?: (number | null) | OrgEvent;
+  /**
+   * Related community spotlight (optional).
+   */
+  relatedSpotlight?: (number | null) | OrgSpotlight;
+  /**
+   * The user who originally created this document.
+   */
+  createdBy?: (number | null) | User;
+  /**
+   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
+   */
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  submittedBy?: (number | null) | User;
+  submittedAt?: string | null;
+  /**
+   * Editors/admins only: confirm the review checklist is complete before approving.
+   */
+  reviewChecklistComplete?: boolean | null;
+  /**
+   * Reviewer notes summarizing quality checks and decision rationale.
+   */
+  reviewSummary?: string | null;
+  approvedBy?: (number | null) | User;
+  approvedAt?: string | null;
+  /**
+   * Reason for rejection (visible to the author).
+   */
+  rejectionReason?: string | null;
+  /**
+   * SEO & Open Graph settings
+   */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+    canonicalUrl?: string | null;
+    noindex?: boolean | null;
+    nofollow?: boolean | null;
+    includeInSitemap?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * About profiles: founders, volunteer team members, and mentors.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-about-profiles".
+ */
+export interface OrgAboutProfile {
+  id: number;
+  name: string;
+  /**
+   * Lowercase, hyphenated slug (max 120 characters).
+   */
+  slug: string;
+  category: 'founder' | 'volunteer_team' | 'mentor';
+  /**
+   * Short biography for cards and search snippets (max 320 chars).
+   */
+  shortBio: string;
+  detailContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Profile image (recommended 400×400, 1:1).
+   */
+  profileImage: number | Media;
+  /**
+   * Role or title (e.g. "Co-Founder", "Lead Mentor").
+   */
+  roleTitle?: string | null;
+  /**
+   * Organization or other affiliation.
+   */
+  affiliation?: string | null;
+  /**
+   * Lower values appear first within the same category.
+   */
+  displayOrder?: number | null;
+  /**
+   * Additional images for this profile.
+   */
+  additionalImages?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional external link (e.g. personal website, LinkedIn).
+   */
+  externalLink?: string | null;
+  /**
+   * The user who originally created this document.
+   */
+  createdBy?: (number | null) | User;
+  /**
+   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
+   */
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  submittedBy?: (number | null) | User;
+  submittedAt?: string | null;
+  /**
+   * Editors/admins only: confirm the review checklist is complete before approving.
+   */
+  reviewChecklistComplete?: boolean | null;
+  /**
+   * Reviewer notes summarizing quality checks and decision rationale.
+   */
+  reviewSummary?: string | null;
+  approvedBy?: (number | null) | User;
+  approvedAt?: string | null;
+  /**
+   * Reason for rejection (visible to the author).
+   */
+  rejectionReason?: string | null;
+  /**
+   * SEO & Open Graph settings
+   */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+    canonicalUrl?: string | null;
+    noindex?: boolean | null;
+    nofollow?: boolean | null;
+    includeInSitemap?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -8589,6 +9128,22 @@ export interface PayloadLockedDocument {
         value: number | EmailTemplate;
       } | null)
     | ({
+        relationTo: 'org-events';
+        value: number | OrgEvent;
+      } | null)
+    | ({
+        relationTo: 'org-spotlight';
+        value: number | OrgSpotlight;
+      } | null)
+    | ({
+        relationTo: 'org-about-profiles';
+        value: number | OrgAboutProfile;
+      } | null)
+    | ({
+        relationTo: 'org-learning';
+        value: number | OrgLearning;
+      } | null)
+    | ({
         relationTo: 'search';
         value: number | Search;
       } | null)
@@ -8702,6 +9257,10 @@ export interface PayloadQueryPreset {
     | 'testimonials'
     | 'team-members'
     | 'logos'
+    | 'org-events'
+    | 'org-spotlight'
+    | 'org-about-profiles'
+    | 'org-learning'
     | 'forms';
   /**
    * This is a temporary field used to determine if updating the preset would remove the user's access to it. When `true`, this record will be deleted after running the preset's `validate` function.
@@ -12024,6 +12583,220 @@ export interface EmailTemplatesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-events_select".
+ */
+export interface OrgEventsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  eventType?: T;
+  eventStatus?: T;
+  startDate?: T;
+  endDate?: T;
+  startTime?: T;
+  endTime?: T;
+  eventTimezone?: T;
+  shortSummary?: T;
+  description?: T;
+  heroImage?: T;
+  venue?: T;
+  location?: T;
+  isFeatured?: T;
+  displayPriority?: T;
+  registrationRequired?: T;
+  paymentRequired?: T;
+  registrationInstructions?: T;
+  paymentReferenceFormat?: T;
+  zelleQrCode?: T;
+  venmoQrCode?: T;
+  paymentInstructions?: T;
+  maxRegistrations?: T;
+  registrationOpensAt?: T;
+  registrationClosesAt?: T;
+  displayWindowStart?: T;
+  displayWindowEnd?: T;
+  relatedSpotlight?: T;
+  relatedLearning?: T;
+  relatedEvents?: T;
+  mediaGallery?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  externalLinks?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  createdBy?: T;
+  workflowStatus?: T;
+  submittedBy?: T;
+  submittedAt?: T;
+  reviewChecklistComplete?: T;
+  reviewSummary?: T;
+  approvedBy?: T;
+  approvedAt?: T;
+  rejectionReason?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+        canonicalUrl?: T;
+        noindex?: T;
+        nofollow?: T;
+        includeInSitemap?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-spotlight_select".
+ */
+export interface OrgSpotlightSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  category?: T;
+  shortSummary?: T;
+  detailContent?: T;
+  thumbnailImage?: T;
+  roleTitle?: T;
+  affiliation?: T;
+  isFeatured?: T;
+  displayOrder?: T;
+  additionalImages?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  externalLink?: T;
+  relatedEvents?: T;
+  createdBy?: T;
+  workflowStatus?: T;
+  submittedBy?: T;
+  submittedAt?: T;
+  reviewChecklistComplete?: T;
+  reviewSummary?: T;
+  approvedBy?: T;
+  approvedAt?: T;
+  rejectionReason?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+        canonicalUrl?: T;
+        noindex?: T;
+        nofollow?: T;
+        includeInSitemap?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-about-profiles_select".
+ */
+export interface OrgAboutProfilesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  category?: T;
+  shortBio?: T;
+  detailContent?: T;
+  profileImage?: T;
+  roleTitle?: T;
+  affiliation?: T;
+  displayOrder?: T;
+  additionalImages?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  externalLink?: T;
+  createdBy?: T;
+  workflowStatus?: T;
+  submittedBy?: T;
+  submittedAt?: T;
+  reviewChecklistComplete?: T;
+  reviewSummary?: T;
+  approvedBy?: T;
+  approvedAt?: T;
+  rejectionReason?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+        canonicalUrl?: T;
+        noindex?: T;
+        nofollow?: T;
+        includeInSitemap?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-learning_select".
+ */
+export interface OrgLearningSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  category?: T;
+  shortSummary?: T;
+  detailContent?: T;
+  thumbnail?: T;
+  author?: T;
+  isFeatured?: T;
+  displayOrder?: T;
+  externalReferenceLink?: T;
+  relatedEvent?: T;
+  relatedSpotlight?: T;
+  createdBy?: T;
+  workflowStatus?: T;
+  submittedBy?: T;
+  submittedAt?: T;
+  reviewChecklistComplete?: T;
+  reviewSummary?: T;
+  approvedBy?: T;
+  approvedAt?: T;
+  rejectionReason?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+        canonicalUrl?: T;
+        noindex?: T;
+        nofollow?: T;
+        includeInSitemap?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "search_select".
  */
 export interface SearchSelect<T extends boolean = true> {
@@ -12920,6 +13693,177 @@ export interface UiSetting {
   createdAt?: string | null;
 }
 /**
+ * Sponsors and donation settings for the org-site. Payment destination fields are admin-only governance fields.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-sponsors".
+ */
+export interface OrgSponsor {
+  id: number;
+  pageTitle: string;
+  supportSummary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  sponsorAcknowledgmentContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  donationInstructions?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Upload static QR image. Media alt text is required and should describe the payment destination.
+   */
+  zelleQrCode?: (number | null) | Media;
+  /**
+   * Upload static QR image. Media alt text is required and should describe the payment destination.
+   */
+  venmoQrCode?: (number | null) | Media;
+  /**
+   * Required before publish. Include anti-fraud guidance and visible destination text (not image-only instructions).
+   */
+  paymentInstructionsContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Support contact endpoint. Allowed formats: https://... or mailto:....
+   */
+  supportContactPath?: string | null;
+  sponsorLogos?:
+    | {
+        logo: number | Media;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  featuredSupporterText?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  supportFaq?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional custom order for sponsors page content blocks.
+   */
+  displayOrder?:
+    | (
+        | 'support_summary'
+        | 'sponsor_acknowledgment'
+        | 'donation_instructions'
+        | 'payment_instructions'
+        | 'sponsor_logos'
+        | 'support_faq'
+        | 'featured_supporter_text'
+      )[]
+    | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Curated home-page selections for events, spotlight, and learning with per-section placeholders.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-home-features".
+ */
+export interface OrgHomeFeature {
+  id: number;
+  /**
+   * Optional curated events for the home page (max 3).
+   */
+  featuredEvents?: (number | OrgEvent)[] | null;
+  /**
+   * Optional curated spotlight entries for the home page (max 3).
+   */
+  featuredSpotlight?: (number | OrgSpotlight)[] | null;
+  /**
+   * Optional curated learning entries for the home page (max 3).
+   */
+  featuredLearning?: (number | OrgLearning)[] | null;
+  /**
+   * Shown when no events can be rendered on the home page.
+   */
+  eventsPlaceholder?: string | null;
+  /**
+   * Shown when no spotlight entries can be rendered on the home page.
+   */
+  spotlightPlaceholder?: string | null;
+  /**
+   * Shown when no learning entries can be rendered on the home page.
+   */
+  learningPlaceholder?: string | null;
+  /**
+   * Optional section order override (events, spotlight, learning, sponsors).
+   */
+  homeSectionOrder?: ('events' | 'spotlight' | 'learning' | 'sponsors')[] | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -13205,6 +14149,57 @@ export interface UiSettingsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-sponsors_select".
+ */
+export interface OrgSponsorsSelect<T extends boolean = true> {
+  pageTitle?: T;
+  supportSummary?: T;
+  sponsorAcknowledgmentContent?: T;
+  donationInstructions?: T;
+  zelleQrCode?: T;
+  venmoQrCode?: T;
+  paymentInstructionsContent?: T;
+  supportContactPath?: T;
+  sponsorLogos?:
+    | T
+    | {
+        logo?: T;
+        label?: T;
+        id?: T;
+      };
+  featuredSupporterText?: T;
+  supportFaq?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  displayOrder?: T;
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-home-features_select".
+ */
+export interface OrgHomeFeaturesSelect<T extends boolean = true> {
+  featuredEvents?: T;
+  featuredSpotlight?: T;
+  featuredLearning?: T;
+  eventsPlaceholder?: T;
+  spotlightPlaceholder?: T;
+  learningPlaceholder?: T;
+  homeSectionOrder?: T;
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -13239,6 +14234,10 @@ export interface TaskCreateCollectionExport {
       | 'team-members'
       | 'logos'
       | 'email-templates'
+      | 'org-events'
+      | 'org-spotlight'
+      | 'org-about-profiles'
+      | 'org-learning'
       | 'search'
       | 'forms'
       | 'form-submissions'

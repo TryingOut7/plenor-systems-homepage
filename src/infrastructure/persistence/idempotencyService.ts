@@ -4,6 +4,21 @@ import {
   writeIdempotencyRecord,
 } from '@/infrastructure/persistence/backendStore';
 
+const DEFAULT_REPLAY_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+function replayWindowMs(): number {
+  const raw = process.env.BACKEND_IDEMPOTENCY_REPLAY_WINDOW_MS;
+  const parsed = Number(raw);
+  if (Number.isFinite(parsed) && parsed > 0) return parsed;
+  return DEFAULT_REPLAY_WINDOW_MS;
+}
+
+function isReplayExpired(createdAt: string): boolean {
+  const createdMs = Date.parse(createdAt);
+  if (!Number.isFinite(createdMs)) return false;
+  return Date.now() - createdMs > replayWindowMs();
+}
+
 function canonicalize(value: unknown): string {
   if (value === null || value === undefined) return 'null';
   if (typeof value !== 'object') return JSON.stringify(value);
@@ -48,6 +63,10 @@ export async function getIdempotencyReplay(input: {
   });
 
   if (!existing) {
+    return null;
+  }
+
+  if (isReplayExpired(existing.createdAt)) {
     return null;
   }
 

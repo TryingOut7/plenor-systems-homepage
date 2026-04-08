@@ -57,6 +57,7 @@ function makeProviders(overrides: Record<string, unknown> = {}) {
     email: {
       sendGuideDelivery: vi.fn().mockResolvedValue(undefined),
       sendInquiryRouting: vi.fn().mockResolvedValue(undefined),
+      sendRegistrationStatusUpdate: vi.fn().mockResolvedValue(undefined),
     },
     payloadForms: {
       saveGuideSubmission: vi.fn().mockResolvedValue(undefined),
@@ -217,6 +218,94 @@ describe('outboxService', () => {
       expect(providers.email.sendInquiryRouting).toHaveBeenCalledWith(
         expect.objectContaining({ name: 'Carol', email: 'carol@example.com', company: 'Acme', challenge: 'Scale' }),
       );
+    });
+
+    it('dispatches email.registration provider via providers.email.sendRegistrationStatusUpdate', async () => {
+      const providers = makeProviders();
+      mockGetIntegrationProviders.mockReturnValue(providers as never);
+      const job = makeJob({
+        provider: 'email.registration',
+        payload: {
+          event: {
+            type: 'submission.registration.created',
+            occurredAt: new Date().toISOString(),
+            payload: {
+              publicId: 'reg-1',
+              eventId: '123',
+            },
+          },
+        },
+      });
+      mockClaimDueOutboxJobs.mockResolvedValue([job]);
+
+      await processOutboxTick();
+
+      expect(providers.email.sendRegistrationStatusUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          publicId: 'reg-1',
+          eventId: '123',
+          statusCode: 'submitted',
+          statusLabel: 'Registration Submitted',
+        }),
+      );
+    });
+
+    it('dispatches payment confirmation registration event with human-readable status label', async () => {
+      const providers = makeProviders();
+      mockGetIntegrationProviders.mockReturnValue(providers as never);
+      const job = makeJob({
+        provider: 'email.registration',
+        payload: {
+          event: {
+            type: 'submission.registration.payment_confirmation.submitted',
+            occurredAt: new Date().toISOString(),
+            payload: {
+              publicId: 'reg-2',
+              eventId: '456',
+              confirmedAt: new Date().toISOString(),
+            },
+          },
+        },
+      });
+      mockClaimDueOutboxJobs.mockResolvedValue([job]);
+
+      await processOutboxTick();
+
+      expect(providers.email.sendRegistrationStatusUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          publicId: 'reg-2',
+          eventId: '456',
+          statusCode: 'payment_confirmation_submitted',
+          statusLabel: 'Payment Confirmation Submitted',
+        }),
+      );
+    });
+
+    it('fails registration email dispatch when publicId is missing from payload', async () => {
+      const providers = makeProviders();
+      mockGetIntegrationProviders.mockReturnValue(providers as never);
+      const job = makeJob({
+        provider: 'email.registration',
+        payload: {
+          event: {
+            type: 'submission.registration.created',
+            occurredAt: new Date().toISOString(),
+            payload: {
+              eventId: 'missing-public-id',
+            },
+          },
+        },
+      });
+      mockClaimDueOutboxJobs.mockResolvedValue([job]);
+
+      const result = await processOutboxTick();
+
+      expect(result).toEqual({ processed: 0, failed: 1 });
+      expect(mockMarkOutboxJobFailed).toHaveBeenCalledWith(
+        'job_1',
+        'Registration outbox event is missing required payload field "publicId".',
+      );
+      expect(providers.email.sendRegistrationStatusUpdate).not.toHaveBeenCalled();
     });
 
     it('dispatches payload.forms.guide via providers.payloadForms.saveGuideSubmission', async () => {

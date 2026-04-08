@@ -55,8 +55,14 @@ import { AuditLogs } from './payload/collections/AuditLogs.ts';
 import { TeamMembers } from './payload/collections/TeamMembers.ts';
 import { Logos } from './payload/collections/Logos.ts';
 import { EmailTemplates } from './payload/collections/EmailTemplates.ts';
+import { OrgEvents } from './payload/collections/OrgEvents.ts';
+import { OrgSpotlight } from './payload/collections/OrgSpotlight.ts';
+import { OrgAboutProfiles } from './payload/collections/OrgAboutProfiles.ts';
+import { OrgLearning } from './payload/collections/OrgLearning.ts';
 import { SiteSettings } from './payload/globals/SiteSettings.ts';
 import { UISettings } from './payload/globals/UISettings.ts';
+import { OrgSponsors } from './payload/globals/OrgSponsors.ts';
+import { OrgHomeFeatures } from './payload/globals/OrgHomeFeatures.ts';
 import { CleanPasteFeature } from './payload/editor/features/cleanPasteFeature.ts';
 import {
   parseFormTemplateKey,
@@ -760,8 +766,12 @@ export default buildConfig({
     TeamMembers,
     Logos,
     EmailTemplates,
+    withImportExportBanner(OrgEvents),
+    withImportExportBanner(OrgSpotlight),
+    withImportExportBanner(OrgAboutProfiles),
+    withImportExportBanner(OrgLearning),
   ],
-  globals: [SiteSettings, UISettings],
+  globals: [SiteSettings, UISettings, OrgSponsors, OrgHomeFeatures],
   editor: lexicalEditor({
     features: () => [
       BoldFeature(),

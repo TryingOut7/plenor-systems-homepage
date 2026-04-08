@@ -1,4 +1,5 @@
 import type { CollectionBeforeChangeHook } from 'payload';
+import { ORG_SLUG_MAX_LENGTH } from '../../domain/org-site/constants.ts';
 
 function normalizeSlug(value: unknown): string | null {
   if (typeof value !== 'string') return null;
@@ -20,7 +21,8 @@ function slugFromTitle(title: unknown): string | null {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
-  return slug || null;
+  const capped = slug.slice(0, ORG_SLUG_MAX_LENGTH).replace(/-+$/g, '');
+  return capped || null;
 }
 
 export const normalizeSlugBeforeChange: CollectionBeforeChangeHook = ({ data, operation }) => {
@@ -32,7 +34,7 @@ export const normalizeSlugBeforeChange: CollectionBeforeChangeHook = ({ data, op
   if (normalized !== null && normalized !== '') {
     incoming.slug = normalized;
   } else if (operation === 'create' || !normalized) {
-    const generated = slugFromTitle(incoming.title);
+    const generated = slugFromTitle(incoming.title) ?? slugFromTitle(incoming.name);
     if (generated) {
       incoming.slug = generated;
     }
