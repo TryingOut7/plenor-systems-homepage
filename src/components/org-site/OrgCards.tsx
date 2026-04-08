@@ -31,6 +31,7 @@ function MediaOrPlaceholder({
   height,
   aspectRatio,
   fallbackLabel,
+  placeholderSrc,
 }: {
   src?: string;
   alt?: string;
@@ -38,24 +39,40 @@ function MediaOrPlaceholder({
   height?: number;
   aspectRatio: string;
   fallbackLabel: string;
+  placeholderSrc: string;
 }) {
   if (!src) {
     return (
       <div
-        aria-hidden="true"
         style={{
           width: '100%',
           aspectRatio,
           borderRadius: '8px',
-          border: '1px dashed var(--ui-color-border)',
+          border: '1px solid var(--ui-color-border)',
           display: 'grid',
+          gap: '8px',
           placeItems: 'center',
+          padding: '10px',
           color: 'var(--ui-color-text-muted)',
           background:
             'linear-gradient(135deg, rgba(27,45,79,0.06) 0%, rgba(27,45,79,0.02) 60%, rgba(255,255,255,0.8) 100%)',
           fontSize: '13px',
         }}
       >
+        <Image
+          src={placeholderSrc}
+          alt={`${fallbackLabel} placeholder`}
+          width={width || 1200}
+          height={height || 675}
+          style={{
+            width: '100%',
+            height: '100%',
+            maxHeight: '100%',
+            aspectRatio,
+            objectFit: 'contain',
+            borderRadius: '8px',
+          }}
+        />
         {fallbackLabel}
       </div>
     );
@@ -91,6 +108,7 @@ export function OrgEventCard({ event, href }: { event: OrgEvent; href: string })
         height={hero?.height}
         aspectRatio="16 / 9"
         fallbackLabel="Event image"
+        placeholderSrc="/media/qa-media.svg"
       />
       <p className="section-label" style={{ margin: 0 }}>
         {event.eventType.replace(/_/g, ' ')}
@@ -130,6 +148,7 @@ export function OrgSpotlightCard({
         height={image?.height}
         aspectRatio="1 / 1"
         fallbackLabel="Spotlight image"
+        placeholderSrc="/media/qa-media-1.svg"
       />
       <p className="section-label" style={{ margin: 0 }}>
         {spotlight.category.replace(/_/g, ' ')}
@@ -166,6 +185,7 @@ export function OrgLearningCard({
         height={image?.height}
         aspectRatio="4 / 3"
         fallbackLabel="Learning image"
+        placeholderSrc="/media/qa-media-2.svg"
       />
       <p className="section-label" style={{ margin: 0 }}>
         {learning.category.replace(/_/g, ' ')}
@@ -202,6 +222,7 @@ export function OrgAboutCard({
         height={image?.height}
         aspectRatio="1 / 1"
         fallbackLabel="Profile image"
+        placeholderSrc="/media/qa-media-1.svg"
       />
       <p className="section-label" style={{ margin: 0 }}>
         {profile.category.replace(/_/g, ' ')}

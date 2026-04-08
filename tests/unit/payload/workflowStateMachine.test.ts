@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   getAllowedWorkflowStatusesForDocument,
+  getAllowedWorkflowTransitions,
   normalizeWorkflowStatus,
   resolveWorkflowRole,
 } from '@/payload/workflow/stateMachine';
@@ -31,6 +32,23 @@ describe('workflow state machine', () => {
         role: 'admin',
       }),
     ).toEqual(['draft', 'in_review', 'approved', 'published']);
+  });
+
+  it('allows editor publish transitions only when editor-publish policy is enabled', () => {
+    expect(
+      getAllowedWorkflowTransitions({
+        fromStatus: 'approved',
+        role: 'editor',
+      }),
+    ).toEqual(['draft']);
+
+    expect(
+      getAllowedWorkflowTransitions({
+        fromStatus: 'approved',
+        role: 'editor',
+        allowEditorPublish: true,
+      }),
+    ).toEqual(['draft', 'published']);
   });
 
   it('resolves and normalizes role/status values safely', () => {

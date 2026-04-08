@@ -52,6 +52,7 @@
     "generate:db-schema": "payload generate:db-schema",
     "generate:migration": "payload migrate:create",
     "seed:site-pages": "node scripts/seed-site-pages.mjs",
+    "seed:page-presets": "node scripts/seed-page-presets.mjs",
     "seed:forms": "node scripts/seed-forms.mjs",
     "cms:audit:dashboard": "npx -y node@20 --import tsx scripts/generate-audit-dashboard.mjs",
     "cms:schema:check": "npx -y node@20 --import tsx scripts/check-cms-schema-governance.mjs",

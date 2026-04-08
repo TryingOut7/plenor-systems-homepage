@@ -639,9 +639,20 @@ Seed core site pages (safe to re-run):
 npm run seed:site-pages
 ```
 
+Seed core section templates (safe to re-run):
+
+```bash
+npm run seed:page-presets
+```
+
 Seed route:
 - `POST /api/internal/seed-site-pages`
 - development only
+- bearer secret required (`PAYLOAD_SEED_SECRET` or `PAYLOAD_SECRET`)
+
+Template seed route:
+- `POST /api/internal/seed-page-presets`
+- available in both development and production
 - bearer secret required (`PAYLOAD_SEED_SECRET` or `PAYLOAD_SECRET`)
 
 ---

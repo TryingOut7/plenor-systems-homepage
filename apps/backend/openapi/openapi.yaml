@@ -203,7 +203,7 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Public registration status response.
+          description: Public registration status response (no public identifier or PII fields).
           content:
             application/json:
               schema:
@@ -1003,11 +1003,8 @@ components:
       additionalProperties: false
     RegistrationStatusResponse:
       type: object
-      required: [publicId, status]
+      required: [status]
       properties:
-        publicId:
-          type: string
-          format: uuid
         status:
           $ref: '#/components/schemas/RegistrationStatus'
         userFacingReason:
@@ -1017,11 +1014,14 @@ components:
       allOf:
         - $ref: '#/components/schemas/RegistrationStatusResponse'
         - type: object
-          required: [success]
+          required: [success, publicId]
           properties:
             success:
               type: boolean
               const: true
+            publicId:
+              type: string
+              format: uuid
     PaymentConfirmationRequest:
       type: object
       required: [payerName, paymentMethod, amount, paymentDate]

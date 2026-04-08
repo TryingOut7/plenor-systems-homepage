@@ -113,4 +113,26 @@ describe('workflow review gates', () => {
       } as never),
     ).rejects.toThrow('workflowStatus');
   });
+
+  it('allows editors to publish directly for org-site collections', async () => {
+    const result = await workflowBeforeChange({
+      operation: 'update',
+      data: {
+        workflowStatus: 'published',
+        reviewChecklistComplete: true,
+        reviewSummary: 'Detailed review summary text',
+      },
+      originalDoc: {
+        workflowStatus: 'approved',
+      },
+      collection: {
+        slug: 'org-events',
+      },
+      req: {
+        user: { id: 'u1', role: 'editor' },
+      },
+    } as never) as Record<string, unknown>;
+
+    expect(result.workflowStatus).toBe('published');
+  });
 });

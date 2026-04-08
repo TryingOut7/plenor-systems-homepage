@@ -11,7 +11,7 @@ import {
   UnorderedListFeature,
 } from '@payloadcms/richtext-lexical';
 import { seoFields } from '../fields/seo.ts';
-import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
+import { orgWorkflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
 import { createdByField } from '../fields/ownership.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
@@ -243,7 +243,8 @@ export const OrgEvents: CollectionConfig = {
       editor: richTextEditor,
       admin: {
         condition: (data) => !!data?.registrationRequired,
-        description: 'Instructions shown to registrants.',
+        description:
+          'Instructions shown to registrants. One submission per event+email is allowed; for group registrations, use participantCount in a single submission.',
       },
     },
     {
@@ -384,7 +385,7 @@ export const OrgEvents: CollectionConfig = {
 
     // ─── Workflow & Ownership ──────────────────────────────────────────
     createdByField,
-    workflowStatusField,
+    orgWorkflowStatusField,
     ...workflowApprovalFields,
     ...seoFields,
   ],

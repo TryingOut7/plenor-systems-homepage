@@ -39,13 +39,13 @@ export interface RegistrationSubmissionRequest {
 }
 
 export interface RegistrationStatusResponse {
-  publicId: string;
   status: RegistrationStatus;
   userFacingReason?: string | null;
 }
 
 export interface RegistrationSubmissionResponse extends RegistrationStatusResponse {
   success: true;
+  publicId: string;
 }
 
 export interface PaymentConfirmationRequest {

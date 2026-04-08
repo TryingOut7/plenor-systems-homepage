@@ -63,3 +63,17 @@ WHERE lower(registration_payload->>'email') = lower('user@example.com');
 
 - `PATCH /v1/admin/registration-submissions/{publicId}` writes audit rows with action `registration_status_update`.
 - `public.registration_submissions` currently has no automated retention purge at MVP.
+- Recommended alerting: create a Supabase alert for submissions stuck in `payment_pending` for more than 72 hours.
+
+```sql
+SELECT
+  public_id,
+  event_id,
+  status,
+  submitted_at,
+  updated_at
+FROM public.registration_submissions
+WHERE status = 'payment_pending'
+  AND updated_at < NOW() - INTERVAL '72 hours'
+ORDER BY updated_at ASC;
+```

@@ -235,6 +235,20 @@ Notes:
 - Auth uses `PAYLOAD_SEED_SECRET` (or falls back to `PAYLOAD_SECRET`).
 - Core marketing routes (`/`, `/about`, `/services`, `/pricing`, `/contact`) are CMS-first and read from Payload `site-pages`.
 
+## Seed Section Templates
+
+Create the default Payload `page-presets` section templates (`Home`, `About`, `Services`, `Pricing`, `Contact`):
+
+```bash
+npm run seed:page-presets
+```
+
+Notes:
+- The command is safe to re-run.
+- It creates missing templates and hydrates any matching template that exists but has no sections.
+- Route auth uses `PAYLOAD_SEED_SECRET` (or falls back to `PAYLOAD_SECRET`).
+- This seed route is intentionally available in both development and production so template sets can stay aligned across environments.
+
 ## Analytics Consent
 
 - Cloudflare analytics script is loaded only after explicit cookie consent (`accepted`).

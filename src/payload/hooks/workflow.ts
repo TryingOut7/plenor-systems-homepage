@@ -20,6 +20,18 @@ function getUserRole(req: { user?: unknown }): WorkflowRole | null {
   return resolveWorkflowRole(user?.role);
 }
 
+const EDITOR_PUBLISH_COLLECTIONS = new Set<string>([
+  'org-events',
+  'org-spotlight',
+  'org-about-profiles',
+  'org-learning',
+]);
+
+function allowEditorPublishForCollection(collectionSlug?: string): boolean {
+  if (!collectionSlug) return false;
+  return EDITOR_PUBLISH_COLLECTIONS.has(collectionSlug);
+}
+
 function readTrimmedString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
@@ -120,6 +132,7 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
     collection && typeof collection === 'object' && typeof collection.slug === 'string'
       ? collection.slug
       : undefined;
+  const allowEditorPublish = allowEditorPublishForCollection(collectionSlug);
   const newStatus = data.workflowStatus as WorkflowStatus | undefined;
   if (!newStatus) return data;
 
@@ -168,7 +181,11 @@ export const workflowBeforeChange: CollectionBeforeChangeHook = async ({
     });
   }
 
-  const allowed = getAllowedWorkflowTransitions({ fromStatus: oldStatus, role });
+  const allowed = getAllowedWorkflowTransitions({
+    fromStatus: oldStatus,
+    role,
+    allowEditorPublish,
+  });
   if (!allowed.includes(newStatus)) {
     logWorkflowBlock({
       req,

@@ -200,22 +200,22 @@ export default async function OrgEventDetailPage({
           }}
         />
       ) : (
-        <div
-          aria-hidden="true"
+        <Image
+          src="/media/qa-media.svg"
+          alt="Event image placeholder"
+          width={1200}
+          height={675}
           style={{
             width: '100%',
+            height: 'auto',
             aspectRatio: '16 / 9',
+            objectFit: 'contain',
             borderRadius: '12px',
-            border: '1px dashed var(--ui-color-border)',
-            display: 'grid',
-            placeItems: 'center',
-            color: 'var(--ui-color-text-muted)',
+            border: '1px solid var(--ui-color-border)',
             marginBottom: '24px',
             backgroundColor: 'var(--ui-color-section-alt)',
           }}
-        >
-          Event image
-        </div>
+        />
       )}
 
       <p style={{ marginTop: 0, marginBottom: '22px', color: 'var(--ui-color-text)', lineHeight: 1.7 }}>

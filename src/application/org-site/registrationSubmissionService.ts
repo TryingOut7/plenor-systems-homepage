@@ -54,12 +54,10 @@ function redactRegistrationPayload(payload: RegistrationPayload): {
 }
 
 function statusResponse(input: {
-  publicId: string;
   status: RegistrationStatusResponse['status'];
   userFacingReason: string | null;
 }): RegistrationStatusResponse {
   return {
-    publicId: input.publicId,
     status: input.status,
     userFacingReason: input.userFacingReason,
   };
@@ -252,7 +250,13 @@ export async function getRegistrationStatus(
       return failWithCode(404, context, 'Registration not found.', 'NOT_FOUND');
     }
 
-    return ok(statusResponse(statusRecord), 200);
+    return ok(
+      statusResponse({
+        status: statusRecord.status,
+        userFacingReason: statusRecord.userFacingReason,
+      }),
+      200,
+    );
   } catch (error) {
     console.error('Org-site registration status check failed.', {
       errorMessage: error instanceof Error ? error.message : String(error),
@@ -319,7 +323,13 @@ export async function submitPaymentConfirmation(
       existing.paymentConfirmationPayload &&
       isStatusAtOrBeyond(existing.status, PAYMENT_CONFIRMATION_SUBMITTED)
     ) {
-      return ok(statusResponse(existing), 200);
+      return ok(
+        statusResponse({
+          status: existing.status,
+          userFacingReason: existing.userFacingReason,
+        }),
+        200,
+      );
     }
 
     if (!canTransition('public', existing.status, PAYMENT_CONFIRMATION_SUBMITTED, true)) {
@@ -348,7 +358,13 @@ export async function submitPaymentConfirmation(
 
     await processRegistrationOutboxTick();
 
-    return ok(statusResponse(updated), 200);
+    return ok(
+      statusResponse({
+        status: updated.status,
+        userFacingReason: updated.userFacingReason,
+      }),
+      200,
+    );
   } catch (error) {
     console.error('Org-site payment confirmation failed.', {
       errorMessage: error instanceof Error ? error.message : String(error),

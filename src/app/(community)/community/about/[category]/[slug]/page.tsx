@@ -133,22 +133,22 @@ export default async function AboutDetailPage({
           }}
         />
       ) : (
-        <div
-          aria-hidden="true"
+        <Image
+          src="/media/qa-media-1.svg"
+          alt="Profile image placeholder"
+          width={800}
+          height={800}
           style={{
             width: '100%',
+            height: 'auto',
             aspectRatio: '1 / 1',
+            objectFit: 'contain',
             borderRadius: '12px',
-            border: '1px dashed var(--ui-color-border)',
-            display: 'grid',
-            placeItems: 'center',
-            color: 'var(--ui-color-text-muted)',
+            border: '1px solid var(--ui-color-border)',
             marginBottom: '20px',
             backgroundColor: 'var(--ui-color-section-alt)',
           }}
-        >
-          Profile image
-        </div>
+        />
       )}
 
       {entry.roleTitle ? (

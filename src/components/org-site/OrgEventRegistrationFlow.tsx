@@ -303,7 +303,6 @@ export default function OrgEventRegistrationFlow({
       const nextStatus = body as RegistrationSubmissionResponse;
       setPublicId(nextStatus.publicId);
       setStatusRecord({
-        publicId: nextStatus.publicId,
         status: nextStatus.status,
         userFacingReason: nextStatus.userFacingReason || null,
       });
@@ -608,7 +607,7 @@ export default function OrgEventRegistrationFlow({
         >
           <h2 style={{ margin: 0, fontSize: '22px' }}>Registration Status</h2>
           <p style={{ margin: 0 }}>
-            <strong>ID:</strong> {statusRecord.publicId}
+            <strong>ID:</strong> {publicId}
           </p>
           <p style={{ margin: 0 }}>
             <strong>Current state:</strong> {statusRecord.status.replace(/_/g, ' ')}
@@ -685,21 +684,22 @@ export default function OrgEventRegistrationFlow({
                   }}
                 />
               ) : (
-                <div
-                  aria-hidden="true"
+                <Image
+                  src="/media/qa-media-1.svg"
+                  alt="Zelle QR placeholder"
+                  width={260}
+                  height={260}
                   style={{
                     width: '100%',
                     maxWidth: '260px',
+                    height: 'auto',
                     aspectRatio: '1 / 1',
+                    objectFit: 'contain',
                     borderRadius: '8px',
-                    border: '1px dashed var(--ui-color-border)',
-                    display: 'grid',
-                    placeItems: 'center',
-                    color: 'var(--ui-color-text-muted)',
+                    border: '1px solid var(--ui-color-border)',
+                    backgroundColor: 'var(--ui-color-section-alt)',
                   }}
-                >
-                  No QR code
-                </div>
+                />
               )}
             </div>
 
@@ -723,21 +723,22 @@ export default function OrgEventRegistrationFlow({
                   }}
                 />
               ) : (
-                <div
-                  aria-hidden="true"
+                <Image
+                  src="/media/qa-media-2.svg"
+                  alt="Venmo QR placeholder"
+                  width={260}
+                  height={260}
                   style={{
                     width: '100%',
                     maxWidth: '260px',
+                    height: 'auto',
                     aspectRatio: '1 / 1',
+                    objectFit: 'contain',
                     borderRadius: '8px',
-                    border: '1px dashed var(--ui-color-border)',
-                    display: 'grid',
-                    placeItems: 'center',
-                    color: 'var(--ui-color-text-muted)',
+                    border: '1px solid var(--ui-color-border)',
+                    backgroundColor: 'var(--ui-color-section-alt)',
                   }}
-                >
-                  No QR code
-                </div>
+                />
               )}
             </div>
           </div>

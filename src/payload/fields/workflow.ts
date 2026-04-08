@@ -17,12 +17,17 @@ import {
  *
  * - Authors can move: draft → in_review
  * - Editors/admins can move: in_review → approved | rejected
- * - Only admins can move: approved → published
+ * - Default policy: only admins can move approved → published
+ * - Org-site policy: editors/admins can publish
  * - rejected → draft (author revises and resubmits)
  */
 export { workflowStatuses, type WorkflowStatus };
 
 type OptionLike = string | { label: string; value: string };
+type WorkflowStatusFieldPolicy = {
+  allowEditorPublish?: boolean;
+  description?: string;
+};
 
 function toOptionValue(option: OptionLike): string {
   return typeof option === 'string' ? option : option.value;
@@ -33,6 +38,7 @@ function filterWorkflowStatusOptions(args: {
   options: OptionLike[];
   req: { user?: unknown } | undefined;
   siblingData: Record<string, unknown> | undefined;
+  allowEditorPublish?: boolean;
 }): OptionLike[] {
   const dataRecord = args.data && typeof args.data === 'object' ? args.data : {};
   const siblingRecord =
@@ -51,6 +57,7 @@ function filterWorkflowStatusOptions(args: {
     getAllowedWorkflowStatusesForDocument({
       role,
       currentStatus,
+      allowEditorPublish: args.allowEditorPublish === true,
     }),
   );
 
@@ -60,34 +67,47 @@ function filterWorkflowStatusOptions(args: {
   );
 }
 
-export const workflowStatusField: Field = {
-  name: 'workflowStatus',
-  label: 'Content Status',
-  type: 'select',
-  defaultValue: 'draft',
-  options: [
-    { label: 'Draft', value: 'draft' },
-    { label: 'Awaiting Review', value: 'in_review' },
-    { label: 'Approved', value: 'approved' },
-    { label: 'Changes Requested', value: 'rejected' },
-    { label: 'Live', value: 'published' },
-  ],
-  filterOptions: ({ data, options, req, siblingData }) =>
-    filterWorkflowStatusOptions({
-      data,
-      options: options as OptionLike[],
-      req,
-      siblingData,
-    }),
-  admin: {
-    position: 'sidebar',
-    description:
-      'Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.',
-    components: {
-      beforeInput: ['@/payload/admin/components/WorkflowStatusBanner'],
+function buildWorkflowStatusField(policy: WorkflowStatusFieldPolicy = {}): Field {
+  const allowEditorPublish = policy.allowEditorPublish === true;
+
+  return {
+    name: 'workflowStatus',
+    label: 'Content Status',
+    type: 'select',
+    defaultValue: 'draft',
+    options: [
+      { label: 'Draft', value: 'draft' },
+      { label: 'Awaiting Review', value: 'in_review' },
+      { label: 'Approved', value: 'approved' },
+      { label: 'Changes Requested', value: 'rejected' },
+      { label: 'Live', value: 'published' },
+    ],
+    filterOptions: ({ data, options, req, siblingData }) =>
+      filterWorkflowStatusOptions({
+        data,
+        options: options as OptionLike[],
+        req,
+        siblingData,
+        allowEditorPublish,
+      }),
+    admin: {
+      position: 'sidebar',
+      description:
+        policy.description ||
+        'Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.',
+      components: {
+        beforeInput: ['@/payload/admin/components/WorkflowStatusBanner'],
+      },
     },
-  },
-};
+  };
+}
+
+export const workflowStatusField: Field = buildWorkflowStatusField();
+export const orgWorkflowStatusField: Field = buildWorkflowStatusField({
+  allowEditorPublish: true,
+  description:
+    'Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.',
+});
 
 /**
  * Workflow status field for page drafts.
@@ -113,6 +133,7 @@ export const pageDraftWorkflowStatusField: Field = {
       options: options as OptionLike[],
       req,
       siblingData,
+      allowEditorPublish: false,
     }),
   admin: {
     position: 'sidebar',

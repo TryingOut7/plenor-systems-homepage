@@ -46,6 +46,10 @@ export const workflowTransitions: Record<WorkflowStatus, Partial<Record<Workflow
   },
 };
 
+function dedupeStatuses(statuses: WorkflowStatus[]): WorkflowStatus[] {
+  return [...new Set(statuses)];
+}
+
 export function resolveWorkflowRole(value: unknown): WorkflowRole | null {
   if (typeof value !== 'string') return null;
   return WORKFLOW_ROLE_SET.has(value) ? (value as WorkflowRole) : null;
@@ -62,9 +66,17 @@ export function normalizeWorkflowStatus(
 export function getAllowedWorkflowTransitions(args: {
   fromStatus: WorkflowStatus;
   role: WorkflowRole;
+  allowEditorPublish?: boolean;
 }): WorkflowStatus[] {
-  const { fromStatus, role } = args;
-  return workflowTransitions[fromStatus]?.[role] || [];
+  const { fromStatus, role, allowEditorPublish = false } = args;
+  const base = workflowTransitions[fromStatus]?.[role] || [];
+
+  if (role !== 'editor' || !allowEditorPublish) return base;
+
+  const adminTransitions = workflowTransitions[fromStatus]?.admin || [];
+  if (!adminTransitions.includes('published')) return base;
+
+  return dedupeStatuses([...base, 'published']);
 }
 
 /**
@@ -74,8 +86,13 @@ export function getAllowedWorkflowTransitions(args: {
 export function getAllowedWorkflowStatusesForDocument(args: {
   currentStatus: WorkflowStatus;
   role: WorkflowRole;
+  allowEditorPublish?: boolean;
 }): WorkflowStatus[] {
-  const { currentStatus, role } = args;
-  const allowed = getAllowedWorkflowTransitions({ fromStatus: currentStatus, role });
+  const { currentStatus, role, allowEditorPublish = false } = args;
+  const allowed = getAllowedWorkflowTransitions({
+    fromStatus: currentStatus,
+    role,
+    allowEditorPublish,
+  });
   return [currentStatus, ...allowed.filter((status) => status !== currentStatus)];
 }

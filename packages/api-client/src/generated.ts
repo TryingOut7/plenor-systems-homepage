@@ -491,14 +491,14 @@ export interface components {
             contactPreferences?: components["schemas"]["RegistrationContactPreferences"];
         };
         RegistrationStatusResponse: {
-            /** Format: uuid */
-            publicId: string;
             status: components["schemas"]["RegistrationStatus"];
             userFacingReason?: string | null;
         };
         RegistrationSubmissionResponse: components["schemas"]["RegistrationStatusResponse"] & {
             /** @constant */
             success: true;
+            /** Format: uuid */
+            publicId: string;
         };
         PaymentConfirmationRequest: {
             payerName: string;
@@ -1047,7 +1047,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Public registration status response. */
+            /** @description Public registration status response (no public identifier or PII fields). */
             200: {
                 headers: {
                     [name: string]: unknown;
