@@ -85,6 +85,7 @@ function resolveSubmitTarget(
       payload: {
         name: readTextValue(values, 'firstName') || readTextValue(values, 'name'),
         email: readTextValue(values, 'email'),
+        ...(formId ? { formId } : {}),
         ...(resolvedTemplateId !== undefined ? { templateId: resolvedTemplateId } : {}),
       },
     };

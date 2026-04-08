@@ -10,6 +10,7 @@ interface BaseSubmissionPayload {
 
 export interface GuideSubmissionPayload extends BaseSubmissionPayload {
   templateId?: string | number;
+  formId?: string | number;
 }
 
 export interface InquirySubmissionPayload extends BaseSubmissionPayload {
@@ -38,6 +39,7 @@ function nowIso(): string {
 export function buildGuideSubmissionEvent(input: {
   submission: StoredSubmission;
   templateId?: string | number;
+  formId?: string | number;
 }): OutboundEventV1<GuideSubmissionPayload> {
   return {
     version: 'v1',
@@ -49,6 +51,7 @@ export function buildGuideSubmissionEvent(input: {
       name: input.submission.name,
       email: input.submission.email,
       templateId: input.templateId,
+      formId: input.formId,
     },
   };
 }

@@ -1,5 +1,6 @@
 import type { OutboundEventV1 } from '@plenor/contracts/events';
 import { getGuideEmailTemplate } from '@/infrastructure/cms/emailTemplateGateway';
+import { getGuideFormEmailConfig } from '@/infrastructure/cms/guideFormEmailGateway';
 import {
   saveGuideSubmissionToPayloadForm,
   saveInquirySubmissionToPayloadForm,
@@ -45,10 +46,20 @@ class DefaultEmailProvider implements EmailProvider {
     name: string;
     email: string;
     templateId?: string | number;
+    formId?: string | number;
   }): Promise<void> {
+    const formEmailConfig = await getGuideFormEmailConfig(input.formId);
+    if (formEmailConfig.hasCustomEmails) {
+      // Per-form "Emails" blocks are configured in Forms CMS, so the plugin's
+      // form-submissions email hook is the source of truth for this submission.
+      // Skip fallback template sending here to avoid duplicate emails.
+      return;
+    }
+
+    const resolvedTemplateId = formEmailConfig.templateId ?? input.templateId;
     let template;
-    if (input.templateId != null) {
-      template = await getGuideEmailTemplate(input.templateId);
+    if (resolvedTemplateId != null) {
+      template = await getGuideEmailTemplate(resolvedTemplateId);
     }
 
     await sendGuideDeliveryEmail({
@@ -93,6 +104,7 @@ class DefaultPayloadFormsProvider implements PayloadFormsProvider {
   async saveGuideSubmission(input: {
     name: string;
     email: string;
+    formId?: string | number;
   }): Promise<void> {
     if (process.env.CMS_SKIP_PAYLOAD === 'true') {
       return;
@@ -100,6 +112,7 @@ class DefaultPayloadFormsProvider implements PayloadFormsProvider {
     await saveGuideSubmissionToPayloadForm({
       name: input.name,
       email: input.email,
+      formId: input.formId,
     });
   }
 

@@ -10,6 +10,7 @@ export interface EmailProvider {
     name: string;
     email: string;
     templateId?: string | number;
+    formId?: string | number;
   }): Promise<void>;
   sendInquiryRouting(input: {
     event: OutboundEventV1;
@@ -32,7 +33,11 @@ export interface WebhookProvider {
 }
 
 export interface PayloadFormsProvider {
-  saveGuideSubmission(input: { name: string; email: string }): Promise<void>;
+  saveGuideSubmission(input: {
+    name: string;
+    email: string;
+    formId?: string | number;
+  }): Promise<void>;
   saveInquirySubmission(input: {
     name: string;
     email: string;

@@ -70,6 +70,7 @@ export async function submitGuideForm(
       const event = buildGuideSubmissionEvent({
         submission,
         templateId: validation.data.templateId,
+        formId: validation.data.formId,
       });
 
       await enqueueIntegrationJobs({

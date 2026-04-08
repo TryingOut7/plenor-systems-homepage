@@ -1,18 +1,32 @@
 export async function saveGuideSubmissionToPayloadForm(input: {
   name: string;
   email: string;
+  formId?: string | number;
 }): Promise<void> {
-  const [{ getGuideFormId }, { getPayload }] = await Promise.all([
-    import('../../lib/payload-form-stubs'),
+  const [{ getGuideFormEmailConfig }, { getPayload }] = await Promise.all([
+    import('./guideFormEmailGateway'),
     import('../../payload/client'),
   ]);
 
-  const [formId, payload] = await Promise.all([getGuideFormId(), getPayload()]);
+  const [guideFormEmailConfig, payload] = await Promise.all([
+    getGuideFormEmailConfig(input.formId),
+    getPayload(),
+  ]);
+
+  const targetFormId = guideFormEmailConfig.formId;
+  if (targetFormId == null) {
+    throw new Error('Unable to resolve a guide form ID for form-submissions persistence.');
+  }
+  const targetFormIdNumber =
+    typeof targetFormId === 'number' ? targetFormId : Number(targetFormId);
+  if (!Number.isFinite(targetFormIdNumber)) {
+    throw new Error('Resolved guide form ID is not a valid number.');
+  }
 
   await payload.create({
     collection: 'form-submissions',
     data: {
-      form: formId,
+      form: targetFormIdNumber,
       formType: 'Guide Download',
       submissionData: [
         { field: 'name', value: input.name },

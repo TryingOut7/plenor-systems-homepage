@@ -4,12 +4,14 @@ export interface GuideSubmissionInput {
   name?: unknown;
   email?: unknown;
   templateId?: unknown;
+  formId?: unknown;
 }
 
 export interface GuideSubmissionData {
   name: string;
   email: string;
   templateId?: string | number;
+  formId?: string | number;
 }
 
 export type GuideSubmissionValidation =
@@ -35,6 +37,10 @@ export function validateGuideSubmission(
     typeof input.templateId === 'string' || typeof input.templateId === 'number'
       ? input.templateId
       : undefined;
+  const formId =
+    typeof input.formId === 'string' || typeof input.formId === 'number'
+      ? input.formId
+      : undefined;
 
   return {
     ok: true,
@@ -42,6 +48,7 @@ export function validateGuideSubmission(
       name: sanitizeText(rawName.trim()),
       email: normalizedEmail,
       ...(templateId !== undefined ? { templateId } : {}),
+      ...(formId !== undefined ? { formId } : {}),
     },
   };
 }

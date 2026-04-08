@@ -61,6 +61,10 @@ async function dispatchOutboxJob(job: OutboxJob): Promise<void> {
       event,
       name: String(payload.name || ''),
       email: String(payload.email || ''),
+      formId:
+        payload.formId != null
+          ? (payload.formId as string | number)
+          : undefined,
       templateId:
         payload.templateId != null
           ? (payload.templateId as string | number)
@@ -101,6 +105,10 @@ async function dispatchOutboxJob(job: OutboxJob): Promise<void> {
     await providers.payloadForms.saveGuideSubmission({
       name: String(payload.name || ''),
       email: String(payload.email || ''),
+      formId:
+        payload.formId != null
+          ? (payload.formId as string | number)
+          : undefined,
     });
     return;
   }
