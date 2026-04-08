@@ -286,6 +286,7 @@ export type BlogPost = {
   tags?: Array<{ tag?: string }>;
   category?: BlogCategory;
   resourceUrl?: string;
+  resourceFile?: MediaRef;
   seo?: SeoFields;
 };
 

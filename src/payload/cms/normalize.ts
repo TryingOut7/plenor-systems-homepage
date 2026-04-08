@@ -116,6 +116,7 @@ export function normalizeBlogPost(doc: Record<string, unknown>): BlogPost {
     tags: doc.tags as BlogPost['tags'],
     category: doc.category as BlogPost['category'],
     resourceUrl: doc.resourceUrl as string | undefined,
+    resourceFile: normalizeMedia(doc.resourceFile),
     seo: normalizeSeo(doc.seo),
   };
 }

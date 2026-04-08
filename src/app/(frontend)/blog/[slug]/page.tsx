@@ -171,10 +171,10 @@ export default async function BlogPostPage({
 
       <RichText data={post.body as SerializedEditorState} style={{ color: '#1F2937' }} />
 
-      {post.resourceUrl ? (
+      {(post.resourceUrl || post.resourceFile?.url) ? (
         <div style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid #E5E7EB' }}>
           <Link
-            href={post.resourceUrl}
+            href={post.resourceUrl ?? post.resourceFile?.url ?? ''}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-primary"

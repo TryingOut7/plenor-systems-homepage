@@ -226,7 +226,7 @@ export function buildContentSecurityPolicy(
   const localDevOrigins = resolveLocalDevelopmentOrigins(env);
   const isProduction = env.NODE_ENV === 'production';
 
-  const scriptSrcTokens = [`'self'`, `'unsafe-inline'`, ...scriptHosts];
+  const scriptSrcTokens = [`'self'`, ...scriptHosts];
   if (!isProduction) {
     scriptSrcTokens.push(`'unsafe-eval'`);
   }

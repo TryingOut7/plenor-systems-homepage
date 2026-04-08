@@ -123,8 +123,8 @@ export default async function BlogIndexPage({
           }}
         >
           {posts.map((post) => {
-            const href = post.resourceUrl || `/blog/${post.slug || ''}`;
-            const isExternal = !!post.resourceUrl;
+            const href = post.resourceUrl ?? post.resourceFile?.url ?? `/blog/${post.slug || ''}`;
+            const isExternal = !!(post.resourceUrl ?? post.resourceFile?.url);
             return (
               <article key={post.id} className="feature-card" style={{ display: 'flex', flexDirection: 'column' }}>
                 {post.coverImage?.url ? (
