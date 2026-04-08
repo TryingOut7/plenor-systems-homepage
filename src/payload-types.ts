@@ -8372,7 +8372,7 @@ export interface OrgEvent {
    */
   paymentRequired?: boolean | null;
   /**
-   * Instructions shown to registrants.
+   * Instructions shown to registrants. One submission per event+email is allowed; for group registrations, use participantCount in a single submission.
    */
   registrationInstructions?: {
     root: {
@@ -8472,7 +8472,7 @@ export interface OrgEvent {
    */
   createdBy?: (number | null) | User;
   /**
-   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
+   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.
    */
   workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
   submittedBy?: (number | null) | User;
@@ -8581,7 +8581,7 @@ export interface OrgSpotlight {
    */
   createdBy?: (number | null) | User;
   /**
-   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
+   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.
    */
   workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
   submittedBy?: (number | null) | User;
@@ -8681,7 +8681,7 @@ export interface OrgLearning {
    */
   createdBy?: (number | null) | User;
   /**
-   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
+   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.
    */
   workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
   submittedBy?: (number | null) | User;
@@ -8785,7 +8785,7 @@ export interface OrgAboutProfile {
    */
   createdBy?: (number | null) | User;
   /**
-   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
+   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.
    */
   workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
   submittedBy?: (number | null) | User;
