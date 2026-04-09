@@ -39,9 +39,19 @@ const DEFAULT_SITE_PAGES: Record<string, SitePage> = DEFAULT_SITE_PAGE_SLUGS.red
 export function cloneDefaultSitePage(slug: string): SitePage | null {
   const page = DEFAULT_SITE_PAGES[slug];
   if (!page) return null;
+
+  let clonedSections: PageSection[] = [];
+  if (Array.isArray(page.sections)) {
+    try {
+      clonedSections = structuredClone(page.sections);
+    } catch {
+      clonedSections = JSON.parse(JSON.stringify(page.sections));
+    }
+  }
+
   return {
     ...page,
-    sections: Array.isArray(page.sections) ? page.sections.map((section) => ({ ...section })) : [],
+    sections: clonedSections,
   };
 }
 

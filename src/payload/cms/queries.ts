@@ -244,10 +244,9 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(
     }
 
     if (!doc) {
-      if (draft) return null;
       const fallbackPage = cloneDefaultSitePage(normalizedSlug);
       const resolvedFallback = await resolveFormEmbedAliasesInSitePage(fallbackPage);
-      return setMapCache(pageCache, normalizedSlug, resolvedFallback);
+      return draft ? resolvedFallback : setMapCache(pageCache, normalizedSlug, resolvedFallback);
     }
 
     const d = doc;
@@ -273,10 +272,13 @@ export const getSitePageBySlug = cache(async function getSitePageBySlug(
     const resolvedPage = await resolveFormEmbedAliasesInSitePage(normalized);
     return draft ? resolvedPage : setMapCache(pageCache, normalizedSlug, resolvedPage);
   } catch {
-    if (draft) return null;
     markPayloadFailure();
     const fallbackPage = cloneDefaultSitePage(normalizedSlug);
     const resolvedFallback = await resolveFormEmbedAliasesInSitePage(fallbackPage);
+    
+    // In draft mode, avoid caching the error fallback to prevent long-livng pollution 
+    // of the cache when the DB momentarily dips during a preview session.
+    if (draft) return resolvedFallback;
     return setMapCache(pageCache, normalizedSlug, resolvedFallback, 10_000);
   }
 });
