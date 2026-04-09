@@ -21,7 +21,11 @@ export function resolveSiteName(settings?: Pick<SiteSettings, 'siteName'> | null
 }
 
 export function resolveSiteUrl(settings?: Pick<SiteSettings, 'siteUrl'> | null): string {
-  return stripTrailingSlash(asNonEmptyString(settings?.siteUrl) || DEFAULT_SITE_URL);
+  let url = stripTrailingSlash(asNonEmptyString(settings?.siteUrl) || DEFAULT_SITE_URL);
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = url.includes('localhost') ? `http://${url}` : `https://${url}`;
+  }
+  return url;
 }
 
 export function resolveContactEmail(
