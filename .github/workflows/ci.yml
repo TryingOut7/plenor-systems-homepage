@@ -57,6 +57,9 @@ jobs:
       - name: Migration Status Check (CMS schema)
         run: npm run db:migrate:payload:status
 
+      - name: Sync Payload Locked-Doc Relation Columns
+        run: npm run db:sync:payload-rels
+
       - name: Predeploy Guardrails
         run: npm run predeploy:guardrails
 

@@ -259,11 +259,6 @@ async function main() {
       command: node,
       args: ['scripts/db/migrate.mjs'],
     });
-    steps.push({
-      label: 'Sync payload locked-doc relation columns',
-      command: node,
-      args: ['scripts/db/sync-payload-locked-docs-rels.mjs'],
-    });
 
     if (!SKIP_PAYLOAD) {
       if (!(await fileExists(payloadBin))) {
@@ -281,6 +276,11 @@ async function main() {
         command: payloadBin,
         args: ['migrate:status'],
         validateOutput: assertPayloadStatusHasNoPendingMigrations,
+      });
+      steps.push({
+        label: 'Sync payload locked-doc relation columns',
+        command: node,
+        args: ['scripts/db/sync-payload-locked-docs-rels.mjs'],
       });
       steps.push({
         label: 'Payload runtime schema check',

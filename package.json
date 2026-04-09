@@ -23,7 +23,7 @@
     "check:type": "tsc --noEmit --pretty false --project tsconfig.typecheck.json",
     "openapi:generate": "openapi-typescript apps/backend/openapi/openapi.yaml -o packages/api-client/src/generated.ts",
     "openapi:check": "npm run openapi:generate && git diff --exit-code -- packages/api-client/src/generated.ts",
-    "db:migrate:backend": "node scripts/db/migrate.mjs && node scripts/db/sync-payload-locked-docs-rels.mjs",
+    "db:migrate:backend": "node scripts/db/migrate.mjs",
     "db:check:query-presets-enum-manifest": "node scripts/db/check-query-presets-enum-manifest.mjs",
     "db:check:payload-generated-schema": "node scripts/db/check-payload-generated-schema-parity.mjs",
     "db:schema:ensure": "node scripts/db/schema-ensure.mjs",

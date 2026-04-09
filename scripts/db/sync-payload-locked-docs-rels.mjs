@@ -10,10 +10,11 @@
  *   1. Find all collection tables: public-schema tables that have id, created_at,
  *      updated_at columns and are not internal/backend/junction tables.
  *   2. Find columns already present in payload_locked_documents_rels.
- *   3. For each collection table missing a {table}_id column, add it with an index
- *      and FK constraint (all idempotent via IF NOT EXISTS / pg_constraint check).
+ *   3. Only sync tables whose id column is already backed by a PRIMARY KEY or
+ *      UNIQUE constraint, then add the {table}_id column, index, and FK.
  *
- * Safe to run multiple times. No-ops when already in sync.
+ * Safe to run multiple times. No-ops when already in sync, and safely skips
+ * tables that exist only as interim drift-repair stubs.
  */
 
 import { withDatabaseClient } from './migration-lib.mjs';
@@ -91,6 +92,29 @@ async function findExistingRelsCols(client) {
   return new Set(result.rows.map((row) => row.column_name));
 }
 
+async function hasReferenceableId(client, tableName) {
+  const result = await client.query(
+    `
+      SELECT EXISTS (
+        SELECT 1
+        FROM pg_constraint c
+        JOIN pg_class t ON t.oid = c.conrelid
+        JOIN pg_namespace n ON n.oid = t.relnamespace
+        JOIN unnest(c.conkey) WITH ORDINALITY AS cols(attnum, ordinality) ON TRUE
+        JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = cols.attnum
+        WHERE n.nspname = 'public'
+          AND t.relname = $1
+          AND c.contype IN ('p', 'u')
+        GROUP BY c.oid
+        HAVING array_agg(a.attname ORDER BY cols.ordinality) = ARRAY['id']::text[]
+      ) AS has_referenceable_id;
+    `,
+    [tableName],
+  );
+
+  return result.rows[0]?.has_referenceable_id === true;
+}
+
 async function syncTable(client, tableName) {
   const colName = `${tableName}_id`;
   const idxName = `payload_locked_documents_rels_${tableName}_id_idx`;
@@ -124,13 +148,28 @@ async function main() {
   await withDatabaseClient(async (client) => {
     const collectionTables = await findCollectionTables(client);
     const existingCols = await findExistingRelsCols(client);
+    const missing = [];
+    const skipped = [];
 
-    const missing = collectionTables.filter(
-      (table) => !existingCols.has(`${table}_id`),
-    );
+    for (const table of collectionTables) {
+      if (existingCols.has(`${table}_id`)) continue;
+
+      if (await hasReferenceableId(client, table)) {
+        missing.push(table);
+      } else {
+        skipped.push(table);
+      }
+    }
 
     if (missing.length === 0) {
-      console.log('payload_locked_documents_rels is already in sync.');
+      if (skipped.length === 0) {
+        console.log('payload_locked_documents_rels is already in sync.');
+        return;
+      }
+
+      console.log(
+        `Skipping ${skipped.length} collection(s) until their id columns are key-safe: ${skipped.join(', ')}`,
+      );
       return;
     }
 
@@ -142,6 +181,12 @@ async function main() {
       console.log(`  Adding ${table}_id column + index + FK...`);
       await syncTable(client, table);
       console.log(`  Done: ${table}_id`);
+    }
+
+    if (skipped.length > 0) {
+      console.log(
+        `Skipped ${skipped.length} collection(s) until their id columns are key-safe: ${skipped.join(', ')}`,
+      );
     }
 
     console.log('payload_locked_documents_rels sync complete.');
