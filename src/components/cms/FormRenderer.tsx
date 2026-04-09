@@ -409,7 +409,7 @@ export default function FormRenderer({
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {form.fields
+      {(form.fields || [])
         .filter((field) => (field.blockType ?? field.fieldType) !== 'message')
         .map((field) => {
           const placeholder = resolveFieldPlaceholder(field, form.templateKey, templateLabels);

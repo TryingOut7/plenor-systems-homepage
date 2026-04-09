@@ -63,6 +63,8 @@ function getFormIdsPool(): Pool {
   return globalThis._formIdsPool;
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const aliasKeys = buildFormAliasKeysQueryParam();
 
@@ -70,11 +72,10 @@ export async function GET() {
     // Use ANY($1::text[]) so the key set is parameterised, not interpolated.
     // The query automatically covers however many aliases FORM_ALIAS_KEYS defines.
     const result = await getFormIdsPool().query<FormIdRow>(
-      `SELECT id, template_key
+      `SELECT DISTINCT ON (template_key) id, template_key
        FROM forms
-       WHERE template_key = ANY($1::text[])
-       LIMIT $2`,
-      [aliasKeys, aliasKeys.length],
+       WHERE template_key::text = ANY($1::text[])`,
+      [aliasKeys],
     );
 
     // Build the result shape from FORM_ALIAS_KEYS so the response always
@@ -95,7 +96,8 @@ export async function GET() {
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
       },
     });
-  } catch {
+  } catch (error) {
+    console.error('[GET /api/form-ids] Database error:', error);
     // On DB error return nulls — FormRenderer will show "form not found" rather
     // than crashing. Short CDN TTL avoids hammering a degraded DB.
     const errorIds = Object.fromEntries(
