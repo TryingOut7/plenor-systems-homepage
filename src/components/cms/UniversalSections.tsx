@@ -1,4 +1,11 @@
-import { type CSSProperties, type ReactNode } from 'react';
+import {
+  cloneElement,
+  isValidElement,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
+import ScrollRevealController from './ScrollRevealController';
 import { SECTION_RENDERERS } from './sections/registry';
 import type { UniversalSectionsProps } from './sections/types';
 import {
@@ -19,6 +26,7 @@ import {
   normalizeTheme,
   resolveColorDarkness,
   sectionPadding,
+  shouldEnableScrollReveal,
 } from './sections/utils';
 
 export default function UniversalSections({
@@ -128,7 +136,7 @@ export default function UniversalSections({
       const nextVisited = sectionId ? new Set([...visited, sectionId]) : visited;
       const renderNestedSection = makeRenderSection(nextVisited, depth + 1);
 
-      return renderer({
+      const renderedSection = renderer({
         section,
         sectionKey,
         sectionStyle,
@@ -147,11 +155,33 @@ export default function UniversalSections({
         inquiryFormLabels,
         renderNestedSection,
       });
+
+      if (!shouldEnableScrollReveal(sectionRecord)) {
+        return renderedSection;
+      }
+
+      if (!isValidElement(renderedSection)) {
+        return renderedSection;
+      }
+
+      return cloneElement(
+        renderedSection as ReactElement<Record<string, unknown>>,
+        {
+          'data-scroll-reveal': 'fade-up',
+          'data-scroll-reveal-key': sectionKey,
+          'data-scroll-reveal-state': 'idle',
+        },
+      );
     }
     return renderSectionNode;
   };
 
   const renderSection = makeRenderSection(new Set(), 0);
 
-  return <>{sections.map((section, index) => renderSection(section, index, `${index}-`))}</>;
+  return (
+    <>
+      {sections.map((section, index) => renderSection(section, index, `${index}-`))}
+      <ScrollRevealController />
+    </>
+  );
 }

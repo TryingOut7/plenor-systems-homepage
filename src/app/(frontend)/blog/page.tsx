@@ -134,19 +134,26 @@ export default async function BlogIndexPage({
             return (
               <article key={post.id} className="feature-card" style={{ display: 'flex', flexDirection: 'column' }}>
                 {post.coverImage?.url ? (
-                  <Image
-                    src={post.coverImage.url}
-                    alt={post.coverImage.alt || post.title || ''}
-                    width={(post.coverImage as { width?: number }).width || 560}
-                    height={(post.coverImage as { height?: number }).height || 280}
+                  <div
+                    className="feature-card-media"
                     style={{
-                      width: '100%',
                       height: '200px',
-                      objectFit: 'cover',
                       borderRadius: '6px 6px 0 0',
                       marginBottom: '16px',
                     }}
-                  />
+                  >
+                    <Image
+                      src={post.coverImage.url}
+                      alt={post.coverImage.alt || post.title || ''}
+                      width={(post.coverImage as { width?: number }).width || 560}
+                      height={(post.coverImage as { height?: number }).height || 280}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  </div>
                 ) : null}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <h2 style={{ fontSize: '20px', color: 'var(--ui-color-primary)', margin: 0 }}>

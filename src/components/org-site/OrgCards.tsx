@@ -44,6 +44,7 @@ function MediaOrPlaceholder({
   if (!src) {
     return (
       <div
+        className="feature-card-media"
         style={{
           width: '100%',
           aspectRatio,
@@ -79,20 +80,27 @@ function MediaOrPlaceholder({
   }
 
   return (
-    <Image
-      src={src}
-      alt={alt || ''}
-      width={width || 1200}
-      height={height || 675}
+    <div
+      className="feature-card-media"
       style={{
         width: '100%',
-        height: 'auto',
         aspectRatio,
-        objectFit: 'cover',
         borderRadius: '8px',
         border: '1px solid var(--ui-color-border)',
       }}
-    />
+    >
+      <Image
+        src={src}
+        alt={alt || ''}
+        width={width || 1200}
+        height={height || 675}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+        }}
+      />
+    </div>
   );
 }
 

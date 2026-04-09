@@ -296,6 +296,36 @@ export function isSectionVisible(section: SectionRecord): boolean {
   return true;
 }
 
+const SCROLL_REVEAL_BLOCK_TYPES = new Set([
+  'richTextSection',
+  'ctaSection',
+  'statsSection',
+  'faqSection',
+  'featureGridSection',
+  'teamSection',
+  'logoBandSection',
+  'quoteSection',
+  'imageSection',
+  'videoSection',
+  'simpleTableSection',
+  'comparisonTableSection',
+  'splitSection',
+]);
+
+export function shouldEnableScrollReveal(section: SectionRecord): boolean {
+  if (!SCROLL_REVEAL_BLOCK_TYPES.has(String(section.blockType || ''))) return false;
+
+  if (section.blockType === 'logoBandSection' && section.displayMode === 'marquee') {
+    return false;
+  }
+
+  if (section.blockType === 'imageSection' && section.displayMode === 'slideshow') {
+    return false;
+  }
+
+  return true;
+}
+
 export function normalizePath(path: string): string {
   if (!path) return '/';
   if (path.startsWith('http://') || path.startsWith('https://')) return path;

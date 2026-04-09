@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { type CSSProperties, useEffect, useMemo, useState } from 'react';
 import type {
   GuideFormLabels,
   InquiryFormLabels,
@@ -218,25 +218,32 @@ export default function FormRenderer({
   );
 
   const dark = isDark(theme);
-  const inputStyle = {
-    width: '100%',
-    padding: '10px 12px',
-    border: `1px solid ${dark ? 'rgba(255,255,255,0.2)' : 'var(--ui-color-border)'}`,
-    borderRadius: 'var(--ui-button-radius, 6px)',
-    backgroundColor: dark ? 'rgba(255,255,255,0.08)' : 'var(--ui-color-surface)',
-    color: dark ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)',
-    fontSize: '15px',
-    fontFamily: 'var(--ui-font-body)',
-    boxSizing: 'border-box' as const,
-  };
-
-  const labelStyle = {
-    display: 'block',
-    fontWeight: 600,
-    fontSize: '14px',
-    marginBottom: '6px',
-    color: dark ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)',
-  };
+  const formStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
+    '--cms-form-label-color': dark
+      ? 'var(--ui-color-dark-text)'
+      : 'var(--ui-color-primary)',
+    '--cms-form-control-border': dark
+      ? 'rgba(255,255,255,0.2)'
+      : 'var(--ui-color-border)',
+    '--cms-form-control-background': dark
+      ? 'rgba(255,255,255,0.08)'
+      : 'var(--ui-color-surface)',
+    '--cms-form-control-text': dark
+      ? 'var(--ui-color-dark-text)'
+      : 'var(--ui-color-primary)',
+    '--cms-form-control-placeholder': dark
+      ? 'var(--ui-color-dark-text-muted)'
+      : 'var(--ui-color-text-muted)',
+    '--cms-form-helper-color': dark
+      ? 'var(--ui-color-dark-text-muted)'
+      : 'var(--ui-color-text-muted)',
+    '--cms-form-focus-color': dark
+      ? 'var(--ui-color-dark-text)'
+      : 'var(--ui-color-focus)',
+  } as CSSProperties;
 
   useEffect(() => {
     if (!formId && !resolveAlias) {
@@ -408,7 +415,7 @@ export default function FormRenderer({
   const showPrivacyLink = privacyLabel.length > 0 && privacyHref.length > 0;
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <form onSubmit={handleSubmit} style={formStyle}>
       {(form.fields || [])
         .filter((field) => (field.blockType ?? field.fieldType) !== 'message')
         .map((field) => {
@@ -452,7 +459,7 @@ export default function FormRenderer({
                 </label>
               ) : ft === 'select' ? (
                 <>
-                  <label htmlFor={`field-${field.name}`} style={labelStyle}>
+                  <label htmlFor={`field-${field.name}`} className="cms-form-label">
                     {field.label}
                     {field.required ? (
                       <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
@@ -461,6 +468,7 @@ export default function FormRenderer({
                     ) : null}
                   </label>
                   <select
+                    className="form-input"
                     id={`field-${field.name}`}
                     name={field.name}
                     required={field.required}
@@ -468,7 +476,6 @@ export default function FormRenderer({
                     onChange={(e) =>
                       setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
                     }
-                    style={inputStyle}
                   >
                     <option value="">Select…</option>
                     {(field.options || []).map((opt) => (
@@ -480,7 +487,7 @@ export default function FormRenderer({
                 </>
               ) : ft === 'textarea' ? (
                 <>
-                  <label htmlFor={`field-${field.name}`} style={labelStyle}>
+                  <label htmlFor={`field-${field.name}`} className="cms-form-label">
                     {field.label}
                     {field.required ? (
                       <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
@@ -489,6 +496,7 @@ export default function FormRenderer({
                     ) : null}
                   </label>
                   <textarea
+                    className="form-input"
                     id={`field-${field.name}`}
                     name={field.name}
                     required={field.required}
@@ -498,12 +506,12 @@ export default function FormRenderer({
                     }
                     rows={5}
                     placeholder={placeholder}
-                    style={{ ...inputStyle, resize: 'vertical' }}
+                    style={{ resize: 'vertical' }}
                   />
                 </>
               ) : (
                 <>
-                  <label htmlFor={`field-${field.name}`} style={labelStyle}>
+                  <label htmlFor={`field-${field.name}`} className="cms-form-label">
                     {field.label}
                     {field.required ? (
                       <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
@@ -512,6 +520,7 @@ export default function FormRenderer({
                     ) : null}
                   </label>
                   <input
+                    className="form-input"
                     id={`field-${field.name}`}
                     type={
                       ft === 'email'
@@ -527,7 +536,6 @@ export default function FormRenderer({
                       setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
                     }
                     placeholder={placeholder}
-                    style={inputStyle}
                   />
                 </>
               )}
