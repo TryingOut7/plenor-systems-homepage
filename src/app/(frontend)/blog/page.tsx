@@ -123,8 +123,14 @@ export default async function BlogIndexPage({
           }}
         >
           {posts.map((post) => {
-            const href = post.resourceUrl || `/blog/${post.slug || ''}`;
-            const isExternal = !!post.resourceUrl;
+            const resourceHref = post.resourceUrl || post.resourceFile?.url;
+            const href = resourceHref || `/blog/${post.slug || ''}`;
+            const isExternal = !!resourceHref;
+            const ctaLabel = post.resourceUrl
+              ? 'View Resource →'
+              : post.resourceFile?.url
+                ? 'Download Resource →'
+                : 'Read more →';
             return (
               <article key={post.id} className="feature-card" style={{ display: 'flex', flexDirection: 'column' }}>
                 {post.coverImage?.url ? (
@@ -157,7 +163,7 @@ export default async function BlogIndexPage({
                       {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                       style={{ color: 'var(--ui-color-primary)', fontWeight: 600, fontSize: '14px' }}
                     >
-                      {isExternal ? 'View Resource →' : 'Read more →'}
+                      {ctaLabel}
                     </Link>
                   </div>
                 </div>

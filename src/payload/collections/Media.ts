@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { mediaGovernanceBeforeChange } from '../hooks/mediaGovernance.ts';
 import { withFieldTier } from '../fields/fieldTier.ts';
+import { buildPublicVisibilityWhere } from '../../payload/access/publicVisibility.ts';
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -36,7 +37,10 @@ export const Media: CollectionConfig = {
     ],
   },
   access: {
-    read: () => true,
+    read: ({ req }) => {
+      if (req.user) return true;
+      return buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true });
+    },
     create: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as unknown as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as unknown as Record<string, unknown>).role as string),
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),

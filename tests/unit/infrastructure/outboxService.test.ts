@@ -232,6 +232,13 @@ describe('outboxService', () => {
             payload: {
               publicId: 'reg-1',
               eventId: '123',
+              eventTitle: 'Spring Concert',
+              registrantName: 'Alice',
+              registrantEmail: 'alice@example.com',
+              statusCode: 'submitted',
+              statusLabel: 'Registration Submitted',
+              userFacingReason: null,
+              isPaid: true,
             },
           },
         },
@@ -244,8 +251,12 @@ describe('outboxService', () => {
         expect.objectContaining({
           publicId: 'reg-1',
           eventId: '123',
+          eventTitle: 'Spring Concert',
+          registrantName: 'Alice',
+          registrantEmail: 'alice@example.com',
           statusCode: 'submitted',
           statusLabel: 'Registration Submitted',
+          isPaid: true,
         }),
       );
     });
@@ -262,7 +273,13 @@ describe('outboxService', () => {
             payload: {
               publicId: 'reg-2',
               eventId: '456',
-              confirmedAt: new Date().toISOString(),
+              eventTitle: 'Scholarship Gala',
+              registrantName: 'Bob',
+              registrantEmail: 'bob@example.com',
+              statusCode: 'payment_confirmation_submitted',
+              statusLabel: 'Payment Confirmation Submitted',
+              userFacingReason: null,
+              isPaid: true,
             },
           },
         },
@@ -275,8 +292,47 @@ describe('outboxService', () => {
         expect.objectContaining({
           publicId: 'reg-2',
           eventId: '456',
+          registrantEmail: 'bob@example.com',
           statusCode: 'payment_confirmation_submitted',
           statusLabel: 'Payment Confirmation Submitted',
+        }),
+      );
+    });
+
+    it('dispatches admin status update registration events with user-facing reason', async () => {
+      const providers = makeProviders();
+      mockGetIntegrationProviders.mockReturnValue(providers as never);
+      const job = makeJob({
+        provider: 'email.registration',
+        payload: {
+          event: {
+            type: 'submission.registration.status.updated',
+            occurredAt: new Date().toISOString(),
+            payload: {
+              publicId: 'reg-3',
+              eventId: '789',
+              eventTitle: 'Summer Workshop',
+              registrantName: 'Carol',
+              registrantEmail: 'carol@example.com',
+              statusCode: 'cancelled_rejected',
+              statusLabel: 'Registration Cancelled',
+              previousStatusCode: 'payment_pending',
+              previousStatusLabel: 'Payment Pending',
+              userFacingReason: 'The event is full.',
+              isPaid: true,
+            },
+          },
+        },
+      });
+      mockClaimDueOutboxJobs.mockResolvedValue([job]);
+
+      await processOutboxTick();
+
+      expect(providers.email.sendRegistrationStatusUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          publicId: 'reg-3',
+          statusCode: 'cancelled_rejected',
+          userFacingReason: 'The event is full.',
         }),
       );
     });
@@ -292,6 +348,13 @@ describe('outboxService', () => {
             occurredAt: new Date().toISOString(),
             payload: {
               eventId: 'missing-public-id',
+              eventTitle: 'Workshop',
+              registrantName: 'Alice',
+              registrantEmail: 'alice@example.com',
+              statusCode: 'submitted',
+              statusLabel: 'Registration Submitted',
+              userFacingReason: null,
+              isPaid: false,
             },
           },
         },

@@ -17,6 +17,8 @@ import { applyCorePresetSections } from '../hooks/sitePagePreset.ts';
 import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { sitePagePublishGuardsBeforeChange } from '../hooks/sitePageGuards.ts';
 import { withFieldTier } from '../fields/fieldTier.ts';
+import { buildPublicVisibilityWhere } from '../access/publicVisibility.ts';
+import { validateSafeCssColorValue } from '@/lib/safeCss';
 
 function normalizeSlugCandidate(value: unknown): string {
   if (typeof value !== 'string') return '';
@@ -112,7 +114,12 @@ export const SitePages: CollectionConfig = {
   access: {
     read: ({ req }) => {
       if (req.user) return true;
-      return { workflowStatus: { equals: 'published' }, isActive: { equals: true } };
+      return {
+        and: [
+          buildPublicVisibilityWhere({ allowMissingWorkflowStatus: false }),
+          { isActive: { equals: true } },
+        ],
+      };
     },
     create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
@@ -256,6 +263,7 @@ export const SitePages: CollectionConfig = {
     withFieldTier({
       name: 'pageBackgroundColor',
       type: 'text',
+      validate: validateSafeCssColorValue,
       admin: {
         position: 'sidebar',
         description: 'Override page background color (CSS value, e.g. #F5F5F5)',

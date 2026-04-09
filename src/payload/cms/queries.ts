@@ -39,6 +39,7 @@ import type {
   UISettings,
 } from './types.ts';
 import { resolveFormEmbedAliasesInSitePage } from './resolveFormAliases.ts';
+import { buildPublicVisibilityWhere } from '../access/publicVisibility.ts';
 
 const PAYLOAD_QUERY_TIMEOUT_MS = 8000;
 
@@ -299,15 +300,9 @@ export const getCollectionData = cache(async function getCollectionData(
 
   try {
     const payload = await getPayload();
-    // Include items that are explicitly 'published' OR that pre-date the workflow
-    // system (workflowStatus not yet set). This prevents legacy/seeded data from
-    // disappearing from dynamic list sections after the workflow field was added.
-    const publishedFilter = {
-      or: [
-        { workflowStatus: { equals: 'published' } },
-        { workflowStatus: { exists: false } },
-      ],
-    };
+    const publishedFilter = buildPublicVisibilityWhere({
+      allowMissingWorkflowStatus: true,
+    });
     const [serviceResult, blogResult, testimonialResult, teamResult, logosResult] =
       await Promise.all([
       withPayloadTimeout(
@@ -336,7 +331,8 @@ export const getCollectionData = cache(async function getCollectionData(
         payload.find({
           collection: 'testimonials',
           ...(draft ? {} : { where: publishedFilter }),
-          sort: '-publishedAt',
+          // Sort by updatedAt: Testimonials no longer have a publishedAt field.
+          sort: '-updatedAt',
           limit: 100,
           depth: 1,
           ...(draft ? { draft: true } : {}),
@@ -403,8 +399,16 @@ export const getServiceItemBySlug = cache(async function getServiceItemBySlug(
       payload.find({
         collection: 'service-items',
         where: {
-          slug: { equals: normalizedSlug },
-          ...(draft ? {} : { workflowStatus: { equals: 'published' } }),
+          ...(draft
+            ? { slug: { equals: normalizedSlug } }
+            : {
+                and: [
+                  { slug: { equals: normalizedSlug } },
+                  buildPublicVisibilityWhere({
+                    allowMissingWorkflowStatus: true,
+                  }),
+                ],
+              }),
         },
         limit: 1,
         depth: 1,
@@ -442,8 +446,16 @@ export const getBlogPostBySlug = cache(async function getBlogPostBySlug(
       payload.find({
         collection: 'blog-posts',
         where: {
-          slug: { equals: normalizedSlug },
-          ...(draft ? {} : { workflowStatus: { equals: 'published' } }),
+          ...(draft
+            ? { slug: { equals: normalizedSlug } }
+            : {
+                and: [
+                  { slug: { equals: normalizedSlug } },
+                  buildPublicVisibilityWhere({
+                    allowMissingWorkflowStatus: true,
+                  }),
+                ],
+              }),
         },
         limit: 1,
         depth: 1,
@@ -482,7 +494,11 @@ export const getSitemapSlugs = cache(async function getSitemapSlugs(): Promise<S
         'find:site-pages:sitemap',
       ),
       withPayloadTimeout(
-        payload.find({ collection: 'service-items', where: { workflowStatus: { equals: 'published' } }, limit: 500 }),
+        payload.find({
+          collection: 'service-items',
+          where: buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }),
+          limit: 500,
+        }),
         'find:service-items:sitemap',
       ),
     ]);

@@ -1,6 +1,8 @@
 import { Resend } from 'resend';
+import { getRegistrationStatusMessage } from '@/domain/org-site/registrationStatusCopy';
 import { getPayload } from '@/payload/client';
 import type { SiteSettings, UISettings } from '@/payload/cms';
+import type { RegistrationStatus } from '@plenor/contracts/forms';
 import { resolveSiteUrl } from './site-config';
 import { escapeHtml } from './sanitize';
 
@@ -27,6 +29,7 @@ const DEFAULT_INQUIRY_ACK_SUBJECT = 'We received your inquiry — {brandName}';
 const DEFAULT_INQUIRY_ACK_HEADING = 'We received your inquiry, {name}.';
 const DEFAULT_INQUIRY_ACK_BODY =
   'We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.';
+const REGISTRATION_EMAIL_SUBJECT_PREFIX = 'Registration Update';
 
 type EmailPalette = {
   primary: string;
@@ -503,6 +506,124 @@ function inquiryAckHtml({
                           font-size:15px;padding:12px 24px;border-radius:6px;text-decoration:none;">
                   Get the free guide
                 </a>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 40px 32px;border-top:1px solid ${C.border};">
+              <p style="margin:0;font-size:13px;color:${C.muted};line-height:1.5;">
+                © ${CURRENT_YEAR} ${escapeHtml(config.brandName)}.
+                <a href="${escapeHtml(config.privacyPolicyUrl)}" style="color:${C.muted};">Privacy Policy</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+export async function sendRegistrationStatusUpdateEmail({
+  name,
+  email,
+  publicId,
+  eventTitle,
+  statusCode,
+  statusLabel,
+  userFacingReason,
+  isPaid,
+}: {
+  name: string;
+  email: string;
+  publicId: string;
+  eventTitle: string;
+  statusCode: RegistrationStatus;
+  statusLabel: string;
+  userFacingReason?: string | null;
+  isPaid: boolean;
+}) {
+  const resend = getResend();
+  const config = await getRuntimeConfig();
+  const C = config.palette;
+  const safeEventTitle = eventTitle.trim() || 'Event';
+  const summary = getRegistrationStatusMessage({
+    status: statusCode,
+    userFacingReason: userFacingReason ?? null,
+    isPaidEvent: isPaid,
+  });
+
+  await resend.emails.send({
+    from: FROM,
+    to: email,
+    replyTo: config.replyTo,
+    subject: sanitizeHeaderValue(
+      `${REGISTRATION_EMAIL_SUBJECT_PREFIX}: ${statusLabel} — ${safeEventTitle}`,
+    ),
+    html: registrationStatusEmailHtml({
+      name,
+      publicId,
+      eventTitle: safeEventTitle,
+      statusLabel,
+      summary,
+      userFacingReason: userFacingReason ?? null,
+      config,
+    }),
+  });
+}
+
+function registrationStatusEmailHtml({
+  name,
+  publicId,
+  eventTitle,
+  statusLabel,
+  summary,
+  userFacingReason,
+  config,
+}: {
+  name: string;
+  publicId: string;
+  eventTitle: string;
+  statusLabel: string;
+  summary: string;
+  userFacingReason: string | null;
+  config: EmailRuntimeConfig;
+}) {
+  const C = config.palette;
+  const reasonText = userFacingReason?.trim();
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><title>${escapeHtml(statusLabel)}</title></head>
+<body style="margin:0;padding:0;background:${C.background};font-family:system-ui,-apple-system,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.background};">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table role="presentation" width="100%" style="max-width:560px;background:${C.white};border-radius:8px;border:1px solid ${C.border};">
+          <tr>
+            <td style="padding:32px 40px 0;">
+              <p style="margin:0 0 24px;font-size:18px;font-weight:700;color:${C.primary};">
+                ${escapeHtml(config.brandName)}
+              </p>
+              <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:${C.text};line-height:1.3;">
+                ${escapeHtml(statusLabel)}
+              </h1>
+              <p style="margin:0 0 16px;font-size:16px;color:${C.muted};line-height:1.6;">
+                ${escapeHtml(name)}, ${escapeHtml(summary)}
+              </p>
+              <table role="presentation" width="100%" style="border-collapse:collapse;margin:0 0 24px;">
+                ${row('Event', escapeHtml(eventTitle), C)}
+                ${row('Status', escapeHtml(statusLabel), C)}
+                ${row('Registration ID', `<code style="font-size:13px;">${escapeHtml(publicId)}</code>`, C)}
+                ${reasonText ? row('Reason', escapeHtml(reasonText), C) : ''}
+              </table>
+              <p style="margin:0 0 16px;font-size:15px;color:${C.muted};line-height:1.6;">
+                Keep your registration ID handy when checking the status page on ${escapeHtml(siteHostLabel(config.siteUrl))}.
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;color:${C.muted};line-height:1.6;">
+                Questions? Reply to this email or contact
+                <a href="mailto:${escapeHtml(config.replyTo)}" style="color:${C.primary};">${escapeHtml(config.replyTo)}</a>.
               </p>
             </td>
           </tr>

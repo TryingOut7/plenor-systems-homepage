@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import RichText from '@/components/cms/RichText';
+import { getRegistrationStatusMessage } from '@/domain/org-site/registrationStatusCopy';
 import type { MediaAsset } from '@/lib/org-site-helpers';
 import { ORG_REGISTRATION_STATUSES } from '@/lib/org-site-status';
 import type {
@@ -61,40 +62,6 @@ function normalizeStatusPath(basePath: string): string {
   const normalized = withoutQueryOrHash.replace(/\/+$/, '');
   if (!normalized) return '/';
   return normalized.startsWith('/') ? normalized : `/${normalized.replace(/^\/+/, '')}`;
-}
-
-function getStatusMessage(
-  status: RegistrationStatus,
-  userFacingReason: string | null,
-  isPaidEvent: boolean,
-): string {
-  if (status === STATUS_SUBMITTED) {
-    return isPaidEvent
-      ? 'Registration received. Check back here or your email for payment instructions.'
-      : "Your registration has been received. We'll notify you with next steps.";
-  }
-
-  if (status === STATUS_PAYMENT_PENDING) {
-    return 'Payment instructions are now available. Complete payment and submit confirmation below.';
-  }
-
-  if (status === STATUS_PAYMENT_CONFIRMATION_SUBMITTED) {
-    return 'Payment confirmation received. Pending admin verification.';
-  }
-
-  if (status === STATUS_PAYMENT_CONFIRMED) {
-    return 'Payment verified. Awaiting final registration confirmation.';
-  }
-
-  if (status === STATUS_REGISTRATION_CONFIRMED) {
-    return "You're confirmed! See you at the event.";
-  }
-
-  if (status === STATUS_CANCELLED_REJECTED) {
-    return userFacingReason?.trim() || 'Registration cancelled.';
-  }
-
-  return 'Status unavailable.';
 }
 
 function PublicIdLookup({
@@ -218,11 +185,11 @@ export default function OrgEventRegistrationFlow({
 
   const statusMessage = useMemo(() => {
     if (!statusRecord) return null;
-    return getStatusMessage(
-      statusRecord.status,
-      statusRecord.userFacingReason || null,
-      event.paymentRequired,
-    );
+    return getRegistrationStatusMessage({
+      status: statusRecord.status,
+      userFacingReason: statusRecord.userFacingReason || null,
+      isPaidEvent: event.paymentRequired,
+    });
   }, [event.paymentRequired, statusRecord]);
 
   const showPaymentStep = statusRecord?.status === STATUS_PAYMENT_PENDING;

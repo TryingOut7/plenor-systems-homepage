@@ -3,6 +3,7 @@ import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
+import { buildPublicVisibilityWhere } from '../access/publicVisibility.ts';
 
 export const BlogCategories: CollectionConfig = {
   slug: 'blog-categories',
@@ -18,7 +19,7 @@ export const BlogCategories: CollectionConfig = {
   access: {
     read: ({ req }) => {
       if (req.user) return true;
-      return { workflowStatus: { equals: 'published' } };
+      return buildPublicVisibilityWhere({ allowMissingWorkflowStatus: false });
     },
     create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),

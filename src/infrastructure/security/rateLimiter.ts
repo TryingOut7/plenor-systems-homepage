@@ -215,11 +215,6 @@ export async function consumeRateLimitBucket(params: {
           strictPersistentRateLimitMessage(result.error.message),
         );
       }
-
-      if (process.env.NODE_ENV === 'production' && !isMissingRateLimitSchemaError(result.error.message)) {
-        // In production with explicit fallback enabled, transient DB errors
-        // can use process-local limiting to preserve availability.
-      }
     }
   } else if (!allowInMemoryFallback(params.allowInMemoryFallback)) {
     throw new Error(

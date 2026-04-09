@@ -2,20 +2,21 @@
 
 import Link from 'next/link';
 import { useState, useSyncExternalStore } from 'react';
+import { normalizeSafeCssColorValue } from '@/lib/safeCss';
 
 const DISMISS_KEY = 'announcement-banner-dismissed';
 const subscribeNoop = () => () => {};
 
 function getDismissedServerSnapshot(): boolean {
-  return true;
+  return false;
 }
 
 function getDismissedClientSnapshot(): boolean {
-  if (typeof window === 'undefined') return true;
+  if (typeof window === 'undefined') return false;
   try {
     return window.sessionStorage.getItem(DISMISS_KEY) === '1';
   } catch {
-    return true;
+    return false;
   }
 }
 
@@ -36,6 +37,9 @@ export default function AnnouncementBanner({
   backgroundColor = '#1B2D4F',
   textColor = '#FFFFFF',
 }: AnnouncementBannerProps) {
+  const resolvedBackgroundColor =
+    normalizeSafeCssColorValue(backgroundColor) || '#1B2D4F';
+  const resolvedTextColor = normalizeSafeCssColorValue(textColor) || '#FFFFFF';
   const persistedDismissed = useSyncExternalStore(
     subscribeNoop,
     getDismissedClientSnapshot,
@@ -60,8 +64,8 @@ export default function AnnouncementBanner({
       role="banner"
       aria-label="Announcement"
       style={{
-        backgroundColor,
-        color: textColor,
+        backgroundColor: resolvedBackgroundColor,
+        color: resolvedTextColor,
         padding: '10px 32px',
         textAlign: 'center',
         fontSize: '14px',
@@ -77,7 +81,7 @@ export default function AnnouncementBanner({
         <Link
           href={linkHref}
           style={{
-            color: textColor,
+            color: resolvedTextColor,
             fontWeight: 600,
             textDecoration: 'underline',
             textUnderlineOffset: '2px',
@@ -99,7 +103,7 @@ export default function AnnouncementBanner({
           background: 'none',
           border: 'none',
           cursor: 'pointer',
-          color: textColor,
+          color: resolvedTextColor,
           opacity: 0.7,
           padding: '4px',
           display: 'flex',

@@ -2,6 +2,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { buildConfig } from 'payload';
 import { validateEnv } from './lib/env-validation.ts';
+import { createStructuredLogger } from './lib/structuredLogger.ts';
+import { isNonLocalRuntime } from './lib/runtime.ts';
 import { resolveDatabasePoolMax } from './payload/databasePool.ts';
 import { acceptedLanguages, type AcceptedLanguages } from '@payloadcms/translations';
 import { enTranslations } from '@payloadcms/translations/languages/en';
@@ -71,6 +73,8 @@ import type { CollectionConfig } from 'payload';
 import { normalizeFormBuilderData } from './payload/forms/formBuilderNormalization.ts';
 
 validateEnv();
+
+const logger = createStructuredLogger('payload.config');
 
 function readRuntimePortFromArgv(argv: string[]): string | undefined {
   for (let index = 0; index < argv.length; index += 1) {
@@ -160,6 +164,14 @@ const serverURL = resolveServerURL();
 const blobReadWriteToken = process.env.BLOB_READ_WRITE_TOKEN;
 const hasBlobReadWriteToken =
   typeof blobReadWriteToken === 'string' && blobReadWriteToken.length > 0;
+
+const nonLocalRuntime = isNonLocalRuntime();
+
+// Use Blob storage in all non-local runtimes (preview/staging/production) when token is present.
+// Local environments can opt-in explicitly.
+const blobStorageEnabled =
+  hasBlobReadWriteToken &&
+  (nonLocalRuntime || process.env.ENABLE_LOCAL_BLOB_STORAGE === 'true');
 
 // Import/Export is only active on Vercel with a blob token. When absent, inject
 // a banner component into the affected collections so admins understand why the
@@ -829,9 +841,8 @@ export default buildConfig({
       );
     }
 
-    console.info(
-      'ℹ️ INFO: RESEND_API_KEY is missing. ' +
-        'Using consoleEmailAdapter — outgoing emails will be printed to stdout.',
+    logger.info(
+      'RESEND_API_KEY is missing. Using consoleEmailAdapter; outgoing emails will be printed to stdout.',
     );
     return consoleEmailAdapter();
   })(),
@@ -1006,7 +1017,7 @@ export default buildConfig({
     // Must run after plugins that register upload collections (e.g. import-export)
     // so adapter assignment includes those collections.
     vercelBlobStorage({
-      enabled: !!blobReadWriteToken,
+      enabled: blobStorageEnabled,
       collections: {
         media: true,
         exports: true,

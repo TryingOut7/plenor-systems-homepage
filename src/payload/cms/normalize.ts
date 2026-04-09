@@ -116,6 +116,7 @@ export function normalizeBlogPost(doc: Record<string, unknown>): BlogPost {
     tags: doc.tags as BlogPost['tags'],
     category: doc.category as BlogPost['category'],
     resourceUrl: doc.resourceUrl as string | undefined,
+    resourceFile: normalizeMedia(doc.resourceFile),
     seo: normalizeSeo(doc.seo),
   };
 }
@@ -132,7 +133,6 @@ export function normalizeTestimonial(doc: Record<string, unknown>): Testimonial 
     rating: doc.rating as number | undefined,
     details: doc.details,
     isFeatured: doc.isFeatured as boolean | undefined,
-    publishedAt: doc.publishedAt as string | undefined,
     tags: doc.tags as Testimonial['tags'],
     seo: normalizeSeo(doc.seo),
   };

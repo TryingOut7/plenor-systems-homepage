@@ -18,6 +18,7 @@ import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
 import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
+import { buildPublicVisibilityWhere } from '../access/publicVisibility.ts';
 import { CleanPasteFeature } from '../editor/features/cleanPasteFeature.ts';
 import { validateHttpUrl } from '../validation/url.ts';
 import {
@@ -46,6 +47,54 @@ const richTextEditor = lexicalEditor({
   ],
 });
 
+type EventValidationData = {
+  registrationRequired?: unknown;
+  paymentRequired?: unknown;
+  zelleQrCode?: unknown;
+  venmoQrCode?: unknown;
+};
+
+function asEventValidationData(data: unknown): EventValidationData {
+  if (!data || typeof data !== 'object') return {};
+  return data as EventValidationData;
+}
+
+function hasRichTextContent(value: unknown): boolean {
+  if (!value || typeof value !== 'object') return false;
+
+  const queue: unknown[] = [value];
+  while (queue.length > 0) {
+    const current = queue.pop();
+    if (!current || typeof current !== 'object') continue;
+
+    if (Array.isArray(current)) {
+      queue.push(...current);
+      continue;
+    }
+
+    const node = current as Record<string, unknown>;
+    if (typeof node.text === 'string' && node.text.trim().length > 0) return true;
+
+    for (const nested of Object.values(node)) {
+      if (nested && typeof nested === 'object') queue.push(nested);
+    }
+  }
+
+  return false;
+}
+
+function hasUploadReference(value: unknown): boolean {
+  if (typeof value === 'number') return Number.isFinite(value);
+  if (typeof value === 'string') return value.trim().length > 0;
+  if (!value || typeof value !== 'object') return false;
+
+  const record = value as Record<string, unknown>;
+  if (typeof record.id === 'number') return Number.isFinite(record.id);
+  if (typeof record.id === 'string') return record.id.trim().length > 0;
+  if (typeof record.url === 'string') return record.url.trim().length > 0;
+  return false;
+}
+
 export const OrgEvents: CollectionConfig = {
   slug: 'org-events',
   admin: {
@@ -57,7 +106,7 @@ export const OrgEvents: CollectionConfig = {
   access: {
     read: ({ req }) => {
       if (req.user) return true;
-      return { workflowStatus: { equals: 'published' } };
+      return buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true });
     },
     create: ({ req }) =>
       !!req.user &&
@@ -241,6 +290,12 @@ export const OrgEvents: CollectionConfig = {
       name: 'registrationInstructions',
       type: 'richText',
       editor: richTextEditor,
+      validate: (value: unknown, { data }: { data?: unknown }) => {
+        const incoming = asEventValidationData(data);
+        if (incoming.registrationRequired !== true) return true;
+        if (hasRichTextContent(value)) return true;
+        return 'Registration instructions are required when registration is required.';
+      },
       admin: {
         condition: (data) => !!data?.registrationRequired,
         description:
@@ -250,6 +305,12 @@ export const OrgEvents: CollectionConfig = {
     {
       name: 'paymentReferenceFormat',
       type: 'text',
+      validate: (value: unknown, { data }: { data?: unknown }) => {
+        const incoming = asEventValidationData(data);
+        if (incoming.paymentRequired !== true) return true;
+        if (typeof value === 'string' && value.trim().length > 0) return true;
+        return 'Payment reference format is required when payment is required.';
+      },
       admin: {
         condition: (data) => !!data?.paymentRequired,
         description: 'Required note/reference format for payment (e.g. "EventName-LastName").',
@@ -279,6 +340,17 @@ export const OrgEvents: CollectionConfig = {
       name: 'paymentInstructions',
       type: 'richText',
       editor: richTextEditor,
+      validate: (value: unknown, { data }: { data?: unknown }) => {
+        const incoming = asEventValidationData(data);
+        if (incoming.paymentRequired !== true) return true;
+
+        const hasInstructions = hasRichTextContent(value);
+        const hasPaymentQrCode =
+          hasUploadReference(incoming.zelleQrCode) || hasUploadReference(incoming.venmoQrCode);
+
+        if (hasInstructions || hasPaymentQrCode) return true;
+        return 'Provide payment instructions or at least one payment QR code when payment is required.';
+      },
       admin: {
         condition: (data) => !!data?.paymentRequired,
         description: 'Detailed payment instructions including anti-fraud disclaimer.',

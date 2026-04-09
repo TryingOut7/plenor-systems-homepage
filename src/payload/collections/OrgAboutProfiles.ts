@@ -18,6 +18,7 @@ import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
 import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
+import { buildPublicVisibilityWhere } from '../access/publicVisibility.ts';
 import { CleanPasteFeature } from '../editor/features/cleanPasteFeature.ts';
 import { validateHttpUrl } from '../validation/url.ts';
 import {
@@ -52,7 +53,7 @@ export const OrgAboutProfiles: CollectionConfig = {
   access: {
     read: ({ req }) => {
       if (req.user) return true;
-      return { workflowStatus: { equals: 'published' } };
+      return buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true });
     },
     create: ({ req }) =>
       !!req.user &&

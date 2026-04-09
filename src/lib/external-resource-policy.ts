@@ -1,3 +1,5 @@
+import { isLocalHostname } from './runtime.ts';
+
 type ResourceKind = 'script' | 'style';
 
 const DEFAULT_ALLOWED_SCRIPT_HOSTS = [
@@ -7,33 +9,9 @@ const DEFAULT_ALLOWED_SCRIPT_HOSTS = [
 ];
 const DEFAULT_ALLOWED_STYLE_HOSTS = ['fonts.googleapis.com'];
 
-function readRuntimePortFromArgv(argv: string[]): string | undefined {
-  for (let index = 0; index < argv.length; index += 1) {
-    const token = argv[index];
-    if (token === '--port' || token === '-p') {
-      const candidate = argv[index + 1];
-      if (candidate && /^\d+$/.test(candidate)) return candidate;
-      continue;
-    }
-    if (token.startsWith('--port=')) {
-      const candidate = token.slice('--port='.length);
-      if (candidate && /^\d+$/.test(candidate)) return candidate;
-    }
-  }
-  return undefined;
-}
-
-function isLocalHostname(hostname: string): boolean {
-  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
-}
-
 function collectRuntimePorts(env: NodeJS.ProcessEnv): Set<string> {
   const ports = new Set<string>(['3000']);
-  const candidates = [
-    env.PORT,
-    env.npm_config_port,
-    readRuntimePortFromArgv(process.argv),
-  ];
+  const candidates = [env.PORT, env.npm_config_port];
 
   for (const candidate of candidates) {
     if (typeof candidate !== 'string') continue;
@@ -226,7 +204,10 @@ export function buildContentSecurityPolicy(
   const localDevOrigins = resolveLocalDevelopmentOrigins(env);
   const isProduction = env.NODE_ENV === 'production';
 
-  const scriptSrcTokens = [`'self'`, `'unsafe-inline'`, ...scriptHosts];
+  const scriptSrcTokens = [`'self'`, ...scriptHosts];
+  if (!isProduction) {
+    scriptSrcTokens.push(`'unsafe-inline'`);
+  }
   if (!isProduction) {
     scriptSrcTokens.push(`'unsafe-eval'`);
   }

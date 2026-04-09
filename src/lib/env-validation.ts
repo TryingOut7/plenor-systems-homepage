@@ -1,3 +1,5 @@
+import { isNonLocalRuntime } from './runtime.ts';
+
 const REQUIRED_VARS = [
   'PAYLOAD_SECRET',
   'RESEND_API_KEY',
@@ -36,6 +38,9 @@ export function validateEnv(): void {
   const missingCronSecret = !process.env.CRON_SECRET;
 
   const missingServerUrl = !process.env.NEXT_PUBLIC_SERVER_URL && !process.env.VERCEL_URL;
+  const requiresPersistentUploadStorage =
+    isNonLocalRuntime() && process.env.ALLOW_NON_PERSISTENT_UPLOADS !== 'true';
+  const missingBlobToken = !process.env.BLOB_READ_WRITE_TOKEN;
 
   const allMissing: string[] = [];
   if (missingDatabase) allMissing.push('POSTGRES_URL');
@@ -43,6 +48,9 @@ export function validateEnv(): void {
   allMissing.push(...missing);
   allMissing.push(...missingSupabase);
   if (missingCronSecret) allMissing.push('CRON_SECRET');
+  if (requiresPersistentUploadStorage && missingBlobToken) {
+    allMissing.push('BLOB_READ_WRITE_TOKEN');
+  }
 
 
   if (allMissing.length > 0) {
@@ -52,12 +60,11 @@ export function validateEnv(): void {
     );
   }
 
-  // Non-fatal warning: without BLOB_READ_WRITE_TOKEN on Vercel, media uploads
-  // will not persist across deployments.
-  if (process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN) {
+  // Non-fatal warning only for explicitly opted-out environments.
+  if (isNonLocalRuntime() && !process.env.BLOB_READ_WRITE_TOKEN) {
     console.warn(
-      '[env] BLOB_READ_WRITE_TOKEN is not set. Media uploads will not use Vercel Blob ' +
-        'storage and will be lost on the next deployment. Set this token to enable persistent storage.',
+      '[env] BLOB_READ_WRITE_TOKEN is not set. Non-local uploads are not configured for persistent storage. ' +
+        'Set BLOB_READ_WRITE_TOKEN (recommended) or set ALLOW_NON_PERSISTENT_UPLOADS=true to bypass.',
     );
   }
 

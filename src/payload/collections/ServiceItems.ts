@@ -4,8 +4,10 @@ import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.
 import { createdByField } from '../fields/ownership.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
+import { normalizeSlugBeforeChange } from '../hooks/normalizeSlug.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
 import { authorScopedUpdate } from '../access/authorScopedAccess.ts';
+import { buildPublicVisibilityWhere } from '../access/publicVisibility.ts';
 import { ensureLocalizationBeforeChange, localizationFields } from '../fields/localization.ts';
 
 export const ServiceItems: CollectionConfig = {
@@ -22,14 +24,19 @@ export const ServiceItems: CollectionConfig = {
   access: {
     read: ({ req }) => {
       if (req.user) return true;
-      return { workflowStatus: { equals: 'published' } };
+      return buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true });
     },
     create: ({ req }) => !!req.user && ['admin', 'editor', 'author'].includes((req.user as unknown as Record<string, unknown>).role as string),
     update: authorScopedUpdate,
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
   },
   hooks: {
-    beforeChange: [stampCreatedByBeforeChange, ensureLocalizationBeforeChange, workflowBeforeChange],
+    beforeChange: [
+      stampCreatedByBeforeChange,
+      normalizeSlugBeforeChange,
+      ensureLocalizationBeforeChange,
+      workflowBeforeChange,
+    ],
     afterChange: [workflowAfterChange, auditAfterChange],
     afterDelete: [auditAfterDelete],
   },

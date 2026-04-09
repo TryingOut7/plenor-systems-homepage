@@ -182,6 +182,8 @@ const repository = {
   persistPaymentConfirmationWithOutbox: vi.fn(async (input: {
     publicId: string;
     payload: PaymentConfirmationPayload;
+    eventTitle: string;
+    isPaid: boolean;
   }) => {
     const existing = submissionsByPublicId.get(input.publicId);
     if (!existing) return null;
@@ -219,6 +221,8 @@ const repository = {
     internalReason?: string;
     userFacingReason?: string;
     actorKeyId: string;
+    eventTitle: string;
+    isPaid: boolean;
   }) => {
     const before = submissionsByPublicId.get(input.publicId) || null;
     if (!before) return { before: null, after: null };

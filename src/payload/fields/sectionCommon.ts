@@ -1,4 +1,5 @@
 import type { Field } from 'payload';
+import { validateSafeCssColorValue } from '@/lib/safeCss';
 import { withFieldTier } from './fieldTier.ts';
 
 export const structuralKeyField: Field = {
@@ -31,6 +32,7 @@ export const themeField: Field = {
 export const backgroundColorField: Field = withFieldTier({
   name: 'backgroundColor',
   type: 'text',
+  validate: validateSafeCssColorValue,
   admin: {
     description: 'Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)',
     placeholder: '#F8F9FA',

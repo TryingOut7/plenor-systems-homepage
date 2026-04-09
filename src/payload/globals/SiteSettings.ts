@@ -1,6 +1,8 @@
 import type { GlobalConfig } from 'payload';
+import { validateSafeCssColorValue } from '@/lib/safeCss';
 import { withFieldTier } from '../fields/fieldTier.ts';
 import { auditGlobalAfterChange } from '../hooks/auditLog.ts';
+import { revalidateGlobalAfterChange } from '../hooks/revalidateCmsContent.ts';
 import { validateHttpUrl, validatePathOrHttpUrl } from '../validation/url.ts';
 
 export const SiteSettings: GlobalConfig = {
@@ -19,7 +21,7 @@ export const SiteSettings: GlobalConfig = {
     },
   },
   hooks: {
-    afterChange: [auditGlobalAfterChange],
+    afterChange: [revalidateGlobalAfterChange, auditGlobalAfterChange],
   },
   fields: [
     {
@@ -144,8 +146,20 @@ export const SiteSettings: GlobalConfig = {
                 { name: 'text', type: 'text' },
                 { name: 'linkLabel', type: 'text' },
                 { name: 'linkHref', type: 'text', validate: validatePathOrHttpUrl },
-                { name: 'backgroundColor', type: 'text', defaultValue: '#1B2D4F', admin: { description: 'Hex, rgb, or CSS value' } },
-                { name: 'textColor', type: 'text', defaultValue: '#FFFFFF', admin: { description: 'Hex, rgb, or CSS value' } },
+                {
+                  name: 'backgroundColor',
+                  type: 'text',
+                  defaultValue: '#1B2D4F',
+                  validate: validateSafeCssColorValue,
+                  admin: { description: 'Hex, rgb, hsl, named color, or CSS var' },
+                },
+                {
+                  name: 'textColor',
+                  type: 'text',
+                  defaultValue: '#FFFFFF',
+                  validate: validateSafeCssColorValue,
+                  admin: { description: 'Hex, rgb, hsl, named color, or CSS var' },
+                },
               ],
             },
           ],

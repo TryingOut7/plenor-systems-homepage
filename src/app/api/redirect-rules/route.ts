@@ -8,7 +8,7 @@
  * This route runs a single raw query and sets CDN cache headers so Vercel Edge
  * serves the vast majority of requests without touching the database at all.
  *
- * Response shape mirrors Payload REST so proxy.ts needs no changes.
+ * Response shape mirrors Payload REST so proxy redirect loading stays simple.
  */
 import { Pool } from 'pg';
 import { NextResponse } from 'next/server';
@@ -76,7 +76,7 @@ export async function GET() {
       },
     );
   } catch {
-    // On DB error return an empty list — proxy.ts falls back to its in-memory cache
+    // On DB error return an empty list — proxy falls back to its in-memory cache
     // anyway, so a short CDN TTL avoids hammering a degraded DB.
     return NextResponse.json(
       { docs: [], totalDocs: 0 },

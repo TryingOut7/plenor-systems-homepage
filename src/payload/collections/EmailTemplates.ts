@@ -10,7 +10,7 @@ export const EmailTemplates: CollectionConfig = {
     description: 'Reusable email messages for guides, whitepapers, and other downloadable resources. Link a template to your guide form workflow so each "Send me the guide" flow delivers the right content.',
   },
   access: {
-    read: ({ req }) => !!req.user,
+    read: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
     create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
     delete: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),

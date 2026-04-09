@@ -1,7 +1,10 @@
 import type { OutboundEventV1 } from '@plenor/contracts/events';
-import { REGISTRATION_STATUSES } from '@/domain/org-site/constants';
+import type { RegistrationStatus } from '@plenor/contracts/forms';
 import { getIntegrationProviders } from '@/infrastructure/integrations/defaultProviders';
-import { mapEventToOutboxJobs } from '@/infrastructure/integrations/outboundEvents';
+import {
+  mapEventToOutboxJobs,
+  type RegistrationStatusEventPayload,
+} from '@/infrastructure/integrations/outboundEvents';
 import {
   claimDueOutboxJobs,
   enqueueOutboxJobs,
@@ -15,30 +18,48 @@ function asEvent(value: unknown): OutboundEventV1<unknown> {
   return value as OutboundEventV1<unknown>;
 }
 
-const STATUS_SUBMITTED = REGISTRATION_STATUSES[0];
-const STATUS_PAYMENT_CONFIRMATION_SUBMITTED = REGISTRATION_STATUSES[2];
-
-function deriveRegistrationStatus(event: OutboundEventV1<unknown>): {
-  statusCode: string;
-  statusLabel: string;
-} {
-  if (event.type === 'submission.registration.created') {
-    return {
-      statusCode: STATUS_SUBMITTED,
-      statusLabel: 'Registration Submitted',
-    };
+function readRequiredString(
+  payload: Record<string, unknown>,
+  field: keyof RegistrationStatusEventPayload,
+): string {
+  const value = payload[field];
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new Error(`Registration outbox event is missing required payload field "${field}".`);
   }
 
-  if (event.type === 'submission.registration.payment_confirmation.submitted') {
-    return {
-      statusCode: STATUS_PAYMENT_CONFIRMATION_SUBMITTED,
-      statusLabel: 'Payment Confirmation Submitted',
-    };
+  return value.trim();
+}
+
+function readRegistrationStatusPayload(
+  event: OutboundEventV1<unknown>,
+): RegistrationStatusEventPayload {
+  const payload = (event.payload || {}) as Record<string, unknown>;
+  const statusCode = readRequiredString(payload, 'statusCode') as RegistrationStatus;
+  const statusLabel = readRequiredString(payload, 'statusLabel');
+  const isPaid = payload.isPaid;
+
+  if (typeof isPaid !== 'boolean') {
+    throw new Error('Registration outbox event is missing required payload field "isPaid".');
   }
 
-  throw new Error(
-    `Unsupported registration email event type "${event.type}" for email.registration provider.`,
-  );
+  return {
+    publicId: readRequiredString(payload, 'publicId'),
+    eventId: readRequiredString(payload, 'eventId'),
+    eventTitle: readRequiredString(payload, 'eventTitle'),
+    registrantName: readRequiredString(payload, 'registrantName'),
+    registrantEmail: readRequiredString(payload, 'registrantEmail'),
+    statusCode,
+    statusLabel,
+    userFacingReason:
+      typeof payload.userFacingReason === 'string' ? payload.userFacingReason : null,
+    isPaid,
+    previousStatusCode:
+      typeof payload.previousStatusCode === 'string'
+        ? (payload.previousStatusCode as RegistrationStatus)
+        : undefined,
+    previousStatusLabel:
+      typeof payload.previousStatusLabel === 'string' ? payload.previousStatusLabel : undefined,
+  };
 }
 
 async function dispatchOutboxJob(job: OutboxJob): Promise<void> {
@@ -85,18 +106,18 @@ async function dispatchOutboxJob(job: OutboxJob): Promise<void> {
   }
 
   if (job.provider === 'email.registration') {
-    const publicIdRaw = payload.publicId;
-    if (typeof publicIdRaw !== 'string' || !publicIdRaw.trim()) {
-      throw new Error('Registration outbox event is missing required payload field "publicId".');
-    }
-
-    const registrationStatus = deriveRegistrationStatus(event);
+    const registrationStatus = readRegistrationStatusPayload(event);
     await providers.email.sendRegistrationStatusUpdate({
       event,
-      publicId: publicIdRaw.trim(),
-      eventId: String(payload.eventId || ''),
+      publicId: registrationStatus.publicId,
+      eventId: registrationStatus.eventId,
+      eventTitle: registrationStatus.eventTitle,
+      registrantName: registrationStatus.registrantName,
+      registrantEmail: registrationStatus.registrantEmail,
       statusCode: registrationStatus.statusCode,
       statusLabel: registrationStatus.statusLabel,
+      userFacingReason: registrationStatus.userFacingReason ?? null,
+      isPaid: registrationStatus.isPaid,
     });
     return;
   }

@@ -9,13 +9,13 @@ import {
   invalidateCmsCollectionCaches,
   invalidateCmsGlobalCaches,
 } from '../cms/cache.ts';
-import {
-  revalidateCollectionContent,
-  revalidateGlobalContent,
-} from './revalidateCmsContent.ts';
+import { revalidateCollectionContent } from './revalidateCmsContent.ts';
 
 type AuditRiskTier = 'routine' | 'system';
 type UserRecord = Record<string, unknown>;
+type PayloadLoggerLike = {
+  error?: (entry: Record<string, unknown>) => void;
+};
 
 function getDocTitle(doc: Record<string, unknown>): string {
   return (
@@ -41,6 +41,14 @@ function extractIpAddress(req: { headers?: unknown; ip?: unknown }): string | un
   }
 
   return typeof req.ip === 'string' && req.ip.trim() ? req.ip.trim() : undefined;
+}
+
+function resolvePayloadLogger(req: unknown): PayloadLoggerLike {
+  if (!req || typeof req !== 'object') return {};
+  const payload = (req as Record<string, unknown>).payload;
+  if (!payload || typeof payload !== 'object') return {};
+  const logger = (payload as Record<string, unknown>).logger;
+  return logger && typeof logger === 'object' ? (logger as PayloadLoggerLike) : {};
 }
 
 function getPathValue(input: unknown, path: string): unknown {
@@ -204,6 +212,7 @@ function buildAuditEntryData(args: {
 export const auditLogInternals = {
   summarizeValue,
   summarizeTransition,
+  alertHighRiskAuditEvent,
 };
 
 /**
@@ -211,7 +220,7 @@ export const auditLogInternals = {
  * Writes a structured error log (captured by Vercel log drains + Sentry)
  * and optionally POSTs to OUTBOUND_WEBHOOK_URL when configured.
  */
-function alertHighRiskAuditEvent(args: {
+function logSystemRiskAuditEvent(args: {
   action: string;
   collection: string;
   documentId: string;
@@ -219,9 +228,10 @@ function alertHighRiskAuditEvent(args: {
   fieldPath: string;
   userEmail: string;
   summary: string;
+  logger?: PayloadLoggerLike;
 }): void {
-  // Structured log — visible in Vercel logs and Sentry as an error-level event.
-  console.error('[AUDIT:SYSTEM_RISK]', JSON.stringify({
+  args.logger?.error?.({
+    msg: 'System-risk CMS change detected',
     action: args.action,
     collection: args.collection,
     documentId: args.documentId,
@@ -230,9 +240,21 @@ function alertHighRiskAuditEvent(args: {
     user: args.userEmail,
     summary: args.summary,
     timestamp: new Date().toISOString(),
-  }));
+  });
+}
 
-  // Outbound webhook (fire-and-forget, best-effort).
+async function alertHighRiskAuditEvent(args: {
+  action: string;
+  collection: string;
+  documentId: string;
+  documentTitle: string;
+  fieldPath: string;
+  userEmail: string;
+  summary: string;
+  logger?: PayloadLoggerLike;
+}): Promise<void> {
+  logSystemRiskAuditEvent(args);
+
   const webhookUrl = process.env.OUTBOUND_WEBHOOK_URL;
   const webhookSecret = process.env.OUTBOUND_WEBHOOK_SECRET;
   if (!webhookUrl) return;
@@ -248,9 +270,41 @@ function alertHighRiskAuditEvent(args: {
     headers['x-webhook-secret'] = webhookSecret;
   }
 
-  fetch(webhookUrl, { method: 'POST', headers, body: payload }).catch(() => {
-    // Best-effort — never throw from an audit hook.
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers,
+      body: payload,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      args.logger?.error?.({
+        msg: 'Failed to deliver system-risk audit webhook',
+        action: args.action,
+        collection: args.collection,
+        documentId: args.documentId,
+        fieldPath: args.fieldPath,
+        status: response.status,
+        statusText: response.statusText,
+      });
+    }
+  } catch (error) {
+    args.logger?.error?.({
+      msg: 'Failed to deliver system-risk audit webhook',
+      action: args.action,
+      collection: args.collection,
+      documentId: args.documentId,
+      fieldPath: args.fieldPath,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      errorName: error instanceof Error ? error.name : 'Error',
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export const auditAfterChange: CollectionAfterChangeHook = async ({
@@ -284,6 +338,7 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
   const collectionRiskTier: AuditRiskTier = isSystemRiskCollection(collection.slug)
     ? 'system'
     : 'routine';
+  const logger = resolvePayloadLogger(req);
 
   try {
     await req.payload.create({
@@ -334,7 +389,7 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
             ipAddress,
           }),
         } as Parameters<typeof req.payload.create>[0]);
-        alertHighRiskAuditEvent({
+        await alertHighRiskAuditEvent({
           action,
           collection: collection.slug,
           documentId: String(doc.id),
@@ -342,6 +397,7 @@ export const auditAfterChange: CollectionAfterChangeHook = async ({
           fieldPath: path,
           userEmail: String(userRecord.email || 'Unknown'),
           summary: entrySummary,
+          logger,
         });
       }
     }
@@ -408,9 +464,6 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
   global,
 }) => {
   invalidateCmsGlobalCaches(global.slug);
-  if (!context?.autosave) {
-    await revalidateGlobalContent();
-  }
   if (!req.user) return doc;
   if (context?.autosave) return doc;
 
@@ -421,6 +474,7 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
   const globalRiskTier: AuditRiskTier = isSystemRiskCollection(global.slug)
     ? 'system'
     : 'routine';
+  const logger = resolvePayloadLogger(req);
 
   try {
     await req.payload.create({
@@ -471,7 +525,7 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
             ipAddress,
           }),
         } as Parameters<typeof req.payload.create>[0]);
-        alertHighRiskAuditEvent({
+        await alertHighRiskAuditEvent({
           action,
           collection: global.slug,
           documentId: global.slug,
@@ -479,6 +533,7 @@ export const auditGlobalAfterChange: GlobalAfterChangeHook = async ({
           fieldPath: path,
           userEmail: String(userRecord.email || 'Unknown'),
           summary: globalEntrySummary,
+          logger,
         });
       }
     }

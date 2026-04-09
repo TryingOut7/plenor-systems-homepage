@@ -1,5 +1,6 @@
 import type { GlobalConfig } from 'payload';
 import { auditGlobalAfterChange } from '../hooks/auditLog.ts';
+import { revalidateGlobalAfterChange } from '../hooks/revalidateCmsContent.ts';
 import { HOME_SECTION_KEYS, toPayloadOptions } from '../../domain/org-site/constants.ts';
 
 function validateFeaturedSelectionLimit(value: unknown): true | string {
@@ -48,7 +49,7 @@ export const OrgHomeFeatures: GlobalConfig = {
     },
   },
   hooks: {
-    afterChange: [auditGlobalAfterChange],
+    afterChange: [revalidateGlobalAfterChange, auditGlobalAfterChange],
   },
   fields: [
     {

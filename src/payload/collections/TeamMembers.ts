@@ -4,6 +4,7 @@ import { createdByField } from '../fields/ownership.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { stampCreatedByBeforeChange } from '../hooks/stampCreatedBy.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
+import { buildPublicVisibilityWhere } from '../access/publicVisibility.ts';
 import { validateHttpUrl } from '../validation/url.ts';
 
 export const TeamMembers: CollectionConfig = {
@@ -20,7 +21,7 @@ export const TeamMembers: CollectionConfig = {
   access: {
     read: ({ req }) => {
       if (req.user) return true;
-      return { workflowStatus: { equals: 'published' } };
+      return buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true });
     },
     create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),

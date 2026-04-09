@@ -1,3 +1,5 @@
+import { validateRedirectWildcardPairing } from '@/lib/redirects';
+
 type ValidationContext = {
   siblingData?: Record<string, unknown>;
 };
@@ -138,12 +140,6 @@ export function validateRedirectToPath(
   if (baseValidation !== true) return baseValidation;
 
   const toPath = readTrimmedString(value);
-  if (!toPath.includes('*')) return true;
-
   const fromPath = readTrimmedString(context?.siblingData?.fromPath);
-  if (!fromPath.endsWith('/*')) {
-    return 'Destination wildcard is only allowed when source path ends with "/*".';
-  }
-
-  return true;
+  return validateRedirectWildcardPairing(fromPath, toPath);
 }

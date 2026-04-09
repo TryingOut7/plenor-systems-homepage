@@ -2,6 +2,7 @@ import type { RequestContext } from '@/application/shared/requestContext';
 import { fail, ok, type ServiceResult } from '@/application/shared/serviceResult';
 import { REGISTRATION_STATUSES } from '@/domain/org-site/constants';
 import { canTransition } from '@/domain/org-site/registrationWorkflow';
+import { createStructuredLogger } from '@/lib/structuredLogger';
 import {
   validatePaymentConfirmationBody,
   validateRegistrationSubmissionBody,
@@ -33,6 +34,7 @@ type RegistrationStatusServiceResponse = RegistrationStatusResponse | FormSubmis
 
 const PAYMENT_PENDING = REGISTRATION_STATUSES[1];
 const PAYMENT_CONFIRMATION_SUBMITTED = REGISTRATION_STATUSES[2];
+const logger = createStructuredLogger('application.org-site.registrationSubmissionService');
 
 const PUBLIC_ID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -106,7 +108,7 @@ function logRegistrationEvent(input: {
   requestId?: string;
 }): void {
   const redacted = redactRegistrationPayload(input.record.registrationPayload);
-  console.info('Org-site registration event', {
+  logger.info('Org-site registration event', {
     event: input.event,
     publicId: input.record.publicId,
     eventId: input.record.eventId,
@@ -121,7 +123,7 @@ async function processRegistrationOutboxTick(): Promise<void> {
   try {
     await processOutboxTick(10);
   } catch (error) {
-    console.error('Org-site registration outbox tick failed.', {
+    logger.error('Org-site registration outbox tick failed.', {
       errorMessage: error instanceof Error ? error.message : String(error),
     });
   }
@@ -217,7 +219,7 @@ export async function submitRegistration(
 
     return ok(submissionResponse(saved), 200);
   } catch (error) {
-    console.error('Org-site registration submission failed.', {
+    logger.error('Org-site registration submission failed.', {
       errorMessage: error instanceof Error ? error.message : String(error),
       requestId: context.requestId,
     });
@@ -258,7 +260,7 @@ export async function getRegistrationStatus(
       200,
     );
   } catch (error) {
-    console.error('Org-site registration status check failed.', {
+    logger.error('Org-site registration status check failed.', {
       errorMessage: error instanceof Error ? error.message : String(error),
       requestId: context.requestId,
       publicId,
@@ -344,6 +346,8 @@ export async function submitPaymentConfirmation(
     const updated = await persistPaymentConfirmationWithOutbox({
       publicId,
       payload: validation.data.paymentConfirmationPayload as PaymentConfirmationPayload,
+      eventTitle: event.eventTitle,
+      isPaid: event.paymentRequired,
     });
 
     if (!updated) {
@@ -366,7 +370,7 @@ export async function submitPaymentConfirmation(
       200,
     );
   } catch (error) {
-    console.error('Org-site payment confirmation failed.', {
+    logger.error('Org-site payment confirmation failed.', {
       errorMessage: error instanceof Error ? error.message : String(error),
       requestId: context.requestId,
       publicId,

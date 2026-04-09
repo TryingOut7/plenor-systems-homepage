@@ -1,8 +1,10 @@
 import {
   sendGuideEmail,
   sendInquiryEmails,
+  sendRegistrationStatusUpdateEmail,
   type GuideEmailTemplate,
 } from '@/lib/email';
+import type { RegistrationStatus } from '@plenor/contracts/forms';
 
 export type { GuideEmailTemplate };
 
@@ -26,15 +28,22 @@ export async function sendInquiryRoutingEmails(input: {
 export async function sendRegistrationStatusEmail(input: {
   publicId: string;
   eventId: string;
-  statusCode: string;
+  eventTitle: string;
+  registrantName: string;
+  registrantEmail: string;
+  statusCode: RegistrationStatus;
   statusLabel: string;
+  userFacingReason: string | null;
+  isPaid: boolean;
 }): Promise<void> {
-  // TODO(retention): add dedicated registration email templates once provider
-  // copy and compliance retention policies are finalized.
-  console.info('Registration status email provider placeholder invoked.', {
+  await sendRegistrationStatusUpdateEmail({
+    name: input.registrantName,
+    email: input.registrantEmail,
     publicId: input.publicId,
-    eventId: input.eventId,
+    eventTitle: input.eventTitle,
     statusCode: input.statusCode,
     statusLabel: input.statusLabel,
+    userFacingReason: input.userFacingReason,
+    isPaid: input.isPaid,
   });
 }

@@ -23,10 +23,12 @@ import type {
   OrgSpotlight,
 } from '@/payload-types';
 import type { Where } from 'payload';
+import {
+  buildPublicVisibilityWhere,
+  isPubliclyVisibleDoc,
+} from '@/payload/access/publicVisibility';
 
 type OrgReadOptions = CmsReadOptions;
-
-type PublishedStatus = 'draft' | 'published' | null | undefined;
 
 type OrgHomeSection<T> = {
   items: T[];
@@ -49,15 +51,14 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
-function isPublished(status: PublishedStatus): boolean {
-  return status === 'published';
-}
-
-function includeForRead<T extends { _status?: PublishedStatus }>(
+function includeForRead<T extends { _status?: unknown; workflowStatus?: unknown }>(
   doc: T,
   options?: OrgReadOptions,
 ): boolean {
-  return isDraftRead(options) || isPublished(doc._status);
+  return (
+    isDraftRead(options) ||
+    isPubliclyVisibleDoc(doc, { allowMissingWorkflowStatus: true })
+  );
 }
 
 function parseNumberish(value: unknown, fallback = 0): number {
@@ -116,7 +117,7 @@ function queryDraftOptions(options?: OrgReadOptions): {
 
 function publicPublishedWhere(options?: OrgReadOptions): Where | null {
   if (isDraftRead(options)) return null;
-  return { _status: { equals: 'published' } } as Where;
+  return buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }) as Where;
 }
 
 function compareEventPriorityThenStartDateAsc(a: OrgEvent, b: OrgEvent): number {

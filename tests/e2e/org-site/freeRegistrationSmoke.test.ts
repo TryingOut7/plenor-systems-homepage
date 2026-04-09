@@ -167,6 +167,8 @@ const repository = {
     internalReason?: string;
     userFacingReason?: string;
     actorKeyId: string;
+    eventTitle: string;
+    isPaid: boolean;
   }) => {
     const before = submissionsByPublicId.get(input.publicId) || null;
     if (!before) return { before: null, after: null };

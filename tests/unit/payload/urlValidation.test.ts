@@ -47,5 +47,11 @@ describe('redirect path validation', () => {
         siblingData: { fromPath: '/old-blog' },
       }),
     ).toContain('wildcard');
+
+    expect(
+      validateRedirectToPath('/blog', {
+        siblingData: { fromPath: '/old-blog/*' },
+      }),
+    ).toContain('must end with "/*"');
   });
 });

@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { normalizeSafeCssColorValue } from '@/lib/safeCss';
 import type { BlogPost, PageSection, ServiceItem, Testimonial } from '@/payload/cms';
 import type {
   HeadingSize,
@@ -13,8 +14,6 @@ const RGB_COLOR_PATTERN =
   /^rgba?\(\s*(?:\d{1,3}%?\s*,\s*){2}\d{1,3}%?(?:\s*,\s*(?:0|1|0?\.\d+))?\s*\)$/i;
 const HSL_COLOR_PATTERN =
   /^hsla?\(\s*[-+]?\d+(?:\.\d+)?(?:deg|rad|grad|turn)?\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*(?:,\s*(?:0|1|0?\.\d+))?\s*\)$/i;
-const CSS_VAR_COLOR_PATTERN = /^var\(--[a-zA-Z0-9-_]+\)$/;
-const NAMED_COLOR_PATTERN = /^[a-zA-Z][a-zA-Z-]*$/;
 
 export const innerStyle: CSSProperties = {
   maxWidth: 'var(--ui-layout-container-max-width)',
@@ -86,21 +85,8 @@ export function normalizeSize(size: unknown): SectionSize {
   return 'regular';
 }
 
-function isValidCssColor(value: string): boolean {
-  if (!value || value.length > 64) return false;
-  return (
-    HEX_COLOR_PATTERN.test(value) ||
-    RGB_COLOR_PATTERN.test(value) ||
-    HSL_COLOR_PATTERN.test(value) ||
-    CSS_VAR_COLOR_PATTERN.test(value) ||
-    NAMED_COLOR_PATTERN.test(value)
-  );
-}
-
 export function normalizeCustomBackgroundColor(value: unknown): string | undefined {
-  if (typeof value !== 'string') return undefined;
-  const color = value.trim();
-  return isValidCssColor(color) ? color : undefined;
+  return normalizeSafeCssColorValue(value);
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -374,19 +360,21 @@ export function matchesFilter(
 
 export function sortItems<T extends Record<string, unknown>>(
   items: T[],
-  sortField = 'publishedAt',
+  sortField = 'updatedAt',
   sortDirection: 'asc' | 'desc' = 'desc'
 ): T[] {
-  const sorted = [...items].sort((a, b) => {
+  const direction = sortDirection === 'asc' ? 1 : -1;
+  return [...items].sort((a, b) => {
     const aValue = a[sortField];
     const bValue = b[sortField];
     if (aValue === bValue) return 0;
     if (aValue === undefined || aValue === null) return 1;
     if (bValue === undefined || bValue === null) return -1;
-    if (typeof aValue === 'number' && typeof bValue === 'number') return aValue - bValue;
-    return String(aValue).localeCompare(String(bValue));
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return (aValue - bValue) * direction;
+    }
+    return String(aValue).localeCompare(String(bValue)) * direction;
   });
-  return sortDirection === 'asc' ? sorted : sorted.reverse();
 }
 
 export function renderDynamicListItem(
@@ -401,7 +389,7 @@ export function renderDynamicListItem(
   if (source === 'blogPost') {
     const post = item as BlogPost;
     // Prefer an explicit external resource URL; fall back to the internal blog route.
-    const href = post.resourceUrl || `/blog/${post.slug || ''}`;
+    const href = post.resourceUrl || post.resourceFile?.url || `/blog/${post.slug || ''}`;
     return {
       title: post.title || 'Untitled Post',
       description: post.excerpt || '',

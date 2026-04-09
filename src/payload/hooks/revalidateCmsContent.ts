@@ -6,6 +6,7 @@
  * failure here never blocks the CMS save.
  */
 
+import type { GlobalAfterChangeHook } from 'payload';
 import { invalidateCmsCollectionCaches } from '../cms/cache.ts';
 
 type CollectionSlug =
@@ -15,6 +16,10 @@ type CollectionSlug =
   | 'testimonials'
   | 'team-members'
   | 'logos'
+  | 'org-events'
+  | 'org-spotlight'
+  | 'org-about-profiles'
+  | 'org-learning'
   | 'redirect-rules';
 
 async function safeRevalidatePath(path: string, type?: 'page' | 'layout'): Promise<void> {
@@ -113,6 +118,14 @@ export async function revalidateCollectionContent(
       }
       break;
     }
+    case 'org-events':
+    case 'org-spotlight':
+    case 'org-about-profiles':
+    case 'org-learning': {
+      // Org content appears across homepage sections and dynamic routes.
+      await revalidateAllFrontendPages();
+      break;
+    }
     default:
       break;
   }
@@ -123,6 +136,17 @@ export async function revalidateGlobalContent(): Promise<void> {
   // rendered on every page, so revalidate everything.
   await revalidateAllFrontendPages();
 }
+
+export const revalidateGlobalAfterChange: GlobalAfterChangeHook = async ({
+  doc,
+  context,
+}) => {
+  if (!context?.autosave) {
+    await revalidateGlobalContent();
+  }
+
+  return doc;
+};
 
 async function revalidateAllFrontendPages(): Promise<void> {
   await safeRevalidatePath('/', 'layout');

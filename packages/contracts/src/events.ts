@@ -11,7 +11,8 @@ export type OutboundEventType =
   | 'submission.guide.created'
   | 'submission.inquiry.created'
   | 'submission.registration.created'
-  | 'submission.registration.payment_confirmation.submitted';
+  | 'submission.registration.payment_confirmation.submitted'
+  | 'submission.registration.status.updated';
 
 export interface OutboundEventV1<TPayload = unknown> {
   version: 'v1';

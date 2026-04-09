@@ -1,13 +1,13 @@
 import type { UISettings } from '@/payload/cms';
+import { normalizeSafeCssValue } from '@/lib/safeCss';
 
-function buildUIVariableStyles(uiSettings: UISettings | null): Record<string, string> {
+export function buildUIVariableStyles(uiSettings: UISettings | null): Record<string, string> {
   const variables: Record<string, string> = {};
 
   const setVar = (name: string, value: unknown) => {
-    if (typeof value !== 'string') return;
-    const trimmed = value.trim();
-    if (!trimmed) return;
-    variables[name] = trimmed;
+    const normalized = normalizeSafeCssValue(value);
+    if (!normalized) return;
+    variables[name] = normalized;
   };
 
   const setPixelVar = (name: string, value: unknown) => {

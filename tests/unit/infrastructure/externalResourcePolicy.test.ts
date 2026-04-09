@@ -61,9 +61,10 @@ describe('external resource policy', () => {
       CMS_ALLOWED_EXTERNAL_STYLE_HOSTS: 'fonts.googleapis.com,cdn.example.com',
       CMS_ALLOWED_EXTERNAL_SCRIPT_HOSTS: 'static.cloudflareinsights.com,scripts.example.com',
     });
+    const scriptDirective = csp.split('; ').find((directive) => directive.startsWith('script-src '));
 
     expect(csp).toContain("script-src 'self'");
-    expect(csp).toContain("'unsafe-inline'");
+    expect(scriptDirective).toContain("'unsafe-inline'");
     expect(csp).toContain("'unsafe-eval'");
     expect(csp).toContain('https://scripts.example.com');
     expect(csp).toContain("style-src 'self' 'unsafe-inline'");
@@ -71,13 +72,16 @@ describe('external resource policy', () => {
     expect(csp).toContain('frame-src');
   });
 
-  it('does not include unsafe-eval in production CSP', () => {
+  it('does not include unsafe inline or eval scripts in production CSP', () => {
     const csp = buildContentSecurityPolicy({
       ...process.env,
       NODE_ENV: 'production',
     });
+    const scriptDirective = csp.split('; ').find((directive) => directive.startsWith('script-src '));
 
-    expect(csp).not.toContain("'unsafe-eval'");
+    expect(scriptDirective).toBeDefined();
+    expect(scriptDirective).not.toContain("'unsafe-inline'");
+    expect(scriptDirective).not.toContain("'unsafe-eval'");
   });
 
   it('includes local dev origins in CSP and origin resolver outside production', () => {

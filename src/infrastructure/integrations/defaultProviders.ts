@@ -1,4 +1,5 @@
 import type { OutboundEventV1 } from '@plenor/contracts/events';
+import type { RegistrationStatus } from '@plenor/contracts/forms';
 import { getGuideEmailTemplate } from '@/infrastructure/cms/emailTemplateGateway';
 import { getGuideFormEmailConfig } from '@/infrastructure/cms/guideFormEmailGateway';
 import {
@@ -11,6 +12,7 @@ import {
   sendInquiryRoutingEmails,
   sendRegistrationStatusEmail,
 } from '@/infrastructure/integrations/emailGateway';
+import { createStructuredLogger } from '@/lib/structuredLogger';
 import { SignedWebhookProvider } from './signedWebhookProvider';
 import type {
   CrmProvider,
@@ -20,13 +22,15 @@ import type {
   WebhookProvider,
 } from './providers';
 
+const logger = createStructuredLogger('infrastructure.integrations.defaultProviders');
+
 class DefaultCrmProvider implements CrmProvider {
   async send(event: OutboundEventV1): Promise<void> {
     if (
       event.type !== 'submission.guide.created' &&
       event.type !== 'submission.inquiry.created'
     ) {
-      console.info('Skipping CRM dispatch for unsupported event type.', {
+      logger.info('Skipping CRM dispatch for unsupported event type.', {
         eventType: event.type,
       });
       return;
@@ -88,14 +92,24 @@ class DefaultEmailProvider implements EmailProvider {
     event: OutboundEventV1;
     publicId: string;
     eventId: string;
-    statusCode: string;
+    eventTitle: string;
+    registrantName: string;
+    registrantEmail: string;
+    statusCode: RegistrationStatus;
     statusLabel: string;
+    userFacingReason: string | null;
+    isPaid: boolean;
   }): Promise<void> {
     await sendRegistrationStatusEmail({
       publicId: input.publicId,
       eventId: input.eventId,
+      eventTitle: input.eventTitle,
+      registrantName: input.registrantName,
+      registrantEmail: input.registrantEmail,
       statusCode: input.statusCode,
       statusLabel: input.statusLabel,
+      userFacingReason: input.userFacingReason,
+      isPaid: input.isPaid,
     });
   }
 }

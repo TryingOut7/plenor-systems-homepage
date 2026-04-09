@@ -4,6 +4,10 @@ import { getPayload } from '@/payload/client';
 
 type FormRecord = Record<string, unknown>;
 
+function shouldSkipPayload(): boolean {
+  return process.env.CMS_SKIP_PAYLOAD === 'true';
+}
+
 function normalizeId(value: unknown): string | number | undefined {
   if (typeof value === 'number' && Number.isFinite(value)) return value;
   if (typeof value === 'string') {
@@ -34,6 +38,8 @@ function hasCustomEmails(value: unknown): boolean {
 }
 
 async function findGuideFormById(id: string | number): Promise<FormRecord | null> {
+  if (shouldSkipPayload()) return null;
+
   const payload = await getPayload();
   try {
     const doc = (await payload.findByID({
@@ -54,6 +60,8 @@ async function findGuideFormById(id: string | number): Promise<FormRecord | null
 export async function resolveGuideFormForEmail(
   requestedFormId?: string | number,
 ): Promise<FormRecord | null> {
+  if (shouldSkipPayload()) return null;
+
   const requested = normalizeId(requestedFormId);
   if (requested !== undefined) {
     const requestedDoc = await findGuideFormById(requested);

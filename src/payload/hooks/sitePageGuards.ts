@@ -507,6 +507,12 @@ function readStringField(value: unknown): string | undefined {
   return undefined;
 }
 
+function readUserRole(user: unknown): string | undefined {
+  if (!user || typeof user !== 'object') return undefined;
+  const role = (user as Record<string, unknown>).role;
+  return typeof role === 'string' ? role : undefined;
+}
+
 function reportGuardFailure(args: {
   req: unknown;
   code: string;
@@ -613,8 +619,35 @@ export const sitePagePublishGuardsBeforeChange: CollectionBeforeChangeHook = ({
 
   const bypassPublishGuards =
     context && typeof context === 'object' && (context as Record<string, unknown>).bypassPublishGuards === true;
+  const canBypassPublishGuards = bypassPublishGuards && readUserRole(req.user) === 'admin';
 
-  if (publishPath && completeness.ERROR_PUBLISH.length > 0 && !bypassPublishGuards) {
+  if (bypassPublishGuards && canBypassPublishGuards) {
+    const userRecord =
+      req.user && typeof req.user === 'object'
+        ? (req.user as unknown as Record<string, unknown>)
+        : undefined;
+    logger.warn?.({
+      msg: 'Site page publish guards bypassed by admin',
+      pageId: pageId || 'unknown',
+      slug: slug || 'unknown',
+      preset,
+      lifecycleEvent,
+      userId: readStringField(userRecord?.id) || 'unknown',
+    });
+  }
+
+  if (bypassPublishGuards && !canBypassPublishGuards) {
+    logger.warn?.({
+      msg: 'Site page publish guard bypass ignored for non-admin user',
+      pageId: pageId || 'unknown',
+      slug: slug || 'unknown',
+      preset,
+      lifecycleEvent,
+      userRole: readUserRole(req.user) || 'unknown',
+    });
+  }
+
+  if (publishPath && completeness.ERROR_PUBLISH.length > 0 && !canBypassPublishGuards) {
     reportGuardFailure({
       req,
       code: 'SPG_COMPLETENESS_PUBLISH_BLOCK',

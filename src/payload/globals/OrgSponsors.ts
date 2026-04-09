@@ -12,6 +12,7 @@ import {
 } from '@payloadcms/richtext-lexical';
 import { auditGlobalAfterChange } from '../hooks/auditLog.ts';
 import { CleanPasteFeature } from '../editor/features/cleanPasteFeature.ts';
+import { revalidateGlobalAfterChange } from '../hooks/revalidateCmsContent.ts';
 import { toPayloadOptions } from '../../domain/org-site/constants.ts';
 import { validateImageUploadReference } from '../validation/media.ts';
 
@@ -141,7 +142,7 @@ export const OrgSponsors: GlobalConfig = {
     },
   },
   hooks: {
-    afterChange: [auditGlobalAfterChange],
+    afterChange: [revalidateGlobalAfterChange, auditGlobalAfterChange],
   },
   fields: [
     {

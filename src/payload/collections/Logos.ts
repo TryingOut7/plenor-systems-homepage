@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload';
 import { workflowStatusField, workflowApprovalFields } from '../fields/workflow.ts';
 import { auditAfterChange, auditAfterDelete } from '../hooks/auditLog.ts';
 import { workflowBeforeChange, workflowAfterChange } from '../hooks/workflow.ts';
+import { buildPublicVisibilityWhere } from '../access/publicVisibility.ts';
 import { validatePathOrHttpUrl } from '../validation/url.ts';
 
 export const Logos: CollectionConfig = {
@@ -18,7 +19,7 @@ export const Logos: CollectionConfig = {
   access: {
     read: ({ req }) => {
       if (req.user) return true;
-      return { workflowStatus: { equals: 'published' } };
+      return buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true });
     },
     create: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),
     update: ({ req }) => !!req.user && ['admin', 'editor'].includes((req.user as unknown as Record<string, unknown>).role as string),

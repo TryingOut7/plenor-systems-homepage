@@ -286,6 +286,7 @@ export type BlogPost = {
   tags?: Array<{ tag?: string }>;
   category?: BlogCategory;
   resourceUrl?: string;
+  resourceFile?: MediaRef;
   seo?: SeoFields;
 };
 
@@ -300,7 +301,6 @@ export type Testimonial = {
   rating?: number;
   details?: unknown;
   isFeatured?: boolean;
-  publishedAt?: string;
   tags?: Array<{ tag?: string }>;
   seo?: SeoFields;
 };

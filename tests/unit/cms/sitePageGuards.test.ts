@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { buildCorePresetSections } from '@/payload/presets/corePagePresets';
 import {
   type SitePageGuardRule,
@@ -6,13 +6,14 @@ import {
   sitePagePublishGuardsBeforeChange,
 } from '@/payload/hooks/sitePageGuards';
 
-function makeReq(withUser = true) {
+function makeReq(withUser = true, role = 'editor', loggerOverrides?: Record<string, unknown>) {
   return {
-    user: withUser ? { id: 'u-1', role: 'editor' } : undefined,
+    user: withUser ? { id: 'u-1', role } : undefined,
     payload: {
       logger: {
         warn: () => undefined,
         info: () => undefined,
+        ...loggerOverrides,
       },
     },
   } as never;
@@ -220,6 +221,88 @@ describe('site page publish guards', () => {
         req: makeReq(),
       } as never),
     ).toThrow('[ERROR_PUBLISH]');
+  });
+
+  it('ignores bypassPublishGuards for non-admin users and logs the attempt', () => {
+    const warn = vi.fn();
+    const sections = buildCorePresetSections('home', {});
+    const nextSections = sections.map((section) => {
+      if ((section as Record<string, unknown>).structuralKey === 'home-hero') {
+        return {
+          ...section,
+          heading: '',
+        };
+      }
+      return section;
+    });
+
+    expect(() =>
+      sitePagePublishGuardsBeforeChange({
+        operation: 'update',
+        data: {
+          presetKey: 'home',
+          workflowStatus: 'published',
+          sections: nextSections,
+        },
+        originalDoc: {
+          presetKey: 'home',
+          workflowStatus: 'approved',
+          sections,
+        },
+        context: {
+          bypassPublishGuards: true,
+        },
+        req: makeReq(true, 'editor', { warn }),
+      } as never),
+    ).toThrow('[ERROR_PUBLISH]');
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'Site page publish guard bypass ignored for non-admin user',
+        userRole: 'editor',
+      }),
+    );
+  });
+
+  it('allows admins to bypass publish guards and records the bypass', () => {
+    const warn = vi.fn();
+    const sections = buildCorePresetSections('home', {});
+    const nextSections = sections.map((section) => {
+      if ((section as Record<string, unknown>).structuralKey === 'home-hero') {
+        return {
+          ...section,
+          heading: '',
+        };
+      }
+      return section;
+    });
+
+    expect(() =>
+      sitePagePublishGuardsBeforeChange({
+        operation: 'update',
+        data: {
+          presetKey: 'home',
+          workflowStatus: 'published',
+          sections: nextSections,
+        },
+        originalDoc: {
+          presetKey: 'home',
+          workflowStatus: 'approved',
+          sections,
+        },
+        context: {
+          bypassPublishGuards: true,
+        },
+        req: makeReq(true, 'admin', { warn }),
+      } as never),
+    ).not.toThrow();
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'Site page publish guards bypassed by admin',
+        userId: 'u-1',
+      }),
+    );
   });
 });
 

@@ -9,6 +9,11 @@ import type {
   RegistrationPayload,
 } from '@/domain/org-site/registrationValidator';
 import { resolveDbConnectionString } from '@/infrastructure/db/connectionConfig';
+import {
+  buildRegistrationCreatedEvent,
+  buildRegistrationPaymentConfirmationEvent,
+  buildRegistrationStatusUpdatedEvent,
+} from '@/infrastructure/integrations/outboundEvents';
 import type { OutboundEventV1, OutboxProvider } from '@plenor/contracts/events';
 
 type RegistrationSubmissionRow = {
@@ -334,26 +339,16 @@ export async function persistRegistrationSubmissionWithOutbox(input: {
     const row = inserted.rows[0];
     const record = mapSubmissionRow(row);
     const submissionId = `registration_${record.publicId}`;
-
-    const event: OutboundEventV1<{
-      publicId: string;
-      eventId: string;
-      eventTitle: string;
-      submittedAt: string;
-      isPaid: boolean;
-    }> = {
-      version: 'v1',
-      id: randomUUID(),
-      type: 'submission.registration.created',
-      occurredAt: record.submittedAt,
-      payload: {
-        publicId: record.publicId,
-        eventId: input.eventId,
-        eventTitle: input.eventTitle,
-        submittedAt: record.submittedAt,
-        isPaid: input.isPaid,
-      },
-    };
+    const event = buildRegistrationCreatedEvent({
+      publicId: record.publicId,
+      eventId: input.eventId,
+      eventTitle: input.eventTitle,
+      registrantName: record.registrationPayload.name,
+      registrantEmail: record.registrationPayload.email,
+      userFacingReason: record.userFacingReason,
+      submittedAt: record.submittedAt,
+      isPaid: input.isPaid,
+    });
 
     const deduplicationKey = `${event.type}:${record.publicId}`;
     await Promise.all([
@@ -431,6 +426,8 @@ export async function getSubmissionStatusByPublicId(
 export async function persistPaymentConfirmationWithOutbox(input: {
   publicId: string;
   payload: PaymentConfirmationPayload;
+  eventTitle: string;
+  isPaid: boolean;
 }): Promise<RegistrationSubmissionRecord | null> {
   return withTransaction(async (client) => {
     const updated = await client.query<RegistrationSubmissionRow>(
@@ -461,22 +458,16 @@ export async function persistPaymentConfirmationWithOutbox(input: {
     const record = mapSubmissionRow(row);
     const submissionId = `registration_${record.publicId}`;
     const confirmedAt = record.updatedAt;
-
-    const event: OutboundEventV1<{
-      publicId: string;
-      eventId: string;
-      confirmedAt: string;
-    }> = {
-      version: 'v1',
-      id: randomUUID(),
-      type: 'submission.registration.payment_confirmation.submitted',
-      occurredAt: confirmedAt,
-      payload: {
-        publicId: record.publicId,
-        eventId: record.eventId || '',
-        confirmedAt,
-      },
-    };
+    const event = buildRegistrationPaymentConfirmationEvent({
+      publicId: record.publicId,
+      eventId: record.eventId || '',
+      eventTitle: input.eventTitle,
+      registrantName: record.registrationPayload.name,
+      registrantEmail: record.registrationPayload.email,
+      userFacingReason: record.userFacingReason,
+      confirmedAt,
+      isPaid: input.isPaid,
+    });
 
     const deduplicationKey = `${event.type}:${record.publicId}`;
     await Promise.all([
@@ -599,6 +590,8 @@ export async function updateSubmissionStatusWithAudit(input: {
   internalReason?: string;
   userFacingReason?: string;
   actorKeyId: string;
+  eventTitle: string;
+  isPaid: boolean;
 }): Promise<{
   before: RegistrationSubmissionRecord | null;
   after: RegistrationSubmissionRecord | null;
@@ -709,6 +702,36 @@ export async function updateSubmissionStatusWithAudit(input: {
         reasonText,
       ],
     );
+
+    const event = buildRegistrationStatusUpdatedEvent({
+      publicId: after.publicId,
+      eventId: after.eventId || '',
+      eventTitle: input.eventTitle,
+      registrantName: after.registrationPayload.name,
+      registrantEmail: after.registrationPayload.email,
+      nextStatus: after.status,
+      previousStatus: before.status,
+      userFacingReason: after.userFacingReason,
+      updatedAt: after.updatedAt,
+      isPaid: input.isPaid,
+    });
+    const submissionId = `registration_${after.publicId}`;
+    const deduplicationKey = `${event.type}:${after.publicId}:${after.status}`;
+
+    await Promise.all([
+      insertOutboxJob(client, {
+        submissionId,
+        provider: 'email.registration',
+        event,
+        deduplicationKey,
+      }),
+      insertOutboxJob(client, {
+        submissionId,
+        provider: 'webhook',
+        event,
+        deduplicationKey,
+      }),
+    ]);
 
     return { before, after };
   });

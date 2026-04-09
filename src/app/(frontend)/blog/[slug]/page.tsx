@@ -76,6 +76,8 @@ export default async function BlogPostPage({
   const categoryName = typeof post.category === 'object' && post.category !== null
     ? (post.category as { name?: string }).name
     : undefined;
+  const resourceHref = post.resourceUrl || post.resourceFile?.url;
+  const resourceCtaLabel = post.resourceUrl ? 'View Resource →' : 'Download Resource →';
 
   return (
     <article style={{ maxWidth: '840px', margin: '0 auto', padding: '84px 24px 96px' }}>
@@ -171,15 +173,15 @@ export default async function BlogPostPage({
 
       <RichText data={post.body as SerializedEditorState} style={{ color: '#1F2937' }} />
 
-      {post.resourceUrl ? (
+      {resourceHref ? (
         <div style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid #E5E7EB' }}>
           <Link
-            href={post.resourceUrl}
+            href={resourceHref}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-primary"
           >
-            View Resource →
+            {resourceCtaLabel}
           </Link>
         </div>
       ) : null}

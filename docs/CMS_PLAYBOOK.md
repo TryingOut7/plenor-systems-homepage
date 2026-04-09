@@ -130,7 +130,7 @@ Current auth settings:
 - API keys enabled
 
 Staging note:
-- If staging lock is enabled in `src/proxy.ts`, `/admin` is still allowed.
+- If staging lock is enabled in `src/middleware.ts`, `/admin` is still allowed.
 
 ---
 

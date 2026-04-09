@@ -5,6 +5,8 @@ import {
   type RegistrationStatus,
 } from '@/domain/org-site/constants';
 import { canTransition, type RegistrationActorRole } from '@/domain/org-site/registrationWorkflow';
+import { processOutboxTick } from '@/infrastructure/integrations/outboxService';
+import { createStructuredLogger } from '@/lib/structuredLogger';
 import {
   validateAdminStatusUpdateBody,
   type RegistrationPayload,
@@ -26,6 +28,7 @@ import type {
 
 type ListResponse = AdminRegistrationSubmissionsListResponse | FormSubmissionErrorResponse;
 type DetailResponse = AdminRegistrationSubmissionDetailResponse | FormSubmissionErrorResponse;
+const logger = createStructuredLogger('application.org-site.registrationAdminService');
 
 const PUBLIC_ID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -113,7 +116,7 @@ function logStatusUpdate(input: {
   requestId?: string;
 }): void {
   const payload = input.record.registrationPayload as RegistrationPayload;
-  console.info('Org-site registration event', {
+  logger.info('Org-site registration event', {
     event: 'status.updated',
     publicId: input.record.publicId,
     eventId: input.record.eventId,
@@ -122,6 +125,16 @@ function logStatusUpdate(input: {
     nameLength: payload.name.length,
     requestId: input.requestId,
   });
+}
+
+async function processRegistrationOutboxTick(): Promise<void> {
+  try {
+    await processOutboxTick(10);
+  } catch (error) {
+    logger.error('Org-site registration admin outbox tick failed.', {
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
+  }
 }
 
 export async function listRegistrationSubmissions(
@@ -145,7 +158,7 @@ export async function listRegistrationSubmissions(
       },
     });
   } catch (error) {
-    console.error('Org-site registration list failed.', {
+    logger.error('Org-site registration list failed.', {
       requestId: context.requestId,
       errorMessage: error instanceof Error ? error.message : String(error),
     });
@@ -172,7 +185,7 @@ export async function getRegistrationSubmission(
       submission: toAdminSubmission(submission),
     });
   } catch (error) {
-    console.error('Org-site registration detail failed.', {
+    logger.error('Org-site registration detail failed.', {
       requestId: context.requestId,
       publicId,
       errorMessage: error instanceof Error ? error.message : String(error),
@@ -230,6 +243,8 @@ export async function updateRegistrationStatus(
       internalReason: validation.data.internalReason,
       userFacingReason: validation.data.userFacingReason,
       actorKeyId: actor.keyId,
+      eventTitle: event.eventTitle,
+      isPaid: event.paymentRequired,
     });
 
     if (!updated.after) {
@@ -241,11 +256,13 @@ export async function updateRegistrationStatus(
       requestId: context.requestId,
     });
 
+    await processRegistrationOutboxTick();
+
     return ok({
       submission: toAdminSubmission(updated.after),
     });
   } catch (error) {
-    console.error('Org-site registration status update failed.', {
+    logger.error('Org-site registration status update failed.', {
       requestId: context.requestId,
       publicId,
       errorMessage: error instanceof Error ? error.message : String(error),

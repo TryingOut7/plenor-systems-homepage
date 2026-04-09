@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { REGISTRATION_STATUSES, type RegistrationStatus } from '@/domain/org-site/constants';
+import { processOutboxTick } from '@/infrastructure/integrations/outboxService';
 import { buildBackendServer } from '../../../apps/backend/src/server';
 
 type EventConfig = {
@@ -171,6 +172,8 @@ const repository = {
     internalReason?: string;
     userFacingReason?: string;
     actorKeyId: string;
+    eventTitle: string;
+    isPaid: boolean;
   }) => {
     const before = submissionsByPublicId.get(input.publicId) || null;
     if (!before) return { before: null, after: null };
@@ -242,6 +245,8 @@ vi.mock('@/infrastructure/security/originVerifier', () => ({
 vi.mock('@/infrastructure/integrations/outboxService', () => ({
   processOutboxTick: vi.fn(async () => ({ processed: 0, failed: 0 })),
 }));
+
+const mockProcessOutboxTick = vi.mocked(processOutboxTick);
 
 describe('org-site admin registration routes integration', () => {
   let app: FastifyInstance;
@@ -333,6 +338,7 @@ describe('org-site admin registration routes integration', () => {
       new_status: 'registration_confirmed',
       reason: 'Manual verification complete',
     });
+    expect(mockProcessOutboxTick).toHaveBeenCalledWith(10);
   });
 
   it('replays PATCH with same idempotency key without re-applying the update', async () => {
