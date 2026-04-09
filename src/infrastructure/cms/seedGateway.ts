@@ -15,9 +15,15 @@ async function runFormSeed(): Promise<unknown> {
   return seedForms();
 }
 
+async function runOrgVerificationPageSeed(): Promise<unknown> {
+  const { seedOrgVerificationPages } = await import('../../payload/seed/seedOrgVerificationPages');
+  return seedOrgVerificationPages();
+}
+
 export const payloadSeedRepository: SeedRepository = {
   runSitePageSeed,
   runFormSeed,
+  runOrgVerificationPageSeed,
 };
 
 export { runPagePresetSeed };

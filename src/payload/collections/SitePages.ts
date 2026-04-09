@@ -54,6 +54,7 @@ export const ensureUniqueSitePageSlugBeforeChange: CollectionBeforeChangeHook = 
     limit: 5,
     depth: 0,
     overrideAccess: true,
+    trash: true,
   });
 
   const conflictingDoc = existing.docs.find((doc: unknown) => {
@@ -68,7 +69,10 @@ export const ensureUniqueSitePageSlugBeforeChange: CollectionBeforeChangeHook = 
     typeof conflictingDoc.title === 'string' && conflictingDoc.title.trim()
       ? conflictingDoc.title.trim()
       : `ID ${readDocumentId(conflictingDoc.id) || 'unknown'}`;
-  const slugMessage = `Slug "${normalizedSlug}" is already used by "${conflictingTitle}". Choose a different slug.`;
+  const slugMessage =
+    conflictingDoc.deletedAt != null
+      ? `Slug "${normalizedSlug}" is already used by "${conflictingTitle}" in Trash. Restore or permanently delete that page before reusing the slug.`
+      : `Slug "${normalizedSlug}" is already used by "${conflictingTitle}". Choose a different slug.`;
 
   throw new ValidationError({
     collection: typeof collection?.slug === 'string' ? collection.slug : 'site-pages',

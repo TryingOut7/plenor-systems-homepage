@@ -6,6 +6,57 @@ const { Client } = pg;
 
 const MIGRATIONS_DIR = path.resolve(process.cwd(), 'migrations/versions');
 const MIGRATION_FILE_PATTERN = /^(\d+)_([a-z0-9_]+)\.(up|down)\.sql$/i;
+let localEnvLoaded = false;
+
+function parseEnvLine(rawLine) {
+  const line = rawLine.trim();
+  if (!line || line.startsWith('#')) return null;
+
+  const withoutExport = line.startsWith('export ')
+    ? line.slice('export '.length).trim()
+    : line;
+
+  const eq = withoutExport.indexOf('=');
+  if (eq <= 0) return null;
+
+  const key = withoutExport.slice(0, eq).trim();
+  if (!key) return null;
+
+  let value = withoutExport.slice(eq + 1).trim();
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    value = value.slice(1, -1);
+  }
+
+  return { key, value };
+}
+
+async function loadEnvFileIfExists(filePath) {
+  try {
+    const raw = await fs.readFile(filePath, 'utf8');
+    for (const line of raw.split(/\r?\n/)) {
+      const parsed = parseEnvLine(line);
+      if (!parsed) continue;
+      if (!process.env[parsed.key]) {
+        process.env[parsed.key] = parsed.value;
+      }
+    }
+  } catch (error) {
+    if (error && typeof error === 'object' && error.code === 'ENOENT') return;
+    throw error;
+  }
+}
+
+async function ensureLocalEnvLoaded() {
+  if (localEnvLoaded) return;
+
+  const cwd = process.cwd();
+  await loadEnvFileIfExists(path.resolve(cwd, '.env.local'));
+  await loadEnvFileIfExists(path.resolve(cwd, '.env'));
+  localEnvLoaded = true;
+}
 
 function parseMigrationFilename(name) {
   const match = MIGRATION_FILE_PATTERN.exec(name);
@@ -60,6 +111,7 @@ function getDatabaseUri() {
 }
 
 export async function withDatabaseClient(run) {
+  await ensureLocalEnvLoaded();
   const databaseUri = getDatabaseUri();
   const client = new Client({
     connectionString: databaseUri,

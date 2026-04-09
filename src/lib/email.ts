@@ -546,7 +546,6 @@ export async function sendRegistrationStatusUpdateEmail({
 }) {
   const resend = getResend();
   const config = await getRuntimeConfig();
-  const C = config.palette;
   const safeEventTitle = eventTitle.trim() || 'Event';
   const summary = getRegistrationStatusMessage({
     status: statusCode,

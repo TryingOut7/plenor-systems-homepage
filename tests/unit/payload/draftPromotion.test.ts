@@ -81,6 +81,10 @@ describe('draftPromotion workspace service', () => {
       metaTitle: 'About Us',
       social: [{ platform: 'x', handle: '@plenor' }],
     });
+    expect(data.workflowStatus).toBe('published');
+    expect(data.reviewChecklistComplete).toBe(true);
+    expect(data.reviewSummary).toBe('Promoted draft content to live page /about.');
+    expect(data.presetKey).toBe('about');
 
     expect((draft.sections as Array<Record<string, unknown>>)[0].id).toBe('hero_row');
     expect((draft.seo as Record<string, unknown>).id).toBe('seo_row');
@@ -93,6 +97,8 @@ describe('draftPromotion workspace service', () => {
     expect((draftStatusUpdateArgs as { user?: unknown }).user).toBe(actingUser);
     expect((draftStatusUpdateArgs as { data?: Record<string, unknown> }).data).toMatchObject({
       workflowStatus: 'published',
+      reviewChecklistComplete: true,
+      reviewSummary: 'Promoted draft content to live page /about.',
     });
   });
 
@@ -142,5 +148,8 @@ describe('draftPromotion workspace service', () => {
     expect(data.seo).toEqual({
       metaTitle: 'Pricing',
     });
+    expect(data.workflowStatus).toBe('published');
+    expect(data.reviewChecklistComplete).toBe(true);
+    expect(data.reviewSummary).toBe('Promoted draft content to live page /pricing.');
   });
 });

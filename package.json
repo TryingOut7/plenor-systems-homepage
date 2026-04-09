@@ -33,7 +33,8 @@
     "db:migrate:rollback": "node scripts/db/migrate-rollback.mjs",
     "db:migrate:payload": "payload migrate",
     "db:migrate:payload:status": "payload migrate:status",
-    "db:check:payload": "node scripts/db/check-payload-schema.mjs",
+    "db:check:payload": "node scripts/db/check-payload-generated-schema-parity.mjs",
+    "db:check:payload:legacy": "node scripts/db/check-payload-schema.mjs",
     "db:repair:payload": "node scripts/db/repair-payload-schema.mjs",
     "db:schema:drift": "node scripts/db/schema-drift.mjs",
     "db:schema:drift:check": "node scripts/db/schema-drift.mjs --check-only",
@@ -54,6 +55,7 @@
     "seed:site-pages": "node scripts/seed-site-pages.mjs",
     "seed:page-presets": "node scripts/seed-page-presets.mjs",
     "seed:forms": "node scripts/seed-forms.mjs",
+    "seed:org-verification-pages": "node scripts/seed-org-verification-pages.mjs",
     "cms:audit:dashboard": "npx -y node@20 --import tsx scripts/generate-audit-dashboard.mjs",
     "cms:schema:check": "npx -y node@20 --import tsx scripts/check-cms-schema-governance.mjs",
     "backup": "bash scripts/backup.sh"

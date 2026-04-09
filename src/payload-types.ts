@@ -16331,11 +16331,11 @@ export interface SiteSetting {
     linkLabel?: string | null;
     linkHref?: string | null;
     /**
-     * Hex, rgb, or CSS value
+     * Hex, rgb, hsl, named color, or CSS var
      */
     backgroundColor?: string | null;
     /**
-     * Hex, rgb, or CSS value
+     * Hex, rgb, hsl, named color, or CSS var
      */
     textColor?: string | null;
   };
@@ -16588,131 +16588,131 @@ export interface UiSetting {
   id: number;
   colors?: {
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     primary?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     primaryHover?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     background?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     surface?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     sectionAlt?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     text?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     textMuted?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     border?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     link?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     focusRing?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     navyBackground?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     charcoalBackground?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     blackBackground?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     darkText?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     darkTextMuted?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     heroBackground?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     heroText?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     heroMutedText?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     footerBackground?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     footerText?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     footerMutedText?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     cookieBackground?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     cookieText?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     cookieLink?: string | null;
     /**
-     * Navbar container background color (top of page). Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Navbar container background color (top of page). Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     navBackground?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     navScrolledBackground?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     navBorder?: string | null;
   };
   typography?: {
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     bodyFontFamily?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     displayFontFamily?: string | null;
     baseFontSize?: number | null;
     baseLineHeight?: number | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     headingLetterSpacing?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     sectionLabelLetterSpacing?: string | null;
     /**
@@ -16726,35 +16726,35 @@ export interface UiSetting {
   };
   layout?: {
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     containerMaxWidth?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     sectionPaddingCompact?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     sectionPaddingRegular?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     sectionPaddingSpacious?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     heroPaddingCompact?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     heroPaddingRegular?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     heroPaddingSpacious?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     mobileSectionPadding?: string | null;
     navHeight?: number | null;
@@ -16763,55 +16763,55 @@ export interface UiSetting {
   buttons?: {
     radius?: number | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     primaryBackground?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     primaryBackgroundHover?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     primaryText?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     secondaryBackground?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     secondaryBackgroundHover?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     secondaryText?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     secondaryTextHover?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     ghostBackground?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     ghostBackgroundHover?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     ghostText?: string | null;
     /**
-     * Navbar CTA button background color (not the navbar container). Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Navbar CTA button background color (not the navbar container). Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     navBackground?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     navBackgroundHover?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     navText?: string | null;
   };
@@ -16820,31 +16820,31 @@ export interface UiSetting {
    */
   emailPalette?: {
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     primary?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     muted?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     text?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     background?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     white?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     border?: string | null;
     /**
-     * Use any valid CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     error?: string | null;
   };

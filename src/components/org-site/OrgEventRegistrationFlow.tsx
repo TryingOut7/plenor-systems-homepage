@@ -4,12 +4,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import RichText from '@/components/cms/RichText';
-import { getRegistrationStatusMessage } from '@/domain/org-site/registrationStatusCopy';
-import type { MediaAsset } from '@/lib/org-site-helpers';
+import { getRegistrationStatusMessage, type MediaAsset } from '@/lib/org-site-helpers';
 import { ORG_REGISTRATION_STATUSES } from '@/lib/org-site-status';
 import type {
   PaymentConfirmationRequest,
-  RegistrationStatus,
   RegistrationStatusResponse,
   RegistrationSubmissionRequest,
   RegistrationSubmissionResponse,
@@ -37,12 +35,7 @@ type ErrorBody = {
   error?: string;
 };
 
-const STATUS_SUBMITTED = ORG_REGISTRATION_STATUSES[0];
 const STATUS_PAYMENT_PENDING = ORG_REGISTRATION_STATUSES[1];
-const STATUS_PAYMENT_CONFIRMATION_SUBMITTED = ORG_REGISTRATION_STATUSES[2];
-const STATUS_PAYMENT_CONFIRMED = ORG_REGISTRATION_STATUSES[3];
-const STATUS_REGISTRATION_CONFIRMED = ORG_REGISTRATION_STATUSES[4];
-const STATUS_CANCELLED_REJECTED = ORG_REGISTRATION_STATUSES[5];
 
 function readErrorMessage(body: unknown, fallback: string): string {
   if (!body || typeof body !== 'object') return fallback;

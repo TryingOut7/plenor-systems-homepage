@@ -170,13 +170,6 @@ function consumeInMemory(
   return { limited: false, retryAfterSeconds: 0 };
 }
 
-function isMissingRateLimitSchemaError(message: string): boolean {
-  return (
-    /relation .* does not exist/i.test(message) ||
-    /could not find the function .*consume_backend_rate_limit/i.test(message)
-  );
-}
-
 export async function consumeRateLimitBucket(params: {
   allowInMemoryFallback: boolean;
   key: string;

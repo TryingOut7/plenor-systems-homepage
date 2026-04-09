@@ -72,7 +72,8 @@ npm run db:migrate:backend:status           # Show applied/pending backend migra
 npm run db:migrate:rollback         # Roll back the latest backend migration
 npm run db:migrate:payload              # Apply pending CMS migrations (migrations/payload/)
 npm run db:migrate:payload:status       # Show applied/pending CMS migrations
-npm run db:check:payload            # Check Payload schema against actual DB
+npm run db:check:payload            # Check Payload generated schema parity against the actual DB
+npm run db:check:payload:legacy     # Legacy hardcoded table/column guardrail (may drift)
 npm run db:repair:payload           # Repair Payload schema drift in the DB
 npm run db:schema:drift             # Alias: runs Payload generated-schema parity check (no longer auto-generates repair migrations)
 npm run db:schema:drift:check       # Alias for db:schema:drift (--check-only flag ignored; use db:schema:ensure:check instead)

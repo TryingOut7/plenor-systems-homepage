@@ -10,10 +10,6 @@ import type {
 } from './types';
 
 const HEX_COLOR_PATTERN = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
-const RGB_COLOR_PATTERN =
-  /^rgba?\(\s*(?:\d{1,3}%?\s*,\s*){2}\d{1,3}%?(?:\s*,\s*(?:0|1|0?\.\d+))?\s*\)$/i;
-const HSL_COLOR_PATTERN =
-  /^hsla?\(\s*[-+]?\d+(?:\.\d+)?(?:deg|rad|grad|turn)?\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*(?:,\s*(?:0|1|0?\.\d+))?\s*\)$/i;
 
 export const innerStyle: CSSProperties = {
   maxWidth: 'var(--ui-layout-container-max-width)',

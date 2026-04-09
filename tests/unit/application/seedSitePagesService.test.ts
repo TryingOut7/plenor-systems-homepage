@@ -36,6 +36,9 @@ function repo(result: unknown): SeedRepository {
     async runFormSeed() {
       return result;
     },
+    async runOrgVerificationPageSeed() {
+      return result;
+    },
   };
 }
 

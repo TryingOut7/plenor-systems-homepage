@@ -110,6 +110,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "packages/api-client/src/generated.ts",
     "src/payload-generated-schema.ts",
+    // Local scratch/temp files:
+    ".tmp/**",
   ]),
 ]);
 

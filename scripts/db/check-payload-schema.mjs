@@ -1,8 +1,8 @@
 // DEPRECATION WARNING: This script maintains a hardcoded list of Payload CMS tables and columns
 // that will drift whenever new collections or fields are added. It is not a reliable source of
-// truth. Use `npm run db:migrate:payload` (payload migrate) and `npm run db:check:payload` instead.
-// This script is retained only as a predeploy guardrail but should be replaced with a
-// Payload-native schema check once the migration workflow is fully adopted.
+// truth. Use `npm run db:migrate:payload` (payload migrate) and
+// `npm run db:check:payload-generated-schema` instead. This script is retained only as a
+// legacy guardrail for troubleshooting stale table/column expectations.
 import { withDatabaseClient } from './migration-lib.mjs';
 
 const BLOCK_TABLES_WITH_SECTION_LABEL = [

@@ -15,6 +15,8 @@ type SeedPagePreset = {
   tags: string[];
 };
 
+type SectionRecord = Record<string, unknown>;
+
 type SeedPagePresetItem = {
   presetKey: CorePreset;
   name: string;
@@ -65,6 +67,78 @@ const DEFAULT_PAGE_PRESETS: SeedPagePreset[] = [
 function asObject(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
   return value as Record<string, unknown>;
+}
+
+function asSectionArray(value: unknown): SectionRecord[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((entry) => !!entry && typeof entry === 'object' && !Array.isArray(entry))
+    .map((entry) => ({ ...(entry as SectionRecord) }));
+}
+
+function normalizeStructuralKey(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  return value.trim().replace(/\./g, '-');
+}
+
+function readRelationId(value: unknown): number | string | null {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string' && value.trim()) return value.trim();
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+
+  const id = (value as Record<string, unknown>).id;
+  if (typeof id === 'number') return id;
+  if (typeof id === 'string' && id.trim()) return id.trim();
+  return null;
+}
+
+function buildSectionLookupKey(section: SectionRecord, index: number): string {
+  const structuralKey = normalizeStructuralKey(section.structuralKey);
+  if (structuralKey) return structuralKey;
+
+  const blockType = typeof section.blockType === 'string' ? section.blockType.trim() : 'section';
+  return `${blockType}:${index}`;
+}
+
+function repairPresetFormSections(args: {
+  currentSections: SectionRecord[];
+  generatedSections: SectionRecord[];
+}): { didRepair: boolean; sections: SectionRecord[] } {
+  const templateSectionsByKey = new Map<string, SectionRecord>();
+  for (const [index, section] of args.generatedSections.entries()) {
+    templateSectionsByKey.set(buildSectionLookupKey(section, index), section);
+  }
+
+  let didRepair = false;
+  const sections = args.currentSections.map((section, index) => {
+    if (section.blockType !== 'formSection') return section;
+
+    const templateSection = templateSectionsByKey.get(buildSectionLookupKey(section, index));
+    if (!templateSection || templateSection.blockType !== 'formSection') return section;
+
+    const currentForm = section.form;
+    const templateForm = templateSection.form;
+    const currentFormId = readRelationId(currentForm);
+    const needsRepair =
+      templateForm != null &&
+      (currentForm == null ||
+        currentForm === 'guide' ||
+        currentForm === 'inquiry' ||
+        currentFormId == null);
+
+    if (!needsRepair) return section;
+
+    didRepair = true;
+    return {
+      ...section,
+      form: templateForm,
+    };
+  });
+
+  return {
+    didRepair,
+    sections,
+  };
 }
 
 async function resolveFormAliases(
@@ -144,9 +218,14 @@ export async function seedPagePresets(): Promise<SeedPagePresetsResult> {
       | undefined;
 
     if (current?.id) {
-      const hasSections =
-        Array.isArray(current.sections) && current.sections.length > 0;
-      if (!hasSections) {
+      const currentSections = asSectionArray(current.sections);
+      const hasSections = currentSections.length > 0;
+      const repaired = repairPresetFormSections({
+        currentSections,
+        generatedSections,
+      });
+
+      if (!hasSections || repaired.didRepair) {
         await payload.update({
           collection: 'page-presets',
           id: String(current.id),
@@ -155,7 +234,7 @@ export async function seedPagePresets(): Promise<SeedPagePresetsResult> {
             description: preset.description,
             structureMode: 'locked',
             tags: toTagRows(preset.tags),
-            sections: generatedSections,
+            sections: hasSections ? repaired.sections : generatedSections,
           } as unknown as RequiredDataFromCollectionSlug<'page-presets'>,
           overrideAccess: true,
         });

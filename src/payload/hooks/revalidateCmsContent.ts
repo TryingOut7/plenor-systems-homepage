@@ -22,6 +22,25 @@ type CollectionSlug =
   | 'org-learning'
   | 'redirect-rules';
 
+function shouldSkipRevalidationError(err: unknown): boolean {
+  if (
+    err instanceof Error &&
+    (err.message.includes("Cannot find module 'next/cache'") ||
+      (err as { code?: string }).code === 'MODULE_NOT_FOUND')
+  ) {
+    return true;
+  }
+
+  if (
+    err instanceof Error &&
+    err.message.toLowerCase().includes('static generation store missing')
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 async function safeRevalidatePath(path: string, type?: 'page' | 'layout'): Promise<void> {
   try {
     // Dynamic import so this file is safe to import in non-Next environments
@@ -32,11 +51,7 @@ async function safeRevalidatePath(path: string, type?: 'page' | 'layout'): Promi
     };
     revalidatePath(path, type);
   } catch (err) {
-    if (
-      err instanceof Error &&
-      (err.message.includes("Cannot find module 'next/cache'") ||
-        (err as { code?: string }).code === 'MODULE_NOT_FOUND')
-    ) {
+    if (shouldSkipRevalidationError(err)) {
       // Not in a Next.js context (Payload CLI, scripts) — skip dynamically
       return;
     }

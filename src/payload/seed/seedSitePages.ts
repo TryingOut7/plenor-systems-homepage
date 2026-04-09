@@ -11,6 +11,13 @@ type SeedPage = {
   presetContent: Record<string, unknown>;
 };
 
+type SitePageDoc = {
+  deletedAt?: unknown;
+  id?: string | number;
+  presetContent?: unknown;
+  sections?: unknown;
+};
+
 type SeedResultItem = {
   slug: string;
   title: string;
@@ -79,6 +86,24 @@ function buildPresetRoot(
   };
 }
 
+function isTrashedDoc(doc: SitePageDoc | undefined): boolean {
+  return doc?.deletedAt != null;
+}
+
+function buildSeedWorkflowFields(page: SeedPage): {
+  reviewChecklistComplete: true;
+  reviewSummary: string;
+  workflowStatus: 'published';
+} {
+  const pagePath = page.slug === 'home' ? '/' : `/${page.slug}`;
+
+  return {
+    workflowStatus: 'published',
+    reviewChecklistComplete: true,
+    reviewSummary: `Seeded the core live page for ${pagePath}.`,
+  };
+}
+
 export async function seedSitePages(): Promise<SeedSitePagesResult> {
   const payload = await getPayload();
   const siteSettings = await payload.findGlobal({
@@ -96,16 +121,16 @@ export async function seedSitePages(): Promise<SeedSitePagesResult> {
     const found = await payload.find({
       collection: 'site-pages',
       where: { slug: { equals: page.slug } },
-      limit: 1,
+      limit: 5,
       depth: 0,
       overrideAccess: true,
+      trash: true,
     });
 
-    const current = found.docs[0] as unknown as {
-      id?: string | number;
-      sections?: unknown;
-      presetContent?: unknown;
-    } | undefined;
+    const current = found.docs.find(
+      (doc) => (doc as SitePageDoc).deletedAt == null,
+    ) as unknown as SitePageDoc | undefined
+      ?? (found.docs[0] as unknown as SitePageDoc | undefined);
 
     const globalPresetContent = asObject(globalPresetRoot[page.presetKey]);
     const presetRoot = buildPresetRoot(
@@ -117,7 +142,33 @@ export async function seedSitePages(): Promise<SeedSitePagesResult> {
 
     if (current?.id) {
       const hasSections = Array.isArray(current.sections) && current.sections.length > 0;
-      if (!hasSections) {
+      const wasTrashed = isTrashedDoc(current);
+
+      if (wasTrashed) {
+        await payload.update({
+          collection: 'site-pages',
+          id: String(current.id),
+          trash: true,
+          data: {
+            ...buildSeedWorkflowFields(page),
+            deletedAt: null,
+            title: page.title,
+            slug: page.slug,
+            presetKey: page.presetKey,
+            presetContent: presetRoot,
+            isActive: true,
+            sections: generatedSections,
+          } as unknown as RequiredDataFromCollectionSlug<'site-pages'>,
+          overrideAccess: true,
+        });
+        existing += 1;
+        items.push({
+          slug: page.slug,
+          title: page.title,
+          action: 'hydrated',
+          id: String(current.id),
+        });
+      } else if (!hasSections) {
         await payload.update({
           collection: 'site-pages',
           id: String(current.id),
@@ -151,6 +202,7 @@ export async function seedSitePages(): Promise<SeedSitePagesResult> {
     const createdDoc = await payload.create({
       collection: 'site-pages',
       data: {
+        ...buildSeedWorkflowFields(page),
         title: page.title,
         slug: page.slug,
         presetKey: page.presetKey,

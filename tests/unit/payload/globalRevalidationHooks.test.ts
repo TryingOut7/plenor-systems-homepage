@@ -37,4 +37,19 @@ describe('global content revalidation hooks', () => {
 
     expect(revalidatePath).not.toHaveBeenCalled();
   });
+
+  it('ignores the local static generation store invariant', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    revalidatePath.mockImplementation(() => {
+      throw new Error('Invariant: static generation store missing in revalidatePath /');
+    });
+
+    await revalidateGlobalAfterChange({
+      doc: { siteName: 'Plenor' },
+      context: {},
+    } as never);
+
+    expect(consoleError).not.toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
 });

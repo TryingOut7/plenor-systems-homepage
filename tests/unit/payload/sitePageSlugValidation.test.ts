@@ -21,6 +21,8 @@ describe('site page slug validation', () => {
         },
       } as never),
     ).rejects.toThrow('Slug "about" is already used by "Existing About Page"');
+
+    expect(find).toHaveBeenCalledWith(expect.objectContaining({ trash: true }));
   });
 
   it('allows updates when the only matching slug belongs to the same document', async () => {
@@ -45,5 +47,26 @@ describe('site page slug validation', () => {
     } as never);
 
     expect(result).toBe(data);
+  });
+
+  it('explains when the conflicting slug belongs to a trashed page', async () => {
+    const find = vi.fn(async () => ({
+      docs: [{ id: 'page_2', title: 'Old Home', deletedAt: '2026-04-08T18:23:42.929Z' }],
+    }));
+
+    await expect(
+      ensureUniqueSitePageSlugBeforeChange({
+        operation: 'create',
+        data: {
+          slug: 'home',
+        },
+        req: {
+          payload: { find },
+        },
+        collection: {
+          slug: 'site-pages',
+        },
+      } as never),
+    ).rejects.toThrow('Restore or permanently delete that page before reusing the slug.');
   });
 });
