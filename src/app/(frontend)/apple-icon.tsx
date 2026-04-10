@@ -1,13 +1,9 @@
 import { ImageResponse } from 'next/og';
-import { DEFAULT_SITE_NAME } from '@/lib/site-defaults';
 
 export const size = { width: 180, height: 180 };
 export const contentType = 'image/png';
 
 export default function AppleIcon() {
-  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || DEFAULT_SITE_NAME;
-  const mark = siteName.trim().charAt(0).toUpperCase() || 'W';
-
   return new ImageResponse(
     (
       <div
@@ -18,7 +14,8 @@ export default function AppleIcon() {
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: '#1B2D4F',
-          borderRadius: 36,
+          borderRadius: 20,
+          position: 'relative',
         }}
       >
         <div
@@ -30,8 +27,19 @@ export default function AppleIcon() {
             fontFamily: 'system-ui, sans-serif',
           }}
         >
-          {mark}
+          P
         </div>
+        <div
+          style={{
+            position: 'absolute',
+            top: 52,
+            right: 33,
+            width: 22,
+            height: 22,
+            borderRadius: '50%',
+            backgroundColor: '#3B5998',
+          }}
+        />
       </div>
     ),
     { ...size }
