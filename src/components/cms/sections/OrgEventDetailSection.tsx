@@ -11,6 +11,15 @@ import {
   formatEventTimeLabel,
 } from '@/lib/org-site-helpers';
 import type { OrgEvent } from '@/payload-types';
+import SectionHeading from './shared/SectionHeading';
+import {
+  detailLeadStyle,
+  detailMetaStyle,
+  detailPanelStyle,
+  detailSubsectionHeadingStyle,
+  detailTitleStyle,
+  getDetailMediaStyle,
+} from './shared/detailStyles';
 import type { SectionRendererProps } from './types';
 import { asSectionRecord, formRelationshipToId } from './utils';
 
@@ -85,18 +94,19 @@ async function OrgEventDetailSectionServer({
         <p className="section-label" style={{ marginBottom: '8px' }}>
           {event.eventType.replace(/_/g, ' ')}
         </p>
-        <h1 style={{ marginTop: 0, marginBottom: '14px', fontSize: 'clamp(34px, 5vw, 56px)' }}>
+        <SectionHeading
+          tag="h1"
+          style={{ ...detailTitleStyle, marginBottom: '14px' }}
+        >
           {event.title}
-        </h1>
-        <p style={{ marginTop: 0, marginBottom: '24px', color: 'var(--ui-color-text-muted)' }}>
+        </SectionHeading>
+        <p style={detailMetaStyle}>
           Status: {event.eventStatus.replace(/_/g, ' ')}
         </p>
 
         <div
           style={{
-            border: '1px solid var(--ui-color-border)',
-            borderRadius: '10px',
-            padding: '18px',
+            ...detailPanelStyle,
             marginBottom: '24px',
             display: 'grid',
             gap: '8px',
@@ -128,12 +138,7 @@ async function OrgEventDetailSectionServer({
             width={hero.width || 1200}
             height={hero.height || 675}
             style={{
-              width: '100%',
-              height: 'auto',
-              aspectRatio: '16 / 9',
-              objectFit: 'cover',
-              borderRadius: '12px',
-              border: '1px solid var(--ui-color-border)',
+              ...getDetailMediaStyle({ aspectRatio: '16 / 9' }),
               marginBottom: '24px',
             }}
           />
@@ -144,24 +149,20 @@ async function OrgEventDetailSectionServer({
             width={1200}
             height={675}
             style={{
-              width: '100%',
-              height: 'auto',
-              aspectRatio: '16 / 9',
-              objectFit: 'contain',
-              borderRadius: '12px',
-              border: '1px solid var(--ui-color-border)',
+              ...getDetailMediaStyle({
+                aspectRatio: '16 / 9',
+                fit: 'contain',
+                backgroundColor: 'var(--ui-color-section-alt)',
+              }),
               marginBottom: '24px',
-              backgroundColor: 'var(--ui-color-section-alt)',
             }}
           />
         )}
 
         <p
           style={{
-            marginTop: 0,
+            ...detailLeadStyle,
             marginBottom: '22px',
-            color: 'var(--ui-color-text)',
-            lineHeight: 1.7,
           }}
         >
           {event.shortSummary}
@@ -175,12 +176,16 @@ async function OrgEventDetailSectionServer({
           <section
             style={{
               marginTop: '32px',
-              border: '1px solid var(--ui-color-border)',
-              borderRadius: '12px',
+              ...detailPanelStyle,
               padding: '22px',
             }}
           >
-            <h2 style={{ marginTop: 0, marginBottom: '8px' }}>Registration</h2>
+            <SectionHeading
+              tag="h2"
+              style={{ ...detailSubsectionHeadingStyle, marginBottom: '8px' }}
+            >
+              Registration
+            </SectionHeading>
             <p style={{ marginTop: 0, color: 'var(--ui-color-text-muted)' }}>
               Registration is required for this event.
             </p>
@@ -209,7 +214,9 @@ async function OrgEventDetailSectionServer({
 
         {related.length > 0 ? (
           <section style={{ marginTop: '32px' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '12px' }}>Related community links</h2>
+            <SectionHeading tag="h2" style={detailSubsectionHeadingStyle}>
+              Related community links
+            </SectionHeading>
             <ul style={{ margin: 0, paddingLeft: '20px', display: 'grid', gap: '8px' }}>
               {related.map((item) => (
                 <li key={item.href}>

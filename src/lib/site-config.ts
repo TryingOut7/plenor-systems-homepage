@@ -1,10 +1,12 @@
 import type { SiteSettings } from '@/payload/cms';
+import {
+  DEFAULT_CONTACT_EMAIL,
+  DEFAULT_SITE_NAME,
+} from '@/lib/site-defaults';
 
-const DEFAULT_SITE_NAME = 'Website';
 const DEFAULT_SITE_URL = stripTrailingSlash(
   process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000',
 );
-const DEFAULT_CONTACT_EMAIL = 'contact@example.com';
 
 function asNonEmptyString(value: unknown): string | null {
   if (typeof value !== 'string') return null;

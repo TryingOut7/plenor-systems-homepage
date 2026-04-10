@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import RichText from '@/components/cms/RichText';
+import SectionHeading from '@/components/cms/sections/shared/SectionHeading';
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
 import { getServiceItemBySlug, getSiteSettings } from '@/payload/cms';
 import { buildBreadcrumbJsonLd } from '@/lib/breadcrumbs';
@@ -81,24 +82,31 @@ export default async function ServiceItemPage({
       <p className="section-label" style={{ marginBottom: '16px' }}>
         Service
       </p>
-      <h1
+      <SectionHeading
+        tag="h1"
         style={{
-          fontFamily: 'var(--font-display), Georgia, serif',
-          fontSize: 'clamp(36px, 5vw, 58px)',
-          color: '#1B2D4F',
+          fontSize: 'clamp(34px, 5vw, 54px)',
+          color: 'var(--ui-color-primary)',
           lineHeight: 1.08,
           marginBottom: '16px',
         }}
       >
         {item.title}
-      </h1>
+      </SectionHeading>
       {item.summary ? (
-        <p style={{ color: '#374151', fontSize: '18px', lineHeight: 1.7, marginBottom: '24px' }}>
+        <p
+          style={{
+            color: 'var(--ui-color-text-muted)',
+            fontSize: '18px',
+            lineHeight: 1.7,
+            marginBottom: '24px',
+          }}
+        >
           {item.summary}
         </p>
       ) : null}
       {typeof item.priceFrom === 'number' ? (
-        <p style={{ color: '#6B7280', marginBottom: '24px' }}>
+        <p style={{ color: 'var(--ui-color-text-muted)', marginBottom: '24px' }}>
           Starting from {item.currency || 'USD'} {item.priceFrom}
         </p>
       ) : null}
@@ -106,19 +114,7 @@ export default async function ServiceItemPage({
       {tags.length > 0 ? (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
           {tags.map((tag) => (
-            <span
-              key={tag}
-              style={{
-                display: 'inline-block',
-                padding: '4px 12px',
-                fontSize: '12px',
-                fontWeight: 600,
-                color: '#1B2D4F',
-                backgroundColor: '#F3F4F6',
-                borderRadius: '4px',
-                letterSpacing: '0.02em',
-              }}
-            >
+            <span key={tag} className="ui-chip">
               {tag}
             </span>
           ))}
@@ -135,14 +131,14 @@ export default async function ServiceItemPage({
           style={{
             width: '100%',
             height: 'auto',
-            borderRadius: '8px',
-            border: '1px solid #E5E7EB',
+            borderRadius: 'var(--ui-card-radius, 8px)',
+            border: '1px solid var(--ui-color-border)',
             marginBottom: '28px',
           }}
         />
       ) : null}
 
-      <RichText data={item.body as SerializedEditorState} style={{ color: '#1F2937' }} />
+      <RichText data={item.body as SerializedEditorState} style={{ color: 'var(--ui-color-text)' }} />
     </article>
   );
 }

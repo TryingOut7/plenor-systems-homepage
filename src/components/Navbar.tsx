@@ -4,6 +4,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import {
+  DEFAULT_HEADER_BUTTONS,
+  DEFAULT_NAVIGATION_LINKS,
+  DEFAULT_SITE_NAME,
+} from '@/lib/site-defaults';
 
 type NavLink = {
   label: string;
@@ -11,13 +16,10 @@ type NavLink = {
   children?: Array<{ label: string; href: string }>;
 };
 
-const FALLBACK_NAV_LINKS: NavLink[] = [
-  { label: 'Home', href: '/' },
-  { label: 'Services', href: '/services' },
-  { label: 'Pricing', href: '/pricing' },
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
-];
+const FALLBACK_NAV_LINKS: NavLink[] = DEFAULT_NAVIGATION_LINKS.map((link) => ({
+  label: link.label,
+  href: link.href,
+}));
 
 type NavigationLink = {
   _key?: string;
@@ -50,7 +52,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({
-  siteName = 'Website',
+  siteName = DEFAULT_SITE_NAME,
   navigationLinks,
   headerButtons,
   logoImage,
@@ -94,8 +96,11 @@ export default function Navbar({
 
     if (normalized.length) return normalized;
     if (hasHeaderButtonsField) return [];
-
-    return [];
+    return DEFAULT_HEADER_BUTTONS.map((button) => ({
+      label: button.label,
+      href: button.href,
+      variant: button.variant,
+    }));
   })();
 
   useEffect(() => {
@@ -136,12 +141,12 @@ export default function Navbar({
           onClick={closeMenu}
           aria-label={`${siteName} – home`}
           style={{
-            fontFamily: 'var(--ui-font-display)',
+            fontFamily: 'var(--ui-font-body)',
             fontWeight: 700,
             fontSize: '20px',
             color: 'var(--ui-color-primary)',
             textDecoration: 'none',
-            letterSpacing: '-0.03em',
+            letterSpacing: '-0.02em',
             flexShrink: 0,
             display: 'flex',
             alignItems: 'center',
@@ -208,7 +213,7 @@ export default function Navbar({
                       gap: '4px',
                       padding: '6px 12px',
                       fontSize: '14px',
-                      fontWeight: isActive ? 600 : 400,
+                      fontWeight: isActive ? 600 : 500,
                       color: isActive ? 'var(--ui-color-primary)' : 'var(--ui-color-text-muted)',
                       background: 'none',
                       border: 'none',
@@ -232,7 +237,7 @@ export default function Navbar({
                       display: 'inline-block',
                       padding: '6px 12px',
                       fontSize: '14px',
-                      fontWeight: isActive ? 600 : 400,
+                      fontWeight: isActive ? 600 : 500,
                       color: isActive ? 'var(--ui-color-primary)' : 'var(--ui-color-text-muted)',
                       textDecoration: 'none',
                       transition: 'color 0.2s ease',

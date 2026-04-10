@@ -7,6 +7,15 @@ import { ABOUT_CATEGORIES } from '@/lib/org-site-helpers';
 import { extractMediaAsset } from '@/lib/org-site-helpers';
 import { getOrgAboutById } from '@/lib/org-site-feed';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
+import SectionHeading from './shared/SectionHeading';
+import {
+  detailGalleryGridStyle,
+  detailLeadStyle,
+  detailMetaStyle,
+  detailSubsectionHeadingStyle,
+  detailTitleStyle,
+  getDetailMediaStyle,
+} from './shared/detailStyles';
 import type { SectionRendererProps } from './types';
 import { asSectionRecord } from './utils';
 
@@ -65,10 +74,10 @@ async function OrgAboutDetailSectionServer({
         <p className="section-label" style={{ marginBottom: '10px' }}>
           About
         </p>
-        <h1 style={{ marginTop: 0, marginBottom: '8px', fontSize: 'clamp(34px, 5vw, 54px)' }}>
+        <SectionHeading tag="h1" style={detailTitleStyle}>
           {profile.name}
-        </h1>
-        <p style={{ marginTop: 0, color: 'var(--ui-color-text-muted)' }}>
+        </SectionHeading>
+        <p style={detailMetaStyle}>
           {profile.category.replace(/_/g, ' ')}
         </p>
 
@@ -86,12 +95,7 @@ async function OrgAboutDetailSectionServer({
             width={image.width || 800}
             height={image.height || 800}
             style={{
-              width: '100%',
-              height: 'auto',
-              aspectRatio: '1 / 1',
-              objectFit: 'cover',
-              borderRadius: '12px',
-              border: '1px solid var(--ui-color-border)',
+              ...getDetailMediaStyle({ aspectRatio: '1 / 1' }),
               marginBottom: '20px',
             }}
           />
@@ -102,14 +106,12 @@ async function OrgAboutDetailSectionServer({
             width={800}
             height={800}
             style={{
-              width: '100%',
-              height: 'auto',
-              aspectRatio: '1 / 1',
-              objectFit: 'contain',
-              borderRadius: '12px',
-              border: '1px solid var(--ui-color-border)',
+              ...getDetailMediaStyle({
+                aspectRatio: '1 / 1',
+                fit: 'contain',
+                backgroundColor: 'var(--ui-color-section-alt)',
+              }),
               marginBottom: '20px',
-              backgroundColor: 'var(--ui-color-section-alt)',
             }}
           />
         )}
@@ -124,7 +126,7 @@ async function OrgAboutDetailSectionServer({
             <strong>Affiliation:</strong> {profile.affiliation}
           </p>
         ) : null}
-        <p style={{ marginTop: 0, marginBottom: '20px', lineHeight: 1.7 }}>{profile.shortBio}</p>
+        <p style={detailLeadStyle}>{profile.shortBio}</p>
 
         {profile.detailContent ? (
           <RichText data={profile.detailContent as SerializedEditorState} />
@@ -132,14 +134,10 @@ async function OrgAboutDetailSectionServer({
 
         {galleryImages.length > 0 ? (
           <section style={{ marginTop: '24px' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '12px' }}>Gallery</h2>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                gap: '12px',
-              }}
-            >
+            <SectionHeading tag="h2" style={detailSubsectionHeadingStyle}>
+              Gallery
+            </SectionHeading>
+            <div style={detailGalleryGridStyle}>
               {galleryImages.map((galleryImage) => (
                 <Image
                   key={galleryImage.url}
@@ -148,12 +146,7 @@ async function OrgAboutDetailSectionServer({
                   width={galleryImage.width || 500}
                   height={galleryImage.height || 500}
                   style={{
-                    width: '100%',
-                    height: 'auto',
-                    aspectRatio: '1 / 1',
-                    objectFit: 'cover',
-                    borderRadius: '10px',
-                    border: '1px solid var(--ui-color-border)',
+                    ...getDetailMediaStyle({ aspectRatio: '1 / 1' }),
                   }}
                 />
               ))}

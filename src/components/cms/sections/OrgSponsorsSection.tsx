@@ -5,6 +5,13 @@ import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical
 import { getOrgSponsorsGlobal } from '@/lib/org-site-feed';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
 import { extractMediaAsset } from '@/lib/org-site-helpers';
+import SectionHeading from './shared/SectionHeading';
+import {
+  detailGalleryGridStyle,
+  detailSubsectionHeadingStyle,
+  detailTitleStyle,
+  getDetailMediaStyle,
+} from './shared/detailStyles';
 import type { SectionRendererProps } from './types';
 import { asSectionRecord } from './utils';
 
@@ -61,29 +68,38 @@ async function OrgSponsorsSectionServer({
   const zelleQr = extractMediaAsset(sponsors.zelleQrCode);
   const venmoQr = extractMediaAsset(sponsors.venmoQrCode);
   const displayOrder = normalizeDisplayOrder(sponsors.displayOrder);
+  const subsectionHeadingStyle = { ...detailSubsectionHeadingStyle, marginBottom: '10px' };
 
   const sectionRenderers: Record<DisplayOrderKey, ReactNode | null> = {
     support_summary: sponsors.supportSummary ? (
       <section key="support_summary" style={{ marginBottom: '24px' }}>
-        <h2 style={{ marginTop: 0, marginBottom: '10px' }}>Support Summary</h2>
+        <SectionHeading tag="h2" style={subsectionHeadingStyle}>
+          Support Summary
+        </SectionHeading>
         <RichText data={sponsors.supportSummary as SerializedEditorState} />
       </section>
     ) : null,
     sponsor_acknowledgment: sponsors.sponsorAcknowledgmentContent ? (
       <section key="sponsor_acknowledgment" style={{ marginBottom: '24px' }}>
-        <h2 style={{ marginTop: 0, marginBottom: '10px' }}>Sponsor Acknowledgment</h2>
+        <SectionHeading tag="h2" style={subsectionHeadingStyle}>
+          Sponsor Acknowledgment
+        </SectionHeading>
         <RichText data={sponsors.sponsorAcknowledgmentContent as SerializedEditorState} />
       </section>
     ) : null,
     donation_instructions: sponsors.donationInstructions ? (
       <section key="donation_instructions" style={{ marginBottom: '24px' }}>
-        <h2 style={{ marginTop: 0, marginBottom: '10px' }}>Donation Instructions</h2>
+        <SectionHeading tag="h2" style={subsectionHeadingStyle}>
+          Donation Instructions
+        </SectionHeading>
         <RichText data={sponsors.donationInstructions as SerializedEditorState} />
       </section>
     ) : null,
     payment_instructions: (
       <section key="payment_instructions" style={{ marginBottom: '24px' }}>
-        <h2 style={{ marginTop: 0, marginBottom: '10px' }}>Payment Instructions</h2>
+        <SectionHeading tag="h2" style={subsectionHeadingStyle}>
+          Payment Instructions
+        </SectionHeading>
         {sponsors.paymentInstructionsContent ? (
           <RichText data={sponsors.paymentInstructionsContent as SerializedEditorState} />
         ) : (
@@ -110,13 +126,10 @@ async function OrgSponsorsSectionServer({
                 width={zelleQr.width || 500}
                 height={zelleQr.height || 500}
                 style={{
-                  width: '100%',
-                  maxWidth: '260px',
-                  height: 'auto',
-                  aspectRatio: '1 / 1',
-                  objectFit: 'cover',
-                  borderRadius: '8px',
-                  border: '1px solid var(--ui-color-border)',
+                  ...getDetailMediaStyle({
+                    aspectRatio: '1 / 1',
+                    maxWidth: '260px',
+                  }),
                 }}
               />
             ) : (
@@ -126,14 +139,12 @@ async function OrgSponsorsSectionServer({
                 width={260}
                 height={260}
                 style={{
-                  width: '100%',
-                  maxWidth: '260px',
-                  height: 'auto',
-                  aspectRatio: '1 / 1',
-                  objectFit: 'contain',
-                  borderRadius: '8px',
-                  border: '1px solid var(--ui-color-border)',
-                  backgroundColor: 'var(--ui-color-section-alt)',
+                  ...getDetailMediaStyle({
+                    aspectRatio: '1 / 1',
+                    fit: 'contain',
+                    maxWidth: '260px',
+                    backgroundColor: 'var(--ui-color-section-alt)',
+                  }),
                 }}
               />
             )}
@@ -149,13 +160,10 @@ async function OrgSponsorsSectionServer({
                 width={venmoQr.width || 500}
                 height={venmoQr.height || 500}
                 style={{
-                  width: '100%',
-                  maxWidth: '260px',
-                  height: 'auto',
-                  aspectRatio: '1 / 1',
-                  objectFit: 'cover',
-                  borderRadius: '8px',
-                  border: '1px solid var(--ui-color-border)',
+                  ...getDetailMediaStyle({
+                    aspectRatio: '1 / 1',
+                    maxWidth: '260px',
+                  }),
                 }}
               />
             ) : (
@@ -165,14 +173,12 @@ async function OrgSponsorsSectionServer({
                 width={260}
                 height={260}
                 style={{
-                  width: '100%',
-                  maxWidth: '260px',
-                  height: 'auto',
-                  aspectRatio: '1 / 1',
-                  objectFit: 'contain',
-                  borderRadius: '8px',
-                  border: '1px solid var(--ui-color-border)',
-                  backgroundColor: 'var(--ui-color-section-alt)',
+                  ...getDetailMediaStyle({
+                    aspectRatio: '1 / 1',
+                    fit: 'contain',
+                    maxWidth: '260px',
+                    backgroundColor: 'var(--ui-color-section-alt)',
+                  }),
                 }}
               />
             )}
@@ -183,14 +189,10 @@ async function OrgSponsorsSectionServer({
     sponsor_logos:
       Array.isArray(sponsors.sponsorLogos) && sponsors.sponsorLogos.length > 0 ? (
         <section key="sponsor_logos" style={{ marginBottom: '24px' }}>
-          <h2 style={{ marginTop: 0, marginBottom: '10px' }}>Sponsor Logos</h2>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-              gap: '12px',
-            }}
-          >
+          <SectionHeading tag="h2" style={subsectionHeadingStyle}>
+            Sponsor Logos
+          </SectionHeading>
+          <div style={detailGalleryGridStyle}>
             {sponsors.sponsorLogos.map((logo) => {
               const media = extractMediaAsset(logo.logo);
               if (!media?.url) return null;
@@ -199,7 +201,7 @@ async function OrgSponsorsSectionServer({
                   key={`${media.url}-${logo.id || ''}`}
                   style={{
                     border: '1px solid var(--ui-color-border)',
-                    borderRadius: '10px',
+                    borderRadius: 'var(--ui-card-radius, 8px)',
                     padding: '10px',
                     backgroundColor: 'var(--ui-color-surface)',
                   }}
@@ -232,14 +234,16 @@ async function OrgSponsorsSectionServer({
     support_faq:
       Array.isArray(sponsors.supportFaq) && sponsors.supportFaq.length > 0 ? (
         <section key="support_faq" style={{ marginBottom: '24px' }}>
-          <h2 style={{ marginTop: 0, marginBottom: '10px' }}>Support FAQ</h2>
+          <SectionHeading tag="h2" style={subsectionHeadingStyle}>
+            Support FAQ
+          </SectionHeading>
           <div style={{ display: 'grid', gap: '10px' }}>
             {sponsors.supportFaq.map((faq) => (
               <details
                 key={faq.id || faq.question}
                 style={{
                   border: '1px solid var(--ui-color-border)',
-                  borderRadius: '8px',
+                  borderRadius: 'var(--ui-card-radius, 8px)',
                   padding: '10px 12px',
                 }}
               >
@@ -252,7 +256,9 @@ async function OrgSponsorsSectionServer({
       ) : null,
     featured_supporter_text: sponsors.featuredSupporterText ? (
       <section key="featured_supporter_text" style={{ marginBottom: '24px' }}>
-        <h2 style={{ marginTop: 0, marginBottom: '10px' }}>Featured Supporter</h2>
+        <SectionHeading tag="h2" style={subsectionHeadingStyle}>
+          Featured Supporter
+        </SectionHeading>
         <RichText data={sponsors.featuredSupporterText as SerializedEditorState} />
       </section>
     ) : null,
@@ -273,9 +279,12 @@ async function OrgSponsorsSectionServer({
         <p className="section-label" style={{ marginBottom: '10px' }}>
           Sponsors
         </p>
-        <h1 style={{ marginTop: 0, marginBottom: '14px', fontSize: 'clamp(34px, 5vw, 54px)' }}>
+        <SectionHeading
+          tag="h1"
+          style={{ ...detailTitleStyle, marginBottom: '14px' }}
+        >
           {sponsors.pageTitle}
-        </h1>
+        </SectionHeading>
 
         {displayOrder.map((key) => sectionRenderers[key])}
 

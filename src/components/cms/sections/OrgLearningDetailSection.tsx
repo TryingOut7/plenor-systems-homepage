@@ -7,6 +7,13 @@ import { LEARNING_CATEGORIES } from '@/lib/org-site-helpers';
 import { extractMediaAsset } from '@/lib/org-site-helpers';
 import { getOrgLearningById } from '@/lib/org-site-feed';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
+import SectionHeading from './shared/SectionHeading';
+import {
+  detailLeadStyle,
+  detailMetaStyle,
+  detailTitleStyle,
+  getDetailMediaStyle,
+} from './shared/detailStyles';
 import type { SectionRendererProps } from './types';
 import { asSectionRecord } from './utils';
 
@@ -60,10 +67,10 @@ async function OrgLearningDetailSectionServer({
         <p className="section-label" style={{ marginBottom: '10px' }}>
           Learning and Giving Back
         </p>
-        <h1 style={{ marginTop: 0, marginBottom: '8px', fontSize: 'clamp(34px, 5vw, 54px)' }}>
+        <SectionHeading tag="h1" style={detailTitleStyle}>
           {entry.title}
-        </h1>
-        <p style={{ marginTop: 0, color: 'var(--ui-color-text-muted)' }}>
+        </SectionHeading>
+        <p style={detailMetaStyle}>
           {entry.category.replace(/_/g, ' ')}
         </p>
 
@@ -81,12 +88,7 @@ async function OrgLearningDetailSectionServer({
             width={image.width || 800}
             height={image.height || 600}
             style={{
-              width: '100%',
-              height: 'auto',
-              aspectRatio: '4 / 3',
-              objectFit: 'cover',
-              borderRadius: '12px',
-              border: '1px solid var(--ui-color-border)',
+              ...getDetailMediaStyle({ aspectRatio: '4 / 3' }),
               marginBottom: '20px',
             }}
           />
@@ -97,14 +99,12 @@ async function OrgLearningDetailSectionServer({
             width={800}
             height={600}
             style={{
-              width: '100%',
-              height: 'auto',
-              aspectRatio: '4 / 3',
-              objectFit: 'contain',
-              borderRadius: '12px',
-              border: '1px solid var(--ui-color-border)',
+              ...getDetailMediaStyle({
+                aspectRatio: '4 / 3',
+                fit: 'contain',
+                backgroundColor: 'var(--ui-color-section-alt)',
+              }),
               marginBottom: '20px',
-              backgroundColor: 'var(--ui-color-section-alt)',
             }}
           />
         )}
@@ -114,7 +114,7 @@ async function OrgLearningDetailSectionServer({
             <strong>Author:</strong> {entry.author}
           </p>
         ) : null}
-        <p style={{ marginTop: 0, marginBottom: '20px', lineHeight: 1.7 }}>{entry.shortSummary}</p>
+        <p style={detailLeadStyle}>{entry.shortSummary}</p>
 
         {entry.detailContent ? (
           <RichText data={entry.detailContent as SerializedEditorState} />

@@ -1,10 +1,11 @@
 import { ImageResponse } from 'next/og';
+import { DEFAULT_SITE_NAME } from '@/lib/site-defaults';
 
 export const size = { width: 32, height: 32 };
 export const contentType = 'image/png';
 
 export default function Icon() {
-  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Website';
+  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || DEFAULT_SITE_NAME;
   const mark = siteName.trim().charAt(0).toUpperCase() || 'W';
 
   return new ImageResponse(

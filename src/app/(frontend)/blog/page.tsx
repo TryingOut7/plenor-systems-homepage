@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
+import SectionHeading from '@/components/cms/sections/shared/SectionHeading';
 import { getCollectionData, getSiteSettings } from '@/payload/cms';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
@@ -64,9 +65,9 @@ export default async function BlogIndexPage({
   return (
     <div style={{ maxWidth: '960px', margin: '0 auto', padding: '84px 24px 96px' }}>
       <p className="section-label" style={{ marginBottom: '16px' }}>Blog</p>
-      <h1
+      <SectionHeading
+        tag="h1"
         style={{
-          fontFamily: 'var(--font-display), Georgia, serif',
           fontSize: 'clamp(32px, 5vw, 54px)',
           color: 'var(--ui-color-primary)',
           lineHeight: 1.08,
@@ -74,21 +75,13 @@ export default async function BlogIndexPage({
         }}
       >
         {activeTag ? `Posts tagged "${activeTag}"` : 'Latest Posts'}
-      </h1>
+      </SectionHeading>
 
       {allTags.length > 0 ? (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '40px' }}>
           <Link
             href="/blog"
-            style={{
-              padding: '4px 12px',
-              fontSize: '12px',
-              fontWeight: 600,
-              borderRadius: '4px',
-              textDecoration: 'none',
-              backgroundColor: !activeTag ? '#1B2D4F' : '#F3F4F6',
-              color: !activeTag ? '#fff' : '#1B2D4F',
-            }}
+            className={!activeTag && !activeCategory ? 'ui-chip ui-chip--active' : 'ui-chip'}
           >
             All
           </Link>
@@ -96,15 +89,7 @@ export default async function BlogIndexPage({
             <Link
               key={tag}
               href={`/blog?tag=${encodeURIComponent(tag)}`}
-              style={{
-                padding: '4px 12px',
-                fontSize: '12px',
-                fontWeight: 600,
-                borderRadius: '4px',
-                textDecoration: 'none',
-                backgroundColor: activeTag === tag.toLowerCase() ? '#1B2D4F' : '#F3F4F6',
-                color: activeTag === tag.toLowerCase() ? '#fff' : '#1B2D4F',
-              }}
+              className={activeTag === tag.toLowerCase() ? 'ui-chip ui-chip--active' : 'ui-chip'}
             >
               {tag}
             </Link>
@@ -113,7 +98,7 @@ export default async function BlogIndexPage({
       ) : null}
 
       {posts.length === 0 ? (
-        <p style={{ color: '#6B7280' }}>No posts published yet.</p>
+        <p style={{ color: 'var(--ui-color-text-muted)' }}>No posts published yet.</p>
       ) : (
         <div
           style={{
@@ -138,7 +123,7 @@ export default async function BlogIndexPage({
                     className="feature-card-media"
                     style={{
                       height: '200px',
-                      borderRadius: '6px 6px 0 0',
+                      borderRadius: 'var(--ui-card-radius, 8px)',
                       marginBottom: '16px',
                     }}
                   >
@@ -160,7 +145,7 @@ export default async function BlogIndexPage({
                     {post.title}
                   </h2>
                   {post.excerpt ? (
-                    <p style={{ color: '#374151', fontSize: '15px', lineHeight: 1.6, margin: 0 }}>
+                    <p style={{ color: 'var(--ui-color-text-muted)', fontSize: '15px', lineHeight: 1.6, margin: 0 }}>
                       {post.excerpt}
                     </p>
                   ) : null}

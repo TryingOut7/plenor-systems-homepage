@@ -47,6 +47,7 @@
   --ui-spacing-mobile-section: 64px;
 
   --ui-button-radius: 6px;
+  --ui-card-radius: 8px;
   --ui-color-accent: #3B82F6;
   --ui-button-primary-bg: #1B2D4F;
   --ui-button-primary-bg-hover: #2A4270;
@@ -310,7 +311,7 @@ a {
   background-color: var(--ui-color-surface);
   border: 1px solid var(--ui-color-border);
   border-top: 3px solid var(--ui-color-primary);
-  border-radius: var(--ui-button-radius);
+  border-radius: var(--ui-card-radius, 8px);
   padding: 32px 28px;
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-top-color 0.2s ease;
   position: relative;
@@ -391,11 +392,33 @@ a {
 
 .section-label {
   font-family: var(--ui-font-body);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: var(--ui-section-label-letter-spacing);
   text-transform: uppercase;
   color: var(--ui-color-accent);
+}
+
+.ui-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border: 1px solid var(--ui-color-border);
+  border-radius: 999px;
+  background-color: var(--ui-color-section-alt);
+  color: var(--ui-color-primary);
+  font-family: var(--ui-font-body);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+.ui-chip--active {
+  border-color: var(--ui-color-primary);
+  background-color: var(--ui-color-primary);
+  color: var(--ui-color-dark-text);
 }
 
 .ruled {
@@ -655,7 +678,7 @@ button.btn-secondary:disabled:focus-visible {
 }
 
 .footer-brand-link {
-  font-family: var(--ui-font-display);
+  font-family: var(--ui-font-body);
   font-weight: 700;
   font-size: 20px;
   letter-spacing: -0.03em;

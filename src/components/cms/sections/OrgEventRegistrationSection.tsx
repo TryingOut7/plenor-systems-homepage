@@ -3,6 +3,12 @@ import RichText from '@/components/cms/RichText';
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
 import { getOrgEventById } from '@/lib/org-site-feed';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
+import SectionHeading from './shared/SectionHeading';
+import {
+  detailPanelStyle,
+  detailSubsectionHeadingStyle,
+  detailTitleStyle,
+} from './shared/detailStyles';
 import type { SectionRendererProps } from './types';
 import { asSectionRecord, formRelationshipToId } from './utils';
 
@@ -48,15 +54,18 @@ async function OrgEventRegistrationSectionServer({
         <p className="section-label" style={{ marginBottom: '10px' }}>
           Registration
         </p>
-        <h1 style={{ marginTop: 0, marginBottom: '8px', fontSize: 'clamp(32px, 5vw, 50px)' }}>
+        <SectionHeading tag="h1" style={detailTitleStyle}>
           {event.title}
-        </h1>
+        </SectionHeading>
 
         {event.registrationInstructions ? (
           <section style={{ marginBottom: '22px' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '10px', fontSize: '24px' }}>
+            <SectionHeading
+              tag="h2"
+              style={{ ...detailSubsectionHeadingStyle, marginBottom: '10px' }}
+            >
               Registration Instructions
-            </h2>
+            </SectionHeading>
             <RichText data={event.registrationInstructions as SerializedEditorState} />
           </section>
         ) : null}
@@ -64,9 +73,7 @@ async function OrgEventRegistrationSectionServer({
         {event.registrationRequired !== true ? (
           <section
             style={{
-              border: '1px solid var(--ui-color-border)',
-              borderRadius: '10px',
-              padding: '18px',
+              ...detailPanelStyle,
             }}
           >
             <p style={{ margin: 0 }}>This event does not currently require registration.</p>
@@ -83,9 +90,7 @@ async function OrgEventRegistrationSectionServer({
         ) : (
           <section
             style={{
-              border: '1px solid var(--ui-color-border)',
-              borderRadius: '10px',
-              padding: '18px',
+              ...detailPanelStyle,
             }}
           >
             <p style={{ margin: 0 }}>No registration form is configured for this event yet.</p>

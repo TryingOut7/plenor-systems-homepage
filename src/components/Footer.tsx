@@ -1,4 +1,12 @@
 import Link from 'next/link';
+import {
+  DEFAULT_BRAND_TAGLINE,
+  DEFAULT_CONTACT_EMAIL,
+  DEFAULT_FOOTER_COLUMNS,
+  DEFAULT_FOOTER_LEGAL_HREF,
+  DEFAULT_FOOTER_LEGAL_LABEL,
+  DEFAULT_SITE_NAME,
+} from '@/lib/site-defaults';
 
 type FooterLink = {
   _key?: string;
@@ -30,16 +38,25 @@ interface FooterProps {
 }
 
 export default function Footer({
-  siteName = 'Website',
-  brandTagline = '',
-  contactEmail = '',
+  siteName = DEFAULT_SITE_NAME,
+  brandTagline = DEFAULT_BRAND_TAGLINE,
+  contactEmail = DEFAULT_CONTACT_EMAIL,
   footerColumns,
   socialLinks,
   copyrightText,
   footerLegalLabel,
   footerLegalHref,
 }: FooterProps) {
-  const normalizedColumns = (footerColumns?.length ? footerColumns : []).map((column) => ({
+  const hasFooterColumnsField = Array.isArray(footerColumns);
+  const fallbackColumns: FooterColumn[] = DEFAULT_FOOTER_COLUMNS.map((column) => ({
+    title: column.title,
+    links: column.links.map((link) => ({
+      label: link.label,
+      href: link.href,
+    })),
+  }));
+  const sourceColumns: FooterColumn[] = hasFooterColumnsField ? (footerColumns ?? []) : fallbackColumns;
+  const normalizedColumns = (sourceColumns?.length ? sourceColumns : []).map((column) => ({
     ...column,
     links:
       column.links
@@ -138,10 +155,10 @@ export default function Footer({
               .replace('{siteName}', siteName)}
           </p>
           <Link
-            href={footerLegalHref || '/privacy'}
+            href={footerLegalHref || DEFAULT_FOOTER_LEGAL_HREF}
             className="footer-link footer-legal-link"
           >
-            {footerLegalLabel || 'Cookie Notice & Privacy Policy'}
+            {footerLegalLabel || DEFAULT_FOOTER_LEGAL_LABEL}
           </Link>
         </div>
       </div>

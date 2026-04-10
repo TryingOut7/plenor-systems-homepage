@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import RichText from '@/components/cms/RichText';
+import SectionHeading from '@/components/cms/sections/shared/SectionHeading';
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
 import { getBlogPostBySlug, getSiteSettings } from '@/payload/cms';
 import { buildBreadcrumbJsonLd } from '@/lib/breadcrumbs';
@@ -90,9 +91,9 @@ export default async function BlogPostPage({
         {categoryName || 'Blog'}
       </p>
 
-      <h1
+      <SectionHeading
+        tag="h1"
         style={{
-          fontFamily: 'var(--font-display), Georgia, serif',
           fontSize: 'clamp(32px, 5vw, 54px)',
           color: 'var(--ui-color-primary)',
           lineHeight: 1.08,
@@ -100,25 +101,32 @@ export default async function BlogPostPage({
         }}
       >
         {post.title}
-      </h1>
+      </SectionHeading>
 
       {post.excerpt ? (
-        <p style={{ color: '#374151', fontSize: '18px', lineHeight: 1.7, marginBottom: '24px' }}>
+        <p
+          style={{
+            color: 'var(--ui-color-text-muted)',
+            fontSize: '18px',
+            lineHeight: 1.7,
+            marginBottom: '24px',
+          }}
+        >
           {post.excerpt}
         </p>
       ) : null}
 
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '12px',
-          alignItems: 'center',
-          marginBottom: '28px',
-          color: '#6B7280',
-          fontSize: '14px',
-        }}
-      >
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '12px',
+            alignItems: 'center',
+            marginBottom: '28px',
+            color: 'var(--ui-color-text-muted)',
+            fontSize: '14px',
+          }}
+        >
         {post.publishedAt ? (
           <time dateTime={post.publishedAt}>
             {new Date(post.publishedAt).toLocaleDateString('en-US', {
@@ -136,19 +144,7 @@ export default async function BlogPostPage({
       {tags.length > 0 ? (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
           {tags.map((tag) => (
-            <span
-              key={tag}
-              style={{
-                display: 'inline-block',
-                padding: '4px 12px',
-                fontSize: '12px',
-                fontWeight: 600,
-                color: '#1B2D4F',
-                backgroundColor: '#F3F4F6',
-                borderRadius: '4px',
-                letterSpacing: '0.02em',
-              }}
-            >
+            <span key={tag} className="ui-chip">
               {tag}
             </span>
           ))}
@@ -164,17 +160,23 @@ export default async function BlogPostPage({
           style={{
             width: '100%',
             height: 'auto',
-            borderRadius: '8px',
-            border: '1px solid #E5E7EB',
+            borderRadius: 'var(--ui-card-radius, 8px)',
+            border: '1px solid var(--ui-color-border)',
             marginBottom: '32px',
           }}
         />
       ) : null}
 
-      <RichText data={post.body as SerializedEditorState} style={{ color: '#1F2937' }} />
+      <RichText data={post.body as SerializedEditorState} style={{ color: 'var(--ui-color-text)' }} />
 
       {resourceHref ? (
-        <div style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid #E5E7EB' }}>
+        <div
+          style={{
+            marginTop: '40px',
+            paddingTop: '24px',
+            borderTop: '1px solid var(--ui-color-border)',
+          }}
+        >
           <Link
             href={resourceHref}
             target="_blank"
@@ -186,8 +188,14 @@ export default async function BlogPostPage({
         </div>
       ) : null}
 
-      <div style={{ marginTop: '48px', paddingTop: '24px', borderTop: '1px solid #E5E7EB' }}>
-        <Link href="/blog" style={{ color: '#6B7280', fontSize: '14px' }}>
+      <div
+        style={{
+          marginTop: '48px',
+          paddingTop: '24px',
+          borderTop: '1px solid var(--ui-color-border)',
+        }}
+      >
+        <Link href="/blog" style={{ color: 'var(--ui-color-text-muted)', fontSize: '14px' }}>
           ← Back to Blog
         </Link>
       </div>
