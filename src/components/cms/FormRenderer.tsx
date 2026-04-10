@@ -151,6 +151,35 @@ function readConfirmationMessage(value: unknown): string {
     .join('\n\n');
 }
 
+const STATIC_FORM_FALLBACKS: Record<'guide' | 'inquiry', FormData> = {
+  guide: {
+    id: 'static-guide',
+    title: 'Guide',
+    templateKey: 'guide',
+    fields: [
+      { id: 'firstName', name: 'firstName', label: 'First Name', blockType: 'text', required: true },
+      { id: 'email', name: 'email', label: 'Email Address', blockType: 'email', required: true },
+    ],
+    submitButtonLabel: 'Get My Free Guide',
+    confirmationType: 'message',
+    confirmationMessage: "Thanks! Your guide is on its way to your inbox.",
+  },
+  inquiry: {
+    id: 'static-inquiry',
+    title: 'Inquiry',
+    templateKey: 'inquiry',
+    fields: [
+      { id: 'name', name: 'name', label: 'Full Name', blockType: 'text', required: true },
+      { id: 'email', name: 'email', label: 'Email Address', blockType: 'email', required: true },
+      { id: 'company', name: 'company', label: 'Company', blockType: 'text', required: false },
+      { id: 'challenge', name: 'challenge', label: 'What challenge are you solving?', blockType: 'textarea', required: false },
+    ],
+    submitButtonLabel: 'Send Message',
+    confirmationType: 'message',
+    confirmationMessage: "Thanks for reaching out! We'll be in touch shortly.",
+  },
+};
+
 function resolveTemplateLabels(
   templateKey: FormData['templateKey'],
   guideFormLabels?: GuideFormLabels,
@@ -264,9 +293,9 @@ export default function FormRenderer({
           })
           .then(({ guide, inquiry }) => {
             const resolvedId = resolveAlias === 'guide' ? guide : resolveAlias === 'inquiry' ? inquiry : null;
-            if (!resolvedId) throw new Error('Form not found');
+            if (!resolvedId) return STATIC_FORM_FALLBACKS[resolveAlias];
             return fetch(`/api/forms/${resolvedId}?depth=1`).then((res) => {
-              if (!res.ok) throw new Error('Failed to load form');
+              if (!res.ok) return STATIC_FORM_FALLBACKS[resolveAlias];
               return res.json() as Promise<FormData>;
             });
           })

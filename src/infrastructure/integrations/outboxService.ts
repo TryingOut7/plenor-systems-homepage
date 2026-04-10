@@ -1,10 +1,6 @@
 import type { OutboundEventV1 } from '@plenor/contracts/events';
-import type { RegistrationStatus } from '@plenor/contracts/forms';
 import { getIntegrationProviders } from '@/infrastructure/integrations/defaultProviders';
-import {
-  mapEventToOutboxJobs,
-  type RegistrationStatusEventPayload,
-} from '@/infrastructure/integrations/outboundEvents';
+import { mapEventToOutboxJobs } from '@/infrastructure/integrations/outboundEvents';
 import {
   claimDueOutboxJobs,
   enqueueOutboxJobs,
@@ -16,50 +12,6 @@ import {
 
 function asEvent(value: unknown): OutboundEventV1<unknown> {
   return value as OutboundEventV1<unknown>;
-}
-
-function readRequiredString(
-  payload: Record<string, unknown>,
-  field: keyof RegistrationStatusEventPayload,
-): string {
-  const value = payload[field];
-  if (typeof value !== 'string' || !value.trim()) {
-    throw new Error(`Registration outbox event is missing required payload field "${field}".`);
-  }
-
-  return value.trim();
-}
-
-function readRegistrationStatusPayload(
-  event: OutboundEventV1<unknown>,
-): RegistrationStatusEventPayload {
-  const payload = (event.payload || {}) as Record<string, unknown>;
-  const statusCode = readRequiredString(payload, 'statusCode') as RegistrationStatus;
-  const statusLabel = readRequiredString(payload, 'statusLabel');
-  const isPaid = payload.isPaid;
-
-  if (typeof isPaid !== 'boolean') {
-    throw new Error('Registration outbox event is missing required payload field "isPaid".');
-  }
-
-  return {
-    publicId: readRequiredString(payload, 'publicId'),
-    eventId: readRequiredString(payload, 'eventId'),
-    eventTitle: readRequiredString(payload, 'eventTitle'),
-    registrantName: readRequiredString(payload, 'registrantName'),
-    registrantEmail: readRequiredString(payload, 'registrantEmail'),
-    statusCode,
-    statusLabel,
-    userFacingReason:
-      typeof payload.userFacingReason === 'string' ? payload.userFacingReason : null,
-    isPaid,
-    previousStatusCode:
-      typeof payload.previousStatusCode === 'string'
-        ? (payload.previousStatusCode as RegistrationStatus)
-        : undefined,
-    previousStatusLabel:
-      typeof payload.previousStatusLabel === 'string' ? payload.previousStatusLabel : undefined,
-  };
 }
 
 async function dispatchOutboxJob(job: OutboxJob): Promise<void> {
@@ -101,23 +53,6 @@ async function dispatchOutboxJob(job: OutboxJob): Promise<void> {
       email: String(payload.email || ''),
       company: String(payload.company || ''),
       challenge: String(payload.challenge || ''),
-    });
-    return;
-  }
-
-  if (job.provider === 'email.registration') {
-    const registrationStatus = readRegistrationStatusPayload(event);
-    await providers.email.sendRegistrationStatusUpdate({
-      event,
-      publicId: registrationStatus.publicId,
-      eventId: registrationStatus.eventId,
-      eventTitle: registrationStatus.eventTitle,
-      registrantName: registrationStatus.registrantName,
-      registrantEmail: registrationStatus.registrantEmail,
-      statusCode: registrationStatus.statusCode,
-      statusLabel: registrationStatus.statusLabel,
-      userFacingReason: registrationStatus.userFacingReason ?? null,
-      isPaid: registrationStatus.isPaid,
     });
     return;
   }

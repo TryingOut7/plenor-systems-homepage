@@ -1,5 +1,4 @@
 import type { OutboundEventV1 } from '@plenor/contracts/events';
-import type { RegistrationStatus } from '@plenor/contracts/forms';
 
 export interface CrmProvider {
   send(event: OutboundEventV1): Promise<void>;
@@ -19,18 +18,6 @@ export interface EmailProvider {
     email: string;
     company: string;
     challenge: string;
-  }): Promise<void>;
-  sendRegistrationStatusUpdate(input: {
-    event: OutboundEventV1;
-    publicId: string;
-    eventId: string;
-    eventTitle: string;
-    registrantName: string;
-    registrantEmail: string;
-    statusCode: RegistrationStatus;
-    statusLabel: string;
-    userFacingReason: string | null;
-    isPaid: boolean;
   }): Promise<void>;
 }
 

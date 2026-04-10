@@ -1,5 +1,4 @@
 import type { OutboundEventV1 } from '@plenor/contracts/events';
-import type { RegistrationStatus } from '@plenor/contracts/forms';
 import { getGuideEmailTemplate } from '@/infrastructure/cms/emailTemplateGateway';
 import { getGuideFormEmailConfig } from '@/infrastructure/cms/guideFormEmailGateway';
 import {
@@ -10,7 +9,6 @@ import { queueCrmEvent } from '@/infrastructure/integrations/crmGateway';
 import {
   sendGuideDeliveryEmail,
   sendInquiryRoutingEmails,
-  sendRegistrationStatusEmail,
 } from '@/infrastructure/integrations/emailGateway';
 import { createStructuredLogger } from '@/lib/structuredLogger';
 import { SignedWebhookProvider } from './signedWebhookProvider';
@@ -88,30 +86,6 @@ class DefaultEmailProvider implements EmailProvider {
     });
   }
 
-  async sendRegistrationStatusUpdate(input: {
-    event: OutboundEventV1;
-    publicId: string;
-    eventId: string;
-    eventTitle: string;
-    registrantName: string;
-    registrantEmail: string;
-    statusCode: RegistrationStatus;
-    statusLabel: string;
-    userFacingReason: string | null;
-    isPaid: boolean;
-  }): Promise<void> {
-    await sendRegistrationStatusEmail({
-      publicId: input.publicId,
-      eventId: input.eventId,
-      eventTitle: input.eventTitle,
-      registrantName: input.registrantName,
-      registrantEmail: input.registrantEmail,
-      statusCode: input.statusCode,
-      statusLabel: input.statusLabel,
-      userFacingReason: input.userFacingReason,
-      isPaid: input.isPaid,
-    });
-  }
 }
 
 class DefaultPayloadFormsProvider implements PayloadFormsProvider {
