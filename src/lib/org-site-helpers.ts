@@ -11,11 +11,6 @@ export {
   type SpotlightCategory,
 } from '@/domain/org-site/constants';
 
-export {
-  getRegistrationStatusMessage,
-  getRegistrationStatusLabel,
-} from '@/domain/org-site/registrationStatusCopy';
-
 export type MediaAsset = {
   url: string;
   alt: string;

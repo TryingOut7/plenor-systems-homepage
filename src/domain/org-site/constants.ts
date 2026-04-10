@@ -30,16 +30,6 @@ export type AboutCategory = (typeof ABOUT_CATEGORIES)[number];
 export const LEARNING_CATEGORIES = ['knowledge_sharing', 'college_prep', 'mentorship'] as const;
 export type LearningCategory = (typeof LEARNING_CATEGORIES)[number];
 
-export const REGISTRATION_STATUSES = [
-  'submitted',
-  'payment_pending',
-  'payment_confirmation_submitted',
-  'payment_confirmed',
-  'registration_confirmed',
-  'cancelled_rejected',
-] as const;
-export type RegistrationStatus = (typeof REGISTRATION_STATUSES)[number];
-
 export const HOME_SECTION_KEYS = ['events', 'spotlight', 'learning', 'sponsors'] as const;
 export type HomeSectionKey = (typeof HOME_SECTION_KEYS)[number];
 

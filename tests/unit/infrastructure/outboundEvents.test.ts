@@ -58,4 +58,15 @@ describe('outbound event model', () => {
     ]);
   });
 
+  it('does not map unknown event types to inquiry integrations', () => {
+    const jobs = mapEventToOutboxJobs({
+      version: 'v1',
+      id: 'event-unknown',
+      type: 'unknown.event' as never,
+      occurredAt: new Date().toISOString(),
+      payload: {},
+    });
+
+    expect(jobs).toEqual([]);
+  });
 });

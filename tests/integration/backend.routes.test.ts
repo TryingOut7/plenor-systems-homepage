@@ -91,33 +91,6 @@ describe('backend route integration', () => {
     expect(body.message).toBe('Name is required (max 200 characters).');
   });
 
-  it('validates registration form payload', async () => {
-    const res = await app.inject({
-      method: 'POST',
-      url: '/v1/forms/registration',
-      headers: {
-        origin: 'http://localhost:3000',
-      },
-      payload: {},
-    });
-
-    expect(res.statusCode).toBe(400);
-    const body = res.json();
-    expect(body.success).toBe(false);
-    expect(body.code).toBe('VALIDATION_ERROR');
-    expect(body.message).toContain('eventId is required');
-  });
-
-  it('validates registration status public id format', async () => {
-    const res = await app.inject({
-      method: 'GET',
-      url: '/v1/forms/registration/not-a-uuid',
-    });
-
-    expect(res.statusCode).toBe(400);
-    expect(res.json().code).toBe('VALIDATION_ERROR');
-  });
-
   it('enforces auth for internal seed endpoint', async () => {
     const res = await app.inject({
       method: 'POST',
@@ -268,26 +241,6 @@ describe('backend route integration', () => {
       },
     });
     expect(adminAuthorized.statusCode).toBe(200);
-  });
-
-  it('enforces admin auth and idempotency-key on registration admin PATCH route', async () => {
-    const unauthorized = await app.inject({
-      method: 'PATCH',
-      url: '/v1/admin/registration-submissions/not-a-uuid',
-      payload: { status: 'submitted' },
-    });
-    expect(unauthorized.statusCode).toBe(401);
-
-    const missingIdempotency = await app.inject({
-      method: 'PATCH',
-      url: '/v1/admin/registration-submissions/not-a-uuid',
-      headers: {
-        'x-api-key': 'admin-test',
-      },
-      payload: { status: 'submitted' },
-    });
-    expect(missingIdempotency.statusCode).toBe(400);
-    expect(missingIdempotency.json().code).toBe('MISSING_IDEMPOTENCY_KEY');
   });
 
   it('serves integration status with internal/admin role key', async () => {

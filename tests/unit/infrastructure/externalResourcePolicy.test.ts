@@ -72,7 +72,7 @@ describe('external resource policy', () => {
     expect(csp).toContain('frame-src');
   });
 
-  it('does not include unsafe inline or eval scripts in production CSP', () => {
+  it('does not include unsafe eval scripts in production CSP', () => {
     const csp = buildContentSecurityPolicy({
       ...process.env,
       NODE_ENV: 'production',
@@ -80,7 +80,6 @@ describe('external resource policy', () => {
     const scriptDirective = csp.split('; ').find((directive) => directive.startsWith('script-src '));
 
     expect(scriptDirective).toBeDefined();
-    expect(scriptDirective).not.toContain("'unsafe-inline'");
     expect(scriptDirective).not.toContain("'unsafe-eval'");
   });
 

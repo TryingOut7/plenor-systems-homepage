@@ -89,6 +89,8 @@ export default async function RootLayout({
   const siteUrl = resolveSiteUrl(siteSettings);
   const contactEmail = resolveContactEmail(siteSettings);
   const analyticsId = siteSettings?.analyticsId;
+  const enableSpeedInsights =
+    process.env.VERCEL === '1' || process.env.ENABLE_VERCEL_SPEED_INSIGHTS === 'true';
 
   const jsonLd = siteSettings?.jsonLd;
   const sameAsUrls = jsonLd?.sameAs?.map((s) => s.url).filter(Boolean) as string[] | undefined;
@@ -164,7 +166,7 @@ export default async function RootLayout({
         {analyticsId && <ConsentGatedAnalytics analyticsId={analyticsId} />}
         {isDraftMode && <PayloadLivePreviewRefresh serverURL={livePreviewServerURL} />}
         {isDraftMode && <DraftModeBanner />}
-        <SpeedInsights />
+        {enableSpeedInsights && <SpeedInsights />}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}

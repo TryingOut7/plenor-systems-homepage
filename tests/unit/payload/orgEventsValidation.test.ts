@@ -3,18 +3,10 @@ import { OrgEvents } from '@/payload/collections/OrgEvents';
 
 type FieldWithValidate = {
   name?: string;
-  validate?: (value: unknown, args: { data?: unknown }) => true | string;
-};
-
-const richTextValue = {
-  root: {
-    children: [
-      {
-        type: 'paragraph',
-        children: [{ type: 'text', text: 'Bring your receipt and order reference.' }],
-      },
-    ],
-  },
+  validate?: (
+    value: unknown,
+    args: { data?: unknown; req?: unknown },
+  ) => true | string | Promise<true | string>;
 };
 
 function getFieldValidate(name: string): NonNullable<FieldWithValidate['validate']> {
@@ -26,50 +18,40 @@ function getFieldValidate(name: string): NonNullable<FieldWithValidate['validate
 }
 
 describe('OrgEvents conditional field validation', () => {
-  it('requires registration instructions when registration is required', () => {
-    const validate = getFieldValidate('registrationInstructions');
+  it('requires a standard registration form when registration is required', async () => {
+    const validate = getFieldValidate('registrationForm');
 
-    const missing = validate(undefined, { data: { registrationRequired: true } });
+    const missing = await validate(undefined, { data: { registrationRequired: true } });
     expect(typeof missing).toBe('string');
     if (typeof missing === 'string') {
-      expect(missing).toContain('Registration instructions');
+      expect(missing).toContain('registration form');
     }
 
-    expect(validate(richTextValue, { data: { registrationRequired: true } })).toBe(true);
-    expect(validate(undefined, { data: { registrationRequired: false } })).toBe(true);
-  });
-
-  it('requires payment reference format when payment is required', () => {
-    const validate = getFieldValidate('paymentReferenceFormat');
-
-    const missing = validate('', { data: { paymentRequired: true } });
-    expect(typeof missing).toBe('string');
-    if (typeof missing === 'string') {
-      expect(missing).toContain('Payment reference format');
-    }
-
-    expect(validate('Festival-LastName', { data: { paymentRequired: true } })).toBe(true);
-    expect(validate('', { data: { paymentRequired: false } })).toBe(true);
-  });
-
-  it('requires payment instructions or at least one payment QR code when payment is required', () => {
-    const validate = getFieldValidate('paymentInstructions');
-
-    const missing = validate(undefined, { data: { paymentRequired: true } });
-    expect(typeof missing).toBe('string');
-    if (typeof missing === 'string') {
-      expect(missing).toContain('payment instructions');
-    }
-
-    expect(validate(richTextValue, { data: { paymentRequired: true } })).toBe(true);
-    expect(
-      validate(undefined, {
-        data: {
-          paymentRequired: true,
-          zelleQrCode: { id: 123 },
+    await expect(
+      validate(123, {
+        data: { registrationRequired: true },
+        req: {
+          payload: {
+            findByID: async () => ({ id: 123, title: 'Event RSVP' }),
+          },
         },
       }),
-    ).toBe(true);
+    ).resolves.toBe(true);
+    await expect(validate(undefined, { data: { registrationRequired: false } })).resolves.toBe(true);
+  });
+
+  it('rejects guide or inquiry template forms for event registration', async () => {
+    const validate = getFieldValidate('registrationForm');
+
+    const result = await validate(123, {
+      data: { registrationRequired: true },
+      req: {
+        payload: {
+          findByID: async () => ({ id: 123, title: 'guide', templateKey: 'guide' }),
+        },
+      },
+    });
+
+    expect(result).toContain('template forms are not allowed');
   });
 });
-

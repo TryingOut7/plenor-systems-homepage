@@ -69,7 +69,17 @@ describe('formTemplateCreation service', () => {
 
   it('returns existing form when template already exists', async () => {
     const payload = buildMockPayload({
-      existing: [{ id: 42, title: 'Guide Download' }],
+      existing: [
+        {
+          id: 42,
+          title: 'Guide Download',
+          templateKey: 'guide',
+          fields: [{ blockType: 'email', name: 'email' }],
+          submitButtonLabel: 'Get My Free Guide',
+          confirmationType: 'message',
+          confirmationMessage: { root: {} },
+        },
+      ],
     });
 
     const result = await createOrGetFormTemplate({
@@ -106,9 +116,9 @@ describe('formTemplateCreation service', () => {
       expect.objectContaining({
         collection: 'forms',
         id: 'legacy_form',
-        data: {
+        data: expect.objectContaining({
           templateKey: 'guide',
-        },
+        }),
       }),
     );
     expect(result).toEqual({

@@ -57,7 +57,7 @@ describe('formBuilderNormalization', () => {
         operation: 'update',
         data: {
           title: 'Guide Form',
-          templateKey: 'newsletter',
+          templateKey: 'inquiry',
         },
         originalDoc: {
           templateKey: 'guide',

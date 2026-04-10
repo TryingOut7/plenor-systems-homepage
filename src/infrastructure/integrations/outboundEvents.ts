@@ -91,22 +91,26 @@ export function mapEventToOutboxJobs(
     ];
   }
 
-  return [
-    {
-      provider: 'crm',
-      payload: base,
-    },
-    {
-      provider: 'email.inquiry',
-      payload: base,
-    },
-    {
-      provider: 'payload.forms.inquiry',
-      payload: base,
-    },
-    {
-      provider: 'webhook',
-      payload: base,
-    },
-  ];
+  if (event.type === 'submission.inquiry.created') {
+    return [
+      {
+        provider: 'crm',
+        payload: base,
+      },
+      {
+        provider: 'email.inquiry',
+        payload: base,
+      },
+      {
+        provider: 'payload.forms.inquiry',
+        payload: base,
+      },
+      {
+        provider: 'webhook',
+        payload: base,
+      },
+    ];
+  }
+
+  return [];
 }

@@ -85,7 +85,6 @@ class DefaultEmailProvider implements EmailProvider {
       challenge: input.challenge,
     });
   }
-
 }
 
 class DefaultPayloadFormsProvider implements PayloadFormsProvider {
