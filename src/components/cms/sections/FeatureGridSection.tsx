@@ -45,7 +45,6 @@ export default function FeatureGridSection({
           <SectionHeading
             tag={hTag}
             style={{
-              fontFamily: 'var(--ui-font-display)',
               fontSize: hSize === 'md' ? 'clamp(26px, 3.5vw, 38px)' : hFontSize,
               fontWeight: 700,
               color: resolvedHeadingColor,
@@ -102,7 +101,6 @@ export default function FeatureGridSection({
                 ) : null}
                 <h3
                   style={{
-                    fontFamily: 'var(--ui-font-display)',
                     fontSize: '18px',
                     fontWeight: 700,
                     color: resolvedHeadingColor,

@@ -98,12 +98,12 @@ body {
 }
 
 h1, h2, h3 {
-  font-family: var(--ui-font-display);
+  font-family: var(--ui-font-body);
   letter-spacing: var(--ui-heading-letter-spacing);
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--ui-font-display);
+  font-family: var(--ui-font-body);
 }
 
 a {

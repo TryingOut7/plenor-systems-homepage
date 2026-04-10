@@ -50,7 +50,6 @@ export default function FormSection({
           <SectionHeading
             tag={hTag}
             style={{
-              fontFamily: 'var(--ui-font-display)',
               fontSize: hSize === 'md' ? 'clamp(26px, 3.5vw, 38px)' : hFontSize,
               fontWeight: 700,
               color: resolvedHeadingColor,

@@ -41,7 +41,6 @@ export default function StatsSection({
           <SectionHeading
             tag={hTag}
             style={{
-              fontFamily: 'var(--ui-font-display)',
               fontSize: hSize === 'md' ? 'clamp(26px, 3.5vw, 38px)' : hFontSize,
               fontWeight: 700,
               color: resolvedHeadingColor,
@@ -71,7 +70,7 @@ export default function StatsSection({
               <div key={`${sectionKey}-stat-${statIndex}`} style={{ textAlign: 'center' }}>
                 <p
                   style={{
-                    fontFamily: 'var(--ui-font-display)',
+                    fontFamily: 'var(--ui-font-body)',
                     fontSize: 'clamp(36px, 5vw, 48px)',
                     fontWeight: 700,
                     lineHeight: 1,

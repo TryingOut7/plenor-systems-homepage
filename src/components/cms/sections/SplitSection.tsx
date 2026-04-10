@@ -96,7 +96,6 @@ export default function SplitSection({
           <SectionHeading
             tag={hTag}
             style={{
-              fontFamily: 'var(--ui-font-display)',
               fontSize: hSize === 'md' ? 'clamp(24px, 3.5vw, 36px)' : hFontSize,
               fontWeight: 700,
               color: resolvedHeadingColor,

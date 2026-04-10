@@ -136,7 +136,6 @@ export default function HeroSection({
         <SectionHeading
           tag={hTag === 'h2' ? 'h1' : hTag}
           style={{
-            fontFamily: 'var(--ui-font-display)',
             fontSize: hSize === 'md' ? 'clamp(36px, 5vw, 60px)' : hFontSize,
             lineHeight: 1.18,
             marginBottom: '20px',

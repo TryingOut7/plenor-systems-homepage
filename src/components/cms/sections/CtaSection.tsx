@@ -46,7 +46,6 @@ export default function CtaSection({
           <SectionHeading
             tag={hTag}
             style={{
-              fontFamily: 'var(--ui-font-display)',
               fontSize: hSize === 'md' ? 'clamp(26px, 4vw, 40px)' : hFontSize,
               color:
                 theme === 'white' || theme === 'light'
