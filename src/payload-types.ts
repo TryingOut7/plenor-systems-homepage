@@ -1847,7 +1847,7 @@ export interface SitePage {
              */
             headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
             /**
-             * The event whose configured registration form to render. Set the form on the Org Event record.
+             * The event whose configured standard registration form to render. Set the form on the Org Event record.
              */
             event: number | OrgEvent;
             id?: string | null;
@@ -2799,7 +2799,7 @@ export interface OrgEvent {
   displayPriority?: number | null;
   registrationRequired?: boolean | null;
   /**
-   * Select a standard Payload form for this event. Submissions will appear under Form Submissions.
+   * Select a standard, non-template Payload form for this event. Guide, inquiry, and newsletter template forms are not allowed. Submissions will appear under Form Submissions.
    */
   registrationForm?: (number | null) | Form;
   /**
@@ -4596,7 +4596,7 @@ export interface ReusableSection {
              */
             headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
             /**
-             * The event whose configured registration form to render. Set the form on the Org Event record.
+             * The event whose configured standard registration form to render. Set the form on the Org Event record.
              */
             event: number | OrgEvent;
             id?: string | null;
@@ -6535,7 +6535,7 @@ export interface PageDraft {
              */
             headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
             /**
-             * The event whose configured registration form to render. Set the form on the Org Event record.
+             * The event whose configured standard registration form to render. Set the form on the Org Event record.
              */
             event: number | OrgEvent;
             id?: string | null;
@@ -8472,7 +8472,7 @@ export interface PagePreset {
              */
             headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
             /**
-             * The event whose configured registration form to render. Set the form on the Org Event record.
+             * The event whose configured standard registration form to render. Set the form on the Org Event record.
              */
             event: number | OrgEvent;
             id?: string | null;
@@ -10379,7 +10379,7 @@ export interface PagePlayground {
              */
             headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
             /**
-             * The event whose configured registration form to render. Set the form on the Org Event record.
+             * The event whose configured standard registration form to render. Set the form on the Org Event record.
              */
             event: number | OrgEvent;
             id?: string | null;

@@ -14,7 +14,7 @@ export const OrgEventRegistrationSection: Block = {
       required: true,
       admin: {
         description:
-          'The event whose configured registration form to render. Set the form on the Org Event record.',
+          'The event whose configured standard registration form to render. Set the form on the Org Event record.',
       },
     },
   ],

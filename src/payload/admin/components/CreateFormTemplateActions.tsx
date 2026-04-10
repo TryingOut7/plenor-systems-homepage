@@ -10,14 +10,13 @@ type UserRecord = {
 };
 
 type TemplateOption = {
-  key: 'guide' | 'inquiry' | 'newsletter';
+  key: 'guide' | 'inquiry';
   label: string;
 };
 
 const TEMPLATE_OPTIONS: TemplateOption[] = [
   { key: 'guide', label: 'Guide Template' },
   { key: 'inquiry', label: 'Inquiry Template' },
-  { key: 'newsletter', label: 'Newsletter Template' },
 ];
 
 function resolveAdminBasePath(): string {
@@ -46,7 +45,7 @@ const CreateFormTemplateActions = (
   _props: BeforeListClientProps,
 ) => {
   const { permissions, user } = useAuth<UserRecord>();
-  const [submittingKey, setSubmittingKey] = useState<null | 'guide' | 'inquiry' | 'newsletter'>(null);
+  const [submittingKey, setSubmittingKey] = useState<null | 'guide' | 'inquiry'>(null);
 
   const canCreate = canRunCollectionAction({
     collectionSlug: 'forms',

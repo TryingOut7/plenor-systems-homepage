@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, PayloadRequest } from 'payload';
 import {
   BoldFeature,
   InlineToolbarFeature,
@@ -31,6 +31,7 @@ import {
   toPayloadOptions,
   validateOrgSlug,
 } from '../../domain/org-site/constants.ts';
+import { parseFormTemplateKey } from '../../domain/forms/formTemplates.ts';
 
 const richTextEditor = lexicalEditor({
   features: () => [
@@ -66,6 +67,17 @@ function hasRelationshipReference(value: unknown): boolean {
   if (typeof record.id === 'string') return record.id.trim().length > 0;
   if (typeof record.url === 'string') return record.url.trim().length > 0;
   return false;
+}
+
+function readRelationshipReferenceId(value: unknown): number | string | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim().length > 0) return value.trim();
+  if (!value || typeof value !== 'object') return null;
+
+  const record = value as Record<string, unknown>;
+  if (typeof record.id === 'number' && Number.isFinite(record.id)) return record.id;
+  if (typeof record.id === 'string' && record.id.trim().length > 0) return record.id.trim();
+  return null;
 }
 
 export const OrgEvents: CollectionConfig = {
@@ -247,16 +259,49 @@ export const OrgEvents: CollectionConfig = {
       name: 'registrationForm',
       type: 'relationship',
       relationTo: 'forms',
-      validate: (value: unknown, { data }: { data?: unknown }) => {
+      filterOptions: {
+        templateKey: { exists: false },
+      },
+      validate: async (
+        value: unknown,
+        { data, req }: { data?: unknown; req: PayloadRequest },
+      ) => {
         const incoming = asEventValidationData(data);
         if (incoming.registrationRequired !== true) return true;
-        if (hasRelationshipReference(value)) return true;
-        return 'Select a registration form when registration is required.';
+        if (!hasRelationshipReference(value)) {
+          return 'Select a registration form when registration is required.';
+        }
+
+        const formId = readRelationshipReferenceId(value);
+        if (!formId) {
+          return 'Select a registration form when registration is required.';
+        }
+
+        try {
+          const form = await req.payload.findByID({
+            collection: 'forms',
+            id: formId,
+            depth: 0,
+            overrideAccess: true,
+          });
+          const templateKey =
+            form && typeof form === 'object'
+              ? parseFormTemplateKey((form as { templateKey?: unknown }).templateKey)
+              : null;
+
+          if (templateKey) {
+            return `Event registration must use a standard form. "${templateKey}" template forms are not allowed here.`;
+          }
+        } catch {
+          return 'Selected registration form could not be loaded. Choose a standard form from the Forms collection.';
+        }
+
+        return true;
       },
       admin: {
         condition: (data) => !!data?.registrationRequired,
         description:
-          'Select a standard Payload form for this event. Submissions will appear under Form Submissions.',
+          'Select a standard, non-template Payload form for this event. Guide, inquiry, and newsletter template forms are not allowed. Submissions will appear under Form Submissions.',
       },
     },
     {

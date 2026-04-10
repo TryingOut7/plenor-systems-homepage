@@ -72,6 +72,23 @@ export async function resolveGuideFormForEmail(
   return findGuideFormById(fallbackId);
 }
 
+/**
+ * Resolves the email configuration for a guide form submission.
+ *
+ * Precedence order (highest → lowest):
+ *   1. Plugin-native per-form `emails` blocks on the Payload form document —
+ *      if any block has a non-empty `emailTo` or `subject`, Payload's forms
+ *      plugin sends those emails directly and the application layer skips
+ *      its own sending logic entirely. (`hasCustomEmails === true`)
+ *   2. Per-form `emailTemplate` relation — a reusable EmailTemplates document
+ *      linked on the form itself. Used by the application layer when
+ *      `hasCustomEmails === false`.
+ *   3. Site Settings `guideForm` email/content defaults — site-wide fallback
+ *      body copy consumed by the application service when no emailTemplate
+ *      is set on the form.
+ *   4. Hardcoded defaults in the application service — last resort, no CMS
+ *      config required.
+ */
 export async function getGuideFormEmailConfig(
   requestedFormId?: string | number,
 ): Promise<{

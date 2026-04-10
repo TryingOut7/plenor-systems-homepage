@@ -23,7 +23,7 @@ interface FormField {
 interface FormData {
   id: string;
   title: string;
-  templateKey?: 'guide' | 'inquiry' | 'newsletter';
+  templateKey?: 'guide' | 'inquiry';
   emailTemplate?: { id: string | number } | string | number | null;
   fields: FormField[];
   submitButtonLabel?: string;

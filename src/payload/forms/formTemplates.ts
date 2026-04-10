@@ -78,30 +78,14 @@ const INQUIRY_FORM_TEMPLATE: FormTemplate = {
   ),
 };
 
-const NEWSLETTER_FORM_TEMPLATE: FormTemplate = {
-  key: 'newsletter',
-  label: 'Newsletter',
-  title: 'newsletter',
-  lookupTitles: ['newsletter', 'Newsletter'],
-  fields: [
-    { blockType: 'email', name: 'email', label: 'Email Address', required: true },
-  ],
-  submitButtonLabel: 'Subscribe',
-  confirmationMessage: lexicalParagraph(
-    "Thanks for subscribing! You're on the list.",
-  ),
-};
-
 export const FORM_TEMPLATES: FormTemplate[] = [
   GUIDE_FORM_TEMPLATE,
   INQUIRY_FORM_TEMPLATE,
-  NEWSLETTER_FORM_TEMPLATE,
 ];
 
 const FORM_TEMPLATE_BY_KEY: Record<FormTemplateKey, FormTemplate> = {
   guide: GUIDE_FORM_TEMPLATE,
   inquiry: INQUIRY_FORM_TEMPLATE,
-  newsletter: NEWSLETTER_FORM_TEMPLATE,
 };
 
 export function resolveFormTemplate(key: unknown): FormTemplate | null {

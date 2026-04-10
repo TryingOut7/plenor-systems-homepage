@@ -1,4 +1,4 @@
-export const FORM_TEMPLATE_KEYS = ['guide', 'inquiry', 'newsletter'] as const;
+export const FORM_TEMPLATE_KEYS = ['guide', 'inquiry'] as const;
 
 export type FormTemplateKey = (typeof FORM_TEMPLATE_KEYS)[number];
 
@@ -34,11 +34,7 @@ export function isFormAliasKey(value: unknown): value is FormAliasKey {
 }
 
 export function isFormTemplateKey(value: unknown): value is FormTemplateKey {
-  return (
-    value === 'guide' ||
-    value === 'inquiry' ||
-    value === 'newsletter'
-  );
+  return value === 'guide' || value === 'inquiry';
 }
 
 export function parseFormTemplateKey(value: unknown): FormTemplateKey | null {

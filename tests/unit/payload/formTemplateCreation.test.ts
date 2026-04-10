@@ -87,40 +87,6 @@ describe('formTemplateCreation service', () => {
     });
   });
 
-  it('creates a newsletter template with a subscribe CTA', async () => {
-    const payload = buildMockPayload();
-
-    const result = await createOrGetFormTemplate({
-      payload: payload as unknown as Payload,
-      templateKey: 'newsletter',
-      user: { id: 'user_3', role: 'editor' } as unknown as TypedUser,
-    });
-
-    expect(payload.create).toHaveBeenCalledTimes(1);
-    const createArgs = payload.create.mock.calls[0][0];
-    expect(createArgs.data).toEqual(
-      expect.objectContaining({
-        title: 'newsletter',
-        templateKey: 'newsletter',
-        submitButtonLabel: 'Subscribe',
-        confirmationType: 'message',
-      }),
-    );
-    expect(createArgs.data.fields).toEqual([
-      expect.objectContaining({
-        blockType: 'email',
-        name: 'email',
-        required: true,
-      }),
-    ]);
-
-    expect(result).toEqual({
-      created: true,
-      id: 'form_123',
-      title: 'newsletter',
-    });
-  });
-
   it('backfills templateKey on legacy title-only matches', async () => {
     const payload = buildMockPayload({
       findResponses: [
