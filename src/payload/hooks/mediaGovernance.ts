@@ -2,6 +2,7 @@ import type { CollectionBeforeChangeHook } from 'payload';
 import { isNonLocalRuntime } from '../../lib/runtime.ts';
 
 type RecordValue = Record<string, unknown>;
+const MIN_ALT_TEXT_LENGTH = 3;
 
 function readRole(user: unknown): string {
   if (!user || typeof user !== 'object') return '';
@@ -60,8 +61,10 @@ export const mediaGovernanceBeforeChange: CollectionBeforeChangeHook = ({
     deriveAltFromFilename(original.originalFilename);
   const alt = explicitAlt || derivedAlt;
 
-  if (alt.length < 8) {
-    throw new Error('Media governance: alt text must be at least 8 characters for accessibility.');
+  if (alt.length < MIN_ALT_TEXT_LENGTH) {
+    throw new Error(
+      `Media governance: alt text must be at least ${MIN_ALT_TEXT_LENGTH} characters and descriptive enough for accessibility.`,
+    );
   }
   incoming.alt = alt;
 

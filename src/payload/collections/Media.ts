@@ -57,6 +57,9 @@ export const Media: CollectionConfig = {
       name: 'alt',
       type: 'text',
       required: true,
+      admin: {
+        description: 'Required. Describe what the image shows, for example "Plenor square logo" or "Team photo at launch event".',
+      },
     },
     {
       name: 'caption',

@@ -30,10 +30,19 @@ describe('media governance hook', () => {
   it('requires alt text minimum length', () => {
     expect(() =>
       mediaGovernanceBeforeChange({
-        data: { alt: 'short' },
+        data: { alt: 'ok' },
         req: { user: { role: 'editor' } },
       } as never),
     ).toThrow('alt text');
+  });
+
+  it('allows short but meaningful alt text for compact assets like logos', () => {
+    const result = mediaGovernanceBeforeChange({
+      data: { alt: 'IBM' },
+      req: { user: { role: 'editor' } },
+    } as never) as Record<string, unknown>;
+
+    expect(result.alt).toBe('IBM');
   });
 
   it('derives alt text from filename when alt is omitted', () => {
