@@ -138,7 +138,7 @@ export default function HeroSection({
           style={{
             fontFamily: 'var(--ui-font-display)',
             fontSize: hSize === 'md' ? 'clamp(36px, 5vw, 60px)' : hFontSize,
-            lineHeight: 1.1,
+            lineHeight: 1.18,
             marginBottom: '20px',
             color: hasBgMedia ? '#ffffff' : resolvedHeadingColor,
           }}

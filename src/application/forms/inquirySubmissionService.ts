@@ -1,6 +1,10 @@
 import type { RequestContext } from '@/application/shared/requestContext';
 import { fail, ok, type ServiceResult } from '@/application/shared/serviceResult';
 import {
+  dispatchInquirySubmissionFallback,
+  shouldAttemptSubmissionFallback,
+} from '@/application/forms/persistenceFallback';
+import {
   validateInquirySubmission,
   type InquirySubmissionInput,
 } from '@/domain/forms/inquirySubmission';
@@ -88,6 +92,25 @@ export async function submitInquiryForm(
       });
     } catch (dbError) {
       const err = dbError instanceof Error ? dbError : new Error(String(dbError));
+      if (shouldAttemptSubmissionFallback(err)) {
+        console.warn('Inquiry submission persistence unavailable; using direct fallback.', {
+          requestId: context.requestId,
+          input: redactInquiryLogPayload(entry),
+          errorMessage: err.message,
+        });
+
+        const fallbackSucceeded = await dispatchInquirySubmissionFallback({
+          name: entry.name,
+          email: entry.email,
+          company: entry.company,
+          challenge: entry.challenge,
+        });
+
+        if (fallbackSucceeded) {
+          return ok({ success: true });
+        }
+      }
+
       console.error('Inquiry submission persistence failed.', {
         requestId: context.requestId,
         input: redactInquiryLogPayload(entry),

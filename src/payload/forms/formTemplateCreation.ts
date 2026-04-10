@@ -1,23 +1,11 @@
 import type { Payload, RequiredDataFromCollectionSlug, TypedUser } from 'payload';
 import { resolveFormTemplate, type FormTemplateKey } from './formTemplates';
+import {
+  buildFormTemplateData,
+  buildFormTemplateRepairData,
+} from './formTemplateData';
 
 type UnknownRecord = Record<string, unknown>;
-
-function cloneValue<T>(value: T): T {
-  if (Array.isArray(value)) {
-    return value.map((entry) => cloneValue(entry)) as T;
-  }
-
-  if (value && typeof value === 'object') {
-    const cloned: UnknownRecord = {};
-    for (const [key, nestedValue] of Object.entries(value as UnknownRecord)) {
-      cloned[key] = cloneValue(nestedValue);
-    }
-    return cloned as T;
-  }
-
-  return value;
-}
 
 function readTrimmedString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
@@ -41,6 +29,7 @@ export async function createOrGetFormTemplate(args: {
       },
     },
     limit: 1,
+    sort: 'id',
     depth: 0,
     overrideAccess: false,
     user: args.user,
@@ -48,9 +37,24 @@ export async function createOrGetFormTemplate(args: {
 
   if (existingByKey.docs.length > 0) {
     const existingRecord = existingByKey.docs[0] as unknown as UnknownRecord;
+    const existingId = (existingRecord.id as number | string) ?? '';
+    const repairData = buildFormTemplateRepairData({
+      existing: existingRecord,
+      templateKey: template.key,
+    });
+    if (existingId && repairData) {
+      await args.payload.update({
+        collection: 'forms',
+        id: existingId,
+        depth: 0,
+        overrideAccess: false,
+        user: args.user,
+        data: repairData,
+      });
+    }
     return {
       created: false,
-      id: (existingRecord.id as number | string) ?? '',
+      id: existingId,
       title: readTrimmedString(existingRecord.title) || template.title,
     };
   }
@@ -65,6 +69,7 @@ export async function createOrGetFormTemplate(args: {
       })),
     },
     limit: 1,
+    sort: 'id',
     depth: 0,
     overrideAccess: false,
     user: args.user,
@@ -73,18 +78,19 @@ export async function createOrGetFormTemplate(args: {
   if (existing.docs.length > 0) {
     const existingRecord = existing.docs[0] as unknown as UnknownRecord;
     const existingId = (existingRecord.id as number | string) ?? '';
-    const existingTemplateKey = readTrimmedString(existingRecord.templateKey);
+    const repairData = buildFormTemplateRepairData({
+      existing: existingRecord,
+      templateKey: template.key,
+    });
 
-    if (existingId && existingTemplateKey !== template.key) {
+    if (existingId && repairData) {
       await args.payload.update({
         collection: 'forms',
         id: existingId,
         depth: 0,
         overrideAccess: false,
         user: args.user,
-        data: {
-          templateKey: template.key,
-        },
+        data: repairData,
       });
     }
 
@@ -100,14 +106,7 @@ export async function createOrGetFormTemplate(args: {
     depth: 0,
     overrideAccess: false,
     user: args.user,
-    data: {
-      title: template.title,
-      templateKey: template.key,
-      fields: cloneValue(template.fields),
-      submitButtonLabel: template.submitButtonLabel,
-      confirmationType: 'message',
-      confirmationMessage: cloneValue(template.confirmationMessage),
-    } as unknown as RequiredDataFromCollectionSlug<'forms'>,
+    data: buildFormTemplateData(template.key) as RequiredDataFromCollectionSlug<'forms'>,
   });
 
   const createdRecord = created as unknown as UnknownRecord;

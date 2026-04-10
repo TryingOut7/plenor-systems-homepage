@@ -1,6 +1,10 @@
 import type { RequiredDataFromCollectionSlug } from 'payload';
 import { getPayload } from '@/payload/client';
 import { FORM_TEMPLATES } from '@/payload/forms/formTemplates';
+import {
+  buildFormTemplateData,
+  buildFormTemplateRepairData,
+} from '@/payload/forms/formTemplateData';
 
 type SeedFormItem = {
   title: string;
@@ -31,21 +35,26 @@ export async function seedForms(): Promise<SeedFormsResult> {
         ],
       },
       limit: 1,
+      sort: 'id',
       depth: 0,
       overrideAccess: true,
     });
 
     if (found.docs.length > 0) {
-      const existingDoc = found.docs[0] as { id?: string | number; templateKey?: unknown };
-      if (existingDoc.id && existingDoc.templateKey !== template.key) {
+      const existingDoc = found.docs[0] as unknown as Record<string, unknown> & {
+        id?: string | number;
+      };
+      const repairData = buildFormTemplateRepairData({
+        existing: existingDoc,
+        templateKey: template.key,
+      });
+      if (existingDoc.id && repairData) {
         await payload.update({
           collection: 'forms',
           id: existingDoc.id,
           overrideAccess: true,
           depth: 0,
-          data: {
-            templateKey: template.key,
-          },
+          data: repairData,
         });
       }
 
@@ -60,14 +69,7 @@ export async function seedForms(): Promise<SeedFormsResult> {
 
     const createdDoc = await payload.create({
       collection: 'forms',
-      data: {
-        title: template.title,
-        templateKey: template.key,
-        fields: template.fields,
-        submitButtonLabel: template.submitButtonLabel,
-        confirmationType: 'message',
-        confirmationMessage: template.confirmationMessage,
-      } as unknown as RequiredDataFromCollectionSlug<'forms'>,
+      data: buildFormTemplateData(template.key) as RequiredDataFromCollectionSlug<'forms'>,
       overrideAccess: true,
     });
 

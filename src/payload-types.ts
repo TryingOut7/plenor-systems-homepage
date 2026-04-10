@@ -1847,7 +1847,7 @@ export interface SitePage {
              */
             headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
             /**
-             * The event whose registration form to render.
+             * The event whose configured registration form to render. Set the form on the Org Event record.
              */
             event: number | OrgEvent;
             id?: string | null;
@@ -2799,11 +2799,11 @@ export interface OrgEvent {
   displayPriority?: number | null;
   registrationRequired?: boolean | null;
   /**
-   * Requires registrationRequired to be true.
+   * Select a standard Payload form for this event. Submissions will appear under Form Submissions.
    */
-  paymentRequired?: boolean | null;
+  registrationForm?: (number | null) | Form;
   /**
-   * Instructions shown to registrants. One submission per event+email is allowed; for group registrations, use participantCount in a single submission.
+   * Optional instructions shown above the registration form.
    */
   registrationInstructions?: {
     root: {
@@ -2820,48 +2820,6 @@ export interface OrgEvent {
     };
     [k: string]: unknown;
   } | null;
-  /**
-   * Required note/reference format for payment (e.g. "EventName-LastName").
-   */
-  paymentReferenceFormat?: string | null;
-  /**
-   * Zelle payment QR code image.
-   */
-  zelleQrCode?: (number | null) | Media;
-  /**
-   * Venmo payment QR code image.
-   */
-  venmoQrCode?: (number | null) | Media;
-  /**
-   * Detailed payment instructions including anti-fraud disclaimer.
-   */
-  paymentInstructions?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Maximum registrations (leave empty for unlimited).
-   */
-  maxRegistrations?: number | null;
-  /**
-   * When registration opens (optional).
-   */
-  registrationOpensAt?: string | null;
-  /**
-   * When registration closes (optional).
-   */
-  registrationClosesAt?: string | null;
   /**
    * Informational: when this event becomes visible as "current".
    */
@@ -4638,7 +4596,7 @@ export interface ReusableSection {
              */
             headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
             /**
-             * The event whose registration form to render.
+             * The event whose configured registration form to render. Set the form on the Org Event record.
              */
             event: number | OrgEvent;
             id?: string | null;
@@ -6577,7 +6535,7 @@ export interface PageDraft {
              */
             headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
             /**
-             * The event whose registration form to render.
+             * The event whose configured registration form to render. Set the form on the Org Event record.
              */
             event: number | OrgEvent;
             id?: string | null;
@@ -8514,7 +8472,7 @@ export interface PagePreset {
              */
             headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
             /**
-             * The event whose registration form to render.
+             * The event whose configured registration form to render. Set the form on the Org Event record.
              */
             event: number | OrgEvent;
             id?: string | null;
@@ -10421,7 +10379,7 @@ export interface PagePlayground {
              */
             headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
             /**
-             * The event whose registration form to render.
+             * The event whose configured registration form to render. Set the form on the Org Event record.
              */
             event: number | OrgEvent;
             id?: string | null;
@@ -15763,15 +15721,8 @@ export interface OrgEventsSelect<T extends boolean = true> {
   isFeatured?: T;
   displayPriority?: T;
   registrationRequired?: T;
-  paymentRequired?: T;
+  registrationForm?: T;
   registrationInstructions?: T;
-  paymentReferenceFormat?: T;
-  zelleQrCode?: T;
-  venmoQrCode?: T;
-  paymentInstructions?: T;
-  maxRegistrations?: T;
-  registrationOpensAt?: T;
-  registrationClosesAt?: T;
   displayWindowStart?: T;
   displayWindowEnd?: T;
   relatedSpotlight?: T;

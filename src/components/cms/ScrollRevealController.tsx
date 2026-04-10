@@ -26,8 +26,14 @@ export default function ScrollRevealController() {
           entries.forEach((entry) => {
             if (!entry.isIntersecting) return;
             const element = entry.target as HTMLElement;
+            element.style.willChange = 'opacity, transform';
             setRevealState(element, 'entered');
             observer?.unobserve(element);
+            element.addEventListener(
+              'transitionend',
+              () => { element.style.willChange = ''; },
+              { once: true },
+            );
           });
         },
         {

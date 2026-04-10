@@ -114,8 +114,14 @@ export default function Footer({
                       rel="noopener noreferrer"
                       aria-label={`${link.label} (opens in new tab)`}
                       className="footer-link footer-social-link"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                     >
                       {link.label}
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0, opacity: 0.7 }}>
+                        <path d="M5 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V7" />
+                        <polyline points="8 1 11 1 11 4" />
+                        <line x1="11" y1="1" x2="5.5" y2="6.5" />
+                      </svg>
                     </a>
                   ))}
                 </div>

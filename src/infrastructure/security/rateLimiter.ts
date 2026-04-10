@@ -24,6 +24,24 @@ type RateLimitPolicy = {
 
 const routePolicies: Array<{ path: string; policy: RateLimitPolicy }> = [
   {
+    path: '/api/guide',
+    policy: {
+      // Public lead forms should degrade to process-local throttling rather than
+      // becoming unavailable if the shared Supabase-backed limiter is down.
+      allowInMemoryFallbackWhenPersistentUnavailable: true,
+      windowMs: DEFAULT_WINDOW_MS,
+      maxRequests: DEFAULT_MAX_REQUESTS,
+    },
+  },
+  {
+    path: '/api/inquiry',
+    policy: {
+      allowInMemoryFallbackWhenPersistentUnavailable: true,
+      windowMs: DEFAULT_WINDOW_MS,
+      maxRequests: DEFAULT_MAX_REQUESTS,
+    },
+  },
+  {
     path: '/api/draft-mode/enable',
     policy: {
       // Live preview can open multiple tabs/iframes and re-trigger preview enables.

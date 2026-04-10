@@ -8,6 +8,7 @@ import * as migration_20260407_000000 from './20260407_000000';
 import * as migration_20260408_075601 from './20260408_075601';
 import * as migration_20260408_193202_org_feed_section from './20260408_193202_org_feed_section';
 import * as migration_20260408_230557_org_detail_sections_and_feed_path from './20260408_230557_org_detail_sections_and_feed_path';
+import * as migration_20260410_123000_event_registration_form from './20260410_123000_event_registration_form';
 
 export const migrations = [
   {
@@ -59,5 +60,10 @@ export const migrations = [
     up: migration_20260408_230557_org_detail_sections_and_feed_path.up,
     down: migration_20260408_230557_org_detail_sections_and_feed_path.down,
     name: '20260408_230557_org_detail_sections_and_feed_path'
+  },
+  {
+    up: migration_20260410_123000_event_registration_form.up,
+    down: migration_20260410_123000_event_registration_form.down,
+    name: '20260410_123000_event_registration_form'
   },
 ];

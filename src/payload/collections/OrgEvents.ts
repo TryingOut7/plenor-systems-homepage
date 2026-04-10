@@ -31,7 +31,6 @@ import {
   toPayloadOptions,
   validateOrgSlug,
 } from '../../domain/org-site/constants.ts';
-import { validateImageUploadReference } from '../validation/media.ts';
 
 const richTextEditor = lexicalEditor({
   features: () => [
@@ -49,9 +48,7 @@ const richTextEditor = lexicalEditor({
 
 type EventValidationData = {
   registrationRequired?: unknown;
-  paymentRequired?: unknown;
-  zelleQrCode?: unknown;
-  venmoQrCode?: unknown;
+  registrationForm?: unknown;
 };
 
 function asEventValidationData(data: unknown): EventValidationData {
@@ -59,31 +56,7 @@ function asEventValidationData(data: unknown): EventValidationData {
   return data as EventValidationData;
 }
 
-function hasRichTextContent(value: unknown): boolean {
-  if (!value || typeof value !== 'object') return false;
-
-  const queue: unknown[] = [value];
-  while (queue.length > 0) {
-    const current = queue.pop();
-    if (!current || typeof current !== 'object') continue;
-
-    if (Array.isArray(current)) {
-      queue.push(...current);
-      continue;
-    }
-
-    const node = current as Record<string, unknown>;
-    if (typeof node.text === 'string' && node.text.trim().length > 0) return true;
-
-    for (const nested of Object.values(node)) {
-      if (nested && typeof nested === 'object') queue.push(nested);
-    }
-  }
-
-  return false;
-}
-
-function hasUploadReference(value: unknown): boolean {
+function hasRelationshipReference(value: unknown): boolean {
   if (typeof value === 'number') return Number.isFinite(value);
   if (typeof value === 'string') return value.trim().length > 0;
   if (!value || typeof value !== 'object') return false;
@@ -263,7 +236,7 @@ export const OrgEvents: CollectionConfig = {
       },
     },
 
-    // ─── Registration & Payment ────────────────────────────────────────
+    // ─── Registration ──────────────────────────────────────────────────
     {
       name: 'registrationRequired',
       type: 'checkbox',
@@ -271,118 +244,28 @@ export const OrgEvents: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     {
-      name: 'paymentRequired',
-      type: 'checkbox',
-      defaultValue: false,
-      admin: {
-        position: 'sidebar',
-        description: 'Requires registrationRequired to be true.',
+      name: 'registrationForm',
+      type: 'relationship',
+      relationTo: 'forms',
+      validate: (value: unknown, { data }: { data?: unknown }) => {
+        const incoming = asEventValidationData(data);
+        if (incoming.registrationRequired !== true) return true;
+        if (hasRelationshipReference(value)) return true;
+        return 'Select a registration form when registration is required.';
       },
-      validate: (value, { data }) => {
-        const incoming = data as { registrationRequired?: unknown } | undefined;
-        if (value && incoming?.registrationRequired !== true) {
-          return 'Payment cannot be required if registration is not required.';
-        }
-        return true;
+      admin: {
+        condition: (data) => !!data?.registrationRequired,
+        description:
+          'Select a standard Payload form for this event. Submissions will appear under Form Submissions.',
       },
     },
     {
       name: 'registrationInstructions',
       type: 'richText',
       editor: richTextEditor,
-      validate: (value: unknown, { data }: { data?: unknown }) => {
-        const incoming = asEventValidationData(data);
-        if (incoming.registrationRequired !== true) return true;
-        if (hasRichTextContent(value)) return true;
-        return 'Registration instructions are required when registration is required.';
-      },
       admin: {
         condition: (data) => !!data?.registrationRequired,
-        description:
-          'Instructions shown to registrants. One submission per event+email is allowed; for group registrations, use participantCount in a single submission.',
-      },
-    },
-    {
-      name: 'paymentReferenceFormat',
-      type: 'text',
-      validate: (value: unknown, { data }: { data?: unknown }) => {
-        const incoming = asEventValidationData(data);
-        if (incoming.paymentRequired !== true) return true;
-        if (typeof value === 'string' && value.trim().length > 0) return true;
-        return 'Payment reference format is required when payment is required.';
-      },
-      admin: {
-        condition: (data) => !!data?.paymentRequired,
-        description: 'Required note/reference format for payment (e.g. "EventName-LastName").',
-      },
-    },
-    {
-      name: 'zelleQrCode',
-      type: 'upload',
-      relationTo: 'media',
-      validate: validateImageUploadReference,
-      admin: {
-        condition: (data) => !!data?.paymentRequired,
-        description: 'Zelle payment QR code image.',
-      },
-    },
-    {
-      name: 'venmoQrCode',
-      type: 'upload',
-      relationTo: 'media',
-      validate: validateImageUploadReference,
-      admin: {
-        condition: (data) => !!data?.paymentRequired,
-        description: 'Venmo payment QR code image.',
-      },
-    },
-    {
-      name: 'paymentInstructions',
-      type: 'richText',
-      editor: richTextEditor,
-      validate: (value: unknown, { data }: { data?: unknown }) => {
-        const incoming = asEventValidationData(data);
-        if (incoming.paymentRequired !== true) return true;
-
-        const hasInstructions = hasRichTextContent(value);
-        const hasPaymentQrCode =
-          hasUploadReference(incoming.zelleQrCode) || hasUploadReference(incoming.venmoQrCode);
-
-        if (hasInstructions || hasPaymentQrCode) return true;
-        return 'Provide payment instructions or at least one payment QR code when payment is required.';
-      },
-      admin: {
-        condition: (data) => !!data?.paymentRequired,
-        description: 'Detailed payment instructions including anti-fraud disclaimer.',
-      },
-    },
-
-    // ─── Capacity ──────────────────────────────────────────────────────
-    {
-      name: 'maxRegistrations',
-      type: 'number',
-      min: 1,
-      admin: {
-        condition: (data) => !!data?.registrationRequired,
-        description: 'Maximum registrations (leave empty for unlimited).',
-      },
-    },
-    {
-      name: 'registrationOpensAt',
-      type: 'date',
-      admin: {
-        condition: (data) => !!data?.registrationRequired,
-        date: { pickerAppearance: 'dayAndTime' },
-        description: 'When registration opens (optional).',
-      },
-    },
-    {
-      name: 'registrationClosesAt',
-      type: 'date',
-      admin: {
-        condition: (data) => !!data?.registrationRequired,
-        date: { pickerAppearance: 'dayAndTime' },
-        description: 'When registration closes (optional).',
+        description: 'Optional instructions shown above the registration form.',
       },
     },
 

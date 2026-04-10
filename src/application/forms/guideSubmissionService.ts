@@ -1,6 +1,10 @@
 import type { RequestContext } from '@/application/shared/requestContext';
 import { fail, ok, type ServiceResult } from '@/application/shared/serviceResult';
 import {
+  dispatchGuideSubmissionFallback,
+  shouldAttemptSubmissionFallback,
+} from '@/application/forms/persistenceFallback';
+import {
   validateGuideSubmission,
   type GuideSubmissionInput,
 } from '@/domain/forms/guideSubmission';
@@ -79,6 +83,25 @@ export async function submitGuideForm(
       });
     } catch (dbError) {
       const err = dbError instanceof Error ? dbError : new Error(String(dbError));
+      if (shouldAttemptSubmissionFallback(err)) {
+        console.warn('Guide submission persistence unavailable; using direct fallback.', {
+          requestId: context.requestId,
+          input: redactGuideLogPayload(entry),
+          errorMessage: err.message,
+        });
+
+        const fallbackSucceeded = await dispatchGuideSubmissionFallback({
+          name: entry.name,
+          email: entry.email,
+          templateId: validation.data.templateId,
+          formId: validation.data.formId,
+        });
+
+        if (fallbackSucceeded) {
+          return ok({ success: true });
+        }
+      }
+
       console.error('Guide submission persistence failed.', {
         requestId: context.requestId,
         input: redactGuideLogPayload(entry),

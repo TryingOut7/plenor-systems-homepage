@@ -205,9 +205,10 @@ export function buildContentSecurityPolicy(
   const isProduction = env.NODE_ENV === 'production';
 
   const scriptSrcTokens = [`'self'`, ...scriptHosts];
-  if (!isProduction) {
-    scriptSrcTokens.push(`'unsafe-inline'`);
-  }
+  // Next.js injects small inline bootstrap scripts needed for hydration and RSC.
+  // Until we add a nonce-based CSP pipeline, allow inline scripts on the frontend
+  // so client components like FormRenderer can mount in production builds.
+  scriptSrcTokens.push(`'unsafe-inline'`);
   if (!isProduction) {
     scriptSrcTokens.push(`'unsafe-eval'`);
   }

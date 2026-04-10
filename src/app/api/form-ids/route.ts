@@ -74,7 +74,8 @@ export async function GET() {
     const result = await getFormIdsPool().query<FormIdRow>(
       `SELECT DISTINCT ON (template_key) id, template_key
        FROM forms
-       WHERE template_key::text = ANY($1::text[])`,
+       WHERE template_key::text = ANY($1::text[])
+       ORDER BY template_key, id ASC`,
       [aliasKeys],
     );
 

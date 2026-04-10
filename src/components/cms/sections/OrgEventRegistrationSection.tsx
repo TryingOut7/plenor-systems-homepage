@@ -1,17 +1,19 @@
+import FormRenderer from '@/components/cms/FormRenderer';
 import RichText from '@/components/cms/RichText';
-import OrgEventRegistrationFlow from '@/components/org-site/OrgEventRegistrationFlow';
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
 import { getOrgEventById } from '@/lib/org-site-feed';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
-import { extractMediaAsset } from '@/lib/org-site-helpers';
 import type { SectionRendererProps } from './types';
-import { asSectionRecord } from './utils';
+import { asSectionRecord, formRelationshipToId } from './utils';
 
 async function OrgEventRegistrationSectionServer({
   section,
   sectionKey,
   sectionStyle,
   innerStyle,
+  theme,
+  guideFormLabels,
+  inquiryFormLabels,
 }: SectionRendererProps) {
   const sectionRecord = asSectionRecord(section);
 
@@ -28,6 +30,8 @@ async function OrgEventRegistrationSectionServer({
   const cmsReadOptions = await getCmsReadOptions();
   const event = await getOrgEventById(eventId, cmsReadOptions);
   if (!event) return null;
+  const eventRecord = event as unknown as Record<string, unknown>;
+  const formId = formRelationshipToId(eventRecord.registrationForm);
 
   return (
     <section
@@ -57,21 +61,36 @@ async function OrgEventRegistrationSectionServer({
           </section>
         ) : null}
 
-        <OrgEventRegistrationFlow
-          basePath=""
-          event={{
-            id: String(event.id),
-            title: event.title,
-            slug: event.slug,
-            registrationRequired: event.registrationRequired === true,
-            paymentRequired: event.paymentRequired === true,
-            paymentReferenceFormat: event.paymentReferenceFormat,
-            paymentInstructions:
-              event.paymentInstructions as SerializedEditorState | null | undefined,
-            zelleQr: extractMediaAsset(event.zelleQrCode),
-            venmoQr: extractMediaAsset(event.venmoQrCode),
-          }}
-        />
+        {event.registrationRequired !== true ? (
+          <section
+            style={{
+              border: '1px solid var(--ui-color-border)',
+              borderRadius: '10px',
+              padding: '18px',
+            }}
+          >
+            <p style={{ margin: 0 }}>This event does not currently require registration.</p>
+          </section>
+        ) : formId ? (
+          <div style={{ maxWidth: '700px' }}>
+            <FormRenderer
+              formId={formId}
+              theme={theme}
+              guideFormLabels={guideFormLabels}
+              inquiryFormLabels={inquiryFormLabels}
+            />
+          </div>
+        ) : (
+          <section
+            style={{
+              border: '1px solid var(--ui-color-border)',
+              borderRadius: '10px',
+              padding: '18px',
+            }}
+          >
+            <p style={{ margin: 0 }}>No registration form is configured for this event yet.</p>
+          </section>
+        )}
       </div>
     </section>
   );

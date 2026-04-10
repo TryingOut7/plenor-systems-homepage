@@ -8,6 +8,11 @@
  */
 import { getPayload } from '@/payload/client';
 import type { FormTemplateKey } from '@/domain/forms/formTemplates';
+import type { RequiredDataFromCollectionSlug } from 'payload';
+import {
+  buildFormTemplateData,
+  buildFormTemplateRepairData,
+} from '@/payload/forms/formTemplateData';
 
 let guideFormId: number | null = null;
 let inquiryFormId: number | null = null;
@@ -26,19 +31,21 @@ async function getOrCreateStub(
       ],
     },
     limit: 1,
+    sort: 'id',
     overrideAccess: true,
   });
   if (existing.docs[0]) {
-    const doc = existing.docs[0] as { id: number; templateKey?: unknown };
-    if (doc.id && doc.templateKey !== templateKey) {
+    const doc = existing.docs[0] as unknown as Record<string, unknown> & {
+      id?: number | string;
+    };
+    const repairData = buildFormTemplateRepairData({ existing: doc, templateKey });
+    if (doc.id && repairData) {
       await payload.update({
         collection: 'forms',
         id: doc.id,
         overrideAccess: true,
         depth: 0,
-        data: {
-          templateKey,
-        },
+        data: repairData,
       });
     }
     if (doc.id != null) {
@@ -47,7 +54,9 @@ async function getOrCreateStub(
   }
   const created = await payload.create({
     collection: 'forms',
-    data: { title, templateKey, fields: [] },
+    data: buildFormTemplateData(templateKey, {
+      title,
+    }) as RequiredDataFromCollectionSlug<'forms'>,
     overrideAccess: true,
   });
   return Number(created.id);

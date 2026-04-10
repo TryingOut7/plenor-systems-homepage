@@ -215,6 +215,7 @@ export default function Navbar({
                       cursor: 'pointer',
                       transition: 'color 0.2s ease',
                       position: 'relative',
+                      width: 'fit-content',
                     }}
                     className={isActive ? 'nav-link nav-link--active' : 'nav-link'}
                   >
@@ -421,8 +422,8 @@ export default function Navbar({
           content: '';
           position: absolute;
           bottom: 2px;
-          left: 12px;
-          right: 12px;
+          left: 0;
+          right: 0;
           height: 1.5px;
           background-color: var(--ui-color-primary);
           transform: scaleX(0);

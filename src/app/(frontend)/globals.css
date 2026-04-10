@@ -46,7 +46,8 @@
   --ui-spacing-hero-spacious: 140px 24px 148px;
   --ui-spacing-mobile-section: 64px;
 
-  --ui-button-radius: 4px;
+  --ui-button-radius: 6px;
+  --ui-color-accent: #3B82F6;
   --ui-button-primary-bg: #1B2D4F;
   --ui-button-primary-bg-hover: #2A4270;
   --ui-button-primary-text: #FFFFFF;
@@ -172,7 +173,6 @@ a {
   [data-scroll-reveal="fade-up"][data-scroll-reveal-state="waiting"] {
     opacity: 0;
     transform: translate3d(0, 24px, 0);
-    will-change: opacity, transform;
   }
 
   [data-scroll-reveal="fade-up"][data-scroll-reveal-state="entered"] {
@@ -368,10 +368,9 @@ a {
 .form-label {
   display: block;
   font-family: var(--ui-font-body);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--ui-color-text);
   margin-bottom: 8px;
 }
@@ -392,11 +391,11 @@ a {
 
 .section-label {
   font-family: var(--ui-font-body);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: var(--ui-section-label-letter-spacing);
   text-transform: uppercase;
-  color: var(--ui-color-text-muted);
+  color: var(--ui-color-accent);
 }
 
 .ruled {
@@ -514,13 +513,18 @@ button.btn-secondary:disabled:focus-visible {
   }
 }
 
+/* Use .btn-block explicitly for intentional full-width buttons (e.g. form submits) */
+.btn-block {
+  width: 100%;
+  display: block;
+  text-align: center;
+}
+
 @media (max-width: 767px) {
   .btn-primary,
   .btn-secondary,
   .btn-ghost {
-    width: 100%;
-    display: block;
-    text-align: center;
+    max-width: 100%;
   }
 
   section {

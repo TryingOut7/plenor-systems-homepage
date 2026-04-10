@@ -32,6 +32,25 @@ export function asSectionRecord(section: PageSection): SectionRecord {
   return section as SectionRecord;
 }
 
+export function formRelationshipToId(form: unknown): string {
+  if (form == null) return '';
+  if (typeof form === 'number' || typeof form === 'bigint') {
+    if (typeof form === 'number' && Number.isNaN(form)) return '';
+    return String(form);
+  }
+  if (typeof form === 'string') {
+    return /^\d+$/.test(form.trim()) ? form.trim() : '';
+  }
+  if (typeof form === 'object' && 'id' in form) {
+    const id = (form as { id?: unknown }).id;
+    if (id != null) {
+      const strId = String(id).trim();
+      return /^\d+$/.test(strId) ? strId : '';
+    }
+  }
+  return '';
+}
+
 export function getDarkBackgroundColor(theme?: string): string {
   if (theme === 'charcoal') return 'var(--ui-color-charcoal-bg)';
   if (theme === 'black') return 'var(--ui-color-black-bg)';

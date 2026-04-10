@@ -72,7 +72,7 @@ export default function StatsSection({
                 <p
                   style={{
                     fontFamily: 'var(--ui-font-display)',
-                    fontSize: 'clamp(36px, 5vw, 56px)',
+                    fontSize: 'clamp(36px, 5vw, 48px)',
                     fontWeight: 700,
                     lineHeight: 1,
                     color: resolvedHeadingColor,
@@ -84,7 +84,7 @@ export default function StatsSection({
                 <p
                   style={{
                     fontWeight: 600,
-                    fontSize: '15px',
+                    fontSize: '16px',
                     color: resolvedHeadingColor,
                     marginBottom: s.description ? '6px' : 0,
                   }}

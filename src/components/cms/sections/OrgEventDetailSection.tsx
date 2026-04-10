@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import FormRenderer from '@/components/cms/FormRenderer';
 import RichText from '@/components/cms/RichText';
-import OrgEventRegistrationFlow from '@/components/org-site/OrgEventRegistrationFlow';
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
 import { getOrgEventById } from '@/lib/org-site-feed';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
@@ -12,7 +12,7 @@ import {
 } from '@/lib/org-site-helpers';
 import type { OrgEvent } from '@/payload-types';
 import type { SectionRendererProps } from './types';
-import { asSectionRecord } from './utils';
+import { asSectionRecord, formRelationshipToId } from './utils';
 
 function relatedLinks(event: OrgEvent): Array<{ label: string; href: string }> {
   const links: Array<{ label: string; href: string }> = [];
@@ -43,6 +43,9 @@ async function OrgEventDetailSectionServer({
   sectionKey,
   sectionStyle,
   innerStyle,
+  theme,
+  guideFormLabels,
+  inquiryFormLabels,
 }: SectionRendererProps) {
   const sectionRecord = asSectionRecord(section);
 
@@ -64,6 +67,8 @@ async function OrgEventDetailSectionServer({
 
   const hero = extractMediaAsset(event.heroImage);
   const related = relatedLinks(event);
+  const eventRecord = event as unknown as Record<string, unknown>;
+  const formId = formRelationshipToId(eventRecord.registrationForm);
 
   return (
     <section
@@ -185,21 +190,20 @@ async function OrgEventDetailSectionServer({
               </div>
             ) : null}
 
-            <OrgEventRegistrationFlow
-              basePath=""
-              event={{
-                id: String(event.id),
-                title: event.title,
-                slug: event.slug,
-                registrationRequired: event.registrationRequired === true,
-                paymentRequired: event.paymentRequired === true,
-                paymentReferenceFormat: event.paymentReferenceFormat,
-                paymentInstructions:
-                  event.paymentInstructions as SerializedEditorState | null | undefined,
-                zelleQr: extractMediaAsset(event.zelleQrCode),
-                venmoQr: extractMediaAsset(event.venmoQrCode),
-              }}
-            />
+            {formId ? (
+              <div style={{ maxWidth: '700px' }}>
+                <FormRenderer
+                  formId={formId}
+                  theme={theme}
+                  guideFormLabels={guideFormLabels}
+                  inquiryFormLabels={inquiryFormLabels}
+                />
+              </div>
+            ) : (
+              <p style={{ marginBottom: 0, color: 'var(--ui-color-text-muted)' }}>
+                Registration form is not configured for this event yet.
+              </p>
+            )}
           </section>
         ) : null}
 

@@ -153,7 +153,6 @@ async function findOrCreateEvent(
         heroImage: mediaId,
         workflowStatus: 'published',
         registrationRequired: false,
-        paymentRequired: false,
       } as unknown as RequiredDataFromCollectionSlug<'org-events'>,
       overrideAccess: true,
     });

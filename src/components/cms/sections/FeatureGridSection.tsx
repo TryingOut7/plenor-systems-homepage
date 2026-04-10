@@ -18,6 +18,7 @@ export default function FeatureGridSection({
   const sectionRecord = asSectionRecord(section);
   const features = Array.isArray(sectionRecord.features) ? sectionRecord.features : [];
   const cols = sectionRecord.columns === '2' ? 2 : sectionRecord.columns === '4' ? 4 : 3;
+  const minColWidth = cols === 2 ? '300px' : cols === 4 ? '220px' : '260px';
 
   return (
     <section
@@ -64,7 +65,7 @@ export default function FeatureGridSection({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+            gridTemplateColumns: `repeat(auto-fit, minmax(${minColWidth}, 1fr))`,
             gap: '24px',
           }}
         >
@@ -80,6 +81,7 @@ export default function FeatureGridSection({
             return (
               <article
                 key={`${sectionKey}-feature-${featureIndex}`}
+                className="feature-card"
                 style={{
                   backgroundColor: isDarkTheme(theme)
                     ? 'rgba(255,255,255,0.06)'

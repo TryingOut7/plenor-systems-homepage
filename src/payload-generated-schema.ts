@@ -5002,27 +5002,13 @@ export const org_events = pgTable(
     isFeatured: boolean("is_featured").default(false),
     displayPriority: numeric("display_priority", { mode: "number" }).default(0),
     registrationRequired: boolean("registration_required").default(false),
-    paymentRequired: boolean("payment_required").default(false),
+    registrationForm: integer("registration_form_id").references(
+      () => forms.id,
+      {
+        onDelete: "set null",
+      },
+    ),
     registrationInstructions: jsonb("registration_instructions"),
-    paymentReferenceFormat: varchar("payment_reference_format"),
-    zelleQrCode: integer("zelle_qr_code_id").references(() => media.id, {
-      onDelete: "set null",
-    }),
-    venmoQrCode: integer("venmo_qr_code_id").references(() => media.id, {
-      onDelete: "set null",
-    }),
-    paymentInstructions: jsonb("payment_instructions"),
-    maxRegistrations: numeric("max_registrations", { mode: "number" }),
-    registrationOpensAt: timestamp("registration_opens_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    registrationClosesAt: timestamp("registration_closes_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
     displayWindowStart: timestamp("display_window_start", {
       mode: "string",
       withTimezone: true,
@@ -5089,8 +5075,7 @@ export const org_events = pgTable(
   (columns) => [
     uniqueIndex("org_events_slug_idx").on(columns.slug),
     index("org_events_hero_image_idx").on(columns.heroImage),
-    index("org_events_zelle_qr_code_idx").on(columns.zelleQrCode),
-    index("org_events_venmo_qr_code_idx").on(columns.venmoQrCode),
+    index("org_events_registration_form_idx").on(columns.registrationForm),
     index("org_events_created_by_idx").on(columns.createdBy),
     index("org_events_submitted_by_idx").on(columns.submittedBy),
     index("org_events_approved_by_idx").on(columns.approvedBy),
@@ -5236,37 +5221,14 @@ export const _org_events_v = pgTable(
     version_registrationRequired: boolean(
       "version_registration_required",
     ).default(false),
-    version_paymentRequired: boolean("version_payment_required").default(false),
+    version_registrationForm: integer(
+      "version_registration_form_id",
+    ).references(() => forms.id, {
+      onDelete: "set null",
+    }),
     version_registrationInstructions: jsonb(
       "version_registration_instructions",
     ),
-    version_paymentReferenceFormat: varchar("version_payment_reference_format"),
-    version_zelleQrCode: integer("version_zelle_qr_code_id").references(
-      () => media.id,
-      {
-        onDelete: "set null",
-      },
-    ),
-    version_venmoQrCode: integer("version_venmo_qr_code_id").references(
-      () => media.id,
-      {
-        onDelete: "set null",
-      },
-    ),
-    version_paymentInstructions: jsonb("version_payment_instructions"),
-    version_maxRegistrations: numeric("version_max_registrations", {
-      mode: "number",
-    }),
-    version_registrationOpensAt: timestamp("version_registration_opens_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
-    version_registrationClosesAt: timestamp("version_registration_closes_at", {
-      mode: "string",
-      withTimezone: true,
-      precision: 3,
-    }),
     version_displayWindowStart: timestamp("version_display_window_start", {
       mode: "string",
       withTimezone: true,
@@ -5363,11 +5325,8 @@ export const _org_events_v = pgTable(
     index("_org_events_v_version_version_hero_image_idx").on(
       columns.version_heroImage,
     ),
-    index("_org_events_v_version_version_zelle_qr_code_idx").on(
-      columns.version_zelleQrCode,
-    ),
-    index("_org_events_v_version_version_venmo_qr_code_idx").on(
-      columns.version_venmoQrCode,
+    index("_org_events_v_version_version_registration_form_idx").on(
+      columns.version_registrationForm,
     ),
     index("_org_events_v_version_version_created_by_idx").on(
       columns.version_createdBy,
@@ -10501,15 +10460,10 @@ export const relations_org_events = relations(org_events, ({ one, many }) => ({
     references: [media.id],
     relationName: "heroImage",
   }),
-  zelleQrCode: one(media, {
-    fields: [org_events.zelleQrCode],
-    references: [media.id],
-    relationName: "zelleQrCode",
-  }),
-  venmoQrCode: one(media, {
-    fields: [org_events.venmoQrCode],
-    references: [media.id],
-    relationName: "venmoQrCode",
+  registrationForm: one(forms, {
+    fields: [org_events.registrationForm],
+    references: [forms.id],
+    relationName: "registrationForm",
   }),
   mediaGallery: many(org_events_media_gallery, {
     relationName: "mediaGallery",
@@ -10604,15 +10558,10 @@ export const relations__org_events_v = relations(
       references: [media.id],
       relationName: "version_heroImage",
     }),
-    version_zelleQrCode: one(media, {
-      fields: [_org_events_v.version_zelleQrCode],
-      references: [media.id],
-      relationName: "version_zelleQrCode",
-    }),
-    version_venmoQrCode: one(media, {
-      fields: [_org_events_v.version_venmoQrCode],
-      references: [media.id],
-      relationName: "version_venmoQrCode",
+    version_registrationForm: one(forms, {
+      fields: [_org_events_v.version_registrationForm],
+      references: [forms.id],
+      relationName: "version_registrationForm",
     }),
     version_mediaGallery: many(_org_events_v_version_media_gallery, {
       relationName: "version_mediaGallery",
