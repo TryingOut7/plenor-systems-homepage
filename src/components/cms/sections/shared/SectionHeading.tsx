@@ -1,11 +1,9 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, HTMLAttributes } from 'react';
 import type { HeadingTag } from '../types';
 
-interface SectionHeadingProps {
+interface SectionHeadingProps extends HTMLAttributes<HTMLHeadingElement> {
   tag?: HeadingTag;
   fontSize?: string;
-  style?: CSSProperties;
-  children: ReactNode;
 }
 
 export default function SectionHeading({
@@ -13,12 +11,18 @@ export default function SectionHeading({
   fontSize,
   style,
   children,
+  ...rest
 }: SectionHeadingProps) {
   const Tag = tag;
   const mergedStyle: CSSProperties = {
+    fontFamily: 'var(--ui-font-display)',
     ...style,
     ...(fontSize ? { fontSize } : {}),
   };
 
-  return <Tag style={mergedStyle}>{children}</Tag>;
+  return (
+    <Tag {...rest} style={mergedStyle}>
+      {children}
+    </Tag>
+  );
 }

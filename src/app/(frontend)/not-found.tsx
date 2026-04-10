@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import SectionHeading from '@/components/cms/sections/shared/SectionHeading';
 import { getSiteSettings } from '@/payload/cms';
 import { resolveNotFoundPageData } from '@/lib/page-content/not-found';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
@@ -43,12 +44,13 @@ export default async function NotFound() {
       >
         404
       </p>
-      <h1
+      <SectionHeading
+        tag="h1"
         id="not-found-heading"
-        style={{ fontSize: '28px', fontWeight: 700, color: '#1B2D4F', marginBottom: '12px' }}
+        style={{ fontSize: '28px', color: 'var(--ui-color-primary)', marginTop: 0, marginBottom: '12px' }}
       >
         {notFoundData.heading}
-      </h1>
+      </SectionHeading>
       <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.6, marginBottom: '36px', maxWidth: '400px' }}>
         {notFoundData.body}
       </p>
