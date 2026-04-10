@@ -51,7 +51,7 @@ export function buildUIVariableStyles(uiSettings: UISettings | null): Record<str
 
   const typography = uiSettings?.typography;
   setVar('--ui-font-body', typography?.bodyFontFamily);
-  setVar('--ui-font-display', typography?.displayFontFamily);
+  setVar('--ui-font-display', typography?.bodyFontFamily ?? typography?.displayFontFamily);
   setPixelVar('--ui-font-size-base', typography?.baseFontSize);
   setNumericVar('--ui-line-height-base', typography?.baseLineHeight);
   setVar('--ui-heading-letter-spacing', typography?.headingLetterSpacing);

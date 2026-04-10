@@ -22,13 +22,6 @@ import {
 } from '@/lib/site-config';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
 
-const playfair = localFont({
-  src: '../../fonts/PlayfairDisplay-VariableFont_wght.ttf',
-  variable: '--font-display',
-  display: 'swap',
-  weight: '400 900',
-});
-
 const dmSans = localFont({
   src: '../../fonts/DMSans-VariableFont_opsz,wght.ttf',
   variable: '--font-sans',
@@ -120,7 +113,7 @@ export default async function RootLayout({
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : siteUrl);
 
   return (
-    <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
+    <html lang="en" className={dmSans.variable}>
       <head>
         <UIStyleInjector uiSettings={uiSettings} />
         {headingFontUrl && <link rel="stylesheet" href={headingFontUrl} />}

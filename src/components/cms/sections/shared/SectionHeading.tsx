@@ -15,7 +15,7 @@ export default function SectionHeading({
 }: SectionHeadingProps) {
   const Tag = tag;
   const mergedStyle: CSSProperties = {
-    fontFamily: 'var(--ui-font-display)',
+    fontFamily: 'var(--ui-font-body)',
     ...style,
     ...(fontSize ? { fontSize } : {}),
   };

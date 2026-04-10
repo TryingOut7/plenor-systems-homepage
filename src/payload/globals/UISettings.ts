@@ -101,17 +101,24 @@ export const UISettings: GlobalConfig = {
               fields: [
                 {
                   name: 'bodyFontFamily',
+                  label: 'Site Font Family',
                   type: 'text',
                   validate: validateSafeCssValue,
                   defaultValue: 'var(--font-sans), system-ui, sans-serif',
-                  admin: { description: cssValueHint },
+                  admin: {
+                    description: `Controls the font used across the public site, including navigation, headings, buttons, and body copy. ${cssValueHint}`,
+                  },
                 },
                 {
                   name: 'displayFontFamily',
                   type: 'text',
                   validate: validateSafeCssValue,
-                  defaultValue: 'var(--font-display), Georgia, serif',
-                  admin: { description: cssValueHint },
+                  defaultValue: 'var(--font-sans), system-ui, sans-serif',
+                  admin: {
+                    hidden: true,
+                    condition: () => false,
+                    description: 'Legacy display-font override kept only for backwards compatibility.',
+                  },
                 },
                 { name: 'baseFontSize', type: 'number', defaultValue: 16, min: 12, max: 24 },
                 { name: 'baseLineHeight', type: 'number', defaultValue: 1.6, min: 1, max: 2 },
@@ -133,13 +140,20 @@ export const UISettings: GlobalConfig = {
                   name: 'headingFontUrl',
                   type: 'text',
                   validate: validateExternalFontUrl,
-                  admin: { description: 'Google Fonts or external URL to load heading/display font (e.g. https://fonts.googleapis.com/css2?family=...)' },
+                  admin: {
+                    hidden: true,
+                    condition: () => false,
+                    description: 'Legacy heading-font stylesheet URL kept only for backwards compatibility.',
+                  },
                 }, 'system'),
                 withFieldTier({
                   name: 'bodyFontUrl',
+                  label: 'Site Font Stylesheet URL',
                   type: 'text',
                   validate: validateExternalFontUrl,
-                  admin: { description: 'Google Fonts or external URL to load body font' },
+                  admin: {
+                    description: 'Optional Google Fonts or external stylesheet URL for the site font (for example https://fonts.googleapis.com/css2?family=...).',
+                  },
                 }, 'system'),
               ],
             },

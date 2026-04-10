@@ -31,7 +31,7 @@
   --ui-color-cookie-link: #93C5FD;
 
   --ui-font-body: var(--font-sans), system-ui, sans-serif;
-  --ui-font-display: var(--font-display), Georgia, serif;
+  --ui-font-display: var(--ui-font-body);
   --ui-font-size-base: 16px;
   --ui-line-height-base: 1.6;
   --ui-heading-letter-spacing: -0.02em;
@@ -96,6 +96,13 @@ body {
   line-height: var(--ui-line-height-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }
 
 h1, h2, h3 {

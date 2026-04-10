@@ -8162,7 +8162,7 @@ export const ui_settings = pgTable(
     ),
     typography_displayFontFamily: varchar(
       "typography_display_font_family",
-    ).default("var(--font-display), Georgia, serif"),
+    ).default("var(--font-sans), system-ui, sans-serif"),
     typography_baseFontSize: numeric("typography_base_font_size", {
       mode: "number",
     }).default(16),
@@ -8345,7 +8345,7 @@ export const _ui_settings_v = pgTable(
     ).default("var(--font-sans), system-ui, sans-serif"),
     version_typography_displayFontFamily: varchar(
       "version_typography_display_font_family",
-    ).default("var(--font-display), Georgia, serif"),
+    ).default("var(--font-sans), system-ui, sans-serif"),
     version_typography_baseFontSize: numeric(
       "version_typography_base_font_size",
       { mode: "number" },

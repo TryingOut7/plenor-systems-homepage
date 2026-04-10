@@ -133,6 +133,7 @@ export default function Navbar({
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0 32px',
+          fontFamily: 'var(--ui-font-body)',
         }}
       >
         {/* Logo */}
@@ -330,6 +331,7 @@ export default function Navbar({
             boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
             zIndex: 50,
             animation: 'fadeIn 0.2s ease both',
+            fontFamily: 'var(--ui-font-body)',
           }}
           className="navbar-mobile-menu"
         >
