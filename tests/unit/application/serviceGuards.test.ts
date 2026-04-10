@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { disableDraftModeForRequest } from '@/application/draft-mode/disableDraftModeService';
 import { enableDraftModeForRequest } from '@/application/draft-mode/enableDraftModeService';
 import { searchSiteContent } from '@/application/search/searchService';
 import type { SearchRepository } from '@/application/ports/searchRepository';
@@ -24,6 +25,26 @@ function context(overrides: Partial<RequestContext> = {}): RequestContext {
 }
 
 describe('application service guards', () => {
+  it('prefers an explicit safe return path when disabling draft mode', () => {
+    expect(disableDraftModeForRequest('/contact?from=preview#guide')).toEqual({
+      redirectTo: '/contact?from=preview#guide',
+    });
+  });
+
+  it('falls back to the referer path when disable return path is unsafe', () => {
+    expect(
+      disableDraftModeForRequest('https://evil.example/steal', 'https://plenor.ai/pricing?plan=pro'),
+    ).toEqual({
+      redirectTo: '/pricing?plan=pro',
+    });
+  });
+
+  it('defaults draft-mode disable redirects to the homepage when no safe target exists', () => {
+    expect(disableDraftModeForRequest('//evil.example', 'not-a-url')).toEqual({
+      redirectTo: '/',
+    });
+  });
+
   it('returns 400 for invalid draft-mode slug', async () => {
     process.env.PAYLOAD_SECRET = 'secret';
 

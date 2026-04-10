@@ -1,8 +1,14 @@
 'use client';
 
-import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export default function DraftModeBanner() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const query = searchParams.toString();
+  const returnTo = query ? `${pathname}?${query}` : pathname;
+  const exitPreviewHref = `/api/draft-mode/disable?returnTo=${encodeURIComponent(returnTo)}`;
+
   return (
     <div
       style={{
@@ -27,8 +33,8 @@ export default function DraftModeBanner() {
         Preview mode is active in this browser. You may be seeing unpublished content that public
         visitors cannot see yet.
       </span>
-      <Link
-        href="/api/draft-mode/disable"
+      <a
+        href={exitPreviewHref}
         style={{
           color: 'var(--ui-color-surface)',
           textDecoration: 'underline',
@@ -37,7 +43,7 @@ export default function DraftModeBanner() {
         }}
       >
         Exit preview to verify public view
-      </Link>
+      </a>
     </div>
   );
 }
