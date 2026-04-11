@@ -241,6 +241,9 @@ export interface User {
  */
 export interface Media {
   id: number;
+  /**
+   * Required. Describe what the image shows, for example "Plenor square logo" or "Team photo at launch event".
+   */
   alt: string;
   /**
    * Optional caption or credit for the media
@@ -16649,11 +16652,11 @@ export interface UiSetting {
   };
   typography?: {
     /**
-     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Controls the font used across the public site, including navigation, headings, buttons, and body copy. Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     bodyFontFamily?: string | null;
     /**
-     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Legacy display-font override kept only for backwards compatibility.
      */
     displayFontFamily?: string | null;
     baseFontSize?: number | null;
@@ -16667,11 +16670,11 @@ export interface UiSetting {
      */
     sectionLabelLetterSpacing?: string | null;
     /**
-     * Google Fonts or external URL to load heading/display font (e.g. https://fonts.googleapis.com/css2?family=...)
+     * Legacy heading-font stylesheet URL kept only for backwards compatibility.
      */
     headingFontUrl?: string | null;
     /**
-     * Google Fonts or external URL to load body font
+     * Optional Google Fonts or external stylesheet URL for the site font (for example https://fonts.googleapis.com/css2?family=...).
      */
     bodyFontUrl?: string | null;
   };
