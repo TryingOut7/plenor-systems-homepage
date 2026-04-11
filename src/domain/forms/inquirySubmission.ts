@@ -3,6 +3,9 @@ import { isValidEmail, sanitizeText } from './common';
 export interface InquirySubmissionInput {
   name?: unknown;
   email?: unknown;
+  organization?: unknown;
+  inquiryType?: unknown;
+  message?: unknown;
   company?: unknown;
   challenge?: unknown;
 }
@@ -10,8 +13,9 @@ export interface InquirySubmissionInput {
 export interface InquirySubmissionData {
   name: string;
   email: string;
-  company: string;
-  challenge: string;
+  organization: string;
+  inquiryType: string;
+  message: string;
 }
 
 export type InquirySubmissionValidation =
@@ -24,8 +28,19 @@ export function validateInquirySubmission(
   const rawName = typeof input.name === 'string' ? input.name : '';
   const rawEmail = typeof input.email === 'string' ? input.email : '';
   const normalizedEmail = rawEmail.trim().toLowerCase();
-  const rawCompany = typeof input.company === 'string' ? input.company : '';
-  const rawChallenge = typeof input.challenge === 'string' ? input.challenge : '';
+  const rawOrganization =
+    typeof input.organization === 'string'
+      ? input.organization
+      : typeof input.company === 'string'
+        ? input.company
+        : '';
+  const rawInquiryType = typeof input.inquiryType === 'string' ? input.inquiryType : '';
+  const rawMessage =
+    typeof input.message === 'string'
+      ? input.message
+      : typeof input.challenge === 'string'
+        ? input.challenge
+        : '';
 
   if (!rawName || rawName.trim().length === 0 || rawName.length > 200) {
     return { ok: false, message: 'Name is required (max 200 characters).' };
@@ -35,22 +50,24 @@ export function validateInquirySubmission(
     return { ok: false, message: 'A valid email address is required.' };
   }
 
-  if (!rawCompany || rawCompany.trim().length === 0 || rawCompany.length > 300) {
+  if (rawOrganization.length > 300) {
     return {
       ok: false,
-      message: 'Company name is required (max 300 characters).',
+      message: 'Organization must be 300 characters or fewer.',
     };
   }
 
-  if (
-    !rawChallenge ||
-    rawChallenge.trim().length === 0 ||
-    rawChallenge.length > 5000
-  ) {
+  if (!rawInquiryType || rawInquiryType.trim().length === 0 || rawInquiryType.length > 200) {
     return {
       ok: false,
-      message:
-        'Please describe your product and challenge (max 5000 characters).',
+      message: 'Inquiry type is required (max 200 characters).',
+    };
+  }
+
+  if (!rawMessage || rawMessage.trim().length === 0 || rawMessage.length > 5000) {
+    return {
+      ok: false,
+      message: 'Message is required (max 5000 characters).',
     };
   }
 
@@ -59,8 +76,9 @@ export function validateInquirySubmission(
     data: {
       name: sanitizeText(rawName.trim()),
       email: normalizedEmail,
-      company: sanitizeText(rawCompany.trim()),
-      challenge: sanitizeText(rawChallenge.trim()),
+      organization: sanitizeText(rawOrganization.trim()),
+      inquiryType: sanitizeText(rawInquiryType.trim()),
+      message: sanitizeText(rawMessage.trim()),
     },
   };
 }

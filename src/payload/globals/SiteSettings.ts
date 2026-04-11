@@ -117,8 +117,9 @@ export const SiteSettings: GlobalConfig = {
               type: 'array',
               defaultValue: [
                 { label: 'Home', href: '/', isVisible: true },
-                { label: 'Services', href: '/services', isVisible: true },
-                { label: 'Pricing', href: '/pricing', isVisible: true },
+                { label: 'Framework', href: '/framework', isVisible: true },
+                { label: 'Solutions', href: '/solutions', isVisible: true },
+                { label: 'Insights', href: '/insights', isVisible: true },
                 { label: 'About', href: '/about', isVisible: true },
                 { label: 'Contact', href: '/contact', isVisible: true },
               ],
@@ -149,7 +150,7 @@ export const SiteSettings: GlobalConfig = {
                 {
                   name: 'backgroundColor',
                   type: 'text',
-                  defaultValue: '#1B2D4F',
+                  defaultValue: '#1E4A59',
                   validate: validateSafeCssColorValue,
                   admin: { description: 'Hex, rgb, hsl, named color, or CSS var' },
                 },
@@ -177,8 +178,9 @@ export const SiteSettings: GlobalConfig = {
                   title: 'Pages',
                   links: [
                     { label: 'Home', href: '/' },
-                    { label: 'Services', href: '/services' },
-                    { label: 'Pricing', href: '/pricing' },
+                    { label: 'Framework', href: '/framework' },
+                    { label: 'Solutions', href: '/solutions' },
+                    { label: 'Insights', href: '/insights' },
                     { label: 'About', href: '/about' },
                     { label: 'Contact', href: '/contact' },
                     { label: 'Privacy Policy', href: '/privacy' },
@@ -209,7 +211,7 @@ export const SiteSettings: GlobalConfig = {
             {
               name: 'copyrightText',
               type: 'text',
-              defaultValue: '© {year} {siteName}. All rights reserved.',
+              defaultValue: '© {year} Plenor Systems LLC. All rights reserved.',
             },
             {
               name: 'footerLegalLabel',
@@ -254,6 +256,14 @@ export const SiteSettings: GlobalConfig = {
               label: 'Inquiry Form Defaults',
               type: 'group',
               fields: [
+                { name: 'nameLabel', type: 'text', defaultValue: 'Your name' },
+                { name: 'emailLabel', type: 'text', defaultValue: 'Work email' },
+                { name: 'organizationLabel', type: 'text', defaultValue: 'Organization' },
+                { name: 'inquiryTypeLabel', type: 'text', defaultValue: 'What can we help you with?' },
+                { name: 'messageLabel', type: 'text', defaultValue: 'Tell us a bit about your need' },
+                { name: 'messageHelper', type: 'text', defaultValue: 'A short description is enough for an initial response.' },
+                { name: 'successMessage', type: 'text', defaultValue: 'Thanks. Your inquiry has been received.' },
+                { name: 'responseStatement', type: 'text', defaultValue: 'We typically respond within two business days.' },
                 { name: 'submitLabel', type: 'text' },
                 { name: 'submittingLabel', type: 'text' },
                 { name: 'successHeading', type: 'text' },

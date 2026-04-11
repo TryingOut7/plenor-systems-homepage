@@ -101,6 +101,14 @@ export type SiteSettings = {
     emailPlaceholder?: string;
   };
   inquiryForm?: {
+    nameLabel?: string;
+    emailLabel?: string;
+    organizationLabel?: string;
+    inquiryTypeLabel?: string;
+    messageLabel?: string;
+    messageHelper?: string;
+    successMessage?: string;
+    responseStatement?: string;
     submitLabel?: string;
     submittingLabel?: string;
     successHeading?: string;
@@ -312,6 +320,78 @@ export type RedirectRule = {
   enabled?: boolean;
 };
 
+export type FrameworkEntry = {
+  id?: string;
+  title?: string;
+  slug?: string;
+  category?:
+    | 'what-plenor-is'
+    | 'how-the-approach-works'
+    | 'cms-driven-website-model'
+    | 'why-this-is-different';
+  summary?: string;
+  coverImage?: MediaRef;
+  body?: unknown;
+  publishedAt?: string;
+  isFeatured?: boolean;
+  orderingValue?: number;
+  ctaPath?: string;
+  relatedSolutions?: Array<{ id?: string; title?: string; slug?: string }>;
+  relatedInsights?: Array<{ id?: string; title?: string; slug?: string }>;
+  tags?: Array<{ tag?: string }>;
+  seo?: SeoFields;
+};
+
+export type SolutionEntry = {
+  id?: string;
+  title?: string;
+  slug?: string;
+  category?:
+    | 'strategy-and-definition'
+    | 'website-and-cms-implementation'
+    | 'framework-led-delivery';
+  summary?: string;
+  coverImage?: MediaRef;
+  body?: unknown;
+  publishedAt?: string;
+  isFeatured?: boolean;
+  orderingValue?: number;
+  ctaPath?: string;
+  relatedInsights?: Array<{ id?: string; title?: string; slug?: string }>;
+  tags?: Array<{ tag?: string }>;
+  seo?: SeoFields;
+};
+
+export type InsightEntry = {
+  id?: string;
+  title?: string;
+  slug?: string;
+  category?: 'article' | 'essay' | 'guide-resource';
+  excerpt?: string;
+  coverImage?: MediaRef;
+  body?: unknown;
+  authorLabel?: string;
+  publishedAt?: string;
+  isFeatured?: boolean;
+  orderingValue?: number;
+  tags?: Array<{ tag?: string }>;
+  seo?: SeoFields;
+};
+
+export type AboutProfile = {
+  id?: string;
+  name?: string;
+  slug?: string;
+  category?: 'founder' | 'mentor' | 'volunteer_team';
+  displayLabel?: string;
+  shortBio?: string;
+  detailContent?: unknown;
+  profileImage?: MediaRef;
+  roleTitle?: string;
+  displayOrder?: number;
+  seo?: SeoFields;
+};
+
 export type CollectionData = {
   serviceItems: ServiceItem[];
   blogPosts: BlogPost[];
@@ -323,6 +403,10 @@ export type CollectionData = {
 export type SitemapQueryResult = {
   sitePages: Array<{ slug?: string; includeInSitemap?: boolean; updatedAt?: string }>;
   serviceItems: Array<{ slug?: string; includeInSitemap?: boolean; updatedAt?: string }>;
+  frameworkEntries: Array<{ slug?: string; includeInSitemap?: boolean; updatedAt?: string }>;
+  solutionEntries: Array<{ slug?: string; includeInSitemap?: boolean; updatedAt?: string }>;
+  insightEntries: Array<{ slug?: string; includeInSitemap?: boolean; updatedAt?: string }>;
+  aboutProfiles: Array<{ slug?: string; includeInSitemap?: boolean; updatedAt?: string }>;
 };
 
 export type CmsReadOptions = {

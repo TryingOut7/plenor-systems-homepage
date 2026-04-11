@@ -14,12 +14,14 @@ import {
   listStoredSubmissions,
   outboxStatsBySubmission,
   type StoredSubmission,
+  updateInquirySubmissionWorkflowStatus,
 } from '@/infrastructure/persistence/backendStore';
 import type {
   AdminReplaySubmissionResponse,
   AdminSubmission,
   AdminSubmissionDetailResponse,
   AdminSubmissionsListResponse,
+  InquiryWorkflowStatus,
   SideEffectStatus,
 } from '@plenor/contracts/admin-submissions';
 
@@ -55,8 +57,10 @@ async function toAdminSubmission(
     kind: submission.kind,
     name: submission.name,
     email: submission.email,
-    company: submission.company,
-    challenge: submission.challenge,
+    organization: submission.organization,
+    inquiryType: submission.inquiryType,
+    message: submission.message,
+    workflowStatus: submission.workflowStatus,
     submittedAt: submission.submittedAt,
     sideEffects: {
       total: stats.total,
@@ -137,5 +141,34 @@ export async function replaySubmissionSideEffects(
     replayed: true,
     submissionId: submission.id,
     enqueuedJobs,
+  });
+}
+
+export async function updateAdminSubmissionWorkflowStatus(input: {
+  submissionId: string;
+  workflowStatus: InquiryWorkflowStatus;
+}): Promise<ServiceResult<{ submission: AdminSubmission } | { message: string }>> {
+  const submission = await getStoredSubmissionById(input.submissionId);
+  if (!submission) {
+    return fail(404, { message: 'Submission not found.' });
+  }
+
+  if (submission.kind !== 'inquiry') {
+    return fail(400, {
+      message: 'Only inquiry submissions support workflow status updates.',
+    });
+  }
+
+  const updated = await updateInquirySubmissionWorkflowStatus({
+    submissionId: input.submissionId,
+    workflowStatus: input.workflowStatus,
+  });
+
+  if (!updated) {
+    return fail(404, { message: 'Submission not found.' });
+  }
+
+  return ok({
+    submission: await toAdminSubmission(updated),
   });
 }

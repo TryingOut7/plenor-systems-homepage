@@ -42,6 +42,14 @@ interface FormRendererProps {
 }
 
 type TemplateLabels = {
+  nameLabel?: string;
+  emailLabel?: string;
+  organizationLabel?: string;
+  inquiryTypeLabel?: string;
+  messageLabel?: string;
+  messageHelper?: string;
+  successMessage?: string;
+  responseStatement?: string;
   submitLabel?: string;
   submittingLabel?: string;
   successHeading?: string;
@@ -52,6 +60,9 @@ type TemplateLabels = {
   privacyHref?: string;
   namePlaceholder?: string;
   emailPlaceholder?: string;
+  organizationPlaceholder?: string;
+  inquiryTypePlaceholder?: string;
+  messagePlaceholder?: string;
   companyPlaceholder?: string;
   challengePlaceholder?: string;
 };
@@ -97,8 +108,10 @@ function resolveSubmitTarget(
       payload: {
         name: readTextValue(values, 'name'),
         email: readTextValue(values, 'email'),
-        company: readTextValue(values, 'company'),
-        challenge: readTextValue(values, 'challenge'),
+        organization:
+          readTextValue(values, 'organization') || readTextValue(values, 'company'),
+        inquiryType: readTextValue(values, 'inquiryType'),
+        message: readTextValue(values, 'message') || readTextValue(values, 'challenge'),
       },
     };
   }
@@ -169,14 +182,33 @@ const STATIC_FORM_FALLBACKS: Record<'guide' | 'inquiry', FormData> = {
     title: 'Inquiry',
     templateKey: 'inquiry',
     fields: [
-      { id: 'name', name: 'name', label: 'Full Name', blockType: 'text', required: true },
-      { id: 'email', name: 'email', label: 'Email Address', blockType: 'email', required: true },
-      { id: 'company', name: 'company', label: 'Company', blockType: 'text', required: false },
-      { id: 'challenge', name: 'challenge', label: 'What challenge are you solving?', blockType: 'textarea', required: false },
+      { id: 'name', name: 'name', label: 'Your name', blockType: 'text', required: true },
+      { id: 'email', name: 'email', label: 'Work email', blockType: 'email', required: true },
+      {
+        id: 'organization',
+        name: 'organization',
+        label: 'Organization',
+        blockType: 'text',
+        required: false,
+      },
+      {
+        id: 'inquiryType',
+        name: 'inquiryType',
+        label: 'What can we help you with?',
+        blockType: 'text',
+        required: true,
+      },
+      {
+        id: 'message',
+        name: 'message',
+        label: 'Tell us a bit about your need',
+        blockType: 'textarea',
+        required: true,
+      },
     ],
-    submitButtonLabel: 'Send Message',
+    submitButtonLabel: 'Send inquiry',
     confirmationType: 'message',
-    confirmationMessage: "Thanks for reaching out! We'll be in touch shortly.",
+    confirmationMessage: 'Thanks. Your inquiry has been received.',
   },
 };
 
@@ -218,11 +250,69 @@ function resolveFieldPlaceholder(
   if (templateKey === 'inquiry') {
     if (fieldName === 'name') return labels.namePlaceholder;
     if (fieldName === 'email') return labels.emailPlaceholder;
-    if (fieldName === 'company') return labels.companyPlaceholder;
-    if (fieldName === 'challenge') return labels.challengePlaceholder;
+    if (fieldName === 'organization' || fieldName === 'company') {
+      return labels.organizationPlaceholder || labels.companyPlaceholder;
+    }
+    if (fieldName === 'inquirytype') {
+      return labels.inquiryTypePlaceholder;
+    }
+    if (fieldName === 'message' || fieldName === 'challenge') {
+      return labels.messagePlaceholder || labels.challengePlaceholder;
+    }
   }
 
   return undefined;
+}
+
+function resolveFieldLabel(
+  field: FormField,
+  templateKey: FormData['templateKey'],
+  labels: TemplateLabels | null,
+): string {
+  if (!labels || templateKey !== 'inquiry') return field.label;
+
+  const fieldName = field.name.trim().toLowerCase();
+  if (fieldName === 'name') return labels.nameLabel || field.label;
+  if (fieldName === 'email') return labels.emailLabel || field.label;
+  if (fieldName === 'organization' || fieldName === 'company') {
+    return labels.organizationLabel || field.label;
+  }
+  if (fieldName === 'inquirytype') {
+    return labels.inquiryTypeLabel || field.label;
+  }
+  if (fieldName === 'message' || fieldName === 'challenge') {
+    return labels.messageLabel || field.label;
+  }
+
+  return field.label;
+}
+
+function resolveFieldHelperText(
+  field: FormField,
+  templateKey: FormData['templateKey'],
+  labels: TemplateLabels | null,
+): string | undefined {
+  if (!labels || templateKey !== 'inquiry') return undefined;
+
+  const fieldName = field.name.trim().toLowerCase();
+  if (fieldName === 'message' || fieldName === 'challenge') {
+    return labels.messageHelper;
+  }
+
+  return undefined;
+}
+
+function normalizeFormForTemplate(form: FormData): FormData {
+  if (form.templateKey !== 'inquiry') return form;
+
+  return {
+    ...form,
+    fields: STATIC_FORM_FALLBACKS.inquiry.fields,
+    submitButtonLabel: form.submitButtonLabel || STATIC_FORM_FALLBACKS.inquiry.submitButtonLabel,
+    confirmationType: form.confirmationType || STATIC_FORM_FALLBACKS.inquiry.confirmationType,
+    confirmationMessage:
+      form.confirmationMessage || STATIC_FORM_FALLBACKS.inquiry.confirmationMessage,
+  };
 }
 
 export default function FormRenderer({
@@ -306,9 +396,10 @@ export default function FormRenderer({
 
     fetchForm
       .then((data) => {
-        setForm(data);
+        const normalizedForm = normalizeFormForTemplate(data);
+        setForm(normalizedForm);
         const defaults: Record<string, string | boolean> = {};
-        (data.fields || []).forEach((field) => {
+        (normalizedForm.fields || []).forEach((field) => {
           if ((field.blockType ?? field.fieldType) === 'checkbox') {
             defaults[field.name] = false;
           } else {
@@ -392,9 +483,11 @@ export default function FormRenderer({
     const successHeading = templateLabels?.successHeading?.trim() || '';
     const msg =
       successMessage?.trim() ||
+      templateLabels?.successMessage?.trim() ||
       templateLabels?.successBody?.trim() ||
       readConfirmationMessage(form.confirmationMessage) ||
       'Thank you! Your submission has been received.';
+    const responseStatement = templateLabels?.responseStatement?.trim() || '';
 
     return (
       <div
@@ -428,6 +521,17 @@ export default function FormRenderer({
         >
           {msg}
         </p>
+        {responseStatement ? (
+          <p
+            style={{
+              margin: '12px 0 0',
+              fontSize: '14px',
+              color: dark ? 'var(--ui-color-dark-text-muted)' : 'var(--ui-color-text-muted)',
+            }}
+          >
+            {responseStatement}
+          </p>
+        ) : null}
       </div>
     );
   }
@@ -453,121 +557,155 @@ export default function FormRenderer({
 
           return (
             <div key={field.id || field.name}>
-              {ft === 'checkbox' ? (
-                <label
-                  style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '10px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    name={field.name}
-                    required={field.required}
-                    checked={Boolean(values[field.name])}
-                    onChange={(e) =>
-                      setValues((prev) => ({ ...prev, [field.name]: e.target.checked }))
-                    }
-                    style={{ marginTop: '2px', flexShrink: 0 }}
-                  />
-                  <span
-                    style={{
-                      fontSize: '14px',
-                      color: dark ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)',
-                    }}
-                  >
-                    {field.label}
-                    {field.required ? (
-                      <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
-                        *
+              {(() => {
+                const resolvedLabel = resolveFieldLabel(field, form.templateKey, templateLabels);
+                const helperText = resolveFieldHelperText(
+                  field,
+                  form.templateKey,
+                  templateLabels,
+                );
+
+                if (ft === 'checkbox') {
+                  return (
+                    <label
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '10px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        name={field.name}
+                        required={field.required}
+                        checked={Boolean(values[field.name])}
+                        onChange={(e) =>
+                          setValues((prev) => ({ ...prev, [field.name]: e.target.checked }))
+                        }
+                        style={{ marginTop: '2px', flexShrink: 0 }}
+                      />
+                      <span
+                        style={{
+                          fontSize: '14px',
+                          color: dark ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)',
+                        }}
+                      >
+                        {resolvedLabel}
+                        {field.required ? (
+                          <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
+                            *
+                          </span>
+                        ) : null}
                       </span>
-                    ) : null}
-                  </span>
-                </label>
-              ) : ft === 'select' ? (
-                <>
-                  <label htmlFor={`field-${field.name}`} className="cms-form-label">
-                    {field.label}
-                    {field.required ? (
-                      <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
-                        *
-                      </span>
-                    ) : null}
-                  </label>
-                  <select
-                    className="form-input"
-                    id={`field-${field.name}`}
-                    name={field.name}
-                    required={field.required}
-                    value={String(values[field.name] || '')}
-                    onChange={(e) =>
-                      setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
-                    }
-                  >
-                    <option value="">Select…</option>
-                    {(field.options || []).map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </>
-              ) : ft === 'textarea' ? (
-                <>
-                  <label htmlFor={`field-${field.name}`} className="cms-form-label">
-                    {field.label}
-                    {field.required ? (
-                      <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
-                        *
-                      </span>
-                    ) : null}
-                  </label>
-                  <textarea
-                    className="form-input"
-                    id={`field-${field.name}`}
-                    name={field.name}
-                    required={field.required}
-                    value={String(values[field.name] || '')}
-                    onChange={(e) =>
-                      setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
-                    }
-                    rows={5}
-                    placeholder={placeholder}
-                    style={{ resize: 'vertical' }}
-                  />
-                </>
-              ) : (
-                <>
-                  <label htmlFor={`field-${field.name}`} className="cms-form-label">
-                    {field.label}
-                    {field.required ? (
-                      <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
-                        *
-                      </span>
-                    ) : null}
-                  </label>
-                  <input
-                    className="form-input"
-                    id={`field-${field.name}`}
-                    type={
-                      ft === 'email'
-                        ? 'email'
-                        : ft === 'number'
-                          ? 'number'
-                          : 'text'
-                    }
-                    name={field.name}
-                    required={field.required}
-                    value={String(values[field.name] || '')}
-                    onChange={(e) =>
-                      setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
-                    }
-                    placeholder={placeholder}
-                  />
-                </>
-              )}
+                    </label>
+                  );
+                }
+
+                if (ft === 'select') {
+                  return (
+                    <>
+                      <label htmlFor={`field-${field.name}`} className="cms-form-label">
+                        {resolvedLabel}
+                        {field.required ? (
+                          <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
+                            *
+                          </span>
+                        ) : null}
+                      </label>
+                      <select
+                        className="form-input"
+                        id={`field-${field.name}`}
+                        name={field.name}
+                        required={field.required}
+                        value={String(values[field.name] || '')}
+                        onChange={(e) =>
+                          setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
+                        }
+                      >
+                        <option value="">Select…</option>
+                        {(field.options || []).map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </>
+                  );
+                }
+
+                if (ft === 'textarea') {
+                  return (
+                    <>
+                      <label htmlFor={`field-${field.name}`} className="cms-form-label">
+                        {resolvedLabel}
+                        {field.required ? (
+                          <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
+                            *
+                          </span>
+                        ) : null}
+                      </label>
+                      <textarea
+                        className="form-input"
+                        id={`field-${field.name}`}
+                        name={field.name}
+                        required={field.required}
+                        value={String(values[field.name] || '')}
+                        onChange={(e) =>
+                          setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
+                        }
+                        rows={5}
+                        placeholder={placeholder}
+                        style={{ resize: 'vertical' }}
+                      />
+                      {helperText ? (
+                        <p
+                          style={{
+                            margin: '8px 0 0',
+                            fontSize: '13px',
+                            color: dark
+                              ? 'var(--ui-color-dark-text-muted)'
+                              : 'var(--ui-color-text-muted)',
+                          }}
+                        >
+                          {helperText}
+                        </p>
+                      ) : null}
+                    </>
+                  );
+                }
+
+                return (
+                  <>
+                    <label htmlFor={`field-${field.name}`} className="cms-form-label">
+                      {resolvedLabel}
+                      {field.required ? (
+                        <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
+                          *
+                        </span>
+                      ) : null}
+                    </label>
+                    <input
+                      className="form-input"
+                      id={`field-${field.name}`}
+                      type={
+                        ft === 'email'
+                          ? 'email'
+                          : ft === 'number'
+                            ? 'number'
+                            : 'text'
+                      }
+                      name={field.name}
+                      required={field.required}
+                      value={String(values[field.name] || '')}
+                      onChange={(e) =>
+                        setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
+                      }
+                      placeholder={placeholder}
+                    />
+                  </>
+                );
+              })()}
             </div>
           );
         })}
@@ -605,6 +743,18 @@ export default function FormRenderer({
               {privacyLabel}
             </a>
           ) : null}
+        </p>
+      ) : null}
+
+      {templateLabels?.responseStatement?.trim() ? (
+        <p
+          style={{
+            margin: 0,
+            fontSize: '14px',
+            color: dark ? 'var(--ui-color-dark-text-muted)' : 'var(--ui-color-text-muted)',
+          }}
+        >
+          {templateLabels.responseStatement.trim()}
         </p>
       ) : null}
     </form>

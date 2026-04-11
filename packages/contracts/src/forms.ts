@@ -9,6 +9,9 @@ export interface GuideSubmissionRequest {
 export interface InquirySubmissionRequest {
   name?: string;
   email?: string;
+  organization?: string;
+  inquiryType?: string;
+  message?: string;
   company?: string;
   challenge?: string;
 }

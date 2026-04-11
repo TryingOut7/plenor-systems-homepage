@@ -15,8 +15,10 @@ type InquirySubmissionRow = {
   id: number;
   name: string;
   email: string;
-  company: string;
-  challenge: string;
+  organization: string | null;
+  inquiry_type: string | null;
+  message: string | null;
+  workflow_status: InquiryWorkflowStatus | null;
   submitted_at: string;
 };
 
@@ -49,10 +51,20 @@ export interface StoredSubmission {
   kind: SubmissionKind;
   name: string;
   email: string;
+  organization?: string;
+  inquiryType?: string;
+  message?: string;
   company?: string;
   challenge?: string;
+  workflowStatus?: InquiryWorkflowStatus;
   submittedAt: string;
 }
+
+export type InquiryWorkflowStatus =
+  | 'submitted'
+  | 'under_review'
+  | 'responded'
+  | 'closed';
 
 export interface IdempotencyRecord {
   key: string;
@@ -218,6 +230,27 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
+function composeLegacyChallenge(input: {
+  inquiryType?: string;
+  message?: string;
+}): string {
+  const inquiryType = typeof input.inquiryType === 'string' ? input.inquiryType.trim() : '';
+  const message = typeof input.message === 'string' ? input.message.trim() : '';
+  if (inquiryType && message) return `${inquiryType}\n\n${message}`;
+  return message || inquiryType;
+}
+
+function normalizeInquiryWorkflowStatus(value: unknown): InquiryWorkflowStatus {
+  switch (value) {
+    case 'under_review':
+    case 'responded':
+    case 'closed':
+      return value;
+    default:
+      return 'submitted';
+  }
+}
+
 export function isPersistentStoreConfigured(): boolean {
   return REQUIRED_PERSISTENCE_TABLES.every((table) => tableAvailable(table));
 }
@@ -316,8 +349,9 @@ export async function persistGuideSubmissionRecord(input: {
 export async function persistInquirySubmissionRecord(input: {
   name: string;
   email: string;
-  company: string;
-  challenge: string;
+  organization: string;
+  inquiryType: string;
+  message: string;
 }): Promise<StoredSubmission> {
   const submittedAt = nowIso();
   const fallbackRecord: StoredSubmission = {
@@ -325,8 +359,12 @@ export async function persistInquirySubmissionRecord(input: {
     kind: 'inquiry',
     name: input.name,
     email: input.email,
-    company: input.company,
-    challenge: input.challenge,
+    organization: input.organization,
+    inquiryType: input.inquiryType,
+    message: input.message,
+    company: input.organization,
+    challenge: composeLegacyChallenge(input),
+    workflowStatus: 'submitted',
     submittedAt,
   };
 
@@ -339,10 +377,12 @@ export async function persistInquirySubmissionRecord(input: {
         .insert({
           name: input.name,
           email: input.email,
-          company: input.company,
-          challenge: input.challenge,
+          organization: input.organization,
+          inquiry_type: input.inquiryType,
+          message: input.message,
+          workflow_status: 'submitted',
         })
-        .select('id, submitted_at')
+        .select('id, submitted_at, workflow_status')
         .single(),
     );
 
@@ -352,8 +392,12 @@ export async function persistInquirySubmissionRecord(input: {
         kind: 'inquiry',
         name: input.name,
         email: input.email,
-        company: input.company,
-        challenge: input.challenge,
+        organization: input.organization,
+        inquiryType: input.inquiryType,
+        message: input.message,
+        company: input.organization,
+        challenge: composeLegacyChallenge(input),
+        workflowStatus: normalizeInquiryWorkflowStatus(data.workflow_status),
         submittedAt:
           typeof data.submitted_at === 'string' ? data.submitted_at : submittedAt,
       };
@@ -412,7 +456,9 @@ export async function listStoredSubmissions(params: {
       executeQuery<InquirySubmissionRow[]>(
         db()
           .from('inquiry_submissions')
-          .select('id, name, email, company, challenge, submitted_at')
+          .select(
+            'id, name, email, organization, inquiry_type, message, workflow_status, submitted_at',
+          )
           .order('submitted_at', { ascending: false })
           .limit(500),
       ),
@@ -447,8 +493,15 @@ export async function listStoredSubmissions(params: {
           kind: 'inquiry',
           name: String(row.name || ''),
           email: String(row.email || ''),
-          company: String(row.company || ''),
-          challenge: String(row.challenge || ''),
+          organization: String(row.organization || ''),
+          inquiryType: String(row.inquiry_type || ''),
+          message: String(row.message || ''),
+          company: String(row.organization || ''),
+          challenge: composeLegacyChallenge({
+            inquiryType: String(row.inquiry_type || ''),
+            message: String(row.message || ''),
+          }),
+          workflowStatus: normalizeInquiryWorkflowStatus(row.workflow_status),
           submittedAt: String(row.submitted_at || nowIso()),
         }),
       );
@@ -529,7 +582,9 @@ export async function getStoredSubmissionById(
     const { data, error } = await executeQuery<InquirySubmissionRow>(
       db()
         .from('inquiry_submissions')
-        .select('id, name, email, company, challenge, submitted_at')
+        .select(
+          'id, name, email, organization, inquiry_type, message, workflow_status, submitted_at',
+        )
         .eq('id', rawId)
         .maybeSingle(),
     );
@@ -540,8 +595,15 @@ export async function getStoredSubmissionById(
         kind: 'inquiry',
         name: String(data.name || ''),
         email: String(data.email || ''),
-        company: String(data.company || ''),
-        challenge: String(data.challenge || ''),
+        organization: String(data.organization || ''),
+        inquiryType: String(data.inquiry_type || ''),
+        message: String(data.message || ''),
+        company: String(data.organization || ''),
+        challenge: composeLegacyChallenge({
+          inquiryType: String(data.inquiry_type || ''),
+          message: String(data.message || ''),
+        }),
+        workflowStatus: normalizeInquiryWorkflowStatus(data.workflow_status),
         submittedAt: String(data.submitted_at || nowIso()),
       };
     }
@@ -550,6 +612,77 @@ export async function getStoredSubmissionById(
       markMissingTable('inquiry_submissions');
       requirePersistentTable('inquiry_submissions', 'Submission lookup');
     }
+  }
+
+  return null;
+}
+
+export async function updateInquirySubmissionWorkflowStatus(input: {
+  submissionId: string;
+  workflowStatus: InquiryWorkflowStatus;
+}): Promise<StoredSubmission | null> {
+  const [kind, rawId] = input.submissionId.split('_');
+  if (kind !== 'inquiry' || !rawId) return null;
+
+  if (allowInMemoryFallback()) {
+    const index = inMemory.submissions.findIndex((submission) => submission.id === input.submissionId);
+    if (index >= 0) {
+      const updated = {
+        ...inMemory.submissions[index],
+        workflowStatus: input.workflowStatus,
+      };
+      inMemory.submissions[index] = updated;
+      return updated;
+    }
+  }
+
+  requirePersistentTable('inquiry_submissions', 'Inquiry submission workflow update');
+
+  if (!tableAvailable('inquiry_submissions')) {
+    if (!allowInMemoryFallback()) {
+      throw new Error('Inquiry submission workflow updates are unavailable in production.');
+    }
+    return null;
+  }
+
+  const { data, error } = await executeQuery<InquirySubmissionRow>(
+    db()
+      .from('inquiry_submissions')
+      .update({ workflow_status: input.workflowStatus })
+      .eq('id', rawId)
+      .select(
+        'id, name, email, organization, inquiry_type, message, workflow_status, submitted_at',
+      )
+      .maybeSingle(),
+  );
+
+  if (!error && data) {
+    return {
+      id: `inquiry_${String(data.id)}`,
+      kind: 'inquiry',
+      name: String(data.name || ''),
+      email: String(data.email || ''),
+      organization: String(data.organization || ''),
+      inquiryType: String(data.inquiry_type || ''),
+      message: String(data.message || ''),
+      company: String(data.organization || ''),
+      challenge: composeLegacyChallenge({
+        inquiryType: String(data.inquiry_type || ''),
+        message: String(data.message || ''),
+      }),
+      workflowStatus: normalizeInquiryWorkflowStatus(data.workflow_status),
+      submittedAt: String(data.submitted_at || nowIso()),
+    };
+  }
+
+  if (error && isMissingTableError(error.message)) {
+    markMissingTable('inquiry_submissions');
+    requirePersistentTable('inquiry_submissions', 'Inquiry submission workflow update');
+    return null;
+  }
+
+  if (error) {
+    throw new Error(error.message);
   }
 
   return null;

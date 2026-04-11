@@ -1,4 +1,17 @@
-import type { BlogPost, CollectionData, RedirectRule, ServiceItem, SitemapQueryResult, SitePage, SiteSettings, UISettings } from './types.ts';
+import type {
+  AboutProfile,
+  BlogPost,
+  CollectionData,
+  FrameworkEntry,
+  InsightEntry,
+  RedirectRule,
+  ServiceItem,
+  SitemapQueryResult,
+  SitePage,
+  SiteSettings,
+  SolutionEntry,
+  UISettings,
+} from './types.ts';
 
 export type CacheEntry<T> = {
   value: T;
@@ -21,6 +34,14 @@ export const collectionDataCache: { entry?: CacheEntry<CollectionData> } = {};
 export const pageCache = new Map<string, CacheEntry<SitePage | null>>();
 export const serviceItemCache = new Map<string, CacheEntry<ServiceItem | null>>();
 export const blogPostCache = new Map<string, CacheEntry<BlogPost | null>>();
+export const frameworkEntriesCache: { entry?: CacheEntry<FrameworkEntry[]> } = {};
+export const frameworkEntryCache = new Map<string, CacheEntry<FrameworkEntry | null>>();
+export const solutionEntriesCache: { entry?: CacheEntry<SolutionEntry[]> } = {};
+export const solutionEntryCache = new Map<string, CacheEntry<SolutionEntry | null>>();
+export const insightEntriesCache: { entry?: CacheEntry<InsightEntry[]> } = {};
+export const insightEntryCache = new Map<string, CacheEntry<InsightEntry | null>>();
+export const aboutProfilesCache: { entry?: CacheEntry<AboutProfile[]> } = {};
+export const aboutProfileCache = new Map<string, CacheEntry<AboutProfile | null>>();
 export const sitemapCache: { entry?: CacheEntry<SitemapQueryResult> } = {};
 export const redirectRulesCache: { entry?: CacheEntry<RedirectRule[]> } = {};
 
@@ -124,6 +145,42 @@ export function invalidateCmsCollectionCaches(input: {
       if (slug) blogPostCache.delete(slug);
       if (prevSlug && prevSlug !== slug) blogPostCache.delete(prevSlug);
       clearHolderEntry(collectionDataCache);
+      clearHolderEntry(sitemapCache);
+      break;
+    }
+    case 'framework-entries': {
+      const slug = readSlugFromDoc(input.doc, 'slug');
+      const prevSlug = readSlugFromDoc(input.previousDoc, 'slug');
+      if (slug) frameworkEntryCache.delete(slug);
+      if (prevSlug && prevSlug !== slug) frameworkEntryCache.delete(prevSlug);
+      clearHolderEntry(frameworkEntriesCache);
+      clearHolderEntry(sitemapCache);
+      break;
+    }
+    case 'solution-entries': {
+      const slug = readSlugFromDoc(input.doc, 'slug');
+      const prevSlug = readSlugFromDoc(input.previousDoc, 'slug');
+      if (slug) solutionEntryCache.delete(slug);
+      if (prevSlug && prevSlug !== slug) solutionEntryCache.delete(prevSlug);
+      clearHolderEntry(solutionEntriesCache);
+      clearHolderEntry(sitemapCache);
+      break;
+    }
+    case 'insight-entries': {
+      const slug = readSlugFromDoc(input.doc, 'slug');
+      const prevSlug = readSlugFromDoc(input.previousDoc, 'slug');
+      if (slug) insightEntryCache.delete(slug);
+      if (prevSlug && prevSlug !== slug) insightEntryCache.delete(prevSlug);
+      clearHolderEntry(insightEntriesCache);
+      clearHolderEntry(sitemapCache);
+      break;
+    }
+    case 'org-about-profiles': {
+      const slug = readSlugFromDoc(input.doc, 'slug');
+      const prevSlug = readSlugFromDoc(input.previousDoc, 'slug');
+      if (slug) aboutProfileCache.delete(slug);
+      if (prevSlug && prevSlug !== slug) aboutProfileCache.delete(prevSlug);
+      clearHolderEntry(aboutProfilesCache);
       clearHolderEntry(sitemapCache);
       break;
     }

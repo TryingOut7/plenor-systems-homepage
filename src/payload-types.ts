@@ -88,6 +88,9 @@ export interface Config {
     'org-spotlight': OrgSpotlight;
     'org-about-profiles': OrgAboutProfile;
     'org-learning': OrgLearning;
+    'framework-entries': FrameworkEntry;
+    'solution-entries': SolutionEntry;
+    'insight-entries': InsightEntry;
     search: Search;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -127,6 +130,9 @@ export interface Config {
     'org-spotlight': OrgSpotlightSelect<false> | OrgSpotlightSelect<true>;
     'org-about-profiles': OrgAboutProfilesSelect<false> | OrgAboutProfilesSelect<true>;
     'org-learning': OrgLearningSelect<false> | OrgLearningSelect<true>;
+    'framework-entries': FrameworkEntriesSelect<false> | FrameworkEntriesSelect<true>;
+    'solution-entries': SolutionEntriesSelect<false> | SolutionEntriesSelect<true>;
+    'insight-entries': InsightEntriesSelect<false> | InsightEntriesSelect<true>;
     search: SearchSelect<false> | SearchSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -382,7 +388,7 @@ export interface ServiceItem {
   /**
    * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
    */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
   submittedBy?: (number | null) | User;
   submittedAt?: string | null;
   /**
@@ -2364,7 +2370,7 @@ export interface SitePage {
   /**
    * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
    */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
   submittedBy?: (number | null) | User;
   submittedAt?: string | null;
   /**
@@ -2661,7 +2667,7 @@ export interface TeamMember {
   /**
    * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
    */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
   submittedBy?: (number | null) | User;
   submittedAt?: string | null;
   /**
@@ -2707,7 +2713,7 @@ export interface Logo {
   /**
    * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
    */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
   submittedBy?: (number | null) | User;
   submittedAt?: string | null;
   /**
@@ -2866,7 +2872,7 @@ export interface OrgEvent {
   /**
    * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.
    */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
   submittedBy?: (number | null) | User;
   submittedAt?: string | null;
   /**
@@ -2975,7 +2981,7 @@ export interface OrgSpotlight {
   /**
    * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.
    */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
   submittedBy?: (number | null) | User;
   submittedAt?: string | null;
   /**
@@ -3075,7 +3081,7 @@ export interface OrgLearning {
   /**
    * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.
    */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
   submittedBy?: (number | null) | User;
   submittedAt?: string | null;
   /**
@@ -3179,7 +3185,7 @@ export interface OrgAboutProfile {
   /**
    * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.
    */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
   submittedBy?: (number | null) | User;
   submittedAt?: string | null;
   /**
@@ -5110,7 +5116,7 @@ export interface ReusableSection {
   /**
    * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
    */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
   submittedBy?: (number | null) | User;
   submittedAt?: string | null;
   /**
@@ -10968,7 +10974,7 @@ export interface BlogPost {
   /**
    * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
    */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
   submittedBy?: (number | null) | User;
   submittedAt?: string | null;
   /**
@@ -11026,7 +11032,7 @@ export interface BlogCategory {
   /**
    * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
    */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
   submittedBy?: (number | null) | User;
   submittedAt?: string | null;
   /**
@@ -11100,7 +11106,7 @@ export interface Testimonial {
   /**
    * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
    */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published') | null;
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
   submittedBy?: (number | null) | User;
   submittedAt?: string | null;
   /**
@@ -11152,6 +11158,303 @@ export interface AuditLog {
   summary: string;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * Framework entries for the Plenor method and CMS-driven approach.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "framework-entries".
+ */
+export interface FrameworkEntry {
+  id: number;
+  title: string;
+  slug: string;
+  category: 'what-plenor-is' | 'how-the-approach-works' | 'cms-driven-website-model' | 'why-this-is-different';
+  /**
+   * Short summary shown in cards and SEO snippets (recommended under 320 characters).
+   */
+  summary?: string | null;
+  coverImage?: (number | null) | Media;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  publishedAt?: string | null;
+  isFeatured?: boolean | null;
+  /**
+   * Homepage and listing fallback ordering. Lower values appear first.
+   */
+  orderingValue?: number | null;
+  /**
+   * Optional CTA path for this detail page (for example /contact).
+   */
+  ctaPath?: string | null;
+  relatedSolutions?: (number | SolutionEntry)[] | null;
+  relatedInsights?: (number | InsightEntry)[] | null;
+  tags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Document locale. English-first now; other locales can be enabled progressively.
+   */
+  locale: 'en' | 'de' | 'fr' | 'es' | 'it';
+  /**
+   * Shared ID linking localized variants of the same content.
+   */
+  translationGroupId?: string | null;
+  /**
+   * The user who originally created this document.
+   */
+  createdBy?: (number | null) | User;
+  /**
+   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
+   */
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
+  submittedBy?: (number | null) | User;
+  submittedAt?: string | null;
+  /**
+   * Editors/admins only: confirm the review checklist is complete before approving.
+   */
+  reviewChecklistComplete?: boolean | null;
+  /**
+   * Reviewer notes summarizing quality checks and decision rationale.
+   */
+  reviewSummary?: string | null;
+  approvedBy?: (number | null) | User;
+  approvedAt?: string | null;
+  /**
+   * Reason for rejection (visible to the author).
+   */
+  rejectionReason?: string | null;
+  /**
+   * SEO & Open Graph settings
+   */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+    canonicalUrl?: string | null;
+    noindex?: boolean | null;
+    nofollow?: boolean | null;
+    includeInSitemap?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Solution and offer entries for the Plenor delivery model.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "solution-entries".
+ */
+export interface SolutionEntry {
+  id: number;
+  title: string;
+  slug: string;
+  category: 'strategy-and-definition' | 'website-and-cms-implementation' | 'framework-led-delivery';
+  /**
+   * Short summary shown in cards and SEO snippets (recommended under 320 characters).
+   */
+  summary?: string | null;
+  coverImage?: (number | null) | Media;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  publishedAt?: string | null;
+  isFeatured?: boolean | null;
+  /**
+   * Homepage and listing fallback ordering. Lower values appear first.
+   */
+  orderingValue?: number | null;
+  /**
+   * Optional CTA path for this detail page (for example /contact).
+   */
+  ctaPath?: string | null;
+  relatedInsights?: (number | InsightEntry)[] | null;
+  tags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Document locale. English-first now; other locales can be enabled progressively.
+   */
+  locale: 'en' | 'de' | 'fr' | 'es' | 'it';
+  /**
+   * Shared ID linking localized variants of the same content.
+   */
+  translationGroupId?: string | null;
+  /**
+   * The user who originally created this document.
+   */
+  createdBy?: (number | null) | User;
+  /**
+   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
+   */
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
+  submittedBy?: (number | null) | User;
+  submittedAt?: string | null;
+  /**
+   * Editors/admins only: confirm the review checklist is complete before approving.
+   */
+  reviewChecklistComplete?: boolean | null;
+  /**
+   * Reviewer notes summarizing quality checks and decision rationale.
+   */
+  reviewSummary?: string | null;
+  approvedBy?: (number | null) | User;
+  approvedAt?: string | null;
+  /**
+   * Reason for rejection (visible to the author).
+   */
+  rejectionReason?: string | null;
+  /**
+   * SEO & Open Graph settings
+   */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+    canonicalUrl?: string | null;
+    noindex?: boolean | null;
+    nofollow?: boolean | null;
+    includeInSitemap?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Insights entries for articles, essays, and guides/resources.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "insight-entries".
+ */
+export interface InsightEntry {
+  id: number;
+  title: string;
+  slug: string;
+  category: 'article' | 'essay' | 'guide-resource';
+  /**
+   * Recommended 140-320 characters for previews and SEO snippets.
+   */
+  excerpt?: string | null;
+  coverImage?: (number | null) | Media;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Author or source label shown on the detail page.
+   */
+  authorLabel?: string | null;
+  publishedAt?: string | null;
+  isFeatured?: boolean | null;
+  /**
+   * Homepage and listing fallback ordering. Lower values appear first.
+   */
+  orderingValue?: number | null;
+  tags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Document locale. English-first now; other locales can be enabled progressively.
+   */
+  locale: 'en' | 'de' | 'fr' | 'es' | 'it';
+  /**
+   * Shared ID linking localized variants of the same content.
+   */
+  translationGroupId?: string | null;
+  /**
+   * The user who originally created this document.
+   */
+  createdBy?: (number | null) | User;
+  /**
+   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
+   */
+  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
+  submittedBy?: (number | null) | User;
+  submittedAt?: string | null;
+  /**
+   * Editors/admins only: confirm the review checklist is complete before approving.
+   */
+  reviewChecklistComplete?: boolean | null;
+  /**
+   * Reviewer notes summarizing quality checks and decision rationale.
+   */
+  reviewSummary?: string | null;
+  approvedBy?: (number | null) | User;
+  approvedAt?: string | null;
+  /**
+   * Reason for rejection (visible to the author).
+   */
+  rejectionReason?: string | null;
+  /**
+   * SEO & Open Graph settings
+   */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+    canonicalUrl?: string | null;
+    noindex?: boolean | null;
+    nofollow?: boolean | null;
+    includeInSitemap?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
@@ -11475,6 +11778,18 @@ export interface PayloadLockedDocument {
         value: number | OrgLearning;
       } | null)
     | ({
+        relationTo: 'framework-entries';
+        value: number | FrameworkEntry;
+      } | null)
+    | ({
+        relationTo: 'solution-entries';
+        value: number | SolutionEntry;
+      } | null)
+    | ({
+        relationTo: 'insight-entries';
+        value: number | InsightEntry;
+      } | null)
+    | ({
         relationTo: 'search';
         value: number | Search;
       } | null)
@@ -11592,6 +11907,9 @@ export interface PayloadQueryPreset {
     | 'org-spotlight'
     | 'org-about-profiles'
     | 'org-learning'
+    | 'framework-entries'
+    | 'solution-entries'
+    | 'insight-entries'
     | 'forms';
   /**
    * This is a temporary field used to determine if updating the preset would remove the user's access to it. When `true`, this record will be deleted after running the preset's `validate` function.
@@ -15911,6 +16229,159 @@ export interface OrgLearningSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "framework-entries_select".
+ */
+export interface FrameworkEntriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  category?: T;
+  summary?: T;
+  coverImage?: T;
+  body?: T;
+  publishedAt?: T;
+  isFeatured?: T;
+  orderingValue?: T;
+  ctaPath?: T;
+  relatedSolutions?: T;
+  relatedInsights?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  locale?: T;
+  translationGroupId?: T;
+  createdBy?: T;
+  workflowStatus?: T;
+  submittedBy?: T;
+  submittedAt?: T;
+  reviewChecklistComplete?: T;
+  reviewSummary?: T;
+  approvedBy?: T;
+  approvedAt?: T;
+  rejectionReason?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+        canonicalUrl?: T;
+        noindex?: T;
+        nofollow?: T;
+        includeInSitemap?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "solution-entries_select".
+ */
+export interface SolutionEntriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  category?: T;
+  summary?: T;
+  coverImage?: T;
+  body?: T;
+  publishedAt?: T;
+  isFeatured?: T;
+  orderingValue?: T;
+  ctaPath?: T;
+  relatedInsights?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  locale?: T;
+  translationGroupId?: T;
+  createdBy?: T;
+  workflowStatus?: T;
+  submittedBy?: T;
+  submittedAt?: T;
+  reviewChecklistComplete?: T;
+  reviewSummary?: T;
+  approvedBy?: T;
+  approvedAt?: T;
+  rejectionReason?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+        canonicalUrl?: T;
+        noindex?: T;
+        nofollow?: T;
+        includeInSitemap?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "insight-entries_select".
+ */
+export interface InsightEntriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  category?: T;
+  excerpt?: T;
+  coverImage?: T;
+  body?: T;
+  authorLabel?: T;
+  publishedAt?: T;
+  isFeatured?: T;
+  orderingValue?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  locale?: T;
+  translationGroupId?: T;
+  createdBy?: T;
+  workflowStatus?: T;
+  submittedBy?: T;
+  submittedAt?: T;
+  reviewChecklistComplete?: T;
+  reviewSummary?: T;
+  approvedBy?: T;
+  approvedAt?: T;
+  rejectionReason?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+        canonicalUrl?: T;
+        noindex?: T;
+        nofollow?: T;
+        includeInSitemap?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "search_select".
  */
 export interface SearchSelect<T extends boolean = true> {
@@ -16331,6 +16802,14 @@ export interface SiteSetting {
     emailPlaceholder?: string | null;
   };
   inquiryForm?: {
+    nameLabel?: string | null;
+    emailLabel?: string | null;
+    organizationLabel?: string | null;
+    inquiryTypeLabel?: string | null;
+    messageLabel?: string | null;
+    messageHelper?: string | null;
+    successMessage?: string | null;
+    responseStatement?: string | null;
     submitLabel?: string | null;
     submittingLabel?: string | null;
     successHeading?: string | null;
@@ -17062,6 +17541,14 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   inquiryForm?:
     | T
     | {
+        nameLabel?: T;
+        emailLabel?: T;
+        organizationLabel?: T;
+        inquiryTypeLabel?: T;
+        messageLabel?: T;
+        messageHelper?: T;
+        successMessage?: T;
+        responseStatement?: T;
         submitLabel?: T;
         submittingLabel?: T;
         successHeading?: T;
@@ -17352,6 +17839,9 @@ export interface TaskCreateCollectionExport {
       | 'org-spotlight'
       | 'org-about-profiles'
       | 'org-learning'
+      | 'framework-entries'
+      | 'solution-entries'
+      | 'insight-entries'
       | 'search'
       | 'forms'
       | 'form-submissions'

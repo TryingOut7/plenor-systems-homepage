@@ -61,6 +61,9 @@ import { OrgEvents } from './payload/collections/OrgEvents.ts';
 import { OrgSpotlight } from './payload/collections/OrgSpotlight.ts';
 import { OrgAboutProfiles } from './payload/collections/OrgAboutProfiles.ts';
 import { OrgLearning } from './payload/collections/OrgLearning.ts';
+import { FrameworkEntries } from './payload/collections/FrameworkEntries.ts';
+import { SolutionEntries } from './payload/collections/SolutionEntries.ts';
+import { InsightEntries } from './payload/collections/InsightEntries.ts';
 import { SiteSettings } from './payload/globals/SiteSettings.ts';
 import { UISettings } from './payload/globals/UISettings.ts';
 import { OrgSponsors } from './payload/globals/OrgSponsors.ts';
@@ -782,6 +785,9 @@ export default buildConfig({
     withImportExportBanner(OrgSpotlight),
     withImportExportBanner(OrgAboutProfiles),
     withImportExportBanner(OrgLearning),
+    FrameworkEntries,
+    SolutionEntries,
+    InsightEntries,
   ],
   globals: [SiteSettings, UISettings, OrgSponsors, OrgHomeFeatures],
   editor: lexicalEditor({

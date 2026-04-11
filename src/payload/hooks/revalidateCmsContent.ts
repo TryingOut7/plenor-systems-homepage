@@ -13,6 +13,9 @@ type CollectionSlug =
   | 'site-pages'
   | 'service-items'
   | 'blog-posts'
+  | 'framework-entries'
+  | 'solution-entries'
+  | 'insight-entries'
   | 'testimonials'
   | 'team-members'
   | 'logos'
@@ -119,6 +122,33 @@ export async function revalidateCollectionContent(
       await safeRevalidatePath('/sitemap.xml');
       break;
     }
+    case 'framework-entries': {
+      const slug = doc.slug as string | undefined;
+      if (slug) {
+        await safeRevalidatePath(`/framework/${slug}`, 'page');
+      }
+      await safeRevalidatePath('/framework', 'page');
+      await safeRevalidatePath('/sitemap.xml');
+      break;
+    }
+    case 'solution-entries': {
+      const slug = doc.slug as string | undefined;
+      if (slug) {
+        await safeRevalidatePath(`/solutions/${slug}`, 'page');
+      }
+      await safeRevalidatePath('/solutions', 'page');
+      await safeRevalidatePath('/sitemap.xml');
+      break;
+    }
+    case 'insight-entries': {
+      const slug = doc.slug as string | undefined;
+      if (slug) {
+        await safeRevalidatePath(`/insights/${slug}`, 'page');
+      }
+      await safeRevalidatePath('/insights', 'page');
+      await safeRevalidatePath('/sitemap.xml');
+      break;
+    }
     case 'testimonials':
     case 'team-members':
     case 'logos': {
@@ -166,6 +196,13 @@ export const revalidateGlobalAfterChange: GlobalAfterChangeHook = async ({
 async function revalidateAllFrontendPages(): Promise<void> {
   await safeRevalidatePath('/', 'layout');
   await safeRevalidatePath('/about', 'page');
+  await safeRevalidatePath('/about/[slug]', 'page');
+  await safeRevalidatePath('/framework', 'page');
+  await safeRevalidatePath('/framework/[slug]', 'page');
+  await safeRevalidatePath('/solutions', 'page');
+  await safeRevalidatePath('/solutions/[slug]', 'page');
+  await safeRevalidatePath('/insights', 'page');
+  await safeRevalidatePath('/insights/[slug]', 'page');
   await safeRevalidatePath('/services', 'page');
   await safeRevalidatePath('/pricing', 'page');
   await safeRevalidatePath('/contact', 'page');

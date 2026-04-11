@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
+import { Inter, Newsreader } from 'next/font/google';
 import { draftMode } from 'next/headers';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
@@ -22,11 +22,18 @@ import {
 } from '@/lib/site-config';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
 
-const dmSans = localFont({
-  src: '../../fonts/DMSans-VariableFont_opsz,wght.ttf',
-  variable: '--font-sans',
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
   display: 'swap',
-  weight: '100 1000',
+});
+
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  variable: '--font-newsreader',
+  display: 'swap',
+  style: ['normal', 'italic'],
+  weight: ['300', '400', '500', '600', '700'],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -38,10 +45,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     settings?.defaultMetaDescription ||
     settings?.defaultSeo?.metaDescription ||
-    `${siteName} provides a structured product development framework for Testing & QA and Launch & Go-to-Market — the two stages most likely to cause rework or failed launches.`;
+    `${siteName} is a professional services and advisory business focused on CMS-driven websites, structured delivery, and governed operating models.`;
   const defaultTitle =
     settings?.defaultSeo?.metaTitle ||
-    `${siteName} — Testing & QA and Launch & Go-to-Market Framework`;
+    `${siteName} — CMS-Driven Websites and Structured Delivery`;
 
   return {
     metadataBase: new URL(siteUrl),
@@ -113,7 +120,7 @@ export default async function RootLayout({
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : siteUrl);
 
   return (
-    <html lang="en" className={dmSans.variable}>
+    <html lang="en" className={`${inter.variable} ${newsreader.variable}`}>
       <head>
         <UIStyleInjector uiSettings={uiSettings} />
         {headingFontUrl && <link rel="stylesheet" href={headingFontUrl} />}

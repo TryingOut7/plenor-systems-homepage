@@ -1,14 +1,19 @@
 import { buildCorePresetSections, type CorePresetKey } from '../presets/corePagePresets.ts';
 import type {
+  AboutProfile,
   BlogPost,
+  FrameworkEntry,
+  InsightEntry,
   Logo,
   PageSection,
   SeoFields,
   ServiceItem,
   SitePage,
+  SolutionEntry,
   TeamMember,
   Testimonial,
 } from './types.ts';
+import { inferAboutProfileLabel } from '@/lib/plenor-site';
 
 type CorePagePreset = Exclude<CorePresetKey, 'custom'>;
 
@@ -168,5 +173,98 @@ export function normalizeLogo(doc: Record<string, unknown>): Logo {
     image: normalizeMedia(doc.image),
     url: doc.url as string | undefined,
     order: doc.order as number | undefined,
+  };
+}
+
+function normalizeRelatedDocs(
+  value: unknown,
+): Array<{ id?: string; title?: string; slug?: string }> | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const relatedDocs: Array<{ id?: string; title?: string; slug?: string }> = [];
+
+  for (const entry of value) {
+    if (!entry || typeof entry !== 'object') continue;
+    const record = entry as Record<string, unknown>;
+    relatedDocs.push({
+      id: record.id ? String(record.id) : undefined,
+      title: record.title as string | undefined,
+      slug: record.slug as string | undefined,
+    });
+  }
+
+  return relatedDocs;
+}
+
+export function normalizeFrameworkEntry(doc: Record<string, unknown>): FrameworkEntry {
+  return {
+    id: String(doc.id),
+    title: doc.title as string | undefined,
+    slug: doc.slug as string | undefined,
+    category: doc.category as FrameworkEntry['category'],
+    summary: doc.summary as string | undefined,
+    coverImage: normalizeMedia(doc.coverImage),
+    body: doc.body,
+    publishedAt: doc.publishedAt as string | undefined,
+    isFeatured: doc.isFeatured as boolean | undefined,
+    orderingValue: doc.orderingValue as number | undefined,
+    ctaPath: doc.ctaPath as string | undefined,
+    relatedSolutions: normalizeRelatedDocs(doc.relatedSolutions),
+    relatedInsights: normalizeRelatedDocs(doc.relatedInsights),
+    tags: doc.tags as FrameworkEntry['tags'],
+    seo: normalizeSeo(doc.seo),
+  };
+}
+
+export function normalizeSolutionEntry(doc: Record<string, unknown>): SolutionEntry {
+  return {
+    id: String(doc.id),
+    title: doc.title as string | undefined,
+    slug: doc.slug as string | undefined,
+    category: doc.category as SolutionEntry['category'],
+    summary: doc.summary as string | undefined,
+    coverImage: normalizeMedia(doc.coverImage),
+    body: doc.body,
+    publishedAt: doc.publishedAt as string | undefined,
+    isFeatured: doc.isFeatured as boolean | undefined,
+    orderingValue: doc.orderingValue as number | undefined,
+    ctaPath: doc.ctaPath as string | undefined,
+    relatedInsights: normalizeRelatedDocs(doc.relatedInsights),
+    tags: doc.tags as SolutionEntry['tags'],
+    seo: normalizeSeo(doc.seo),
+  };
+}
+
+export function normalizeInsightEntry(doc: Record<string, unknown>): InsightEntry {
+  return {
+    id: String(doc.id),
+    title: doc.title as string | undefined,
+    slug: doc.slug as string | undefined,
+    category: doc.category as InsightEntry['category'],
+    excerpt: doc.excerpt as string | undefined,
+    coverImage: normalizeMedia(doc.coverImage),
+    body: doc.body,
+    authorLabel: doc.authorLabel as string | undefined,
+    publishedAt: doc.publishedAt as string | undefined,
+    isFeatured: doc.isFeatured as boolean | undefined,
+    orderingValue: doc.orderingValue as number | undefined,
+    tags: doc.tags as InsightEntry['tags'],
+    seo: normalizeSeo(doc.seo),
+  };
+}
+
+export function normalizeAboutProfile(doc: Record<string, unknown>): AboutProfile {
+  const category = doc.category as AboutProfile['category'];
+  return {
+    id: String(doc.id),
+    name: doc.name as string | undefined,
+    slug: doc.slug as string | undefined,
+    category,
+    displayLabel: inferAboutProfileLabel(category),
+    shortBio: doc.shortBio as string | undefined,
+    detailContent: doc.detailContent,
+    profileImage: normalizeMedia(doc.profileImage),
+    roleTitle: doc.roleTitle as string | undefined,
+    displayOrder: doc.displayOrder as number | undefined,
+    seo: normalizeSeo(doc.seo),
   };
 }

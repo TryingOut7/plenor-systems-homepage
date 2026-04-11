@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
     settings,
     fallbackTitle: 'Contact — Send an Inquiry',
     fallbackDescription:
-      `Send a direct inquiry to ${siteName}. Tell us about your product and team.`,
+      `Send a direct inquiry to ${siteName}. Share your need and we will respond with next steps.`,
   });
 }
 

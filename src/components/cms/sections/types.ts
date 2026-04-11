@@ -19,6 +19,14 @@ export type GuideFormLabels = {
 };
 
 export type InquiryFormLabels = {
+  nameLabel?: string;
+  emailLabel?: string;
+  organizationLabel?: string;
+  inquiryTypeLabel?: string;
+  messageLabel?: string;
+  messageHelper?: string;
+  successMessage?: string;
+  responseStatement?: string;
   submitLabel?: string;
   submittingLabel?: string;
   successHeading?: string;
@@ -28,6 +36,9 @@ export type InquiryFormLabels = {
   privacyHref?: string;
   namePlaceholder?: string;
   emailPlaceholder?: string;
+  organizationPlaceholder?: string;
+  inquiryTypePlaceholder?: string;
+  messagePlaceholder?: string;
   companyPlaceholder?: string;
   challengePlaceholder?: string;
 };

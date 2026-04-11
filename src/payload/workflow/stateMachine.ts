@@ -4,6 +4,7 @@ export const workflowStatuses = [
   'approved',
   'rejected',
   'published',
+  'archived',
 ] as const;
 
 export type WorkflowStatus = (typeof workflowStatuses)[number];
@@ -41,8 +42,13 @@ export const workflowTransitions: Record<WorkflowStatus, Partial<Record<Workflow
   },
   published: {
     author: [],
-    editor: ['draft'],
-    admin: ['draft', 'in_review'],
+    editor: ['draft', 'archived'],
+    admin: ['draft', 'in_review', 'archived'],
+  },
+  archived: {
+    author: [],
+    editor: [],
+    admin: ['draft'],
   },
 };
 

@@ -62,19 +62,25 @@ const INQUIRY_FORM_TEMPLATE: FormTemplate = {
   title: 'inquiry',
   lookupTitles: ['inquiry', 'Inquiry'],
   fields: [
-    { blockType: 'text', name: 'name', label: 'Full Name', required: true },
-    { blockType: 'email', name: 'email', label: 'Email Address', required: true },
-    { blockType: 'text', name: 'company', label: 'Company', required: false },
+    { blockType: 'text', name: 'name', label: 'Your name', required: true },
+    { blockType: 'email', name: 'email', label: 'Work email', required: true },
+    { blockType: 'text', name: 'organization', label: 'Organization', required: false },
+    {
+      blockType: 'text',
+      name: 'inquiryType',
+      label: 'What can we help you with?',
+      required: true,
+    },
     {
       blockType: 'textarea',
-      name: 'challenge',
-      label: 'What challenge are you solving?',
-      required: false,
+      name: 'message',
+      label: 'Tell us a bit about your need',
+      required: true,
     },
   ],
-  submitButtonLabel: 'Send Message',
+  submitButtonLabel: 'Send inquiry',
   confirmationMessage: lexicalParagraph(
-    "Thanks for reaching out! We'll be in touch shortly.",
+    'Thanks. Your inquiry has been received.',
   ),
 };
 

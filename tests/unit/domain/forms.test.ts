@@ -34,31 +34,32 @@ describe('domain/forms', () => {
     const result = validateInquirySubmission({
       name: '<script>Bob</script>',
       email: 'bob@Example.com',
-      company: ' <i>Acme</i> ',
-      challenge: ' <p>Need help with launch planning.</p> ',
+      organization: ' <i>Acme</i> ',
+      inquiryType: ' Website and CMS implementation ',
+      message: ' <p>Need help with launch planning.</p> ',
     });
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
 
     expect(result.data.name).toBe('Bob');
-    expect(result.data.company).toBe('Acme');
-    expect(result.data.challenge).toBe('Need help with launch planning.');
+    expect(result.data.organization).toBe('Acme');
+    expect(result.data.inquiryType).toBe('Website and CMS implementation');
+    expect(result.data.message).toBe('Need help with launch planning.');
   });
 
-  it('rejects inquiry submissions with empty challenge', () => {
+  it('rejects inquiry submissions with empty message', () => {
     const result = validateInquirySubmission({
       name: 'Bob',
       email: 'bob@example.com',
-      company: 'Acme',
-      challenge: '   ',
+      organization: 'Acme',
+      inquiryType: 'Strategy and Definition',
+      message: '   ',
     });
 
     expect(result.ok).toBe(false);
     if (result.ok) return;
 
-    expect(result.message).toBe(
-      'Please describe your product and challenge (max 5000 characters).',
-    );
+    expect(result.message).toBe('Message is required (max 5000 characters).');
   });
 });

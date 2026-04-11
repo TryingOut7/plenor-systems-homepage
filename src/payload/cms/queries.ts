@@ -1,10 +1,16 @@
 import { cache } from 'react';
 import { getPayload } from '../client.ts';
 import {
+  aboutProfileCache,
+  aboutProfilesCache,
   blogPostCache,
   collectionDataCache,
+  frameworkEntriesCache,
+  frameworkEntryCache,
   getFromCache,
   getMapCache,
+  insightEntriesCache,
+  insightEntryCache,
   markPayloadFailure,
   pageCache,
   redirectRulesCache,
@@ -14,32 +20,43 @@ import {
   shouldSkipPayload,
   sitemapCache,
   siteSettingsCache,
+  solutionEntriesCache,
+  solutionEntryCache,
   uiSettingsCache,
 } from './cache.ts';
 import {
   cloneDefaultSitePage,
   DEFAULT_SITE_PAGE_SLUGS,
+  normalizeAboutProfile,
   normalizeBlogPost,
+  normalizeFrameworkEntry,
+  normalizeInsightEntry,
   normalizeLogo,
   normalizeSection,
   normalizeServiceItem,
+  normalizeSolutionEntry,
   normalizeTeamMember,
   normalizeTestimonial,
   normalizeSeo,
 } from './normalize.ts';
 import type {
+  AboutProfile,
   BlogPost,
   CmsReadOptions,
   CollectionData,
+  FrameworkEntry,
+  InsightEntry,
   RedirectRule,
   ServiceItem,
   SitemapQueryResult,
   SitePage,
   SiteSettings,
+  SolutionEntry,
   UISettings,
 } from './types.ts';
 import { resolveFormEmbedAliasesInSitePage } from './resolveFormAliases.ts';
 import { buildPublicVisibilityWhere } from '../access/publicVisibility.ts';
+import { sortGovernedContent } from '@/lib/plenor-site';
 
 const PAYLOAD_QUERY_TIMEOUT_MS = 8000;
 
@@ -61,6 +78,20 @@ async function withPayloadTimeout<T>(promise: Promise<T>, label: string): Promis
 
 function isDraftRead(options?: CmsReadOptions): boolean {
   return options?.draft === true;
+}
+
+function normalizeSlug(value: string): string {
+  return value.replace(/^\/+|\/+$/g, '');
+}
+
+function mapSitemapDoc(doc: Record<string, unknown>) {
+  return {
+    slug: doc.slug as string | undefined,
+    includeInSitemap:
+      (doc.seo as Record<string, unknown> | undefined)?.includeInSitemap as boolean | undefined ??
+      true,
+    updatedAt: doc.updatedAt as string | undefined,
+  };
 }
 
 export const getSiteSettings = cache(async function getSiteSettings(
@@ -477,6 +508,337 @@ export const getBlogPostBySlug = cache(async function getBlogPostBySlug(
   }
 });
 
+export const getFrameworkEntries = cache(async function getFrameworkEntries(
+  options: CmsReadOptions = {},
+): Promise<FrameworkEntry[]> {
+  const draft = isDraftRead(options);
+  if (!draft) {
+    const cached = getFromCache(frameworkEntriesCache.entry);
+    if (cached !== undefined) return cached;
+    if (shouldSkipPayload()) return setCache(frameworkEntriesCache, [], 10_000);
+  }
+
+  try {
+    const payload = await getPayload();
+    const result = await withPayloadTimeout(
+      payload.find({
+        collection: 'framework-entries',
+        ...(draft ? {} : { where: buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }) }),
+        sort: '-publishedAt',
+        limit: 200,
+        depth: 1,
+        ...(draft ? { draft: true } : {}),
+      }),
+      'find:framework-entries',
+    );
+
+    const normalized = sortGovernedContent(
+      result.docs.map((doc) => normalizeFrameworkEntry(doc as unknown as Record<string, unknown>)),
+    );
+
+    return draft ? normalized : setCache(frameworkEntriesCache, normalized);
+  } catch {
+    if (draft) return [];
+    markPayloadFailure();
+    return setCache(frameworkEntriesCache, [], 10_000);
+  }
+});
+
+export const getFrameworkEntryBySlug = cache(async function getFrameworkEntryBySlug(
+  slug: string,
+  options: CmsReadOptions = {},
+): Promise<FrameworkEntry | null> {
+  const draft = isDraftRead(options);
+  const normalizedSlug = normalizeSlug(slug);
+
+  if (!draft) {
+    const cached = getMapCache(frameworkEntryCache, normalizedSlug);
+    if (cached !== undefined) return cached;
+    if (shouldSkipPayload()) return setMapCache(frameworkEntryCache, normalizedSlug, null, 10_000);
+  }
+
+  try {
+    const payload = await getPayload();
+    const result = await withPayloadTimeout(
+      payload.find({
+        collection: 'framework-entries',
+        where: draft
+          ? { slug: { equals: normalizedSlug } }
+          : {
+              and: [
+                { slug: { equals: normalizedSlug } },
+                buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }),
+              ],
+            },
+        limit: 1,
+        depth: 1,
+        ...(draft ? { draft: true } : {}),
+      }),
+      `find:framework-entries:${normalizedSlug}`,
+    );
+
+    const doc = result.docs[0];
+    if (!doc) return draft ? null : setMapCache(frameworkEntryCache, normalizedSlug, null);
+
+    const normalized = normalizeFrameworkEntry(doc as unknown as Record<string, unknown>);
+    return draft ? normalized : setMapCache(frameworkEntryCache, normalizedSlug, normalized);
+  } catch {
+    if (draft) return null;
+    markPayloadFailure();
+    return setMapCache(frameworkEntryCache, normalizedSlug, null, 10_000);
+  }
+});
+
+export const getSolutionEntries = cache(async function getSolutionEntries(
+  options: CmsReadOptions = {},
+): Promise<SolutionEntry[]> {
+  const draft = isDraftRead(options);
+  if (!draft) {
+    const cached = getFromCache(solutionEntriesCache.entry);
+    if (cached !== undefined) return cached;
+    if (shouldSkipPayload()) return setCache(solutionEntriesCache, [], 10_000);
+  }
+
+  try {
+    const payload = await getPayload();
+    const result = await withPayloadTimeout(
+      payload.find({
+        collection: 'solution-entries',
+        ...(draft ? {} : { where: buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }) }),
+        sort: '-publishedAt',
+        limit: 200,
+        depth: 1,
+        ...(draft ? { draft: true } : {}),
+      }),
+      'find:solution-entries',
+    );
+
+    const normalized = sortGovernedContent(
+      result.docs.map((doc) => normalizeSolutionEntry(doc as unknown as Record<string, unknown>)),
+    );
+
+    return draft ? normalized : setCache(solutionEntriesCache, normalized);
+  } catch {
+    if (draft) return [];
+    markPayloadFailure();
+    return setCache(solutionEntriesCache, [], 10_000);
+  }
+});
+
+export const getSolutionEntryBySlug = cache(async function getSolutionEntryBySlug(
+  slug: string,
+  options: CmsReadOptions = {},
+): Promise<SolutionEntry | null> {
+  const draft = isDraftRead(options);
+  const normalizedSlug = normalizeSlug(slug);
+
+  if (!draft) {
+    const cached = getMapCache(solutionEntryCache, normalizedSlug);
+    if (cached !== undefined) return cached;
+    if (shouldSkipPayload()) return setMapCache(solutionEntryCache, normalizedSlug, null, 10_000);
+  }
+
+  try {
+    const payload = await getPayload();
+    const result = await withPayloadTimeout(
+      payload.find({
+        collection: 'solution-entries',
+        where: draft
+          ? { slug: { equals: normalizedSlug } }
+          : {
+              and: [
+                { slug: { equals: normalizedSlug } },
+                buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }),
+              ],
+            },
+        limit: 1,
+        depth: 1,
+        ...(draft ? { draft: true } : {}),
+      }),
+      `find:solution-entries:${normalizedSlug}`,
+    );
+
+    const doc = result.docs[0];
+    if (!doc) return draft ? null : setMapCache(solutionEntryCache, normalizedSlug, null);
+
+    const normalized = normalizeSolutionEntry(doc as unknown as Record<string, unknown>);
+    return draft ? normalized : setMapCache(solutionEntryCache, normalizedSlug, normalized);
+  } catch {
+    if (draft) return null;
+    markPayloadFailure();
+    return setMapCache(solutionEntryCache, normalizedSlug, null, 10_000);
+  }
+});
+
+export const getInsightEntries = cache(async function getInsightEntries(
+  options: CmsReadOptions = {},
+): Promise<InsightEntry[]> {
+  const draft = isDraftRead(options);
+  if (!draft) {
+    const cached = getFromCache(insightEntriesCache.entry);
+    if (cached !== undefined) return cached;
+    if (shouldSkipPayload()) return setCache(insightEntriesCache, [], 10_000);
+  }
+
+  try {
+    const payload = await getPayload();
+    const result = await withPayloadTimeout(
+      payload.find({
+        collection: 'insight-entries',
+        ...(draft ? {} : { where: buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }) }),
+        sort: '-publishedAt',
+        limit: 200,
+        depth: 1,
+        ...(draft ? { draft: true } : {}),
+      }),
+      'find:insight-entries',
+    );
+
+    const normalized = sortGovernedContent(
+      result.docs.map((doc) => normalizeInsightEntry(doc as unknown as Record<string, unknown>)),
+    );
+
+    return draft ? normalized : setCache(insightEntriesCache, normalized);
+  } catch {
+    if (draft) return [];
+    markPayloadFailure();
+    return setCache(insightEntriesCache, [], 10_000);
+  }
+});
+
+export const getInsightEntryBySlug = cache(async function getInsightEntryBySlug(
+  slug: string,
+  options: CmsReadOptions = {},
+): Promise<InsightEntry | null> {
+  const draft = isDraftRead(options);
+  const normalizedSlug = normalizeSlug(slug);
+
+  if (!draft) {
+    const cached = getMapCache(insightEntryCache, normalizedSlug);
+    if (cached !== undefined) return cached;
+    if (shouldSkipPayload()) return setMapCache(insightEntryCache, normalizedSlug, null, 10_000);
+  }
+
+  try {
+    const payload = await getPayload();
+    const result = await withPayloadTimeout(
+      payload.find({
+        collection: 'insight-entries',
+        where: draft
+          ? { slug: { equals: normalizedSlug } }
+          : {
+              and: [
+                { slug: { equals: normalizedSlug } },
+                buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }),
+              ],
+            },
+        limit: 1,
+        depth: 1,
+        ...(draft ? { draft: true } : {}),
+      }),
+      `find:insight-entries:${normalizedSlug}`,
+    );
+
+    const doc = result.docs[0];
+    if (!doc) return draft ? null : setMapCache(insightEntryCache, normalizedSlug, null);
+
+    const normalized = normalizeInsightEntry(doc as unknown as Record<string, unknown>);
+    return draft ? normalized : setMapCache(insightEntryCache, normalizedSlug, normalized);
+  } catch {
+    if (draft) return null;
+    markPayloadFailure();
+    return setMapCache(insightEntryCache, normalizedSlug, null, 10_000);
+  }
+});
+
+export const getAboutProfiles = cache(async function getAboutProfiles(
+  options: CmsReadOptions = {},
+): Promise<AboutProfile[]> {
+  const draft = isDraftRead(options);
+  if (!draft) {
+    const cached = getFromCache(aboutProfilesCache.entry);
+    if (cached !== undefined) return cached;
+    if (shouldSkipPayload()) return setCache(aboutProfilesCache, [], 10_000);
+  }
+
+  try {
+    const payload = await getPayload();
+    const result = await withPayloadTimeout(
+      payload.find({
+        collection: 'org-about-profiles',
+        ...(draft ? {} : { where: buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }) }),
+        sort: 'displayOrder',
+        limit: 200,
+        depth: 1,
+        ...(draft ? { draft: true } : {}),
+      }),
+      'find:org-about-profiles',
+    );
+
+    const normalized = result.docs
+      .map((doc) => normalizeAboutProfile(doc as unknown as Record<string, unknown>))
+      .sort((left, right) => {
+        const leftOrder =
+          typeof left.displayOrder === 'number' ? left.displayOrder : Number.POSITIVE_INFINITY;
+        const rightOrder =
+          typeof right.displayOrder === 'number' ? right.displayOrder : Number.POSITIVE_INFINITY;
+        if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+        return (left.name || '').localeCompare(right.name || '');
+      });
+
+    return draft ? normalized : setCache(aboutProfilesCache, normalized);
+  } catch {
+    if (draft) return [];
+    markPayloadFailure();
+    return setCache(aboutProfilesCache, [], 10_000);
+  }
+});
+
+export const getAboutProfileBySlug = cache(async function getAboutProfileBySlug(
+  slug: string,
+  options: CmsReadOptions = {},
+): Promise<AboutProfile | null> {
+  const draft = isDraftRead(options);
+  const normalizedSlug = normalizeSlug(slug);
+
+  if (!draft) {
+    const cached = getMapCache(aboutProfileCache, normalizedSlug);
+    if (cached !== undefined) return cached;
+    if (shouldSkipPayload()) return setMapCache(aboutProfileCache, normalizedSlug, null, 10_000);
+  }
+
+  try {
+    const payload = await getPayload();
+    const result = await withPayloadTimeout(
+      payload.find({
+        collection: 'org-about-profiles',
+        where: draft
+          ? { slug: { equals: normalizedSlug } }
+          : {
+              and: [
+                { slug: { equals: normalizedSlug } },
+                buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }),
+              ],
+            },
+        limit: 1,
+        depth: 1,
+        ...(draft ? { draft: true } : {}),
+      }),
+      `find:org-about-profiles:${normalizedSlug}`,
+    );
+
+    const doc = result.docs[0];
+    if (!doc) return draft ? null : setMapCache(aboutProfileCache, normalizedSlug, null);
+
+    const normalized = normalizeAboutProfile(doc as unknown as Record<string, unknown>);
+    return draft ? normalized : setMapCache(aboutProfileCache, normalizedSlug, normalized);
+  } catch {
+    if (draft) return null;
+    markPayloadFailure();
+    return setMapCache(aboutProfileCache, normalizedSlug, null, 10_000);
+  }
+});
+
 export const getSitemapSlugs = cache(async function getSitemapSlugs(): Promise<SitemapQueryResult> {
   const cached = getFromCache(sitemapCache.entry);
   if (cached !== undefined) return cached;
@@ -484,15 +846,24 @@ export const getSitemapSlugs = cache(async function getSitemapSlugs(): Promise<S
     const fallback = {
       sitePages: DEFAULT_SITE_PAGE_SLUGS.map((slug) => ({ slug, includeInSitemap: true })),
       serviceItems: [],
+      frameworkEntries: [],
+      solutionEntries: [],
+      insightEntries: [],
+      aboutProfiles: [],
     };
     return setCache(sitemapCache, fallback, 10_000);
   }
 
   try {
     const payload = await getPayload();
-    const [pages, services] = await Promise.all([
+    const [pages, services, frameworkEntries, solutionEntries, insightEntries, aboutProfiles] =
+      await Promise.all([
       withPayloadTimeout(
-        payload.find({ collection: 'site-pages', where: { isActive: { equals: true }, workflowStatus: { equals: 'published' } }, limit: 500 }),
+        payload.find({
+          collection: 'site-pages',
+          where: { isActive: { equals: true }, workflowStatus: { equals: 'published' } },
+          limit: 500,
+        }),
         'find:site-pages:sitemap',
       ),
       withPayloadTimeout(
@@ -503,23 +874,67 @@ export const getSitemapSlugs = cache(async function getSitemapSlugs(): Promise<S
         }),
         'find:service-items:sitemap',
       ),
+      withPayloadTimeout(
+        payload.find({
+          collection: 'framework-entries',
+          where: buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }),
+          limit: 500,
+        }),
+        'find:framework-entries:sitemap',
+      ),
+      withPayloadTimeout(
+        payload.find({
+          collection: 'solution-entries',
+          where: buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }),
+          limit: 500,
+        }),
+        'find:solution-entries:sitemap',
+      ),
+      withPayloadTimeout(
+        payload.find({
+          collection: 'insight-entries',
+          where: buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }),
+          limit: 500,
+        }),
+        'find:insight-entries:sitemap',
+      ),
+      withPayloadTimeout(
+        payload.find({
+          collection: 'org-about-profiles',
+          where: buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }),
+          limit: 500,
+        }),
+        'find:org-about-profiles:sitemap',
+      ),
     ]);
 
-    const mapDoc = (d: Record<string, unknown>) => ({
-      slug: d.slug as string | undefined,
-      includeInSitemap: (d.seo as Record<string, unknown> | undefined)?.includeInSitemap as boolean | undefined ?? true,
-      updatedAt: d.updatedAt as string | undefined,
-    });
-
     return setCache(sitemapCache, {
-      sitePages: pages.docs.map((d) => mapDoc(d as unknown as Record<string, unknown>)),
-      serviceItems: services.docs.map((d) => mapDoc(d as unknown as Record<string, unknown>)),
+      sitePages: pages.docs.map((d) => mapSitemapDoc(d as unknown as Record<string, unknown>)),
+      serviceItems: services.docs.map((d) =>
+        mapSitemapDoc(d as unknown as Record<string, unknown>),
+      ),
+      frameworkEntries: frameworkEntries.docs.map((d) =>
+        mapSitemapDoc(d as unknown as Record<string, unknown>),
+      ),
+      solutionEntries: solutionEntries.docs.map((d) =>
+        mapSitemapDoc(d as unknown as Record<string, unknown>),
+      ),
+      insightEntries: insightEntries.docs.map((d) =>
+        mapSitemapDoc(d as unknown as Record<string, unknown>),
+      ),
+      aboutProfiles: aboutProfiles.docs.map((d) =>
+        mapSitemapDoc(d as unknown as Record<string, unknown>),
+      ),
     });
   } catch {
     markPayloadFailure();
     const fallback = {
       sitePages: DEFAULT_SITE_PAGE_SLUGS.map((slug) => ({ slug, includeInSitemap: true })),
       serviceItems: [],
+      frameworkEntries: [],
+      solutionEntries: [],
+      insightEntries: [],
+      aboutProfiles: [],
     };
     return setCache(sitemapCache, fallback, 10_000);
   }

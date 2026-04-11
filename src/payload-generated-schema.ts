@@ -56,7 +56,7 @@ export const enum_service_items_locale = pgEnum("enum_service_items_locale", [
 ]);
 export const enum_service_items_workflow_status = pgEnum(
   "enum_service_items_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum_service_items_status = pgEnum("enum_service_items_status", [
   "draft",
@@ -72,7 +72,7 @@ export const enum__service_items_v_version_locale = pgEnum(
 );
 export const enum__service_items_v_version_workflow_status = pgEnum(
   "enum__service_items_v_version_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum__service_items_v_version_status = pgEnum(
   "enum__service_items_v_version_status",
@@ -916,7 +916,7 @@ export const enum_site_pages_publish_quality_level = pgEnum(
 );
 export const enum_site_pages_workflow_status = pgEnum(
   "enum_site_pages_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum_page_drafts_source_type = pgEnum(
   "enum_page_drafts_source_type",
@@ -958,7 +958,7 @@ export const enum_reuse_sec_locale = pgEnum("enum_reuse_sec_locale", [
 ]);
 export const enum_reuse_sec_workflow_status = pgEnum(
   "enum_reuse_sec_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum_blog_posts_locale = pgEnum("enum_blog_posts_locale", [
   "en",
@@ -969,7 +969,7 @@ export const enum_blog_posts_locale = pgEnum("enum_blog_posts_locale", [
 ]);
 export const enum_blog_posts_workflow_status = pgEnum(
   "enum_blog_posts_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum_blog_posts_status = pgEnum("enum_blog_posts_status", [
   "draft",
@@ -981,7 +981,7 @@ export const enum__blog_posts_v_version_locale = pgEnum(
 );
 export const enum__blog_posts_v_version_workflow_status = pgEnum(
   "enum__blog_posts_v_version_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum__blog_posts_v_version_status = pgEnum(
   "enum__blog_posts_v_version_status",
@@ -989,7 +989,7 @@ export const enum__blog_posts_v_version_status = pgEnum(
 );
 export const enum_blog_categories_workflow_status = pgEnum(
   "enum_blog_categories_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum_testimonials_locale = pgEnum("enum_testimonials_locale", [
   "en",
@@ -1000,7 +1000,7 @@ export const enum_testimonials_locale = pgEnum("enum_testimonials_locale", [
 ]);
 export const enum_testimonials_workflow_status = pgEnum(
   "enum_testimonials_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum_testimonials_status = pgEnum("enum_testimonials_status", [
   "draft",
@@ -1012,7 +1012,7 @@ export const enum__testimonials_v_version_locale = pgEnum(
 );
 export const enum__testimonials_v_version_workflow_status = pgEnum(
   "enum__testimonials_v_version_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum__testimonials_v_version_status = pgEnum(
   "enum__testimonials_v_version_status",
@@ -1029,7 +1029,7 @@ export const enum_audit_logs_risk_tier = pgEnum("enum_audit_logs_risk_tier", [
 ]);
 export const enum_team_members_workflow_status = pgEnum(
   "enum_team_members_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum_team_members_status = pgEnum("enum_team_members_status", [
   "draft",
@@ -1037,7 +1037,7 @@ export const enum_team_members_status = pgEnum("enum_team_members_status", [
 ]);
 export const enum__team_members_v_version_workflow_status = pgEnum(
   "enum__team_members_v_version_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum__team_members_v_version_status = pgEnum(
   "enum__team_members_v_version_status",
@@ -1049,6 +1049,7 @@ export const enum_logos_workflow_status = pgEnum("enum_logos_workflow_status", [
   "approved",
   "rejected",
   "published",
+  "archived",
 ]);
 export const enum_logos_status = pgEnum("enum_logos_status", [
   "draft",
@@ -1056,7 +1057,7 @@ export const enum_logos_status = pgEnum("enum_logos_status", [
 ]);
 export const enum__logos_v_version_workflow_status = pgEnum(
   "enum__logos_v_version_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum__logos_v_version_status = pgEnum(
   "enum__logos_v_version_status",
@@ -1074,7 +1075,7 @@ export const enum_org_events_event_status = pgEnum(
 );
 export const enum_org_events_workflow_status = pgEnum(
   "enum_org_events_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum_org_events_status = pgEnum("enum_org_events_status", [
   "draft",
@@ -1090,7 +1091,7 @@ export const enum__org_events_v_version_event_status = pgEnum(
 );
 export const enum__org_events_v_version_workflow_status = pgEnum(
   "enum__org_events_v_version_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum__org_events_v_version_status = pgEnum(
   "enum__org_events_v_version_status",
@@ -1108,7 +1109,7 @@ export const enum_org_spotlight_category = pgEnum(
 );
 export const enum_org_spotlight_workflow_status = pgEnum(
   "enum_org_spotlight_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum_org_spotlight_status = pgEnum("enum_org_spotlight_status", [
   "draft",
@@ -1126,7 +1127,7 @@ export const enum__org_spotlight_v_version_category = pgEnum(
 );
 export const enum__org_spotlight_v_version_workflow_status = pgEnum(
   "enum__org_spotlight_v_version_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum__org_spotlight_v_version_status = pgEnum(
   "enum__org_spotlight_v_version_status",
@@ -1138,7 +1139,7 @@ export const enum_org_about_profiles_category = pgEnum(
 );
 export const enum_org_about_profiles_workflow_status = pgEnum(
   "enum_org_about_profiles_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum_org_about_profiles_status = pgEnum(
   "enum_org_about_profiles_status",
@@ -1150,7 +1151,7 @@ export const enum__org_about_profiles_v_version_category = pgEnum(
 );
 export const enum__org_about_profiles_v_version_workflow_status = pgEnum(
   "enum__org_about_profiles_v_version_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum__org_about_profiles_v_version_status = pgEnum(
   "enum__org_about_profiles_v_version_status",
@@ -1163,7 +1164,7 @@ export const enum_org_learning_category = pgEnum("enum_org_learning_category", [
 ]);
 export const enum_org_learning_workflow_status = pgEnum(
   "enum_org_learning_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum_org_learning_status = pgEnum("enum_org_learning_status", [
   "draft",
@@ -1175,10 +1176,124 @@ export const enum__org_learning_v_version_category = pgEnum(
 );
 export const enum__org_learning_v_version_workflow_status = pgEnum(
   "enum__org_learning_v_version_workflow_status",
-  ["draft", "in_review", "approved", "rejected", "published"],
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
 );
 export const enum__org_learning_v_version_status = pgEnum(
   "enum__org_learning_v_version_status",
+  ["draft", "published"],
+);
+export const enum_framework_entries_category = pgEnum(
+  "enum_framework_entries_category",
+  [
+    "what-plenor-is",
+    "how-the-approach-works",
+    "cms-driven-website-model",
+    "why-this-is-different",
+  ],
+);
+export const enum_framework_entries_locale = pgEnum(
+  "enum_framework_entries_locale",
+  ["en", "de", "fr", "es", "it"],
+);
+export const enum_framework_entries_workflow_status = pgEnum(
+  "enum_framework_entries_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
+);
+export const enum_framework_entries_status = pgEnum(
+  "enum_framework_entries_status",
+  ["draft", "published"],
+);
+export const enum__framework_entries_v_version_category = pgEnum(
+  "enum__framework_entries_v_version_category",
+  [
+    "what-plenor-is",
+    "how-the-approach-works",
+    "cms-driven-website-model",
+    "why-this-is-different",
+  ],
+);
+export const enum__framework_entries_v_version_locale = pgEnum(
+  "enum__framework_entries_v_version_locale",
+  ["en", "de", "fr", "es", "it"],
+);
+export const enum__framework_entries_v_version_workflow_status = pgEnum(
+  "enum__framework_entries_v_version_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
+);
+export const enum__framework_entries_v_version_status = pgEnum(
+  "enum__framework_entries_v_version_status",
+  ["draft", "published"],
+);
+export const enum_solution_entries_category = pgEnum(
+  "enum_solution_entries_category",
+  [
+    "strategy-and-definition",
+    "website-and-cms-implementation",
+    "framework-led-delivery",
+  ],
+);
+export const enum_solution_entries_locale = pgEnum(
+  "enum_solution_entries_locale",
+  ["en", "de", "fr", "es", "it"],
+);
+export const enum_solution_entries_workflow_status = pgEnum(
+  "enum_solution_entries_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
+);
+export const enum_solution_entries_status = pgEnum(
+  "enum_solution_entries_status",
+  ["draft", "published"],
+);
+export const enum__solution_entries_v_version_category = pgEnum(
+  "enum__solution_entries_v_version_category",
+  [
+    "strategy-and-definition",
+    "website-and-cms-implementation",
+    "framework-led-delivery",
+  ],
+);
+export const enum__solution_entries_v_version_locale = pgEnum(
+  "enum__solution_entries_v_version_locale",
+  ["en", "de", "fr", "es", "it"],
+);
+export const enum__solution_entries_v_version_workflow_status = pgEnum(
+  "enum__solution_entries_v_version_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
+);
+export const enum__solution_entries_v_version_status = pgEnum(
+  "enum__solution_entries_v_version_status",
+  ["draft", "published"],
+);
+export const enum_insight_entries_category = pgEnum(
+  "enum_insight_entries_category",
+  ["article", "essay", "guide-resource"],
+);
+export const enum_insight_entries_locale = pgEnum(
+  "enum_insight_entries_locale",
+  ["en", "de", "fr", "es", "it"],
+);
+export const enum_insight_entries_workflow_status = pgEnum(
+  "enum_insight_entries_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
+);
+export const enum_insight_entries_status = pgEnum(
+  "enum_insight_entries_status",
+  ["draft", "published"],
+);
+export const enum__insight_entries_v_version_category = pgEnum(
+  "enum__insight_entries_v_version_category",
+  ["article", "essay", "guide-resource"],
+);
+export const enum__insight_entries_v_version_locale = pgEnum(
+  "enum__insight_entries_v_version_locale",
+  ["en", "de", "fr", "es", "it"],
+);
+export const enum__insight_entries_v_version_workflow_status = pgEnum(
+  "enum__insight_entries_v_version_workflow_status",
+  ["draft", "in_review", "approved", "rejected", "published", "archived"],
+);
+export const enum__insight_entries_v_version_status = pgEnum(
+  "enum__insight_entries_v_version_status",
   ["draft", "published"],
 );
 export const enum_forms_confirmation_type = pgEnum(
@@ -1259,6 +1374,9 @@ export const enum_payload_query_presets_related_collection = pgEnum(
     "org-spotlight",
     "org-about-profiles",
     "org-learning",
+    "framework-entries",
+    "solution-entries",
+    "insight-entries",
     "forms",
   ],
 );
@@ -6257,6 +6375,1018 @@ export const _org_learning_v = pgTable(
   ],
 );
 
+export const framework_entries_tags = pgTable(
+  "framework_entries_tags",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: varchar("id").primaryKey(),
+    tag: varchar("tag"),
+  },
+  (columns) => [
+    index("framework_entries_tags_order_idx").on(columns._order),
+    index("framework_entries_tags_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [framework_entries.id],
+      name: "framework_entries_tags_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const framework_entries = pgTable(
+  "framework_entries",
+  {
+    id: serial("id").primaryKey(),
+    title: varchar("title"),
+    slug: varchar("slug"),
+    category: enum_framework_entries_category("category"),
+    summary: varchar("summary"),
+    coverImage: integer("cover_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    body: jsonb("body"),
+    publishedAt: timestamp("published_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    isFeatured: boolean("is_featured").default(false),
+    orderingValue: numeric("ordering_value", { mode: "number" }),
+    ctaPath: varchar("cta_path"),
+    locale: enum_framework_entries_locale("locale").default("en"),
+    translationGroupId: varchar("translation_group_id"),
+    createdBy: integer("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    workflowStatus:
+      enum_framework_entries_workflow_status("workflow_status").default(
+        "draft",
+      ),
+    submittedBy: integer("submitted_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    submittedAt: timestamp("submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    reviewChecklistComplete: boolean("review_checklist_complete").default(
+      false,
+    ),
+    reviewSummary: varchar("review_summary"),
+    approvedBy: integer("approved_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    approvedAt: timestamp("approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    rejectionReason: varchar("rejection_reason"),
+    seo_metaTitle: varchar("seo_meta_title"),
+    seo_metaDescription: varchar("seo_meta_description"),
+    seo_ogTitle: varchar("seo_og_title"),
+    seo_ogDescription: varchar("seo_og_description"),
+    seo_ogImage: integer("seo_og_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    seo_canonicalUrl: varchar("seo_canonical_url"),
+    seo_noindex: boolean("seo_noindex").default(false),
+    seo_nofollow: boolean("seo_nofollow").default(false),
+    seo_includeInSitemap: boolean("seo_include_in_sitemap").default(true),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp("deleted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    _status: enum_framework_entries_status("_status").default("draft"),
+  },
+  (columns) => [
+    uniqueIndex("framework_entries_slug_idx").on(columns.slug),
+    index("framework_entries_cover_image_idx").on(columns.coverImage),
+    index("framework_entries_created_by_idx").on(columns.createdBy),
+    index("framework_entries_submitted_by_idx").on(columns.submittedBy),
+    index("framework_entries_approved_by_idx").on(columns.approvedBy),
+    index("framework_entries_seo_seo_og_image_idx").on(columns.seo_ogImage),
+    index("framework_entries_updated_at_idx").on(columns.updatedAt),
+    index("framework_entries_created_at_idx").on(columns.createdAt),
+    index("framework_entries_deleted_at_idx").on(columns.deletedAt),
+    index("framework_entries__status_idx").on(columns._status),
+  ],
+);
+
+export const framework_entries_rels = pgTable(
+  "framework_entries_rels",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    "solution-entriesID": integer("solution_entries_id"),
+    "insight-entriesID": integer("insight_entries_id"),
+  },
+  (columns) => [
+    index("framework_entries_rels_order_idx").on(columns.order),
+    index("framework_entries_rels_parent_idx").on(columns.parent),
+    index("framework_entries_rels_path_idx").on(columns.path),
+    index("framework_entries_rels_solution_entries_id_idx").on(
+      columns["solution-entriesID"],
+    ),
+    index("framework_entries_rels_insight_entries_id_idx").on(
+      columns["insight-entriesID"],
+    ),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [framework_entries.id],
+      name: "framework_entries_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["solution-entriesID"]],
+      foreignColumns: [solution_entries.id],
+      name: "framework_entries_rels_solution_entries_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["insight-entriesID"]],
+      foreignColumns: [insight_entries.id],
+      name: "framework_entries_rels_insight_entries_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _framework_entries_v_version_tags = pgTable(
+  "_framework_entries_v_version_tags",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: serial("id").primaryKey(),
+    tag: varchar("tag"),
+    _uuid: varchar("_uuid"),
+  },
+  (columns) => [
+    index("_framework_entries_v_version_tags_order_idx").on(columns._order),
+    index("_framework_entries_v_version_tags_parent_id_idx").on(
+      columns._parentID,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_framework_entries_v.id],
+      name: "_framework_entries_v_version_tags_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _framework_entries_v = pgTable(
+  "_framework_entries_v",
+  {
+    id: serial("id").primaryKey(),
+    parent: integer("parent_id").references(() => framework_entries.id, {
+      onDelete: "set null",
+    }),
+    version_title: varchar("version_title"),
+    version_slug: varchar("version_slug"),
+    version_category:
+      enum__framework_entries_v_version_category("version_category"),
+    version_summary: varchar("version_summary"),
+    version_coverImage: integer("version_cover_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_body: jsonb("version_body"),
+    version_publishedAt: timestamp("version_published_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_isFeatured: boolean("version_is_featured").default(false),
+    version_orderingValue: numeric("version_ordering_value", {
+      mode: "number",
+    }),
+    version_ctaPath: varchar("version_cta_path"),
+    version_locale:
+      enum__framework_entries_v_version_locale("version_locale").default("en"),
+    version_translationGroupId: varchar("version_translation_group_id"),
+    version_createdBy: integer("version_created_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_workflowStatus: enum__framework_entries_v_version_workflow_status(
+      "version_workflow_status",
+    ).default("draft"),
+    version_submittedBy: integer("version_submitted_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_submittedAt: timestamp("version_submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_reviewChecklistComplete: boolean(
+      "version_review_checklist_complete",
+    ).default(false),
+    version_reviewSummary: varchar("version_review_summary"),
+    version_approvedBy: integer("version_approved_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_approvedAt: timestamp("version_approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_rejectionReason: varchar("version_rejection_reason"),
+    version_seo_metaTitle: varchar("version_seo_meta_title"),
+    version_seo_metaDescription: varchar("version_seo_meta_description"),
+    version_seo_ogTitle: varchar("version_seo_og_title"),
+    version_seo_ogDescription: varchar("version_seo_og_description"),
+    version_seo_ogImage: integer("version_seo_og_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_seo_canonicalUrl: varchar("version_seo_canonical_url"),
+    version_seo_noindex: boolean("version_seo_noindex").default(false),
+    version_seo_nofollow: boolean("version_seo_nofollow").default(false),
+    version_seo_includeInSitemap: boolean(
+      "version_seo_include_in_sitemap",
+    ).default(true),
+    version_updatedAt: timestamp("version_updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_createdAt: timestamp("version_created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_deletedAt: timestamp("version_deleted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version__status:
+      enum__framework_entries_v_version_status("version__status").default(
+        "draft",
+      ),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    latest: boolean("latest"),
+  },
+  (columns) => [
+    index("_framework_entries_v_parent_idx").on(columns.parent),
+    index("_framework_entries_v_version_version_slug_idx").on(
+      columns.version_slug,
+    ),
+    index("_framework_entries_v_version_version_cover_image_idx").on(
+      columns.version_coverImage,
+    ),
+    index("_framework_entries_v_version_version_created_by_idx").on(
+      columns.version_createdBy,
+    ),
+    index("_framework_entries_v_version_version_submitted_by_idx").on(
+      columns.version_submittedBy,
+    ),
+    index("_framework_entries_v_version_version_approved_by_idx").on(
+      columns.version_approvedBy,
+    ),
+    index("_framework_entries_v_version_seo_version_seo_og_image_idx").on(
+      columns.version_seo_ogImage,
+    ),
+    index("_framework_entries_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_framework_entries_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_framework_entries_v_version_version_deleted_at_idx").on(
+      columns.version_deletedAt,
+    ),
+    index("_framework_entries_v_version_version__status_idx").on(
+      columns.version__status,
+    ),
+    index("_framework_entries_v_created_at_idx").on(columns.createdAt),
+    index("_framework_entries_v_updated_at_idx").on(columns.updatedAt),
+    index("_framework_entries_v_latest_idx").on(columns.latest),
+  ],
+);
+
+export const _framework_entries_v_rels = pgTable(
+  "_framework_entries_v_rels",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    "solution-entriesID": integer("solution_entries_id"),
+    "insight-entriesID": integer("insight_entries_id"),
+  },
+  (columns) => [
+    index("_framework_entries_v_rels_order_idx").on(columns.order),
+    index("_framework_entries_v_rels_parent_idx").on(columns.parent),
+    index("_framework_entries_v_rels_path_idx").on(columns.path),
+    index("_framework_entries_v_rels_solution_entries_id_idx").on(
+      columns["solution-entriesID"],
+    ),
+    index("_framework_entries_v_rels_insight_entries_id_idx").on(
+      columns["insight-entriesID"],
+    ),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [_framework_entries_v.id],
+      name: "_framework_entries_v_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["solution-entriesID"]],
+      foreignColumns: [solution_entries.id],
+      name: "_framework_entries_v_rels_solution_entries_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["insight-entriesID"]],
+      foreignColumns: [insight_entries.id],
+      name: "_framework_entries_v_rels_insight_entries_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const solution_entries_tags = pgTable(
+  "solution_entries_tags",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: varchar("id").primaryKey(),
+    tag: varchar("tag"),
+  },
+  (columns) => [
+    index("solution_entries_tags_order_idx").on(columns._order),
+    index("solution_entries_tags_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [solution_entries.id],
+      name: "solution_entries_tags_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const solution_entries = pgTable(
+  "solution_entries",
+  {
+    id: serial("id").primaryKey(),
+    title: varchar("title"),
+    slug: varchar("slug"),
+    category: enum_solution_entries_category("category"),
+    summary: varchar("summary"),
+    coverImage: integer("cover_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    body: jsonb("body"),
+    publishedAt: timestamp("published_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    isFeatured: boolean("is_featured").default(false),
+    orderingValue: numeric("ordering_value", { mode: "number" }),
+    ctaPath: varchar("cta_path"),
+    locale: enum_solution_entries_locale("locale").default("en"),
+    translationGroupId: varchar("translation_group_id"),
+    createdBy: integer("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    workflowStatus:
+      enum_solution_entries_workflow_status("workflow_status").default("draft"),
+    submittedBy: integer("submitted_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    submittedAt: timestamp("submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    reviewChecklistComplete: boolean("review_checklist_complete").default(
+      false,
+    ),
+    reviewSummary: varchar("review_summary"),
+    approvedBy: integer("approved_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    approvedAt: timestamp("approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    rejectionReason: varchar("rejection_reason"),
+    seo_metaTitle: varchar("seo_meta_title"),
+    seo_metaDescription: varchar("seo_meta_description"),
+    seo_ogTitle: varchar("seo_og_title"),
+    seo_ogDescription: varchar("seo_og_description"),
+    seo_ogImage: integer("seo_og_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    seo_canonicalUrl: varchar("seo_canonical_url"),
+    seo_noindex: boolean("seo_noindex").default(false),
+    seo_nofollow: boolean("seo_nofollow").default(false),
+    seo_includeInSitemap: boolean("seo_include_in_sitemap").default(true),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp("deleted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    _status: enum_solution_entries_status("_status").default("draft"),
+  },
+  (columns) => [
+    uniqueIndex("solution_entries_slug_idx").on(columns.slug),
+    index("solution_entries_cover_image_idx").on(columns.coverImage),
+    index("solution_entries_created_by_idx").on(columns.createdBy),
+    index("solution_entries_submitted_by_idx").on(columns.submittedBy),
+    index("solution_entries_approved_by_idx").on(columns.approvedBy),
+    index("solution_entries_seo_seo_og_image_idx").on(columns.seo_ogImage),
+    index("solution_entries_updated_at_idx").on(columns.updatedAt),
+    index("solution_entries_created_at_idx").on(columns.createdAt),
+    index("solution_entries_deleted_at_idx").on(columns.deletedAt),
+    index("solution_entries__status_idx").on(columns._status),
+  ],
+);
+
+export const solution_entries_rels = pgTable(
+  "solution_entries_rels",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    "insight-entriesID": integer("insight_entries_id"),
+  },
+  (columns) => [
+    index("solution_entries_rels_order_idx").on(columns.order),
+    index("solution_entries_rels_parent_idx").on(columns.parent),
+    index("solution_entries_rels_path_idx").on(columns.path),
+    index("solution_entries_rels_insight_entries_id_idx").on(
+      columns["insight-entriesID"],
+    ),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [solution_entries.id],
+      name: "solution_entries_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["insight-entriesID"]],
+      foreignColumns: [insight_entries.id],
+      name: "solution_entries_rels_insight_entries_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _solution_entries_v_version_tags = pgTable(
+  "_solution_entries_v_version_tags",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: serial("id").primaryKey(),
+    tag: varchar("tag"),
+    _uuid: varchar("_uuid"),
+  },
+  (columns) => [
+    index("_solution_entries_v_version_tags_order_idx").on(columns._order),
+    index("_solution_entries_v_version_tags_parent_id_idx").on(
+      columns._parentID,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_solution_entries_v.id],
+      name: "_solution_entries_v_version_tags_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _solution_entries_v = pgTable(
+  "_solution_entries_v",
+  {
+    id: serial("id").primaryKey(),
+    parent: integer("parent_id").references(() => solution_entries.id, {
+      onDelete: "set null",
+    }),
+    version_title: varchar("version_title"),
+    version_slug: varchar("version_slug"),
+    version_category:
+      enum__solution_entries_v_version_category("version_category"),
+    version_summary: varchar("version_summary"),
+    version_coverImage: integer("version_cover_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_body: jsonb("version_body"),
+    version_publishedAt: timestamp("version_published_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_isFeatured: boolean("version_is_featured").default(false),
+    version_orderingValue: numeric("version_ordering_value", {
+      mode: "number",
+    }),
+    version_ctaPath: varchar("version_cta_path"),
+    version_locale:
+      enum__solution_entries_v_version_locale("version_locale").default("en"),
+    version_translationGroupId: varchar("version_translation_group_id"),
+    version_createdBy: integer("version_created_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_workflowStatus: enum__solution_entries_v_version_workflow_status(
+      "version_workflow_status",
+    ).default("draft"),
+    version_submittedBy: integer("version_submitted_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_submittedAt: timestamp("version_submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_reviewChecklistComplete: boolean(
+      "version_review_checklist_complete",
+    ).default(false),
+    version_reviewSummary: varchar("version_review_summary"),
+    version_approvedBy: integer("version_approved_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_approvedAt: timestamp("version_approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_rejectionReason: varchar("version_rejection_reason"),
+    version_seo_metaTitle: varchar("version_seo_meta_title"),
+    version_seo_metaDescription: varchar("version_seo_meta_description"),
+    version_seo_ogTitle: varchar("version_seo_og_title"),
+    version_seo_ogDescription: varchar("version_seo_og_description"),
+    version_seo_ogImage: integer("version_seo_og_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_seo_canonicalUrl: varchar("version_seo_canonical_url"),
+    version_seo_noindex: boolean("version_seo_noindex").default(false),
+    version_seo_nofollow: boolean("version_seo_nofollow").default(false),
+    version_seo_includeInSitemap: boolean(
+      "version_seo_include_in_sitemap",
+    ).default(true),
+    version_updatedAt: timestamp("version_updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_createdAt: timestamp("version_created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_deletedAt: timestamp("version_deleted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version__status:
+      enum__solution_entries_v_version_status("version__status").default(
+        "draft",
+      ),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    latest: boolean("latest"),
+  },
+  (columns) => [
+    index("_solution_entries_v_parent_idx").on(columns.parent),
+    index("_solution_entries_v_version_version_slug_idx").on(
+      columns.version_slug,
+    ),
+    index("_solution_entries_v_version_version_cover_image_idx").on(
+      columns.version_coverImage,
+    ),
+    index("_solution_entries_v_version_version_created_by_idx").on(
+      columns.version_createdBy,
+    ),
+    index("_solution_entries_v_version_version_submitted_by_idx").on(
+      columns.version_submittedBy,
+    ),
+    index("_solution_entries_v_version_version_approved_by_idx").on(
+      columns.version_approvedBy,
+    ),
+    index("_solution_entries_v_version_seo_version_seo_og_image_idx").on(
+      columns.version_seo_ogImage,
+    ),
+    index("_solution_entries_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_solution_entries_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_solution_entries_v_version_version_deleted_at_idx").on(
+      columns.version_deletedAt,
+    ),
+    index("_solution_entries_v_version_version__status_idx").on(
+      columns.version__status,
+    ),
+    index("_solution_entries_v_created_at_idx").on(columns.createdAt),
+    index("_solution_entries_v_updated_at_idx").on(columns.updatedAt),
+    index("_solution_entries_v_latest_idx").on(columns.latest),
+  ],
+);
+
+export const _solution_entries_v_rels = pgTable(
+  "_solution_entries_v_rels",
+  {
+    id: serial("id").primaryKey(),
+    order: integer("order"),
+    parent: integer("parent_id").notNull(),
+    path: varchar("path").notNull(),
+    "insight-entriesID": integer("insight_entries_id"),
+  },
+  (columns) => [
+    index("_solution_entries_v_rels_order_idx").on(columns.order),
+    index("_solution_entries_v_rels_parent_idx").on(columns.parent),
+    index("_solution_entries_v_rels_path_idx").on(columns.path),
+    index("_solution_entries_v_rels_insight_entries_id_idx").on(
+      columns["insight-entriesID"],
+    ),
+    foreignKey({
+      columns: [columns["parent"]],
+      foreignColumns: [_solution_entries_v.id],
+      name: "_solution_entries_v_rels_parent_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["insight-entriesID"]],
+      foreignColumns: [insight_entries.id],
+      name: "_solution_entries_v_rels_insight_entries_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const insight_entries_tags = pgTable(
+  "insight_entries_tags",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: varchar("id").primaryKey(),
+    tag: varchar("tag"),
+  },
+  (columns) => [
+    index("insight_entries_tags_order_idx").on(columns._order),
+    index("insight_entries_tags_parent_id_idx").on(columns._parentID),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [insight_entries.id],
+      name: "insight_entries_tags_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const insight_entries = pgTable(
+  "insight_entries",
+  {
+    id: serial("id").primaryKey(),
+    title: varchar("title"),
+    slug: varchar("slug"),
+    category: enum_insight_entries_category("category"),
+    excerpt: varchar("excerpt"),
+    coverImage: integer("cover_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    body: jsonb("body"),
+    authorLabel: varchar("author_label"),
+    publishedAt: timestamp("published_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    isFeatured: boolean("is_featured").default(false),
+    orderingValue: numeric("ordering_value", { mode: "number" }),
+    locale: enum_insight_entries_locale("locale").default("en"),
+    translationGroupId: varchar("translation_group_id"),
+    createdBy: integer("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    workflowStatus:
+      enum_insight_entries_workflow_status("workflow_status").default("draft"),
+    submittedBy: integer("submitted_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    submittedAt: timestamp("submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    reviewChecklistComplete: boolean("review_checklist_complete").default(
+      false,
+    ),
+    reviewSummary: varchar("review_summary"),
+    approvedBy: integer("approved_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    approvedAt: timestamp("approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    rejectionReason: varchar("rejection_reason"),
+    seo_metaTitle: varchar("seo_meta_title"),
+    seo_metaDescription: varchar("seo_meta_description"),
+    seo_ogTitle: varchar("seo_og_title"),
+    seo_ogDescription: varchar("seo_og_description"),
+    seo_ogImage: integer("seo_og_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    seo_canonicalUrl: varchar("seo_canonical_url"),
+    seo_noindex: boolean("seo_noindex").default(false),
+    seo_nofollow: boolean("seo_nofollow").default(false),
+    seo_includeInSitemap: boolean("seo_include_in_sitemap").default(true),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp("deleted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    _status: enum_insight_entries_status("_status").default("draft"),
+  },
+  (columns) => [
+    uniqueIndex("insight_entries_slug_idx").on(columns.slug),
+    index("insight_entries_cover_image_idx").on(columns.coverImage),
+    index("insight_entries_created_by_idx").on(columns.createdBy),
+    index("insight_entries_submitted_by_idx").on(columns.submittedBy),
+    index("insight_entries_approved_by_idx").on(columns.approvedBy),
+    index("insight_entries_seo_seo_og_image_idx").on(columns.seo_ogImage),
+    index("insight_entries_updated_at_idx").on(columns.updatedAt),
+    index("insight_entries_created_at_idx").on(columns.createdAt),
+    index("insight_entries_deleted_at_idx").on(columns.deletedAt),
+    index("insight_entries__status_idx").on(columns._status),
+  ],
+);
+
+export const _insight_entries_v_version_tags = pgTable(
+  "_insight_entries_v_version_tags",
+  {
+    _order: integer("_order").notNull(),
+    _parentID: integer("_parent_id").notNull(),
+    id: serial("id").primaryKey(),
+    tag: varchar("tag"),
+    _uuid: varchar("_uuid"),
+  },
+  (columns) => [
+    index("_insight_entries_v_version_tags_order_idx").on(columns._order),
+    index("_insight_entries_v_version_tags_parent_id_idx").on(
+      columns._parentID,
+    ),
+    foreignKey({
+      columns: [columns["_parentID"]],
+      foreignColumns: [_insight_entries_v.id],
+      name: "_insight_entries_v_version_tags_parent_id_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+export const _insight_entries_v = pgTable(
+  "_insight_entries_v",
+  {
+    id: serial("id").primaryKey(),
+    parent: integer("parent_id").references(() => insight_entries.id, {
+      onDelete: "set null",
+    }),
+    version_title: varchar("version_title"),
+    version_slug: varchar("version_slug"),
+    version_category:
+      enum__insight_entries_v_version_category("version_category"),
+    version_excerpt: varchar("version_excerpt"),
+    version_coverImage: integer("version_cover_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_body: jsonb("version_body"),
+    version_authorLabel: varchar("version_author_label"),
+    version_publishedAt: timestamp("version_published_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_isFeatured: boolean("version_is_featured").default(false),
+    version_orderingValue: numeric("version_ordering_value", {
+      mode: "number",
+    }),
+    version_locale:
+      enum__insight_entries_v_version_locale("version_locale").default("en"),
+    version_translationGroupId: varchar("version_translation_group_id"),
+    version_createdBy: integer("version_created_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_workflowStatus: enum__insight_entries_v_version_workflow_status(
+      "version_workflow_status",
+    ).default("draft"),
+    version_submittedBy: integer("version_submitted_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_submittedAt: timestamp("version_submitted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_reviewChecklistComplete: boolean(
+      "version_review_checklist_complete",
+    ).default(false),
+    version_reviewSummary: varchar("version_review_summary"),
+    version_approvedBy: integer("version_approved_by_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_approvedAt: timestamp("version_approved_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_rejectionReason: varchar("version_rejection_reason"),
+    version_seo_metaTitle: varchar("version_seo_meta_title"),
+    version_seo_metaDescription: varchar("version_seo_meta_description"),
+    version_seo_ogTitle: varchar("version_seo_og_title"),
+    version_seo_ogDescription: varchar("version_seo_og_description"),
+    version_seo_ogImage: integer("version_seo_og_image_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    version_seo_canonicalUrl: varchar("version_seo_canonical_url"),
+    version_seo_noindex: boolean("version_seo_noindex").default(false),
+    version_seo_nofollow: boolean("version_seo_nofollow").default(false),
+    version_seo_includeInSitemap: boolean(
+      "version_seo_include_in_sitemap",
+    ).default(true),
+    version_updatedAt: timestamp("version_updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_createdAt: timestamp("version_created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_deletedAt: timestamp("version_deleted_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    }),
+    version__status:
+      enum__insight_entries_v_version_status("version__status").default(
+        "draft",
+      ),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "string",
+      withTimezone: true,
+      precision: 3,
+    })
+      .defaultNow()
+      .notNull(),
+    latest: boolean("latest"),
+  },
+  (columns) => [
+    index("_insight_entries_v_parent_idx").on(columns.parent),
+    index("_insight_entries_v_version_version_slug_idx").on(
+      columns.version_slug,
+    ),
+    index("_insight_entries_v_version_version_cover_image_idx").on(
+      columns.version_coverImage,
+    ),
+    index("_insight_entries_v_version_version_created_by_idx").on(
+      columns.version_createdBy,
+    ),
+    index("_insight_entries_v_version_version_submitted_by_idx").on(
+      columns.version_submittedBy,
+    ),
+    index("_insight_entries_v_version_version_approved_by_idx").on(
+      columns.version_approvedBy,
+    ),
+    index("_insight_entries_v_version_seo_version_seo_og_image_idx").on(
+      columns.version_seo_ogImage,
+    ),
+    index("_insight_entries_v_version_version_updated_at_idx").on(
+      columns.version_updatedAt,
+    ),
+    index("_insight_entries_v_version_version_created_at_idx").on(
+      columns.version_createdAt,
+    ),
+    index("_insight_entries_v_version_version_deleted_at_idx").on(
+      columns.version_deletedAt,
+    ),
+    index("_insight_entries_v_version_version__status_idx").on(
+      columns.version__status,
+    ),
+    index("_insight_entries_v_created_at_idx").on(columns.createdAt),
+    index("_insight_entries_v_updated_at_idx").on(columns.updatedAt),
+    index("_insight_entries_v_latest_idx").on(columns.latest),
+  ],
+);
+
 export const search = pgTable(
   "search",
   {
@@ -6961,6 +8091,9 @@ export const payload_locked_documents_rels = pgTable(
     "org-spotlightID": integer("org_spotlight_id"),
     "org-about-profilesID": integer("org_about_profiles_id"),
     "org-learningID": integer("org_learning_id"),
+    "framework-entriesID": integer("framework_entries_id"),
+    "solution-entriesID": integer("solution_entries_id"),
+    "insight-entriesID": integer("insight_entries_id"),
     searchID: integer("search_id"),
     formsID: integer("forms_id"),
     "form-submissionsID": integer("form_submissions_id"),
@@ -7023,6 +8156,15 @@ export const payload_locked_documents_rels = pgTable(
     ),
     index("payload_locked_documents_rels_org_learning_id_idx").on(
       columns["org-learningID"],
+    ),
+    index("payload_locked_documents_rels_framework_entries_id_idx").on(
+      columns["framework-entriesID"],
+    ),
+    index("payload_locked_documents_rels_solution_entries_id_idx").on(
+      columns["solution-entriesID"],
+    ),
+    index("payload_locked_documents_rels_insight_entries_id_idx").on(
+      columns["insight-entriesID"],
     ),
     index("payload_locked_documents_rels_search_id_idx").on(columns.searchID),
     index("payload_locked_documents_rels_forms_id_idx").on(columns.formsID),
@@ -7136,6 +8278,21 @@ export const payload_locked_documents_rels = pgTable(
       columns: [columns["org-learningID"]],
       foreignColumns: [org_learning.id],
       name: "payload_locked_documents_rels_org_learning_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["framework-entriesID"]],
+      foreignColumns: [framework_entries.id],
+      name: "payload_locked_documents_rels_framework_entries_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["solution-entriesID"]],
+      foreignColumns: [solution_entries.id],
+      name: "payload_locked_documents_rels_solution_entries_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [columns["insight-entriesID"]],
+      foreignColumns: [insight_entries.id],
+      name: "payload_locked_documents_rels_insight_entries_fk",
     }).onDelete("cascade"),
     foreignKey({
       columns: [columns["searchID"]],
@@ -7480,12 +8637,12 @@ export const site_settings = pgTable(
     announcementBanner_linkHref: varchar("announcement_banner_link_href"),
     announcementBanner_backgroundColor: varchar(
       "announcement_banner_background_color",
-    ).default("#1B2D4F"),
+    ).default("#1E4A59"),
     announcementBanner_textColor: varchar(
       "announcement_banner_text_color",
     ).default("#FFFFFF"),
     copyrightText: varchar("copyright_text").default(
-      "© {year} {siteName}. All rights reserved.",
+      "© {year} Plenor Systems LLC. All rights reserved.",
     ),
     footerLegalLabel: varchar("footer_legal_label").default(
       "Cookie Notice & Privacy Policy",
@@ -7504,6 +8661,30 @@ export const site_settings = pgTable(
     ),
     guideForm_namePlaceholder: varchar("guide_form_name_placeholder"),
     guideForm_emailPlaceholder: varchar("guide_form_email_placeholder"),
+    inquiryForm_nameLabel: varchar("inquiry_form_name_label").default(
+      "Your name",
+    ),
+    inquiryForm_emailLabel: varchar("inquiry_form_email_label").default(
+      "Work email",
+    ),
+    inquiryForm_organizationLabel: varchar(
+      "inquiry_form_organization_label",
+    ).default("Organization"),
+    inquiryForm_inquiryTypeLabel: varchar(
+      "inquiry_form_inquiry_type_label",
+    ).default("What can we help you with?"),
+    inquiryForm_messageLabel: varchar("inquiry_form_message_label").default(
+      "Tell us a bit about your need",
+    ),
+    inquiryForm_messageHelper: varchar("inquiry_form_message_helper").default(
+      "A short description is enough for an initial response.",
+    ),
+    inquiryForm_successMessage: varchar("inquiry_form_success_message").default(
+      "Thanks. Your inquiry has been received.",
+    ),
+    inquiryForm_responseStatement: varchar(
+      "inquiry_form_response_statement",
+    ).default("We typically respond within two business days."),
     inquiryForm_submitLabel: varchar("inquiry_form_submit_label"),
     inquiryForm_submittingLabel: varchar("inquiry_form_submitting_label"),
     inquiryForm_successHeading: varchar("inquiry_form_success_heading"),
@@ -7857,12 +9038,12 @@ export const _site_settings_v = pgTable(
     ),
     version_announcementBanner_backgroundColor: varchar(
       "version_announcement_banner_background_color",
-    ).default("#1B2D4F"),
+    ).default("#1E4A59"),
     version_announcementBanner_textColor: varchar(
       "version_announcement_banner_text_color",
     ).default("#FFFFFF"),
     version_copyrightText: varchar("version_copyright_text").default(
-      "© {year} {siteName}. All rights reserved.",
+      "© {year} Plenor Systems LLC. All rights reserved.",
     ),
     version_footerLegalLabel: varchar("version_footer_legal_label").default(
       "Cookie Notice & Privacy Policy",
@@ -7891,6 +9072,30 @@ export const _site_settings_v = pgTable(
     version_guideForm_emailPlaceholder: varchar(
       "version_guide_form_email_placeholder",
     ),
+    version_inquiryForm_nameLabel: varchar(
+      "version_inquiry_form_name_label",
+    ).default("Your name"),
+    version_inquiryForm_emailLabel: varchar(
+      "version_inquiry_form_email_label",
+    ).default("Work email"),
+    version_inquiryForm_organizationLabel: varchar(
+      "version_inquiry_form_organization_label",
+    ).default("Organization"),
+    version_inquiryForm_inquiryTypeLabel: varchar(
+      "version_inquiry_form_inquiry_type_label",
+    ).default("What can we help you with?"),
+    version_inquiryForm_messageLabel: varchar(
+      "version_inquiry_form_message_label",
+    ).default("Tell us a bit about your need"),
+    version_inquiryForm_messageHelper: varchar(
+      "version_inquiry_form_message_helper",
+    ).default("A short description is enough for an initial response."),
+    version_inquiryForm_successMessage: varchar(
+      "version_inquiry_form_success_message",
+    ).default("Thanks. Your inquiry has been received."),
+    version_inquiryForm_responseStatement: varchar(
+      "version_inquiry_form_response_statement",
+    ).default("We typically respond within two business days."),
     version_inquiryForm_submitLabel: varchar(
       "version_inquiry_form_submit_label",
     ),
@@ -10915,6 +12120,361 @@ export const relations__org_learning_v = relations(
     }),
   }),
 );
+export const relations_framework_entries_tags = relations(
+  framework_entries_tags,
+  ({ one }) => ({
+    _parentID: one(framework_entries, {
+      fields: [framework_entries_tags._parentID],
+      references: [framework_entries.id],
+      relationName: "tags",
+    }),
+  }),
+);
+export const relations_framework_entries_rels = relations(
+  framework_entries_rels,
+  ({ one }) => ({
+    parent: one(framework_entries, {
+      fields: [framework_entries_rels.parent],
+      references: [framework_entries.id],
+      relationName: "_rels",
+    }),
+    "solution-entriesID": one(solution_entries, {
+      fields: [framework_entries_rels["solution-entriesID"]],
+      references: [solution_entries.id],
+      relationName: "solution-entries",
+    }),
+    "insight-entriesID": one(insight_entries, {
+      fields: [framework_entries_rels["insight-entriesID"]],
+      references: [insight_entries.id],
+      relationName: "insight-entries",
+    }),
+  }),
+);
+export const relations_framework_entries = relations(
+  framework_entries,
+  ({ one, many }) => ({
+    coverImage: one(media, {
+      fields: [framework_entries.coverImage],
+      references: [media.id],
+      relationName: "coverImage",
+    }),
+    tags: many(framework_entries_tags, {
+      relationName: "tags",
+    }),
+    createdBy: one(users, {
+      fields: [framework_entries.createdBy],
+      references: [users.id],
+      relationName: "createdBy",
+    }),
+    submittedBy: one(users, {
+      fields: [framework_entries.submittedBy],
+      references: [users.id],
+      relationName: "submittedBy",
+    }),
+    approvedBy: one(users, {
+      fields: [framework_entries.approvedBy],
+      references: [users.id],
+      relationName: "approvedBy",
+    }),
+    seo_ogImage: one(media, {
+      fields: [framework_entries.seo_ogImage],
+      references: [media.id],
+      relationName: "seo_ogImage",
+    }),
+    _rels: many(framework_entries_rels, {
+      relationName: "_rels",
+    }),
+  }),
+);
+export const relations__framework_entries_v_version_tags = relations(
+  _framework_entries_v_version_tags,
+  ({ one }) => ({
+    _parentID: one(_framework_entries_v, {
+      fields: [_framework_entries_v_version_tags._parentID],
+      references: [_framework_entries_v.id],
+      relationName: "version_tags",
+    }),
+  }),
+);
+export const relations__framework_entries_v_rels = relations(
+  _framework_entries_v_rels,
+  ({ one }) => ({
+    parent: one(_framework_entries_v, {
+      fields: [_framework_entries_v_rels.parent],
+      references: [_framework_entries_v.id],
+      relationName: "_rels",
+    }),
+    "solution-entriesID": one(solution_entries, {
+      fields: [_framework_entries_v_rels["solution-entriesID"]],
+      references: [solution_entries.id],
+      relationName: "solution-entries",
+    }),
+    "insight-entriesID": one(insight_entries, {
+      fields: [_framework_entries_v_rels["insight-entriesID"]],
+      references: [insight_entries.id],
+      relationName: "insight-entries",
+    }),
+  }),
+);
+export const relations__framework_entries_v = relations(
+  _framework_entries_v,
+  ({ one, many }) => ({
+    parent: one(framework_entries, {
+      fields: [_framework_entries_v.parent],
+      references: [framework_entries.id],
+      relationName: "parent",
+    }),
+    version_coverImage: one(media, {
+      fields: [_framework_entries_v.version_coverImage],
+      references: [media.id],
+      relationName: "version_coverImage",
+    }),
+    version_tags: many(_framework_entries_v_version_tags, {
+      relationName: "version_tags",
+    }),
+    version_createdBy: one(users, {
+      fields: [_framework_entries_v.version_createdBy],
+      references: [users.id],
+      relationName: "version_createdBy",
+    }),
+    version_submittedBy: one(users, {
+      fields: [_framework_entries_v.version_submittedBy],
+      references: [users.id],
+      relationName: "version_submittedBy",
+    }),
+    version_approvedBy: one(users, {
+      fields: [_framework_entries_v.version_approvedBy],
+      references: [users.id],
+      relationName: "version_approvedBy",
+    }),
+    version_seo_ogImage: one(media, {
+      fields: [_framework_entries_v.version_seo_ogImage],
+      references: [media.id],
+      relationName: "version_seo_ogImage",
+    }),
+    _rels: many(_framework_entries_v_rels, {
+      relationName: "_rels",
+    }),
+  }),
+);
+export const relations_solution_entries_tags = relations(
+  solution_entries_tags,
+  ({ one }) => ({
+    _parentID: one(solution_entries, {
+      fields: [solution_entries_tags._parentID],
+      references: [solution_entries.id],
+      relationName: "tags",
+    }),
+  }),
+);
+export const relations_solution_entries_rels = relations(
+  solution_entries_rels,
+  ({ one }) => ({
+    parent: one(solution_entries, {
+      fields: [solution_entries_rels.parent],
+      references: [solution_entries.id],
+      relationName: "_rels",
+    }),
+    "insight-entriesID": one(insight_entries, {
+      fields: [solution_entries_rels["insight-entriesID"]],
+      references: [insight_entries.id],
+      relationName: "insight-entries",
+    }),
+  }),
+);
+export const relations_solution_entries = relations(
+  solution_entries,
+  ({ one, many }) => ({
+    coverImage: one(media, {
+      fields: [solution_entries.coverImage],
+      references: [media.id],
+      relationName: "coverImage",
+    }),
+    tags: many(solution_entries_tags, {
+      relationName: "tags",
+    }),
+    createdBy: one(users, {
+      fields: [solution_entries.createdBy],
+      references: [users.id],
+      relationName: "createdBy",
+    }),
+    submittedBy: one(users, {
+      fields: [solution_entries.submittedBy],
+      references: [users.id],
+      relationName: "submittedBy",
+    }),
+    approvedBy: one(users, {
+      fields: [solution_entries.approvedBy],
+      references: [users.id],
+      relationName: "approvedBy",
+    }),
+    seo_ogImage: one(media, {
+      fields: [solution_entries.seo_ogImage],
+      references: [media.id],
+      relationName: "seo_ogImage",
+    }),
+    _rels: many(solution_entries_rels, {
+      relationName: "_rels",
+    }),
+  }),
+);
+export const relations__solution_entries_v_version_tags = relations(
+  _solution_entries_v_version_tags,
+  ({ one }) => ({
+    _parentID: one(_solution_entries_v, {
+      fields: [_solution_entries_v_version_tags._parentID],
+      references: [_solution_entries_v.id],
+      relationName: "version_tags",
+    }),
+  }),
+);
+export const relations__solution_entries_v_rels = relations(
+  _solution_entries_v_rels,
+  ({ one }) => ({
+    parent: one(_solution_entries_v, {
+      fields: [_solution_entries_v_rels.parent],
+      references: [_solution_entries_v.id],
+      relationName: "_rels",
+    }),
+    "insight-entriesID": one(insight_entries, {
+      fields: [_solution_entries_v_rels["insight-entriesID"]],
+      references: [insight_entries.id],
+      relationName: "insight-entries",
+    }),
+  }),
+);
+export const relations__solution_entries_v = relations(
+  _solution_entries_v,
+  ({ one, many }) => ({
+    parent: one(solution_entries, {
+      fields: [_solution_entries_v.parent],
+      references: [solution_entries.id],
+      relationName: "parent",
+    }),
+    version_coverImage: one(media, {
+      fields: [_solution_entries_v.version_coverImage],
+      references: [media.id],
+      relationName: "version_coverImage",
+    }),
+    version_tags: many(_solution_entries_v_version_tags, {
+      relationName: "version_tags",
+    }),
+    version_createdBy: one(users, {
+      fields: [_solution_entries_v.version_createdBy],
+      references: [users.id],
+      relationName: "version_createdBy",
+    }),
+    version_submittedBy: one(users, {
+      fields: [_solution_entries_v.version_submittedBy],
+      references: [users.id],
+      relationName: "version_submittedBy",
+    }),
+    version_approvedBy: one(users, {
+      fields: [_solution_entries_v.version_approvedBy],
+      references: [users.id],
+      relationName: "version_approvedBy",
+    }),
+    version_seo_ogImage: one(media, {
+      fields: [_solution_entries_v.version_seo_ogImage],
+      references: [media.id],
+      relationName: "version_seo_ogImage",
+    }),
+    _rels: many(_solution_entries_v_rels, {
+      relationName: "_rels",
+    }),
+  }),
+);
+export const relations_insight_entries_tags = relations(
+  insight_entries_tags,
+  ({ one }) => ({
+    _parentID: one(insight_entries, {
+      fields: [insight_entries_tags._parentID],
+      references: [insight_entries.id],
+      relationName: "tags",
+    }),
+  }),
+);
+export const relations_insight_entries = relations(
+  insight_entries,
+  ({ one, many }) => ({
+    coverImage: one(media, {
+      fields: [insight_entries.coverImage],
+      references: [media.id],
+      relationName: "coverImage",
+    }),
+    tags: many(insight_entries_tags, {
+      relationName: "tags",
+    }),
+    createdBy: one(users, {
+      fields: [insight_entries.createdBy],
+      references: [users.id],
+      relationName: "createdBy",
+    }),
+    submittedBy: one(users, {
+      fields: [insight_entries.submittedBy],
+      references: [users.id],
+      relationName: "submittedBy",
+    }),
+    approvedBy: one(users, {
+      fields: [insight_entries.approvedBy],
+      references: [users.id],
+      relationName: "approvedBy",
+    }),
+    seo_ogImage: one(media, {
+      fields: [insight_entries.seo_ogImage],
+      references: [media.id],
+      relationName: "seo_ogImage",
+    }),
+  }),
+);
+export const relations__insight_entries_v_version_tags = relations(
+  _insight_entries_v_version_tags,
+  ({ one }) => ({
+    _parentID: one(_insight_entries_v, {
+      fields: [_insight_entries_v_version_tags._parentID],
+      references: [_insight_entries_v.id],
+      relationName: "version_tags",
+    }),
+  }),
+);
+export const relations__insight_entries_v = relations(
+  _insight_entries_v,
+  ({ one, many }) => ({
+    parent: one(insight_entries, {
+      fields: [_insight_entries_v.parent],
+      references: [insight_entries.id],
+      relationName: "parent",
+    }),
+    version_coverImage: one(media, {
+      fields: [_insight_entries_v.version_coverImage],
+      references: [media.id],
+      relationName: "version_coverImage",
+    }),
+    version_tags: many(_insight_entries_v_version_tags, {
+      relationName: "version_tags",
+    }),
+    version_createdBy: one(users, {
+      fields: [_insight_entries_v.version_createdBy],
+      references: [users.id],
+      relationName: "version_createdBy",
+    }),
+    version_submittedBy: one(users, {
+      fields: [_insight_entries_v.version_submittedBy],
+      references: [users.id],
+      relationName: "version_submittedBy",
+    }),
+    version_approvedBy: one(users, {
+      fields: [_insight_entries_v.version_approvedBy],
+      references: [users.id],
+      relationName: "version_approvedBy",
+    }),
+    version_seo_ogImage: one(media, {
+      fields: [_insight_entries_v.version_seo_ogImage],
+      references: [media.id],
+      relationName: "version_seo_ogImage",
+    }),
+  }),
+);
 export const relations_search_rels = relations(search_rels, ({ one }) => ({
   parent: one(search, {
     fields: [search_rels.parent],
@@ -11250,6 +12810,21 @@ export const relations_payload_locked_documents_rels = relations(
       fields: [payload_locked_documents_rels["org-learningID"]],
       references: [org_learning.id],
       relationName: "org-learning",
+    }),
+    "framework-entriesID": one(framework_entries, {
+      fields: [payload_locked_documents_rels["framework-entriesID"]],
+      references: [framework_entries.id],
+      relationName: "framework-entries",
+    }),
+    "solution-entriesID": one(solution_entries, {
+      fields: [payload_locked_documents_rels["solution-entriesID"]],
+      references: [solution_entries.id],
+      relationName: "solution-entries",
+    }),
+    "insight-entriesID": one(insight_entries, {
+      fields: [payload_locked_documents_rels["insight-entriesID"]],
+      references: [insight_entries.id],
+      relationName: "insight-entries",
     }),
     searchID: one(search, {
       fields: [payload_locked_documents_rels.searchID],
@@ -11991,6 +13566,30 @@ type DatabaseSchema = {
   enum__org_learning_v_version_category: typeof enum__org_learning_v_version_category;
   enum__org_learning_v_version_workflow_status: typeof enum__org_learning_v_version_workflow_status;
   enum__org_learning_v_version_status: typeof enum__org_learning_v_version_status;
+  enum_framework_entries_category: typeof enum_framework_entries_category;
+  enum_framework_entries_locale: typeof enum_framework_entries_locale;
+  enum_framework_entries_workflow_status: typeof enum_framework_entries_workflow_status;
+  enum_framework_entries_status: typeof enum_framework_entries_status;
+  enum__framework_entries_v_version_category: typeof enum__framework_entries_v_version_category;
+  enum__framework_entries_v_version_locale: typeof enum__framework_entries_v_version_locale;
+  enum__framework_entries_v_version_workflow_status: typeof enum__framework_entries_v_version_workflow_status;
+  enum__framework_entries_v_version_status: typeof enum__framework_entries_v_version_status;
+  enum_solution_entries_category: typeof enum_solution_entries_category;
+  enum_solution_entries_locale: typeof enum_solution_entries_locale;
+  enum_solution_entries_workflow_status: typeof enum_solution_entries_workflow_status;
+  enum_solution_entries_status: typeof enum_solution_entries_status;
+  enum__solution_entries_v_version_category: typeof enum__solution_entries_v_version_category;
+  enum__solution_entries_v_version_locale: typeof enum__solution_entries_v_version_locale;
+  enum__solution_entries_v_version_workflow_status: typeof enum__solution_entries_v_version_workflow_status;
+  enum__solution_entries_v_version_status: typeof enum__solution_entries_v_version_status;
+  enum_insight_entries_category: typeof enum_insight_entries_category;
+  enum_insight_entries_locale: typeof enum_insight_entries_locale;
+  enum_insight_entries_workflow_status: typeof enum_insight_entries_workflow_status;
+  enum_insight_entries_status: typeof enum_insight_entries_status;
+  enum__insight_entries_v_version_category: typeof enum__insight_entries_v_version_category;
+  enum__insight_entries_v_version_locale: typeof enum__insight_entries_v_version_locale;
+  enum__insight_entries_v_version_workflow_status: typeof enum__insight_entries_v_version_workflow_status;
+  enum__insight_entries_v_version_status: typeof enum__insight_entries_v_version_status;
   enum_forms_confirmation_type: typeof enum_forms_confirmation_type;
   template_key: typeof template_key;
   enum_exports_format: typeof enum_exports_format;
@@ -12110,6 +13709,22 @@ type DatabaseSchema = {
   _org_about_profiles_v: typeof _org_about_profiles_v;
   org_learning: typeof org_learning;
   _org_learning_v: typeof _org_learning_v;
+  framework_entries_tags: typeof framework_entries_tags;
+  framework_entries: typeof framework_entries;
+  framework_entries_rels: typeof framework_entries_rels;
+  _framework_entries_v_version_tags: typeof _framework_entries_v_version_tags;
+  _framework_entries_v: typeof _framework_entries_v;
+  _framework_entries_v_rels: typeof _framework_entries_v_rels;
+  solution_entries_tags: typeof solution_entries_tags;
+  solution_entries: typeof solution_entries;
+  solution_entries_rels: typeof solution_entries_rels;
+  _solution_entries_v_version_tags: typeof _solution_entries_v_version_tags;
+  _solution_entries_v: typeof _solution_entries_v;
+  _solution_entries_v_rels: typeof _solution_entries_v_rels;
+  insight_entries_tags: typeof insight_entries_tags;
+  insight_entries: typeof insight_entries;
+  _insight_entries_v_version_tags: typeof _insight_entries_v_version_tags;
+  _insight_entries_v: typeof _insight_entries_v;
   search: typeof search;
   search_rels: typeof search_rels;
   forms_blocks_checkbox: typeof forms_blocks_checkbox;
@@ -12261,6 +13876,22 @@ type DatabaseSchema = {
   relations__org_about_profiles_v: typeof relations__org_about_profiles_v;
   relations_org_learning: typeof relations_org_learning;
   relations__org_learning_v: typeof relations__org_learning_v;
+  relations_framework_entries_tags: typeof relations_framework_entries_tags;
+  relations_framework_entries_rels: typeof relations_framework_entries_rels;
+  relations_framework_entries: typeof relations_framework_entries;
+  relations__framework_entries_v_version_tags: typeof relations__framework_entries_v_version_tags;
+  relations__framework_entries_v_rels: typeof relations__framework_entries_v_rels;
+  relations__framework_entries_v: typeof relations__framework_entries_v;
+  relations_solution_entries_tags: typeof relations_solution_entries_tags;
+  relations_solution_entries_rels: typeof relations_solution_entries_rels;
+  relations_solution_entries: typeof relations_solution_entries;
+  relations__solution_entries_v_version_tags: typeof relations__solution_entries_v_version_tags;
+  relations__solution_entries_v_rels: typeof relations__solution_entries_v_rels;
+  relations__solution_entries_v: typeof relations__solution_entries_v;
+  relations_insight_entries_tags: typeof relations_insight_entries_tags;
+  relations_insight_entries: typeof relations_insight_entries;
+  relations__insight_entries_v_version_tags: typeof relations__insight_entries_v_version_tags;
+  relations__insight_entries_v: typeof relations__insight_entries_v;
   relations_search_rels: typeof relations_search_rels;
   relations_search: typeof relations_search;
   relations_forms_blocks_checkbox: typeof relations_forms_blocks_checkbox;

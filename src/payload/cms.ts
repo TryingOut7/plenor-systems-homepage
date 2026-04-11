@@ -1,9 +1,12 @@
 // Thin barrel — all implementation lives in ./cms/*
 export type {
+  AboutProfile,
   BlogCategory,
   BlogPost,
   CmsReadOptions,
   CollectionData,
+  FrameworkEntry,
+  InsightEntry,
   Logo,
   PageSection,
   RedirectRule,
@@ -12,17 +15,26 @@ export type {
   SitemapQueryResult,
   SitePage,
   SiteSettings,
+  SolutionEntry,
   TeamMember,
   Testimonial,
   UISettings,
 } from './cms/types.ts';
 
 export {
+  getAboutProfileBySlug,
+  getAboutProfiles,
   getBlogPostBySlug,
   getCollectionData,
+  getFrameworkEntries,
+  getFrameworkEntryBySlug,
+  getInsightEntries,
+  getInsightEntryBySlug,
   getServiceItemBySlug,
   getSitemapSlugs,
   getSitePageBySlug,
   getSiteSettings,
+  getSolutionEntries,
+  getSolutionEntryBySlug,
   getUISettings,
 } from './cms/queries.ts';

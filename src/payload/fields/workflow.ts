@@ -81,6 +81,7 @@ function buildWorkflowStatusField(policy: WorkflowStatusFieldPolicy = {}): Field
       { label: 'Approved', value: 'approved' },
       { label: 'Changes Requested', value: 'rejected' },
       { label: 'Live', value: 'published' },
+      { label: 'Archived', value: 'archived' },
     ],
     filterOptions: ({ data, options, req, siblingData }) =>
       filterWorkflowStatusOptions({

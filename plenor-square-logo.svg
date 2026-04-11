@@ -1,0 +1,20 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Square background -->
+  <rect width="200" height="200" fill="#1B2D4F" rx="20" />
+  
+  <!-- P letter in the center -->
+  <text
+    x="100"
+    y="130"
+    text-anchor="middle"
+    font-family="system-ui, -apple-system, sans-serif"
+    font-size="120"
+    font-weight="700"
+    fill="#FFFFFF"
+  >
+    P
+  </text>
+  
+  <!-- Accent dot -->
+  <circle cx="150" cy="70" r="12" fill="#3B5998" />
+</svg>

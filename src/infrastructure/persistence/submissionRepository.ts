@@ -14,13 +14,15 @@ export async function persistGuideSubmission(
 export async function persistInquirySubmission(
   name: string,
   email: string,
-  company: string,
-  challenge: string,
+  organization: string,
+  inquiryType: string,
+  message: string,
 ): Promise<StoredSubmission> {
   return persistInquirySubmissionRecord({
     name,
     email,
-    company,
-    challenge,
+    organization,
+    inquiryType,
+    message,
   });
 }

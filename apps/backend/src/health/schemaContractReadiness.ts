@@ -31,7 +31,16 @@ export type SchemaContractReadinessResult = {
 
 const BACKEND_SCHEMA_COLUMNS: Record<string, string[]> = {
   guide_submissions: ['id', 'name', 'email', 'submitted_at'],
-  inquiry_submissions: ['id', 'name', 'email', 'company', 'challenge', 'submitted_at'],
+  inquiry_submissions: [
+    'id',
+    'name',
+    'email',
+    'organization',
+    'inquiry_type',
+    'message',
+    'workflow_status',
+    'submitted_at',
+  ],
   audit_logs: ['actor_key_id', 'target_id', 'old_status', 'new_status', 'reason'],
   backend_idempotency_keys: [
     'route',

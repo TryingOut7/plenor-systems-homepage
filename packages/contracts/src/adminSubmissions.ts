@@ -1,4 +1,5 @@
 export type SubmissionKind = 'guide' | 'inquiry';
+export type InquiryWorkflowStatus = 'submitted' | 'under_review' | 'responded' | 'closed';
 
 export type SideEffectStatus = 'pending' | 'retrying' | 'succeeded' | 'dead_letter';
 
@@ -7,8 +8,10 @@ export interface AdminSubmission {
   kind: SubmissionKind;
   name: string;
   email: string;
-  company?: string;
-  challenge?: string;
+  organization?: string;
+  inquiryType?: string;
+  message?: string;
+  workflowStatus?: InquiryWorkflowStatus;
   submittedAt: string;
   sideEffects: {
     total: number;
@@ -49,4 +52,8 @@ export interface AdminReplaySubmissionResponse {
   replayed: true;
   submissionId: string;
   enqueuedJobs: number;
+}
+
+export interface AdminUpdateSubmissionStatusRequest {
+  workflowStatus: InquiryWorkflowStatus;
 }

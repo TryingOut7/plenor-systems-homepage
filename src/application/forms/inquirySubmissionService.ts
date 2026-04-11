@@ -28,8 +28,9 @@ type InquirySubmissionServiceResponse =
 function redactInquiryLogPayload(input: {
   name: string;
   email: string;
-  company: string;
-  challenge: string;
+  organization: string;
+  inquiryType: string;
+  message: string;
 }) {
   const emailDomain = input.email.includes('@')
     ? input.email.split('@').at(-1) || 'invalid'
@@ -38,8 +39,9 @@ function redactInquiryLogPayload(input: {
   return {
     nameLength: input.name.length,
     emailDomain: emailDomain.toLowerCase(),
-    companyLength: input.company.length,
-    challengeLength: input.challenge.length,
+    organizationLength: input.organization.length,
+    inquiryTypeLength: input.inquiryType.length,
+    messageLength: input.message.length,
   };
 }
 
@@ -71,8 +73,9 @@ export async function submitInquiryForm(
     const entry = {
       name: validation.data.name,
       email: validation.data.email,
-      company: validation.data.company,
-      challenge: validation.data.challenge,
+      organization: validation.data.organization,
+      inquiryType: validation.data.inquiryType,
+      message: validation.data.message,
     };
 
     let submissionId = '';
@@ -80,8 +83,9 @@ export async function submitInquiryForm(
       const submission = await persistInquirySubmission(
         entry.name,
         entry.email,
-        entry.company,
-        entry.challenge,
+        entry.organization,
+        entry.inquiryType,
+        entry.message,
       );
 
       submissionId = submission.id;
@@ -102,8 +106,8 @@ export async function submitInquiryForm(
         const fallbackSucceeded = await dispatchInquirySubmissionFallback({
           name: entry.name,
           email: entry.email,
-          company: entry.company,
-          challenge: entry.challenge,
+          company: entry.organization,
+          challenge: `${entry.inquiryType}\n\n${entry.message}`.trim(),
         });
 
         if (fallbackSucceeded) {
