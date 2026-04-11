@@ -1,6 +1,80 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
+type QueryRow = Record<string, unknown>;
+
+function readBoolean(row: QueryRow | undefined, key: string): boolean {
+  const value = row?.[key];
+  return value === true || value === 't' || value === 1 || value === '1';
+}
+
+async function hasBackfilledOrgSchema(db: MigrateUpArgs['db']): Promise<boolean> {
+  const result = await db.execute(sql`
+    SELECT
+      to_regclass('public.org_events') IS NOT NULL AS has_org_events,
+      to_regclass('public._org_events_v') IS NOT NULL AS has_org_events_versions,
+      to_regclass('public.org_spotlight') IS NOT NULL AS has_org_spotlight,
+      to_regclass('public.org_about_profiles') IS NOT NULL AS has_org_about_profiles,
+      to_regclass('public.org_learning') IS NOT NULL AS has_org_learning,
+      to_regclass('public.org_sponsors') IS NOT NULL AS has_org_sponsors,
+      to_regclass('public.org_home_features') IS NOT NULL AS has_org_home_features,
+      EXISTS (
+        SELECT 1
+        FROM pg_type t
+        JOIN pg_namespace n ON n.oid = t.typnamespace
+        JOIN pg_enum e ON e.enumtypid = t.oid
+        WHERE n.nspname = 'public'
+          AND t.typname = 'enum_payload_query_presets_related_collection'
+          AND e.enumlabel IN (
+            'org-events',
+            'org-spotlight',
+            'org-about-profiles',
+            'org-learning'
+          )
+        GROUP BY t.oid
+        HAVING COUNT(DISTINCT e.enumlabel) = 4
+      ) AS has_query_preset_enum_values,
+      EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'payload_locked_documents_rels'
+          AND column_name IN (
+            'org_events_id',
+            'org_spotlight_id',
+            'org_about_profiles_id',
+            'org_learning_id',
+            'org_sponsors_id',
+            'org_home_features_id'
+          )
+        GROUP BY table_schema, table_name
+        HAVING COUNT(DISTINCT column_name) = 6
+      ) AS has_locked_doc_relation_columns;
+  `);
+
+  const row = (result.rows?.[0] ?? undefined) as QueryRow | undefined;
+
+  return [
+    'has_org_events',
+    'has_org_events_versions',
+    'has_org_spotlight',
+    'has_org_about_profiles',
+    'has_org_learning',
+    'has_org_sponsors',
+    'has_org_home_features',
+    'has_query_preset_enum_values',
+    'has_locked_doc_relation_columns',
+  ].every((key) => readBoolean(row, key));
+}
+
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+  // `0033_generated_schema_backfill` already provisions this schema in the
+  // backend SQL chain. On production databases that applied that backfill
+  // before Payload recorded this migration, we should no-op and let Payload
+  // mark the migration as ran instead of attempting duplicate CREATEs.
+  if (await hasBackfilledOrgSchema(db)) {
+    return;
+  }
+
   await db.execute(sql`
    CREATE TYPE "public"."enum_org_events_event_type" AS ENUM('concert', 'competition', 'festival', 'workshop');
   CREATE TYPE "public"."enum_org_events_event_status" AS ENUM('upcoming_planned', 'current_ongoing', 'past_completed');
