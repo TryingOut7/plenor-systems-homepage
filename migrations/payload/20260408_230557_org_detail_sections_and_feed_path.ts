@@ -1,6 +1,145 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
+type QueryRow = Record<string, unknown>;
+
+function readBoolean(row: QueryRow | undefined, key: string): boolean {
+  const value = row?.[key];
+  return value === true || value === 't' || value === 1 || value === '1';
+}
+
+async function hasBackfilledOrgDetailSchema(db: MigrateUpArgs['db']): Promise<boolean> {
+  const result = await db.execute(sql`
+    SELECT
+      to_regclass('public.org_evt_detail') IS NOT NULL AS has_org_evt_detail,
+      to_regclass('public.org_evt_reg') IS NOT NULL AS has_org_evt_reg,
+      to_regclass('public.org_spot_detail') IS NOT NULL AS has_org_spot_detail,
+      to_regclass('public.org_learn_detail') IS NOT NULL AS has_org_learn_detail,
+      to_regclass('public.org_about_detail') IS NOT NULL AS has_org_about_detail,
+      to_regclass('public.org_sponsors_sec') IS NOT NULL AS has_org_sponsors_sec,
+      EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'org_feed'
+          AND column_name = 'item_base_path'
+      ) AS has_org_feed_item_base_path,
+      EXISTS (
+        SELECT 1
+        FROM pg_type t
+        JOIN pg_namespace n ON n.oid = t.typnamespace
+        WHERE n.nspname = 'public'
+          AND t.typname IN (
+            'enum_org_evt_detail_theme',
+            'enum_org_evt_detail_size',
+            'enum_org_evt_detail_heading_size',
+            'enum_org_evt_detail_text_align',
+            'enum_org_evt_detail_heading_tag',
+            'enum_org_evt_reg_theme',
+            'enum_org_evt_reg_size',
+            'enum_org_evt_reg_heading_size',
+            'enum_org_evt_reg_text_align',
+            'enum_org_evt_reg_heading_tag',
+            'enum_org_spot_detail_theme',
+            'enum_org_spot_detail_size',
+            'enum_org_spot_detail_heading_size',
+            'enum_org_spot_detail_text_align',
+            'enum_org_spot_detail_heading_tag',
+            'enum_org_learn_detail_theme',
+            'enum_org_learn_detail_size',
+            'enum_org_learn_detail_heading_size',
+            'enum_org_learn_detail_text_align',
+            'enum_org_learn_detail_heading_tag',
+            'enum_org_about_detail_theme',
+            'enum_org_about_detail_size',
+            'enum_org_about_detail_heading_size',
+            'enum_org_about_detail_text_align',
+            'enum_org_about_detail_heading_tag',
+            'enum_org_sponsors_sec_theme',
+            'enum_org_sponsors_sec_size',
+            'enum_org_sponsors_sec_heading_size',
+            'enum_org_sponsors_sec_text_align',
+            'enum_org_sponsors_sec_heading_tag'
+          )
+        GROUP BY n.nspname
+        HAVING COUNT(DISTINCT t.typname) = 30
+      ) AS has_org_detail_enums,
+      EXISTS (
+        SELECT 1
+        FROM pg_constraint
+        WHERE conname IN (
+          'org_evt_detail_event_id_org_events_id_fk',
+          'org_evt_detail_parent_id_fk',
+          'org_evt_reg_event_id_org_events_id_fk',
+          'org_evt_reg_parent_id_fk',
+          'org_spot_detail_spotlight_entry_id_org_spotlight_id_fk',
+          'org_spot_detail_parent_id_fk',
+          'org_learn_detail_learning_entry_id_org_learning_id_fk',
+          'org_learn_detail_parent_id_fk',
+          'org_about_detail_profile_id_org_about_profiles_id_fk',
+          'org_about_detail_parent_id_fk',
+          'org_sponsors_sec_parent_id_fk'
+        )
+        GROUP BY connamespace
+        HAVING COUNT(DISTINCT conname) = 11
+      ) AS has_org_detail_constraints,
+      EXISTS (
+        SELECT 1
+        FROM pg_indexes
+        WHERE schemaname = 'public'
+          AND indexname IN (
+            'org_evt_detail_order_idx',
+            'org_evt_detail_parent_id_idx',
+            'org_evt_detail_path_idx',
+            'org_evt_detail_event_idx',
+            'org_evt_reg_order_idx',
+            'org_evt_reg_parent_id_idx',
+            'org_evt_reg_path_idx',
+            'org_evt_reg_event_idx',
+            'org_spot_detail_order_idx',
+            'org_spot_detail_parent_id_idx',
+            'org_spot_detail_path_idx',
+            'org_spot_detail_spotlight_entry_idx',
+            'org_learn_detail_order_idx',
+            'org_learn_detail_parent_id_idx',
+            'org_learn_detail_path_idx',
+            'org_learn_detail_learning_entry_idx',
+            'org_about_detail_order_idx',
+            'org_about_detail_parent_id_idx',
+            'org_about_detail_path_idx',
+            'org_about_detail_profile_idx',
+            'org_sponsors_sec_order_idx',
+            'org_sponsors_sec_parent_id_idx',
+            'org_sponsors_sec_path_idx'
+          )
+        GROUP BY schemaname
+        HAVING COUNT(DISTINCT indexname) = 23
+      ) AS has_org_detail_indexes;
+  `);
+
+  const row = (result.rows?.[0] ?? undefined) as QueryRow | undefined;
+
+  return [
+    'has_org_evt_detail',
+    'has_org_evt_reg',
+    'has_org_spot_detail',
+    'has_org_learn_detail',
+    'has_org_about_detail',
+    'has_org_sponsors_sec',
+    'has_org_feed_item_base_path',
+    'has_org_detail_enums',
+    'has_org_detail_constraints',
+    'has_org_detail_indexes',
+  ].every((key) => readBoolean(row, key));
+}
+
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+  // Some deployed databases already contain these detail-section tables from
+  // prior backfills or manual repair steps even when Payload never recorded
+  // the migration. If the full shape is present, no-op and let Payload record it.
+  if (await hasBackfilledOrgDetailSchema(db)) {
+    return;
+  }
+
   await db.execute(sql`
    CREATE TYPE "public"."enum_org_evt_detail_theme" AS ENUM('navy', 'charcoal', 'black', 'white', 'light');
   CREATE TYPE "public"."enum_org_evt_detail_size" AS ENUM('compact', 'regular', 'spacious');

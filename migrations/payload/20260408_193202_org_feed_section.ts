@@ -1,6 +1,94 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
+type QueryRow = Record<string, unknown>;
+
+function readBoolean(row: QueryRow | undefined, key: string): boolean {
+  const value = row?.[key];
+  return value === true || value === 't' || value === 1 || value === '1';
+}
+
+async function hasBackfilledOrgFeedSchema(db: MigrateUpArgs['db']): Promise<boolean> {
+  const result = await db.execute(sql`
+    SELECT
+      to_regclass('public.org_feed') IS NOT NULL AS has_org_feed,
+      EXISTS (
+        SELECT 1
+        FROM pg_type t
+        JOIN pg_namespace n ON n.oid = t.typnamespace
+        WHERE n.nspname = 'public'
+          AND t.typname IN (
+            'enum_org_feed_theme',
+            'enum_org_feed_size',
+            'enum_org_feed_heading_size',
+            'enum_org_feed_text_align',
+            'enum_org_feed_heading_tag',
+            'enum_org_feed_feed_type',
+            'enum_org_feed_source_mode',
+            'enum_org_feed_columns',
+            'enum_org_feed_event_status',
+            'enum_org_feed_spotlight_category',
+            'enum_org_feed_learning_category'
+          )
+        GROUP BY n.nspname
+        HAVING COUNT(DISTINCT t.typname) = 11
+      ) AS has_org_feed_enums,
+      EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'site_pages_rels'
+          AND column_name IN ('org_events_id', 'org_spotlight_id', 'org_learning_id')
+        GROUP BY table_schema, table_name
+        HAVING COUNT(DISTINCT column_name) = 3
+      ) AS has_site_pages_relation_columns,
+      EXISTS (
+        SELECT 1
+        FROM pg_constraint
+        WHERE conname IN (
+          'org_feed_parent_id_fk',
+          'site_pages_rels_org_events_fk',
+          'site_pages_rels_org_spotlight_fk',
+          'site_pages_rels_org_learning_fk'
+        )
+        GROUP BY connamespace
+        HAVING COUNT(DISTINCT conname) = 4
+      ) AS has_org_feed_constraints,
+      EXISTS (
+        SELECT 1
+        FROM pg_indexes
+        WHERE schemaname = 'public'
+          AND indexname IN (
+            'org_feed_order_idx',
+            'org_feed_parent_id_idx',
+            'org_feed_path_idx',
+            'site_pages_rels_org_events_id_idx',
+            'site_pages_rels_org_spotlight_id_idx',
+            'site_pages_rels_org_learning_id_idx'
+          )
+        GROUP BY schemaname
+        HAVING COUNT(DISTINCT indexname) = 6
+      ) AS has_org_feed_indexes;
+  `);
+
+  const row = (result.rows?.[0] ?? undefined) as QueryRow | undefined;
+
+  return [
+    'has_org_feed',
+    'has_org_feed_enums',
+    'has_site_pages_relation_columns',
+    'has_org_feed_constraints',
+    'has_org_feed_indexes',
+  ].every((key) => readBoolean(row, key));
+}
+
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+  // Some deployed databases already contain this schema from prior backfills
+  // or manual repair steps even when Payload never recorded this migration.
+  // If the full shape is present, no-op so Payload can mark it as ran.
+  if (await hasBackfilledOrgFeedSchema(db)) {
+    return;
+  }
+
   await db.execute(sql`
    CREATE TYPE "public"."enum_org_feed_theme" AS ENUM('navy', 'charcoal', 'black', 'white', 'light');
   CREATE TYPE "public"."enum_org_feed_size" AS ENUM('compact', 'regular', 'spacious');
