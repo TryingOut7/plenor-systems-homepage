@@ -1,0 +1,345 @@
+
+Website Solution System
+Level 1 Governing Framework
+
+Version 2.0  |  Baseline
+Status
+System governance document — reference use; not part of the active developer handoff set.
+ 
+
+
+1.  Purpose, Scope, and Role
+1.1  Purpose
+This document defines the top-level governing framework for the website solution system.
+
+Its purpose is to establish:
+•	the website solution system as a governed whole
+•	the artifact stack used to define, structure, realize, and technically implement website solutions
+•	the role of each artifact in that stack
+•	the boundary rules between those artifacts
+•	the derivation and dependency rules across them
+•	the extension and conformance rules that govern the system over time
+
+This document exists so that website solutions are produced through a repeatable governed method rather than through local invention by developers, designers, editors, or code-generation tools.
+1.2  Scope
+This document is in scope for:
+•	the website solution system as a whole
+•	the top-level purpose and structure of the artifact stack
+•	the governing relationship between artifacts in that stack
+•	the boundary rules that determine what belongs in which artifact
+•	the derivation rules that govern how downstream artifacts are produced from upstream artifacts
+•	the rules that govern reuse, extension, and conformance across different websites
+1.3  Out of Scope
+This document is not the place where:
+•	one specific website's product requirements are defined
+•	one specific website's current design, navigation, operational, or metadata values are defined
+•	the detailed structural contents of the Website Solution Architecture Standard are defined
+•	the detailed buildable module, component, page composition, or CMS page-management contents of the Website Realization and Page Composition Standard are defined
+•	stack-specific technical choices are defined
+
+Those belong in the downstream artifacts governed by this framework.
+1.4  Role
+This document is the only Level 1 governing document for the website solution system.
+
+It governs:
+•	the artifact stack
+•	the role of each artifact
+•	the boundary rules between artifacts
+•	the derivation, extension, and conformance rules that apply across the system
+
+It does not replace the downstream artifacts. It defines why they exist, what each one governs, how they relate, and how they must be used together.
+2.  Governing Objective
+2.1  Primary Objective
+The website solution system must make it possible to build different websites through a repeatable governed method rather than through repeated architectural reinvention.
+2.2  Required Outcomes
+The system must be:
+•	deterministic enough to constrain probabilistic code-generation tools
+•	simple enough for a lean team to manage
+•	clear enough for competent developers to use without specialist decoding
+•	reusable across different websites through controlled variation
+•	structured enough to prevent architectural drift
+•	extensible enough to support approved growth without local invention
+2.3  Governing Standard
+The website solution system is successful only when:
+•	the same artifact stack can be used repeatedly
+•	materially different websites can be instantiated from that stack
+•	core structural rules remain stable
+•	tool choice does not become hidden architecture choice
+•	site-specific variation occurs only through governed inputs and approved extension rules
+3.  Governing Principles
+3.1  What-versus-how separation
+The website solution system must clearly separate:
+•	what the website must do
+•	what values govern the website
+•	how the solution is structurally organized
+•	what buildable units are used to realize that structure
+•	how the governed solution is mapped to a chosen technology stack
+3.2  Determinism
+The system must remove structural discretion wherever such discretion would otherwise produce inconsistent results across developers or code-generation tools.
+3.3  Simplicity and readability
+The system must remain logically sequenced, readable, and usable by competent practitioners without requiring expert interpretation.
+
+Structural clarity takes precedence over theoretical optimization.
+3.4  Technology independence at the correct level
+The structural organization of the website solution must be defined independently of specific implementation technologies.
+
+Technology choices belong downstream in the appropriate technical realization artifact.
+3.5  Tool independence
+The same governed inputs must produce materially equivalent solution structure and governed behavior regardless of the code-generation tool used, provided the same downstream technology profile is selected.
+3.6  Reuse through controlled variation
+Different websites must be produced by instantiating the standard system through bounded inputs and approved extensions, not by redefining the governing method each time.
+3.7  Explicit extension only
+New structural or buildable behavior may be introduced only through governed extension. Local invention is not permitted.
+3.8  Separation of concerns
+Distinct responsibilities must remain separate unless an explicit governed rule or explicit architectural decision permits otherwise.
+3.9  Compactness
+The artifact system must remain no larger than necessary to remove real ambiguity and real uncontrolled discretion.
+4.  Artifact Stack
+4.1  Artifact Model
+The website solution system is composed of the following artifact stack:
+•	1.  Website Specification
+•	2.  Site Configuration Standard
+•	3.  Site Configuration Record
+•	4.  Website Solution Architecture Standard
+•	5.  Website Realization and Page Composition Standard
+•	6.  Technical Build Profile
+4.2  Stack Logic
+These artifacts are not alternatives to each other.
+
+They are coordinated governing instruments with distinct roles.
+
+They must be used together according to the boundary, derivation, extension, and conformance rules defined in this framework.
+4.3  Artifact Classes
+The artifact stack consists of the following artifact classes:
+•	product-definition artifact
+•	configuration artifact family
+•	structural architecture artifact
+•	realization and composition artifact
+•	technical realization artifact
+
+Each named artifact in the stack belongs to one of these classes and must operate according to the governing role of that class.
+5.  Artifact Roles
+5.1  Website Specification
+The Website Specification defines what the website must do.
+
+It governs:
+•	product purpose and goals
+•	users and priorities
+•	pages and views
+•	content types and relationships
+•	navigation and information architecture
+•	CMS behavior requirements
+•	accessibility, SEO, responsive behavior, and acceptance criteria
+
+It does not govern:
+•	internal structural decomposition of the solution
+•	stack-specific implementation choices
+•	buildable module catalogues
+•	repository or coding conventions
+5.2  Site Configuration Standard
+The Site Configuration Standard defines the governed configuration model for the website system.
+
+It governs:
+•	configuration categories
+•	configuration object structures
+•	validity rules
+•	completion rules
+•	resolution rules
+•	what is fixed, variable, deferred, or not used
+
+It does not define the active values for a specific website.
+5.3  Site Configuration Record
+The Site Configuration Record defines the active governed values for a specific website.
+
+It governs:
+•	active design selections
+•	navigation values
+•	operational text
+•	metadata values
+•	site-specific governed choices that conform to the Site Configuration Standard
+
+It does not redefine the configuration model itself.
+
+The Site Configuration Standard and Site Configuration Record together form the configuration artifact family. The Standard defines the governed configuration model. The Record defines the active site-specific configuration values that instantiate that model.
+5.4  Website Solution Architecture Standard
+The Website Solution Architecture Standard defines how the website solution is structurally organized.
+
+It governs:
+•	the logical structure of the solution
+•	the canonical logical modules used in that structure
+•	the meanings of those logical modules
+•	dependency rules
+•	orthogonality rules
+•	extension rules
+•	architecture invariants
+•	tool-independence rule
+•	technology-mapping rule
+
+It does not define:
+•	site-specific active values
+•	every buildable page feature
+•	stack-specific technical realization
+5.5  Website Realization and Page Composition Standard
+The Website Realization and Page Composition Standard defines the buildable website system and the governed way pages are constructed.
+
+It governs:
+•	buildable modules
+•	reusable components
+•	the distinction between page type, page instance, and page composition
+•	page construction rules
+•	module integration contracts
+•	page-level orchestration
+•	CMS-managed versus fixed page aspects
+
+It does not define:
+•	the high-level structural grammar of the solution
+•	product requirements
+•	stack-specific coding or framework conventions
+5.6  Technical Build Profile
+The Technical Build Profile defines how the governed website solution is realized in the selected technology stack.
+
+It governs:
+•	stack selection
+•	mapping from logical modules to technical layers
+•	mapping from buildable modules to implementation units
+•	implementation conventions
+•	code-generation operating rules
+•	stack-specific conformance expectations
+
+It does not redefine:
+•	product requirements
+•	structural architecture semantics
+•	configuration semantics
+6.  Boundary Rules
+6.1  Single Responsibility per Artifact
+Each artifact in the stack must have one primary governing job.
+
+An artifact must not absorb the primary responsibility of another artifact.
+6.2  No Detailed Duplication
+This Level 1 framework may define the role of each artifact, but it must not restate the detailed internal contents of those artifacts.
+
+Likewise, downstream artifacts must not restate each other's core content except where traceability requires minimal reference.
+6.3  Product-versus-Structure Boundary
+Website Specification defines what the website must do.
+Website Solution Architecture Standard defines how the solution is structurally organized.
+
+These must not be collapsed into one artifact.
+6.4  Structure-versus-Realization Boundary
+Website Solution Architecture Standard defines the structural system.
+Website Realization and Page Composition Standard defines the buildable units and governed page construction model.
+
+These must not be collapsed into one artifact.
+6.5  Technology Boundary
+Technology choices belong in the Technical Build Profile.
+
+They must not be treated as defining elements of the Website Solution Architecture Standard.
+6.6  Configuration Boundary
+Configuration model rules belong in the Site Configuration Standard.
+Active values belong in the Site Configuration Record.
+
+Neither may be redefined in the Website Solution Architecture Standard or the Technical Build Profile.
+6.7  Scoped Authority Rule
+Each downstream artifact is authoritative within its declared scope. This Level 1 framework governs the artifact system and the relationships between artifacts; it does not replace the downstream artifact as the source of truth within that artifact's assigned domain.
+7.  Derivation and Dependency Rules
+7.1  Upstream-Downstream Rule
+Each downstream artifact must derive from the relevant upstream artifact set.
+
+It must not invent upstream behavior, policy, or structure.
+7.2  Required Derivation Chain
+The derivation chain is:
+•	Website Specification defines required behavior and constraints
+•	Site Configuration Standard defines governed variation structure
+•	Site Configuration Record provides site-specific governed values
+•	Website Solution Architecture Standard defines the structural organization needed to realize the specification within the configuration model
+•	Website Realization and Page Composition Standard defines the buildable and compositional system that realizes the structural organization
+•	Technical Build Profile maps that governed solution to the chosen stack
+7.3  Configuration Use Rule
+The Site Configuration Standard defines the governed configuration model and rules. The Site Configuration Record defines the active site-specific configuration values that instantiate that model. Downstream artifacts that rely on configuration must conform to the Standard and use the Record wherever active site-specific governed values are required.
+7.4  No Silent Override Rule
+A downstream artifact may realize, refine, or map an upstream artifact within its defined scope, but may not silently contradict, expand, or weaken the upstream artifact.
+7.5  Resolve Structure, Not Policy
+Where an upstream artifact says a behavior must exist, the downstream artifact may decide where and how it is structurally or technically realized within its scope, but it may not rewrite the governing business or product rule itself.
+8.  Reuse and Instantiation Model
+8.1  Stable Layer
+The following are intended to remain stable across different website instantiations:
+•	this Level 1 framework
+•	the Website Specification approach
+•	the Site Configuration Standard
+•	the Website Solution Architecture Standard
+•	the Website Realization and Page Composition Standard
+•	the Technical Build Profile pattern
+8.2  Variable Layer
+The following may vary per website through governed instantiation:
+•	site-specific Website Specification content
+•	site-specific Site Configuration Record values
+•	site archetype and selected sections
+•	selected buildable modules within governed rules
+•	site-specific page instances and page compositions
+•	selected technology profile where permitted
+8.3  Input Minimization Rule
+A new website should be producible by supplying a bounded set of high-value inputs and approved variations.
+
+It should not require re-customization of every structural rule, artifact role, or integration rule.
+9.  Extension and Change Rules
+9.1  Governed Extension Only
+A new artifact, new structural concept, new buildable concept, or new composition rule may be introduced only through governed change.
+9.2  No Local Structural Invention
+Developers, editors, or code-generation tools may not locally invent:
+•	new artifact roles
+•	new logical module categories
+•	new buildable module categories
+•	new page composition rules
+•	new configuration pathways
+
+unless such additions are explicitly authorized through governed extension.
+9.3  Closed Starting Set Rule
+The artifact stack defined in this framework is the closed starting set for the website solution system.
+
+New Level 1 artifacts may be added only when the existing stack is demonstrably insufficient and the addition is authorized through governed change.
+9.4  Artifact Addition Threshold Rule
+A new artifact may be introduced only when existing artifacts cannot remove the ambiguity or uncontrolled discretion in scope without violating their defined responsibilities.
+9.5  Framework Change Rule
+Changes to the artifact stack, artifact roles, artifact boundaries, derivation rules, extension rules, or conformance model defined in this framework must be made through governed change at this framework level. Such changes must not be introduced implicitly by downstream artifacts.
+10.  Conformance Model
+10.1  Conformance Purpose
+Conformance exists to ensure that the website solution system is being used as intended and that repeatable websites are being produced through the governed artifact stack rather than through local improvisation.
+10.2  Conformance Checks for the System
+At minimum, the system should be checked against the following questions:
+•	Does each artifact have one clear primary responsibility?
+•	Are artifact boundaries clear and respected?
+•	Is the derivation chain explicit and traceable?
+•	Are downstream artifacts avoiding silent override of upstream artifacts?
+•	Are the same governed rules reusable across different websites?
+•	Is the architecture materially stable across different code-generation tools?
+•	Is the system compact enough for a lean team to operate?
+•	Is the system clear enough for a competent developer to use without expert interpretation?
+10.3  Conformance Responsibility
+Conformance to this framework must be assessed whenever:
+•	a new downstream artifact is created
+•	a materially revised version of a downstream artifact is proposed
+•	a change to the artifact stack, boundary model, derivation model, or extension model is proposed
+10.4  Conformance Owner
+Conformance assessment must be performed by the document owner or delegated governance owner for the website solution system.
+10.5  Non-Conformance Rule
+A downstream artifact that materially violates this framework's boundary, derivation, extension, or scoped-authority rules must not be treated as accepted until the non-conformance is resolved or explicitly authorized as a governed exception.
+10.6  Governance-Grade Standard
+This framework is governance-grade only when:
+•	the artifact stack is stable
+•	the roles are clear
+•	the boundaries are clear
+•	the derivation rules are clear
+•	reuse across websites is practical
+•	tool independence is materially preserved
+•	no unnecessary artifact sprawl is introduced
+11.  Final Governing Statements
+11.1  Level 1 System Statement
+This document is the only Level 1 governing document for the website solution system.
+11.2  Artifact Stack Statement
+The website solution system is governed through a bounded artifact stack in which each artifact has a distinct role and must be used according to the boundary, derivation, extension, and conformance rules defined in this framework.
+11.3  Product-versus-Structure Statement
+Website Specification defines what the website must do.
+Website Solution Architecture Standard defines how the solution is structurally organized.
+Website Realization and Page Composition Standard defines the buildable modules, reusable components, and governed page construction model.
+Technical Build Profile defines how the governed solution is realized in the chosen technology stack.
+11.4  Reuse Statement
+Different websites must be produced by instantiating this governed system through bounded variation and approved extension, not by redefining the system each time.

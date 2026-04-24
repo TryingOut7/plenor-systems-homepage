@@ -21,10 +21,7 @@ function getUserRole(req: { user?: unknown }): WorkflowRole | null {
 }
 
 const EDITOR_PUBLISH_COLLECTIONS = new Set<string>([
-  'org-events',
-  'org-spotlight',
   'org-about-profiles',
-  'org-learning',
 ]);
 
 function allowEditorPublishForCollection(collectionSlug?: string): boolean {

@@ -24,11 +24,7 @@ export const MODERN_SECTION_UI: Record<string, SectionUiMeta> = {
   simpleTableSection: { singular: 'Basic Table', plural: 'Basic Tables', group: 'Data', color: '#4F46E5', icon: 'T' },
   comparisonTableSection: { singular: 'Comparison Table', plural: 'Comparison Tables', group: 'Data', color: '#6D28D9', icon: 'C' },
   dynamicListSection: { singular: 'Auto List', plural: 'Auto Lists', group: 'Data', color: '#7C2D12', icon: 'A' },
-  orgFeedSection: { singular: 'Org Feed', plural: 'Org Feeds', group: 'Data', color: '#0F766E', icon: 'O' },
-  orgEventDetailSection: { singular: 'Event Detail', plural: 'Event Details', group: 'Data', color: '#0369A1', icon: 'E' },
-  orgEventRegistrationSection: { singular: 'Event Registration', plural: 'Event Registrations', group: 'Forms', color: '#B45309', icon: 'R' },
-  orgSpotlightDetailSection: { singular: 'Spotlight Detail', plural: 'Spotlight Details', group: 'Data', color: '#7C3AED', icon: 'S' },
-  orgLearningDetailSection: { singular: 'Learning Detail', plural: 'Learning Details', group: 'Data', color: '#0E7490', icon: 'L' },
+
   orgAboutDetailSection: { singular: 'About Profile', plural: 'About Profiles', group: 'Data', color: '#4338CA', icon: 'A' },
   orgSponsorsSection: { singular: 'Sponsors Page', plural: 'Sponsors Pages', group: 'Data', color: '#BE185D', icon: '$' },
   splitSection: { singular: 'Two Column Content', plural: 'Two Column Content Blocks', group: 'Layout', color: '#1E3A8A', icon: '2' },

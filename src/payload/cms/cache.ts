@@ -160,18 +160,24 @@ export function invalidateCmsCollectionCaches(input: {
     case 'solution-entries': {
       const slug = readSlugFromDoc(input.doc, 'slug');
       const prevSlug = readSlugFromDoc(input.previousDoc, 'slug');
+      if (slug) serviceItemCache.delete(slug);
+      if (prevSlug && prevSlug !== slug) serviceItemCache.delete(prevSlug);
       if (slug) solutionEntryCache.delete(slug);
       if (prevSlug && prevSlug !== slug) solutionEntryCache.delete(prevSlug);
       clearHolderEntry(solutionEntriesCache);
+      clearHolderEntry(collectionDataCache);
       clearHolderEntry(sitemapCache);
       break;
     }
     case 'insight-entries': {
       const slug = readSlugFromDoc(input.doc, 'slug');
       const prevSlug = readSlugFromDoc(input.previousDoc, 'slug');
+      if (slug) blogPostCache.delete(slug);
+      if (prevSlug && prevSlug !== slug) blogPostCache.delete(prevSlug);
       if (slug) insightEntryCache.delete(slug);
       if (prevSlug && prevSlug !== slug) insightEntryCache.delete(prevSlug);
       clearHolderEntry(insightEntriesCache);
+      clearHolderEntry(collectionDataCache);
       clearHolderEntry(sitemapCache);
       break;
     }

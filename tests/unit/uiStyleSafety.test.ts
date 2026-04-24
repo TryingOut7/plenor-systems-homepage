@@ -21,6 +21,18 @@ describe('style safety', () => {
     expect(variables['--ui-color-text']).toBeUndefined();
   });
 
+  it('uses the display font for display typography instead of the body font', () => {
+    const variables = buildUIVariableStyles({
+      typography: {
+        bodyFontFamily: 'BodyFont, sans-serif',
+        displayFontFamily: 'DisplayFont, serif',
+      },
+    } as never);
+
+    expect(variables['--ui-font-body']).toBe('BodyFont, sans-serif');
+    expect(variables['--ui-font-display']).toBe('DisplayFont, serif');
+  });
+
   it('ignores unsafe page background overrides while preserving safe layout rules', () => {
     const css = buildPageChromeOverrideCss({
       hideNavbar: true,

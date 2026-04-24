@@ -76,6 +76,7 @@ describe('form submission error logging', () => {
       name: 'Bob Example',
       email: 'bob@example.com',
       company: 'Acme Corporation',
+      inquiryType: 'Launch support',
       challenge: 'We need support for QA and launch operations.',
     });
 
@@ -87,6 +88,6 @@ describe('form submission error logging', () => {
     expect(combinedLog).not.toContain('bob@example.com');
     expect(combinedLog).not.toContain('Acme Corporation');
     expect(combinedLog).not.toContain('QA and launch operations');
-    expect(combinedLog).toContain('challengeLength');
+    expect(combinedLog).toContain('messageLength');
   });
 });

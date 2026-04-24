@@ -10,6 +10,7 @@ import {
   getOptionLabel,
 } from '@/lib/plenor-site';
 import { getSiteSettings, getSolutionEntryBySlug } from '@/payload/cms';
+import { resolveSiteUrl } from '@/lib/site-config';
 
 export const revalidate = 60;
 
@@ -43,11 +44,27 @@ export default async function SolutionDetailPage({
   params: Promise<RouteParams>;
 }) {
   const resolvedParams = await params;
-  const entry = await getSolutionEntryBySlug(resolvedParams.slug);
+  const [entry, siteSettings] = await Promise.all([
+    getSolutionEntryBySlug(resolvedParams.slug),
+    getSiteSettings(),
+  ]);
   if (!entry) notFound();
+
+  const siteUrl = resolveSiteUrl(siteSettings);
+  const webpageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: entry.title,
+    description: entry.summary || undefined,
+    url: `${siteUrl}/solutions/${entry.slug}`,
+  };
 
   return (
     <article style={{ maxWidth: '920px', margin: '0 auto', padding: '64px 24px 96px' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webpageSchema) }}
+      />
       <OrgSecondaryNav
         items={SOLUTION_SECONDARY_NAV_ITEMS}
         activeHref={

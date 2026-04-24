@@ -1,0 +1,277 @@
+Technical Build Profile
+Status
+Pending governing artifact — not active until stack selection and profile completion are complete.
+Activation rule
+This document becomes the technical authority for implementation only when Section 0, all selected-technology sections, and the conformance model are fully instantiated and approved.
+0. Stack Selection and Profile Completion
+0.1 Current status
+This document is currently a template. It becomes the authoritative technical realization document only after stack selection is complete and the profile is fully instantiated and approved.
+0.2 Technology decisions required before profile completion
+The following decisions must be made before this profile can be finalized:
+1. Frontend framework and rendering posture
+2. CMS or content platform
+3. Backend or orchestration pattern, if needed
+4. Hosting and deployment platform
+5. Storage or persistence posture
+6. Validation, testing, and build tooling
+7. Preview, publishing, and lifecycle handling approach
+8. Secrets and environment-configuration approach
+0.3 Selection criteria
+Technology choices must be evaluated against the governed system rather than by generic popularity alone. Use the following criteria:
+1. Fit to the Website Specification requirements
+2. Fit to the Website Solution Architecture Standard
+3. Fit to the Website Realization and Page Composition Standard
+4. Support for CMS-managed page instances and approved variation
+5. Support for generated detail-page behavior
+6. Support for governed configuration resolution
+7. Support for boundary preservation and runtime contracts
+8. Developer usability and maintainability for a lean team
+9. Compatibility with controlled code-generation workflows
+10. Operational simplicity and reliability
+0.4 Decision questions by technology area
+For the frontend, decide: What framework best supports governed page composition, reusable component realization, strong typing, metadata handling, and maintainable rendering boundaries?
+For the CMS, decide: Which CMS best supports the required content types, global settings, page-instance handling, generated detail pages, preview, publishing, and workflow behavior?
+For backend or orchestration, decide: Is a BFF, orchestration service, or equivalent runtime layer required, or can the implementation remain simpler without violating governed boundaries?
+For hosting and deployment, decide: Which platform best supports the required delivery posture, environment separation, secrets management, preview flow, and rollout discipline?
+For persistence, decide: What must be persisted outside CMS content, and where should those records live without blurring governed content and configuration boundaries?
+For tooling, decide: Which validation, testing, linting, typing, and build tools are appropriate for the chosen stack and team capability?
+0.5 Recommended working sequence
+1. Confirm the Website Specification and active Site Configuration Record are stable enough for technical selection.
+2. Choose the CMS and frontend, because those two choices drive most downstream realization decisions.
+3. Decide whether a separate backend or orchestration layer is needed.
+4. Choose hosting, persistence, and tooling.
+5. Instantiate the selected-technology sections of the Technical Build Profile with concrete technical decisions.
+6. Complete implementation rules, code-generation rules, codebase and delivery model, and conformance expectations.
+7. Review the full instantiated Technical Build Profile against the upstream artifacts before baselining it.
+0.6 Supersession note
+Once complete, this document supersedes all separate stack-selection guidance and becomes the primary technical reference for implementation.
+1. Purpose, Scope, Role, and Authority
+1.1 Purpose
+This document defines the stack-specific technical realization profile for one governed website solution.
+Its purpose is to translate the governed artifact stack into a concrete technical implementation model so that implementation is repeatable, structural intent is preserved, page realization is controlled, CMS behavior is realized within governed boundaries, configuration behavior is technically enforced, code-generation tools operate within explicit limits, and conformance can be assessed against a defined technical target.
+1.2 Scope
+This document is in scope for the selected technical stack for this implementation; technical realization mappings from governing artifacts; logical module to technical realization mapping; buildable module, reusable component, page type, page instance, and page composition realization; CMS technical realization; runtime configuration realization; technical interfaces and runtime contracts; implementation rules; code-generation operating rules; codebase, environment, and delivery model; and technical conformance expectations.
+1.3 Out of Scope
+This document does not define or redefine product requirements for the website, governed configuration semantics, logical module meaning at the structural architecture level, buildable module meaning at the realization standard level, or page-type and page-composition semantics at the realization standard level. Those are defined by the upstream governing artifacts.
+1.4 Relationship to Upstream Artifacts
+This document derives from the Website Solution System Framework, Website Specification, Site Configuration Standard, Site Configuration Record, Website Solution Architecture Standard, and Website Realization and Page Composition Standard.
+    This document must realize those artifacts and must not silently contradict, expand, weaken, or redefine them.
+1.5 Authority
+This document is authoritative only for stack-specific technical realization within its declared scope. It governs the selected technical stack for this implementation, where technical responsibilities live, which technical boundaries must be preserved, how governed modules, pages, configuration, and CMS behavior are technically realized, and what developers and code-generation tools may and may not do in implementation.
+2. Selected Technology Profile
+2.1 Selected Frontend Framework
+Selected technology: [Specify selected frontend framework]
+Reason for selection: [Specify why this framework is selected for this implementation]
+Role in governed realization: This technology realizes the presentation layer, page rendering behavior, approved component model, approved module rendering behavior, and approved page-composition output for this implementation.
+2.2 Selected CMS / Content Platform
+Selected technology: [Specify selected CMS or content platform]
+Reason for selection: [Specify why this CMS is selected for this implementation]
+Role in governed realization: This technology realizes content management, page-instance management where applicable, global settings management, workflow and lifecycle behavior, preview and publishing behavior, and approved CMS-managed variation within governed boundaries.
+2.3 Selected Backend / Orchestration Pattern
+Selected technology or pattern: [Specify selected backend, BFF, orchestration layer, server functions, or equivalent]
+Reason for selection: [Specify why this pattern is selected]
+Role in governed realization: This technology or pattern realizes shaping, aggregation, validation, page composition support, CMS boundary enforcement, runtime contract enforcement, or other approved orchestration concerns for this implementation.
+2.4 Selected Hosting / Deployment Platform
+Selected technology: [Specify selected hosting and deployment platform]
+Reason for selection: [Specify why this platform is selected]
+Role in governed realization: This technology realizes runtime hosting, deployment behavior, environment separation, and delivery posture for the governed website solution.
+2.5 Selected Storage / Persistence Model
+Selected technology or pattern: [Specify selected persistence approach]
+Reason for selection: [Specify why this approach is selected]
+Role in governed realization: This technology or pattern realizes approved persistence concerns such as CMS data storage, inquiry or submission persistence where in scope, and other approved system records without violating governed boundaries.
+2.6 Selected Validation, Testing, and Build Tooling
+Selected technologies: [Specify selected runtime validation, testing, type-checking, linting, and build tools]
+Reason for selection: [Specify why these tools are selected]
+Role in governed realization: These tools realize technical correctness controls, contract validation, build integrity, and automated delivery quality gates.
+2.7 Technology Substitution Rule
+The selected technical stack defined in this profile is the approved realization basis for this implementation. Substitution of a selected technology, runtime pattern, or major tooling element is not permitted without governed update to this profile. Where a technology choice is intentionally flexible, that flexibility must be stated explicitly in this section rather than assumed.
+3. Realization Mapping from Governing Artifacts
+3.1 Website Specification to Technical Realization
+The Website Specification defines what the website must do. Technical realization must therefore implement required page and view behaviors, CMS-managed generation of detail pages where specified, inquiry flow and lifecycle where specified, accessibility behavior, responsive behavior, metadata and discoverability behavior, and acceptance-relevant operational behavior.
+Technical implementation must not reinterpret these requirements as optional merely because the selected stack makes them inconvenient.
+3.2 Configuration Artifacts to Runtime Configuration
+The Site Configuration Standard defines the governed configuration model. The Site Configuration Record defines the active values for this implementation.
+Technical realization must therefore define where governed configuration values are stored or retrieved at runtime, how they are resolved into consumable runtime structures, where they are injected, which technical consumers may access them, and which technical consumers may not bypass the approved configuration pathway.
+3.3 Solution Architecture Standard to Technical Realization
+The Website Solution Architecture Standard defines the logical module system and structural rules.
+Technical realization must therefore map each logical module to one or more technical realization targets, each dependency rule to an implementation boundary, each orthogonality rule to a technical separation of concern, and each invariant to a preserved runtime or codebase boundary.
+3.4 Realization and Page Composition Standard to Implementation Realization
+The Website Realization and Page Composition Standard defines buildable modules, reusable components, page types, page instances, page composition rules, and CMS-managed versus fixed aspects.
+Technical realization must therefore define how buildable modules are implemented, how reusable components are implemented, how page types are represented, how page instances are created and resolved, how page composition is performed, and how editor-approved variation is technically enforced without permitting structural invention.
+4. Logical Module to Technical Realization Mapping
+4.1 Mapping Pattern
+For each logical module from the Website Solution Architecture Standard, the Technical Build Profile must define the technical realization target, implementation responsibilities, allowed dependencies, prohibited dependencies, and key interfaces and contracts.
+4.2 Solution Context Module
+Technical realization target: [Specify implementation boundary representation, runtime context model, and external dependency registry]
+Implementation responsibilities: Define the technical boundary of the website solution; define external systems and runtime relationships; preserve in-scope versus out-of-scope technical behavior.
+Allowed dependencies: [Specify]
+Prohibited dependencies: Implementation dumping-ground behavior; hidden cross-cutting logic that belongs elsewhere.
+Key interfaces and contracts: [Specify]
+4.3 Content Access Module
+Technical realization target: [Specify CMS adapters, API clients, query handlers, or equivalent]
+Implementation responsibilities: Retrieve raw source content and governed assets from approved sources; isolate raw CMS or source access to approved technical boundaries.
+Allowed dependencies: Approved CMS or content-source interfaces; approved runtime request/authentication context; approved adapter utilities.
+Prohibited dependencies: Rendering layers; page composition engines; reusable component implementations.
+Key interfaces and contracts: CMS adapter contracts; content-fetch interfaces; source-response validation boundaries.
+4.4 Content Normalization Module
+Technical realization target: [Specify mappers, transformers, normalizers, or equivalent]
+Implementation responsibilities: Transform raw source shapes into internal normalized content structures; prevent source-specific shape leakage into downstream realization.
+Allowed dependencies: Approved content-access outputs; approved validation utilities.
+Prohibited dependencies: Rendering layers; page composition UI logic; direct source access.
+Key interfaces and contracts: Normalized content contracts; transformation contracts.
+4.5 Configuration Resolution Module
+Technical realization target: [Specify configuration resolvers, settings services, injection utilities, or equivalent]
+Implementation responsibilities: Resolve governed configuration values into usable runtime forms; provide the approved upstream configuration source for downstream consumers.
+Allowed dependencies: Active Site Configuration Record technical source; Site Configuration Standard-derived schemas and validation definitions; approved caching where needed.
+Prohibited dependencies: Direct rendering logic; unmanaged local overrides; unauthorized runtime feature switches that bypass governed configuration.
+Key interfaces and contracts: Configuration resolution contracts; runtime configuration objects; configuration injection interfaces.
+4.6 Navigation and Route Structure Module
+Technical realization target: [Specify route definitions, slug resolution, navigation builders, redirect/canonical handlers, or equivalent]
+Implementation responsibilities: Implement governed route and navigation structure; resolve page-instance access paths; enforce canonical route behavior.
+Allowed dependencies: Normalized navigation and page data; resolved configuration where navigation behavior is governed; approved page/entry identifiers and slugs through approved layers.
+Prohibited dependencies: Free-form page composition logic; direct UI-level orchestration.
+Key interfaces and contracts: Route resolution contracts; navigation tree contracts; canonical path and redirect interfaces.
+4.7 Experience Assembly Module
+Technical realization target: [Specify composition engine, assembly service, orchestration layer, BFF handler, or equivalent]
+Implementation responsibilities: Assemble experiences and views from normalized content, resolved configuration, and route context; provide the approved technical composition pathway before rendering.
+Allowed dependencies: Content Normalization outputs; Configuration Resolution outputs; Navigation and Route Structure outputs; approved module contracts.
+Prohibited dependencies: Direct raw CMS access; local configuration substitution; low-level rendering concerns as primary logic.
+Key interfaces and contracts: Page composition inputs and outputs; view-model or presentation-model contracts; module composition interfaces.
+4.8 Shared Presentation Module
+Technical realization target: [Specify shared presentation libraries, shared renderers, reusable presentation utilities, or equivalent]
+Implementation responsibilities: Render cross-context presentation structures; preserve reusable visual and interaction patterns within approved scope.
+Allowed dependencies: Approved presentation models; reusable component contracts; approved presentation-facing configuration inputs.
+Prohibited dependencies: Direct raw CMS access; structural composition ownership; section-specific meaning unless explicitly delegated.
+Key interfaces and contracts: Shared component interfaces; presentation-model contracts.
+4.9 Section-Specific Presentation Module
+Technical realization target: [Specify section renderers, page-body renderers, feature-specific presentation units, or equivalent]
+Implementation responsibilities: Render section-specific presentation behavior without redefining shared presentation constructs.
+Allowed dependencies: Shared Presentation realizations; approved presentation models; approved module/page context.
+Prohibited dependencies: Direct raw CMS access; canonical configuration resolution; hidden structural ownership of pages.
+Key interfaces and contracts: Section-renderer contracts; module-context interfaces.
+4.10 Interaction Handling Module
+Technical realization target: [Specify form handlers, submission services, validation/submission flows, or equivalent]
+Implementation responsibilities: Implement governed input capture, validation, submission, and interaction-state behavior.
+Allowed dependencies: Approved configuration outputs; approved page/content context; approved persistence or notification services where in scope.
+Prohibited dependencies: Page composition ownership; unrelated content-normalization concerns; direct raw CMS access unless explicitly approved in the interaction model.
+Key interfaces and contracts: Form input contracts; submission interfaces; validation result contracts.
+4.11 Metadata and Discoverability Module
+Technical realization target: [Specify metadata builders, structured-data generators, robots/canonical output handlers, or equivalent]
+Implementation responsibilities: Implement non-visible discoverability behavior and metadata outputs.
+Allowed dependencies: Approved content and page context; approved configuration values; approved route/canonical data.
+Prohibited dependencies: Visible rendering logic as primary responsibility; direct raw CMS access.
+Key interfaces and contracts: Metadata output contracts; structured-data contracts; canonical URL interfaces.
+4.12 Cross-Cutting Support Module
+Technical realization target: [Specify support utilities, observability/tracing interfaces, or equivalent where explicitly justified]
+Implementation responsibilities: Provide only those support concerns that genuinely span multiple primary realization targets without distorting primary ownership.
+Allowed dependencies: Only those explicitly justified by the approved support concern.
+Prohibited dependencies: Technical dumping-ground behavior; absorption of responsibilities belonging to primary realization targets.
+Key interfaces and contracts: [Specify]
+5. Buildable Module, Component, and Page Realization
+5.1 Buildable Module Realization Pattern
+Each buildable module must be implemented as a clearly bounded technical unit that realizes one governed functional responsibility, receives only its approved inputs, produces only its approved outputs, and does not silently absorb page-level ownership.
+Buildable modules may be realized as site-frame units, page-body feature units, support module implementations, or other approved realization forms consistent with the upstream standards.
+5.2 Reusable Component Realization Pattern
+Reusable components must be implemented as smaller reusable building parts that are composable inside approved modules, do not redefine module meaning, do not own page composition, and do not bypass configuration or data boundaries.
+5.3 Page Type Realization Pattern
+Each page type must have a clear technical representation that defines the page class, required and optional module patterns, page-level concerns, permitted CMS-managed variation, and composition ownership.
+5.4 Page Instance Realization Pattern
+A page instance must be technically realized as a managed page record or generated page resolution result that conforms to one governed page type, binds approved content and metadata, receives approved configuration inputs, and participates in governed page composition.
+5.5 Page Composition Realization Pattern
+Page composition must be technically realized through an approved composition mechanism.
+That mechanism must assemble approved buildable modules, enforce ordering, repeatability, and prohibition rules, preserve page-level ownership, and prevent modules from self-owning page structure merely because they are visually dominant.
+6. CMS Realization Model
+6.1 CMS Content Types and Records
+This profile must define the technical realization of content types, shared or global settings records, generated-page source entries, and any approved supporting records such as submissions or workflow records.
+6.2 CMS Page-Instance Handling
+This profile must define how page instances are created or resolved, which page instances are CMS-managed directly, which page instances are generated from entries, and how page metadata and approved page-level settings are managed.
+6.3 Generated Page Behavior
+This profile must define how generated pages are technically realized from CMS entries and how those generated pages remain aligned to governed page types and composition rules.
+6.4 Global Settings Realization
+This profile must define how global settings and shared content are stored, retrieved, validated, and injected into the runtime system.
+6.5 Preview, Publishing, and Lifecycle Behavior
+This profile must define preview behavior, publishing behavior, lifecycle-state handling, and boundaries between editor-managed and fixed technical behavior.
+6.6 Editor-Managed Versus Fixed Technical Boundaries
+This profile must explicitly state what the CMS is technically allowed to vary, what is fixed by upstream standards, and what must not be overridden by editor-facing controls.
+7. Runtime Configuration and Technical Contracts
+7.1 Source of Truth for Active Configuration
+The source of truth for active governed configuration must be explicit. It must resolve to the active Site Configuration Record or its approved technical representation.
+7.2 Resolution Path
+The configuration resolution path must define where configuration is loaded from, how it is validated, how it is shaped for runtime use, and how consumers receive it.
+7.3 Injection Strategy
+The injection strategy must define where resolved configuration enters runtime flow, how it becomes available to page composition, rendering, and interaction layers, and where injection is prohibited.
+7.4 Consumer Boundaries
+The technical profile must define which consumers may access raw configuration records, resolved configuration objects, and presentation-ready configuration values. Unauthorized local consumption paths are not allowed.
+7.5 CMS Adapter Contracts
+The CMS adapter contracts must define approved CMS access interfaces, expected response shapes, validation expectations, error behavior, and caching behavior where approved.
+7.6 Configuration Resolution Contracts
+These contracts must define resolved output shapes, required fields, optional fields, approved fallback behavior, and error behavior for invalid or missing governed values.
+7.7 Page Composition Inputs and Outputs
+Page composition must define its technical contracts for page type, page instance, normalized content inputs, resolved configuration inputs, route context inputs, and composed page output or presentation model.
+7.8 View-Model or Presentation-Model Contracts
+Where view-model or presentation-model shaping is used, the contract must define approved input sources, expected output shape, validation boundaries, and prohibited direct rendering access to raw upstream data shapes.
+7.9 Validation Boundaries
+Runtime validation must occur at explicitly defined boundaries such as CMS adapter outputs, configuration resolution outputs, page composition inputs, inquiry or interaction inputs, and other critical contract surfaces.
+7.10 Permitted Interface Dependencies
+The profile must define the permitted dependency directions between CMS adapters, normalization, configuration resolution, page composition, rendering, interaction handling, and metadata handling.
+7.11 Prohibited Bypasses
+The profile must explicitly prohibit direct raw CMS access from rendering layers, local configuration resolution in unauthorized consumers, hidden page composition logic inside modules, bypass of runtime validation at approved contract boundaries, and direct interface shortcuts that violate the governed technical mapping.
+7.12 Failure and Error Boundary Rules
+This profile must define how the system behaves when CMS adapter responses are invalid or incomplete, configuration resolution fails, required page-composition inputs are missing, a buildable module contract is not satisfied, runtime validation fails, or a required page instance cannot be resolved.
+This profile must also define which failures fail closed, which may use governed fallback behavior, which layer owns each class of failure, which conditions must raise explicit error states rather than silently degrading, and which failures may surface as safe fallback UI and which must stop rendering or publishing.
+8. Implementation and Code-Generation Rules
+8.1 No Local Invention of Structural Constructs
+Implementation must not invent new logical modules, new buildable module categories, new page-type meanings, or new composition semantics outside governed change.
+8.2 No Bypass of Governed Configuration
+Implementation must not bypass the approved configuration resolution path.
+8.3 No Direct Raw CMS Usage Outside Approved Layers
+Raw CMS access must remain inside approved content-access and adapter layers.
+8.4 No Page Composition Logic Inside Modules Unless Explicitly Allowed
+Page composition ownership must remain in approved composition mechanisms.
+8.5 No Redefinition of Page-Type or Module Meaning in Code
+Implementation may realize governed constructs but may not redefine their meaning.
+8.6 No Unauthorized Business-Logic Decisions in Rendering Layers
+Rendering layers must not absorb logic beyond approved presentation scope.
+8.7 What Code-Generation Tools May Do
+Code-generation tools may generate implementation conforming to the approved artifacts, realize existing modules, components, and contracts, refactor within governed boundaries where explicitly allowed, and generate tests and validation scaffolding where required.
+8.8 What Code-Generation Tools Must Not Do
+Code-generation tools must not invent new structural constructs, invent new configuration pathways, redefine page composition behavior, bypass runtime validation or governed contracts, or silently reinterpret governed terms or meanings.
+8.9 Required Input Artifacts
+Code generation must not proceed without the required governing inputs appropriate to the task, which may include the Website Specification, Site Configuration Standard, Site Configuration Record, Website Solution Architecture Standard, Website Realization and Page Composition Standard, and this Technical Build Profile.
+8.10 Review and Acceptance Requirements
+Generated implementation must be reviewed against scope of the requested change, conformance to upstream artifacts, conformance to this technical profile, contract integrity, and prohibited-bypass rules.
+8.11 Regeneration and Change Rules
+Regenerated outputs and technical changes must preserve governed boundaries and must not silently introduce structural or runtime drift.
+9. Codebase, Environment, and Delivery Model
+9.1 Codebase Structure
+The codebase structure must be explicit and must support preservation of governed boundaries, traceability from governed constructs to implementation units, and maintainable separation of runtime responsibilities.
+9.2 Package / Service Organization
+If the implementation uses multiple packages, libraries, services, handlers, or apps, their responsibilities and relationships must be explicit.
+9.3 Environment Model
+The environment model must define local development, test, staging, and production. Environment behavior must preserve configuration discipline and functional parity at the level required for reliable delivery.
+9.4 CI/CD Model
+The delivery pipeline must be explicit and must define build behavior, validation gates, test execution, deployment triggers, and release control.
+9.5 Validation and Testing Gates
+This profile must define required automated gates such as type checking, linting, unit tests where required, integration tests where required, runtime contract validation where required, and build validation.
+9.6 Deployment Model
+This profile must define deployment target, release flow, rollback or recovery posture where required, and preview or staged release behavior if used.
+9.7 Secrets and Configuration Management
+This profile must define how secrets are stored and injected, how environment-specific configuration is handled, how governed configuration is distinguished from deployment and environment configuration, and prohibited secret/config handling behaviors.
+10. Conformance Model
+10.1 What Is Checked
+Technical conformance checks must cover realization mapping integrity, logical module boundary preservation, buildable module and component realization integrity, CMS boundary preservation, configuration boundary preservation, runtime contract preservation, and code-generation rule compliance.
+10.2 Who Checks It
+Conformance must be checked by the document owner or delegated governance owner for the technical realization domain.
+10.3 When It Is Checked
+Conformance must be checked when the initial implementation profile is created, a materially revised technical profile is proposed, a significant stack change is proposed, a major generated implementation change is proposed, or a governed exception is requested.
+10.4 Non-Conformance Handling
+Technical realization that materially violates this profile must not be treated as accepted until the non-conformance is resolved or explicitly authorized as a governed exception.
+10.5 Exception Handling
+Any technical exception must declare the rule being exceeded or bypassed, the reason, the scope, the impact, the approval path, and the duration if temporary.
+11. Final Governing Statements
+11.1 Scope of Authority
+This document is authoritative only for stack-specific technical realization within its declared scope.
+11.2 Realizes but Does Not Redefine Upstream Artifacts
+This document must realize upstream governing artifacts and must not redefine them.
+11.3 Implementation Must Conform Within Scope
+All implementation and code-generation outputs within scope must conform to this profile.

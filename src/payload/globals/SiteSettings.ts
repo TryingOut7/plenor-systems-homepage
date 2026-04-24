@@ -21,6 +21,22 @@ export const SiteSettings: GlobalConfig = {
     },
   },
   hooks: {
+    beforeChange: [
+      ({ data }) => {
+        if (process.env.NODE_ENV === 'production') {
+          const missing = [];
+          if (!data.logoImage) missing.push('logoImage');
+          if (!data.reversedLogoImage) missing.push('reversedLogoImage');
+          if (!data.faviconImage) missing.push('faviconImage');
+          if (!data.contactEmail) missing.push('contactEmail');
+
+          if (missing.length > 0) {
+            throw new Error(`[Governance] Production deployment blocked: Owner-supplied identity assets are required (${missing.join(', ')}).`);
+          }
+        }
+        return data;
+      }
+    ],
     afterChange: [revalidateGlobalAfterChange, auditGlobalAfterChange],
   },
   fields: [
@@ -42,7 +58,25 @@ export const SiteSettings: GlobalConfig = {
               relationTo: 'media',
               admin: {
                 position: 'sidebar',
-                description: 'Optional logo image. If not set, the site name text is used.',
+                description: 'Primary logo image. Defer execution if not owner-supplied.',
+              },
+            },
+            {
+              name: 'reversedLogoImage',
+              type: 'upload',
+              relationTo: 'media',
+              admin: {
+                position: 'sidebar',
+                description: 'Logo version for dark backgrounds.',
+              },
+            },
+            {
+              name: 'faviconImage',
+              type: 'upload',
+              relationTo: 'media',
+              admin: {
+                position: 'sidebar',
+                description: 'Favicon and touch icon. Must be owner supplied.',
               },
             },
             {
@@ -63,13 +97,13 @@ export const SiteSettings: GlobalConfig = {
             {
               name: 'siteUrl',
               type: 'text',
-              defaultValue: 'https://example.com',
+              required: true,
               validate: validateHttpUrl,
             },
             {
               name: 'contactEmail',
               type: 'email',
-              defaultValue: 'contact@example.com',
+              required: true,
             },
             {
               name: 'twitterHandle',

@@ -1,0 +1,1566 @@
+
+PLENOR.AI
+Site Configuration Standard
+
+Version 1.0 — Current Phase
+Required Dependent Instrument of the Plenor.ai Website Specification v1.0
+
+Instrument Identity and Governing Relationship
+This document is the Plenor Site Configuration Standard. It is a required dependent instrument of the Plenor.ai Website Specification, current phase. It is subordinate to the Website Specification in governance terms but authoritative over the governed configuration model within its domain, including configuration object structures, rules, validation logic, completion criteria, and implementation/CMS controls insofar as they resolve, expose, or apply that governed model. Both instruments must be satisfied. Neither overrides the other within its own domain. Changes to this document are subject to the same change control discipline as the Website Specification.
+
+SECTION 1 — PURPOSE, SCOPE, AND RELATIONSHIP
+1. Purpose, Scope, and Relationship
+1.1 Purpose
+This document defines the governed configuration model for the plenor.ai website. It is the authoritative source for the configuration object structures, rules, validation logic, and completion criteria that the site’s active configuration must satisfy. Technology changes, CMS replacements, and front-end framework changes do not alter the governed configuration model. Implementations must conform to it.
+
+1.2 Scope
+This document defines the governed structure, rules, and completion requirements for six configuration categories. The active values for each category are defined in the Site Configuration Record:
+•	Category 1 — Design Configuration: Family, Scheme, Preset objects, Typography Usage Configuration, Current Design Selection, and Design Rules
+•	Category 2 — Identity and Brand Values: company identity, contact details, logo and favicon assets, policy text, copyright
+•	Category 3 — Navigation Values: primary and secondary navigation labels, order, and mobile pattern
+•	Category 4 — Content Ordering and Display Fallback Values: homepage fallback rules, tiebreaker rules, minimum content thresholds, FAQ placement governance
+•	Category 5 — Operational Values: lifecycle labels, workflow labels, form text, messaging, date format, implementation-scope decisions
+•	Category 6 — SEO and Metadata Values: metadata defaults, canonical rules, robots rules, sitemap rules, structured data mappings, social sharing assets
+
+1.3 Relationship to the Website Specification
+The Website Specification governs what configuration categories must exist, what rules apply to them, and what constraints their entries must satisfy. This document governs the configuration model that the actual configuration entries must conform to. The active values themselves are defined in the Site Configuration Record.
+
+Authority Rule
+This document is authoritative over all implementation and CMS controls insofar as they resolve, expose, or apply the governed configuration model. Implementations must conform to this document. This document does not conform to implementations.
+
+SECTION 2 — GOVERNING PRINCIPLES AND MODEL RULES
+2. Governing Principles and Model Rules
+2.1 Governance compliant
+Every entry in this document must be explicitly traceable to a governing section of the Website Specification. Untraceable entries must not be introduced.
+
+2.2 Simple and clean
+The model uses the minimum structural complexity needed to govern the site correctly. Fields are not added without justified governance need.
+
+2.3 Sophisticated in output
+Simplicity in the model does not permit low-design output. The governed values must produce a site that is visually distinguished, typographically rigorous, and professionally credible.
+
+2.4 Scalable and evolvable
+The model must accommodate future Families, Schemes, Presets, and non-design configuration entries without structural rewrite. Extensibility must be achieved by adding governed entries, not by relaxing governance rules.
+
+2.5 AI and code-gen readable
+Every object, field, and rule must be defined with sufficient precision that an AI model or code generation tool can read this document and produce compliant implementation output without ambiguity.
+
+2.6 Extensibility rule
+A new Family, Scheme, Preset, or non-design configuration object may be added to this document through governed revision. The addition must not conflict with existing governed entries and must satisfy all applicable rules in the Website Specification.
+
+2.7 Completion rule
+This document is considered complete when all configuration categories defined in Website Specification §8.6.3 have governed configuration entries, each required entry is assigned a value or explicitly marked as out of scope, deferred, or not used in the current phase, naming conventions are defined and applied consistently, and all applicable entries satisfy the accessibility constraints defined in Website Specification §8.6.7.
+
+SECTION 3 — STRUCTURAL MODEL
+3. Structural Model
+The Site Configuration Model has two structural zones:
+•	Design Configuration Objects — uses richer instantiated objects because it contains layered Family, Scheme, and Preset relationships
+•	Non-Design Configuration Objects — uses structured configuration objects appropriate to each category
+
+3.1 Design Configuration Objects
+The design zone contains the following governed object types:
+Object	Purpose
+Family	Highest-level design archetype; defines the broad design universe
+Scheme	Concrete visual theme within a Family; contains colors, layout, buttons, emailPalette, shadowElevation, motion, and preset references
+Typography Preset	Full text role hierarchy with size, weight, line height, and spacing values
+Typography Usage Configuration	Governed mapping between content/interface elements and text roles
+Spacing Preset	Spacing rhythm and density — base unit, scale, section and hero padding variants
+Radius Preset	Shape language — button radius, card radius, optional general scale
+Current Design Selection	Active state — which Family, Scheme, and Presets are currently selected
+Design Rules	Governed operating logic — selection rules, validation rules, lifecycle rules
+
+3.2 Non-Design Configuration Objects
+The non-design zone contains the following governed object types:
+Object	Governing Spec Section
+Identity and Brand Configuration Object	§8.6.3 Category 2
+Navigation Configuration Object	§8.6.3 Category 3
+Content Ordering and Display Fallback Configuration Object	§8.6.3 Category 4
+Operational Configuration Object	§8.6.3 Category 5
+SEO and Metadata Configuration Object	§8.6.3 Category 6
+
+SECTION 4 — DESIGN CONFIGURATION MODEL
+4. Design Configuration Model
+4.1 Family
+A Family is the highest-level design archetype. Its purpose is to define the broad design universe for a site type.
+
+A Family contains:
+Field	Required / Optional	Description/Rule
+key	Required	Unique identifier among all Family objects
+label	Required	Human-readable name
+description	Required	Purpose and character of this Family
+allowedSchemes	Required	List of valid Scheme keys; every Scheme in this list must have parentFamily equal to this Family key
+status	Required	From the governed status set — see Appendix C
+
+4.2 Scheme
+A Scheme is the concrete visual theme object within a Family. Its purpose is to define the actual visual system used by the site.
+
+A Scheme contains:
+Field	Required / Optional	Description/Rule
+key	Required	Unique identifier among all Scheme objects
+label	Required	Human-readable name
+description	Required	Visual character and intended use
+parentFamily	Required	Must reference one valid Family
+colors	Required	Semantic color roles — see §5.1
+layout	Required	Layout constraints and breakpoint values — see §5.2. Breakpoint values in Scheme.layout are the authoritative governed definitions. Website Specification §9.5 must conform to these values.
+buttons	Optional/Minimal	Button-specific values where not derivable from colors and radius preset — see §5.3
+emailPalette	Optional	Channel-specific email styling values — see §5.4
+shadowElevation	Required where used; otherwise explicitly marked `Not Used in Current Phase` or `Deferred`	Governed elevation and shadow definition for this Scheme. This field either defines the approved elevation and shadow treatment for the Scheme or explicitly records that such a system is not used in the current phase.
+motion	Required	Governed motion definition for this Scheme. It must define named transition duration values, named easing functions, and the reduced-motion handling rule that implementations must honor.
+allowedTypographyPresets	Required	List of Typography Preset keys allowed for this Scheme
+defaultTypographyPreset	Required	Must be one member of allowedTypographyPresets
+allowedSpacingPresets	Required	List of Spacing Preset keys allowed for this Scheme
+defaultSpacingPreset	Required	Must be one member of allowedSpacingPresets
+allowedRadiusPresets	Required	List of Radius Preset keys allowed for this Scheme
+defaultRadiusPreset	Required	Must be one member of allowedRadiusPresets
+status	Required	From the governed status set
+notes	Optional	Governed interpretive notes
+
+4.3 Preset
+A Preset is a reusable bundle of values for one design dimension. The current model uses three preset subtype classes:
+•	Typography Preset — text hierarchy, font families, and role-level values
+•	Spacing Preset — spacing rhythm, section padding, and mobile padding
+•	Radius Preset — shape language for buttons, cards, and general radius scale
+
+Each preset subtype is governed as its own object structure and must not be treated as an untyped generic.
+
+4.4 Current Design Selection
+Current Design Selection stores the currently active design configuration state for the site.
+
+Field	Required / Optional	Description/Rule
+currentFamily	Required	Must reference an existing Family
+currentScheme	Required	Must reference an existing Scheme allowed by currentFamily
+currentTypographyPreset	Required	Must be one of the allowedTypographyPresets of currentScheme
+currentSpacingPreset	Required	Must be one of the allowedSpacingPresets of currentScheme
+currentRadiusPreset	Required	Must be one of the allowedRadiusPresets of currentScheme
+
+Lifecycle Rule
+A deprecated Scheme or Preset may not be newly selected as current active state. If a Scheme or Preset becomes deprecated while still active, it remains valid until it is replaced through a governed change. Replacement must be completed before the deprecated entry is removed from the model.
+
+4.5 Design Rules
+Design Rule objects define the governed operating logic of the design model. These include selection rules, defaulting rules, override rules, validation rules, lifecycle rules, and extensibility rules.
+
+At minimum, the model must validate that:
+•	every value in Family.allowedSchemes resolves to an existing Scheme
+•	every Scheme.parentFamily resolves to an existing Family
+•	every value in Scheme.allowedTypographyPresets resolves to an existing Typography Preset
+•	every value in Scheme.allowedSpacingPresets resolves to an existing Spacing Preset
+•	every value in Scheme.allowedRadiusPresets resolves to an existing Radius Preset
+•	every default preset reference resolves to an existing approved preset record of the correct subtype
+•	every Scheme listed in a Family.allowedSchemes set has parentFamily equal to that Family
+•	defaultTypographyPreset is one member of allowedTypographyPresets
+•	defaultSpacingPreset is one member of allowedSpacingPresets
+•	defaultRadiusPreset is one member of allowedRadiusPresets
+•	currentTypographyPreset is one member of the allowedTypographyPresets of the currentScheme
+•	currentSpacingPreset is one member of the allowedSpacingPresets of the currentScheme
+•	currentRadiusPreset is one member of the allowedRadiusPresets of the currentScheme
+every Scheme must define `shadowElevation` or explicitly mark it `Not Used in Current Phase` or `Deferred`
+every Scheme must define `motion`
+every Scheme.motion entry must define named transition duration values
+every Scheme.motion entry must define named easing functions
+implementations using Scheme.motion values must honor reduced-motion accessibility requirements
+
+4.6 Typography Preset
+A Typography Preset must define a full text hierarchy, not just one font and one base size.
+
+Field	Required / Optional	Description/Rule
+key	Required	Unique identifier
+label	Required	Human-readable name
+bodyFontFamily	Required	Primary body font family
+displayFontFamily	Optional	Display font family if different from body
+textRoles	Required	Governed text role set — see below
+status	Required	From the governed status set
+
+The controlled text roles for the current model are:
+Text Role	Intended Usage
+display	Hero or lead statements requiring a larger visual treatment
+h1	Primary page heading — one per page unless governed exception is defined
+h2	Major section headings under the page heading
+h3	Subsection headings under an H2
+body	Standard paragraph content
+bodySmall	Secondary supporting text
+label	Eyebrow text, section labels, tags, small UI labels
+button	Button text where separate button typography treatment is governed
+quote	Quotation text, pull quotes, or highlighted quoted statements
+quoteAttribution	Attribution line associated with quote text
+
+Each text role contains:
+Field	Required / Optional	Description/Rule
+fontSize	Required	Font size value
+fontStyle	Required	Font style value — allowed values: normal, italic, oblique
+lineHeight	Required	Line height value
+fontWeight	Required	Font weight value
+letterSpacing	Optional	Letter spacing where relevant
+
+Semantic Heading Rule
+Display styling may be applied visually to a heading, but semantic heading level must still follow the document structure. A page should normally use one H1 as its primary heading unless a governed exception is explicitly defined.
+
+4.7 Typography Usage Configuration
+Typography Usage Configuration defines the governed mapping between content or interface elements and the text roles provided by the active Typography Preset.
+
+Field	Required / Optional	Description/Rule
+homepageHeroTitle	Optional	May map to display; semantic heading level must still follow page structure
+homepageHeroSupportingText	Optional	Typically body or bodySmall
+pageTitle	Required	Should normally map to h1
+sectionTitle	Required	Should normally map to h2
+subsectionTitle	Required	Should normally map to h3
+bodyParagraph	Required	Should normally map to body
+supportingText	Optional	Typically bodySmall
+eyebrowLabel	Optional	Typically label
+buttonText	Required	Should normally map to button
+cardTitle	Optional	Typically h3 or label depending on card type
+cardSummary	Optional	Typically bodySmall
+faqQuestion	Optional	Typically body or label
+faqAnswer	Optional	Typically body
+quoteText	Optional	Should normally map to quote
+quoteAttribution	Optional	Should normally map to quoteAttribution
+
+Fallback Rule
+Where an optional Typography Usage Configuration field is absent, the implementation must apply a governed fallback: absent optional mappings resolve to the nearest semantic text role — display and heading elements fall back to the nearest heading role below them; body and supporting elements fall back to body; UI elements fall back to label or button as appropriate. Where quote-related optional mappings are absent, quoted content falls back to body and quote attribution falls back to bodySmall unless a governed mapping is defined. Absent optional fields must not produce unmapped elements in the implementation.
+
+4.8 Spacing Preset
+A Spacing Preset defines the spacing rhythm and density for the site.
+
+Field	Required / Optional	Description/Rule
+key	Required	Unique identifier
+label	Required	Human-readable name
+baseSpacingUnit	Required	Base unit from which the scale is derived
+spacingScale	Required	Derived scale values
+sectionPaddingCompact	Required	Compact section vertical padding
+sectionPaddingRegular	Required	Regular section vertical padding
+sectionPaddingSpacious	Required	Spacious section vertical padding
+heroPaddingCompact	Required	Compact hero vertical padding
+heroPaddingRegular	Required	Regular hero vertical padding
+heroPaddingSpacious	Required	Spacious hero vertical padding
+mobileSectionPadding	Required	Section vertical padding at mobile breakpoint
+status	Required	From the governed status set
+
+4.9 Radius Preset
+A Radius Preset defines the shape language of the site.
+
+Field	Required / Optional	Description/Rule
+key	Required	Unique identifier
+label	Required	Human-readable name
+buttonRadius	Required	Border radius for buttons
+cardRadius	Required	Border radius for cards
+generalRadiusScale	Optional	General radius scale where a broader shape system is needed
+status	Required	From the governed status set
+
+SECTION 5 — SCHEME SUBGROUPS AND NON-DESIGN CONFIGURATION
+5. Scheme Subgroups and Non-Design Configuration Model
+5.1 Scheme.colors
+Scheme.colors contains the semantic color roles used by the scheme.
+
+Semantic Color Role	Purpose
+primary	Primary brand color
+primaryHover	Hover state of primary brand color
+background	Page background
+surface	Card and component surface background
+sectionAlt	Alternate section background for visual rhythm
+text	Primary text color
+textMuted	Secondary / supporting text color
+border	Default border and divider color
+link	Link color
+focusRing	Keyboard focus ring color — must satisfy WCAG 2.2 Level AA contrast
+success	Success state color
+warning	Warning state color
+error	Error state color
+
+Accessibility Constraint
+Scheme focus-ring values must satisfy the accessibility requirements governed by the Website Specification §9.6. Focus styling must remain visually identifiable and must preserve the required contrast relationship between focused and unfocused states. All color combinations used as approved selections must satisfy WCAG 2.2 Level AA contrast requirements.
+
+5.2 Scheme.layout
+Scheme.layout contains scheme-level layout values. Breakpoint values defined here are the authoritative governed definitions. Website Specification §9.5 must conform to these values.
+
+Field	Required / Optional	Description/Rule
+containerMaxWidth	Required	Maximum content container width
+navHeight	Required	Navigation bar height
+breakpointMobileMax	Required	Maximum pixel value for mobile breakpoint — must satisfy Website Specification §9.5 minimum threshold of 767px
+breakpointTabletMin	Required	Minimum pixel value for tablet breakpoint — must satisfy §9.5 minimum threshold of 768px
+breakpointTabletMax	Required	Maximum pixel value for tablet breakpoint — must satisfy §9.5 minimum threshold of 1023px
+breakpointDesktopMin	Required	Minimum pixel value for desktop breakpoint — must satisfy §9.5 minimum threshold of 1024px
+
+5.3 Scheme.buttons
+Scheme.buttons contains scheme-level button styling values. Where button styling is fully and cleanly derivable from Scheme.colors and the active Radius Preset, Scheme.buttons may remain minimal or empty.
+
+Field	Required / Optional	Description/Rule
+primaryBackground	Optional	Primary button background color
+primaryBackgroundHover	Optional	Primary button hover background
+primaryText	Optional	Primary button text color
+secondaryBackground	Optional	Secondary button background
+secondaryBackgroundHover	Optional	Secondary button hover background
+secondaryText	Optional	Secondary button text color
+secondaryTextHover	Optional	Secondary button hover text color
+ghostBackground	Optional	Ghost button background (typically transparent)
+ghostBackgroundHover	Optional	Ghost button hover background
+ghostText	Optional	Ghost button text color
+navBackground	Optional	Navigation CTA button background
+navBackgroundHover	Optional	Navigation CTA button hover background
+navText	Optional	Navigation CTA button text color
+
+5.4 Scheme.emailPalette
+Scheme.emailPalette contains scheme-level email styling values.
+
+Field	Required / Optional	Description/Rule
+primary	Required	Primary email brand color
+muted	Required	Muted/secondary email color
+text	Required	Email body text color
+background	Required	Email background color
+white	Required	White value for email use
+border	Required	Email border/divider color
+error	Required	Email error state color
+
+5.5 Scheme subgroup boundary rule
+Scheme subgroups must follow these placement rules:
+•	Scheme.colors — semantic color roles used broadly across the visual system
+•	Scheme.layout — scheme-level layout constraints that are not part of spacing rhythm
+•	Scheme.buttons — button-specific values only where not cleanly derivable from semantic color roles and radius preset values
+•	Scheme.emailPalette — channel-specific email styling values
+•	Typography, spacing, and radius values intended for reuse across multiple schemes must be defined as preset values, not duplicated inside schemes
+
+5.6 Identity and Brand Configuration Object
+Field	Required / Optional	Description/Rule
+legalName	Required	Company legal name
+tradingName	Required where different	Trading name if different from legal name
+tagline	Required	Company tagline or positioning statement
+contactEmail	Required	Primary contact email address
+contactPhone	Required where applicable	Contact phone number
+mailingAddress	Required where applicable	Mailing address
+logo assets	Required	Primary, reversed, and favicon/touch icon variants
+favicon assets	Required	Favicon and touch icon asset references
+footer identity text	Required	Footer company identity text
+policy ownership text	Required	Policy page identity and ownership references
+social profile references	Required where approved	Approved social profile links
+copyright format	Required	Copyright notice format and year convention
+
+5.7 Navigation Configuration Object
+Field	Required / Optional	Description/Rule
+primary navigation labels	Required	Labels for all primary navigation items
+primary navigation order	Required	Governed order of primary navigation items
+Framework secondary navigation labels and order	Required	Labels and order for Framework section secondary navigation
+Solutions secondary navigation labels and order	Required	Labels and order for Solutions section secondary navigation
+Insights secondary navigation labels and order	Required	Labels and order for Insights section secondary navigation
+About secondary navigation labels and order	Required	Labels and order for About section secondary navigation
+mobile secondary navigation pattern	Required	Pattern applied consistently across all sections — horizontally scrollable tab row or inline expanded list
+
+5.8 Content Ordering and Display Fallback Configuration Object
+Field	Required / Optional	Description/Rule
+homepage fallback ordering rule	Required	Ordering logic applied when no items are explicitly featured through CMS selection
+ordering tiebreaker rule	Required	Deterministic ordering rule applied when two or more entries share the same ordering value
+minimum content state by homepage section	Required	Minimum number of eligible published entries required before each section renders rather than hides
+placeholder content by homepage section	Required	Placeholder content displayed when a section hides gracefully
+FAQ placement governance	Required	Governed definition of which sections are permitted to host embedded FAQ blocks; ad hoc FAQ placement outside the approved set is not permitted
+
+5.9 Operational Configuration Object
+Field	Required / Optional	Description/Rule
+public content lifecycle status labels	Required	Display labels for Draft, In Review, Published, Archived statuses and their display conventions
+inquiry workflow status labels	Required	Display labels for Submitted, Under Review, Responded, Closed statuses and their display conventions
+form field labels and helper text	Required	Labels, helper text, and validation message text for all governed forms
+inquiry success message	Required	Submission confirmation message text for inquiry form
+resource request message	Required	Submission confirmation message text for resource request form
+response expectation text	Required	Response expectation statement text used on the Contact page
+date and time display format conventions	Required	Date and time format conventions used across public-facing and admin-facing surfaces
+implementation-scope decisions	Required	Governed record of current-phase decisions for each conditional technical area identified in Website Specification §10.2; each decision must state the conditional area, the decision made, and the phase in which it applies
+
+5.10 SEO and Metadata Configuration Object
+These entries must be represented using the governed entry types defined in Section 6.3:
+•	value entries for defaults
+•	rule entries for canonical, robots, and sitemap behavior
+•	mapping entries for structured-data assignment
+•	asset entries for social sharing references
+
+Field	Required / Optional	Description/Rule
+default metadata values by content type	Required	Default meta description pattern per content type where a CMS entry does not define its own
+canonical rules	Required	Canonical preference rule per content type
+robots rules	Required	Robots.txt configuration — crawl rules and disallow directives
+sitemap rules	Required	XML sitemap configuration — inclusion rules, update frequency conventions, priority values per content type
+structured-data mappings by content type	Required where platform-supported	Structured data type mappings per content type
+social sharing asset references by content type	Required	Social sharing image defaults per content type where a CMS entry does not define its own
+
+SECTION 6 — CONFIGURATION RESOLUTION AND CONTROL
+6. Configuration Resolution and Control
+6.1 Configuration flow
+The active configuration is resolved as follows:
+
+Non-design configuration is read from the five governed non-design configuration objects.
+
+Design configuration resolves through the following sequence:
+•	The selected Family determines which Schemes are allowed through Family.allowedSchemes
+•	The selected Scheme must belong to the allowedSchemes set of the current Family
+•	The selected Scheme supplies colors, layout, buttons, emailPalette, shadowElevation, motion, allowed preset sets, and default preset references
+•	The current Typography, Spacing, and Radius Presets are initialized from the selected Scheme defaults
+•	If the role and rule set permit it, the current presets may be changed to another allowed preset within the allowed set of the current Scheme
+The final active site configuration is:
+•	all five non-design configuration objects
+•	currentFamily
+•	currentScheme
+•	scheme colors, layout, buttons, emailPalette, shadowElevation, and motion
+•	currentTypographyPreset
+•	currentSpacingPreset
+•	currentRadiusPreset
+
+6.2 Configurability model
+The model defines the following configurability classes:
+Class	Meaning
+Fixed	Value is set by governance and may not be changed without governed revision
+Selectable	Value may be changed to another approved option within the governed allowed set
+Override Allowed	Value has a governed default but may be overridden within approved boundaries
+System Managed	Value is managed by the platform or CMS system within governed constraints
+
+No field or entry may use a configurability class outside the allowed mapping for its responsibility. See Appendix D for the full configurability mapping.
+
+6.3 Entry types
+The configuration document uses these entry types:
+Entry Type	Used For
+Allowed Set Entry	Defining which values are permitted within an allowed set
+Current Selection Entry	Recording which value is currently active
+Default Mapping Entry	Recording the default value before any override or selection
+Rule Entry	Defining governing logic — canonical rules, robots rules, sitemap rules
+Value Entry	Defining a specific governed value — metadata defaults, labels, text
+Asset Entry	Referencing a governed asset — logo, favicon, social sharing image
+Mapping Entry	Defining a correspondence between two governed sets — structured data mappings, typography usage mappings
+
+SECTION 7 — CATEGORY STRUCTURE AND DOCUMENT ORGANIZATION
+7. Category Structure, Document Organization, and Final Statement
+7.1 Site Configuration Document category structure
+The populated Site Configuration Document contains these categories:
+•	Design Configuration — Family, Scheme, Preset, Typography Usage Configuration, Current Design Selection, Design Rules
+•	Identity and Brand Configuration
+•	Navigation Configuration
+•	Content Ordering and Display Fallback Configuration
+•	Operational Configuration
+•	SEO and Metadata Configuration
+
+7.2 Bottom line
+The Site Configuration Model:
+•	governs both design and non-design site configuration
+•	uses richer instantiated Design Configuration objects because the design zone has layered Family, Scheme, and Preset relationships
+•	uses structured category objects for the non-design zone
+•	establishes Family as the top-level design archetype that declares allowedSchemes
+•	establishes Scheme as the complete visual theme object
+•	establishes Typography Preset as the owner of the full text role hierarchy
+•	separates Typography Usage Configuration from Typography Preset
+•	stores the active state in Current Design Selection
+•	defines operating logic through Design Rules
+•	is logical, practical, and implementable by code generation tools
+
+SECTION 8 — FAMILY AND SCHEME MEANING DEFINITIONS
+8. Family and Scheme Meaning Definitions
+Governing Interpretation Rule
+Family and Scheme meaning definitions are governed interpretation layers used to constrain later palette, typography, spacing, and radius decisions. They do not directly assign raw design values. They define the allowed design character within which later presets and defaults must be selected. A preset is allowed for a Scheme only if its declared character is consistent with that Scheme's intended visual character and does not violate the Scheme's exclusion guidance, the accessibility constraints of the Website Specification, or the semantic token structure of this document. No Family or Scheme meaning definition may be interpreted as permission to introduce values, styling patterns, or design behaviors outside the governed configuration model.
+
+Family Definitions
+Family — Startup / Professional
+Purpose: Business-facing websites that need to communicate credibility, capability, clarity, and modern execution.
+Overall posture: professional, credible, disciplined, modern, structured, commercially serious
+Palette tendency: restrained, balanced, professional — either cool-neutral, technical-neutral, or warm-professional depending on the Scheme
+Typography tendency: modern and readable, credible in long-form reading, suitable for structured headings and explanatory content, not theatrical or novelty-driven
+Spacing tendency: disciplined, clean, moderate to moderately relaxed
+Radius tendency: minimal to softly controlled, not playful or exaggerated
+Out-of-bounds: playful or whimsical visual language; highly ornamental styling; culturally rich or celebratory treatments; visual noise or excessive contrast
+Allowed Schemes: Professional Cool • Modern Technical • Warm Professional
+
+Family — Personal
+Purpose: Personal, expert, author, or individual-identity websites where the person is central but the site remains credible and refined.
+Overall posture: personal, thoughtful, refined, human, expressive within control, identity-forward without becoming chaotic
+Palette tendency: calm, modern, or warm depending on the Scheme — more expressive than Startup / Professional, still controlled and elegant
+Typography tendency: more editorial or identity-sensitive, strong readability for essays and profile content, enough personality to feel authored
+Spacing tendency: moderate to relaxed, slightly more breathable than Startup / Professional where appropriate
+Radius tendency: minimal to soft, should support warmth or modernity without becoming playful
+Out-of-bounds: overly corporate stiffness; overly playful or youthful design that weakens credibility; decorative complexity that distracts from the individual's voice
+Allowed Schemes: Personal Calm • Personal Modern • Personal Warm
+
+Family — Nonprofit Cultural
+Purpose: Cultural, arts, heritage, education, or community-centered nonprofit websites where tradition, community, and meaning matter as much as usability.
+Overall posture: culturally rich, respectful, elegant, community-aware, welcoming, capable of representing events, knowledge, and tradition
+Palette tendency: warm, heritage-aware, or celebratory depending on the Scheme — richer than the other Families, still governed and disciplined
+Typography tendency: editorial, elegant, and readable; may carry more cultural or traditional sensibility; still practical for digital reading
+Spacing tendency: moderate to relaxed; should allow content to breathe; should support event, educational, and narrative content
+Radius tendency: soft to moderately soft, not harshly technical
+Out-of-bounds: cold technical minimalism; loud commercial styling; novelty or playful treatments that trivialize the mission; hyper-corporate visual language
+Allowed Schemes: Cultural Heritage • Cultural Celebration • Cultural Learning
+
+Scheme Definitions
+Scheme — Professional Cool
+Parent Family: Startup / Professional
+Primary use signal: Executive credibility and premium strategic seriousness.
+Intended visual character: restrained, polished, premium, cool-neutral, serious, low ornament, executive and structured
+Appropriate use cases: when the site should feel highly credible, thoughtful, disciplined, strategically mature, calm rather than energetic
+Palette tendency: cool neutrals, restrained accent use, low saturation, premium contrast rather than loud contrast
+Typography tendency: modern professional, structured, highly readable, slight editorial discipline acceptable; should not feel traditional or decorative
+Spacing tendency: standard or moderately relaxed, clean section rhythm, no compressed density, no highly loose lifestyle spacing
+Radius tendency: minimal preferred, soft allowed only if still disciplined
+Preset fit guidance — Typography: professional, modern, credible, restrained
+Preset fit guidance — Spacing: structured, disciplined, clean
+Preset fit guidance — Radius: minimal, controlled, subtly softened at most
+Preset exclusion guidance — Typography: not playful, romantic, highly traditional, or decorative
+Preset exclusion guidance — Spacing: not loose, casual, or lifestyle-oriented
+Preset exclusion guidance — Radius: not playful, exaggerated, or soft in a way that weakens executive discipline
+Likely default posture: typography — most restrained professional-modern option; spacing — standard; radius — minimal
+
+Scheme — Modern Technical
+Parent Family: Startup / Professional
+Primary use signal: Product and system clarity with digital-technical fluency.
+Intended visual character: technical, modern, crisp, product-aware, structured, efficient, more digital than editorial
+Appropriate use cases: when the site should feel digitally fluent, product-minded, capable of systems thinking, modern and implementation-oriented
+Palette tendency: cleaner technical neutrals, sharper accent control, slightly stronger contrast than Professional Cool, no warm advisory feel
+Typography tendency: modern, product-oriented, crisp, efficient, less editorial than other options
+Spacing tendency: standard preferred, slightly tighter discipline acceptable, not expansive or lounge-like
+Radius tendency: minimal preferred, soft only in limited measure
+Preset fit guidance — Typography: technical, clean, modern, implementation-aware
+Preset fit guidance — Spacing: efficient, disciplined, product-like
+Preset fit guidance — Radius: minimal, exact, non-playful
+Preset exclusion guidance: no heritage, warm editorial, or culturally expressive typography; no expansive or lounge-like spacing; no rounded or playful radius
+Likely default posture: typography — most product-technical option; spacing — standard; radius — minimal
+
+Scheme — Warm Professional
+Parent Family: Startup / Professional
+Primary use signal: Advisory warmth with premium business credibility.
+Intended visual character: professional, warm, premium, human, advisory, structured but less cool than Professional Cool
+Appropriate use cases: expert and approachable, premium but not cold, strategic and human, serious without appearing severe
+Palette tendency: warmer neutrals, controlled warmth, softer contrast than Modern Technical, still credible and clean
+Typography tendency: editorial-professional, modern but slightly warmer, suited to advisory or thought-leadership content
+Spacing tendency: standard to relaxed, slightly more breathable than Modern Technical
+Radius tendency: soft controlled radius is more acceptable here; minimal still possible but not required
+Preset fit guidance: typography — warm, professional, editorial in a disciplined way; spacing — breathable, composed, premium; radius — soft controlled
+Preset exclusion guidance: no coldly technical or culturally ceremonial typography; no tight product-like or loose lifestyle-like spacing; no exaggerated or playful radius
+Likely default posture: typography — strongest editorial-professional option; spacing — relaxed if remaining disciplined; radius — soft or softly controlled
+
+Scheme — Personal Calm
+Parent Family: Personal
+Primary use signal: Reflective personal voice and calm editorial presence.
+Intended visual character: calm, reflective, understated, editorial, personal, serious but gentle
+Appropriate use cases: authored, thoughtful, clear, low-noise, contemplative
+Palette tendency: soft neutrals, calm contrasts, understated accents, not highly energetic
+Typography tendency: editorial, readable, thoughtful, not too technical
+Spacing tendency: relaxed preferred, generous breathing room
+Radius tendency: soft acceptable; minimal also acceptable if the overall tone stays calm
+Preset fit guidance: typography — reflective, editorial, readable, human; spacing — relaxed, breathable, calm; radius — soft, lightly rounded, never playful
+Preset exclusion guidance: no sharply technical, corporate, festive, or ornate typography; no cramped or aggressive spacing; no playful or consumer-casual radius
+Likely default posture: typography — calmest editorial option; spacing — relaxed; radius — soft
+
+Scheme — Personal Modern
+Parent Family: Personal
+Primary use signal: Contemporary personal identity with clean modern presentation.
+Intended visual character: modern, personal, clean, confident, contemporary, slightly sharper than Personal Calm
+Appropriate use cases: individual, current, digitally aware, less reflective and more present-tense
+Palette tendency: clean modern neutrals, controlled accents, slightly stronger contrast than Personal Calm
+Typography tendency: modern, identity-aware, still readable, can lean slightly product-aware without becoming corporate
+Spacing tendency: standard to moderately relaxed, cleaner and slightly tighter than Personal Calm
+Radius tendency: minimal to soft, should stay contemporary and controlled
+Preset fit guidance: typography — modern, personal, clean, contemporary; spacing — clean, modern, moderately open; radius — minimal or soft, contemporary rather than playful
+Preset exclusion guidance: no overly traditional or corporate typography; no cramped or overly loose spacing; no playful or ornamental radius
+Likely default posture: typography — most modern personal option; spacing — standard; radius — minimal or lightly soft
+
+Scheme — Personal Warm
+Parent Family: Personal
+Primary use signal: Approachable personal expertise with warmth and welcome.
+Intended visual character: warm, personal, welcoming, human, softer than Personal Modern, less contemplative than Personal Calm
+Appropriate use cases: approachable, personable, expressive within restraint, expert but friendly
+Palette tendency: warm neutrals, softer contrast, friendly accents, no harsh technical feel
+Typography tendency: editorial-professional with warmth, personal but readable, human rather than technical
+Spacing tendency: relaxed to moderately relaxed
+Radius tendency: soft preferred
+Preset fit guidance: typography — warm, readable, personal, lightly editorial; spacing — open, comfortable, welcoming; radius — soft, calm, controlled
+Preset exclusion guidance: no cold technical or ceremonial typography; no tight/severe or excessively loose spacing; no sharp-technical or playful radius
+Likely default posture: typography — warmest readable editorial option; spacing — relaxed; radius — soft
+
+Scheme — Cultural Heritage
+Parent Family: Nonprofit Cultural
+Primary use signal: Tradition, continuity, and respectful cultural representation.
+Intended visual character: heritage-oriented, elegant, respectful, culturally grounded, timeless, restrained richness
+Appropriate use cases: rooted, respectful of tradition, serious about culture and continuity, not commercialized
+Palette tendency: warm heritage tones, richer but restrained values, depth without loudness
+Typography tendency: editorial, elegant, tradition-aware, still digital-readable
+Spacing tendency: relaxed, respectful of narrative content and event information
+Radius tendency: soft, never sharp-technical
+Preset fit guidance: typography — heritage-aware, editorial, elegant, grounded; spacing — relaxed, spacious, dignified; radius — soft, calm, non-technical
+Preset exclusion guidance: no product-technical or cold corporate typography; no cramped or product-tight spacing; no sharp, technical, or playful radius
+Likely default posture: typography — most tradition-aware editorial option; spacing — relaxed; radius — soft
+
+Scheme — Cultural Celebration
+Parent Family: Nonprofit Cultural
+Primary use signal: Community celebration and event-forward cultural energy.
+Intended visual character: vibrant within discipline, celebratory, communal, warm, energetic but not loud, culturally expressive
+Appropriate use cases: event-oriented, welcoming, alive, community-centered
+Palette tendency: richer accents, warmer or more saturated controlled values, celebratory but not chaotic
+Typography tendency: expressive but readable, editorial with energy, not overly restrained
+Spacing tendency: relaxed, event-friendly, not cramped
+Radius tendency: soft preferred; should not become playful in a casual consumer sense
+Preset fit guidance: typography — expressive, warm, community-aware, readable; spacing — open, lively, breathable; radius — soft, welcoming, moderately rounded without novelty
+Preset exclusion guidance: no coldly technical or severe typography; no cramped or harshly technical spacing; no sharp, technical, or juvenile radius
+Likely default posture: typography — most expressive controlled editorial option; spacing — relaxed; radius — soft
+
+Scheme — Cultural Learning
+Parent Family: Nonprofit Cultural
+Primary use signal: Educational clarity and welcoming knowledge sharing.
+Intended visual character: educational, clear, welcoming, calm, community-oriented, knowledge-sharing
+Appropriate use cases: accessible, instructive, structured, warm but not ceremonial
+Palette tendency: warm-neutral or calm-rich, supportive rather than dramatic
+Typography tendency: readable, educational, editorial-professional, less ceremonial than Cultural Heritage
+Spacing tendency: moderate to relaxed, clear for instructional and informational content
+Radius tendency: soft controlled
+Preset fit guidance: typography — readable, educational, welcoming, calm; spacing — clear, moderately open, supportive of instructional reading; radius — soft, calm, unobtrusive
+Preset exclusion guidance: no sharp technical or overly celebratory typography; no cramped or harshly product-like spacing; no sharp, technical, or playful radius
+Likely default posture: typography — clearest educational editorial option; spacing — relaxed or moderately relaxed; radius — soft
+APPENDIX A — DESIGN PROFILE DEFINITIONS
+Appendix A — Design Profile Definitions
+
+A.1 Purpose of Appendix A
+ This appendix defines the governed design profiles used by the Design Configuration portion of the Plenor Site Configuration Document.
+ These design profiles are the semantic interpretation layer for Family and Scheme objects. They define the intended visual character of each Family and Scheme so that later palette selection, preset allow-list definition, default preset selection, and current design selection are constrained by governed meaning rather than ad hoc judgment.
+ This appendix is subordinate to the governing rules in the main body of the Plenor Site Configuration Document. It does not replace Family, Scheme, Preset, Current Design Selection, or Design Rule objects. It constrains how those objects are instantiated and interpreted.
+A.2 Governing interpretation rule
+ Family and Scheme design profiles are governed interpretation layers used to constrain later palette, typography, spacing, and radius decisions. They do not directly assign raw design values. They define the allowed design character within which later presets and defaults must be selected.
+ A preset is allowed for a Scheme only if its declared character is consistent with that Scheme’s intended visual character and does not violate the Scheme’s exclusion guidance, the accessibility constraints of the Website Specification, or the semantic token structure of the Site Configuration Document.
+ No Family or Scheme design profile may be interpreted as permission to introduce values, styling patterns, or design behaviors outside the governed configuration model.
+A.3 Family Profiles
+A.3.1 Family — Startup / Professional
+ Purpose
+ This Family is for business-facing websites that need to communicate credibility, capability, clarity, and modern execution.
+ Overall posture
+ • professional
+ • credible
+ • disciplined
+ • modern
+ • structured
+ • commercially serious
+ Palette tendency
+ • restrained
+ • balanced
+ • professional
+ • either cool-neutral, technical-neutral, or warm-professional depending on the Scheme
+ Typography tendency
+ • modern and readable
+ • credible in long-form reading
+ • suitable for structured headings and explanatory content
+ • not theatrical or novelty-driven
+ Spacing tendency
+ • disciplined
+ • clean
+ • moderate to moderately relaxed
+ Radius tendency
+ • minimal to softly controlled
+ • not playful or exaggerated
+ Out-of-bounds conditions
+ • playful or whimsical visual language
+ • highly ornamental or decorative styling
+ • overly expressive artistic treatments
+ • culturally rich or celebratory treatments that shift attention away from business clarity
+ • visual noise, excessive contrast, or crowded density
+ Allowed Schemes
+ • Professional Cool
+ • Modern Technical
+ • Warm Professional
+A.3.2 Family — Personal
+ Purpose
+ This Family is for personal, expert, author, or individual-identity websites where the person is central but the site still needs to remain credible and refined.
+ Overall posture
+ • personal
+ • thoughtful
+ • refined
+ • human
+ • expressive within control
+ • identity-forward without becoming chaotic
+ Palette tendency
+ • calm, modern, or warm depending on the Scheme
+ • more expressive than Startup / Professional
+ • still controlled and elegant
+ Typography tendency
+ • more editorial or identity-sensitive
+ • strong readability for essays, thoughts, or profile content
+ • enough personality to feel authored rather than generic
+ Spacing tendency
+ • moderate to relaxed
+ • slightly more breathable than Startup / Professional where appropriate
+ Radius tendency
+ • minimal to soft
+ • should support warmth or modernity without becoming playful
+ Out-of-bounds conditions
+ • overly corporate stiffness when it suppresses personality
+ • overly playful or youthful design that weakens credibility
+ • decorative complexity that distracts from the individual’s voice or work
+ Allowed Schemes
+ • Personal Calm
+ • Personal Modern
+ • Personal Warm
+A.3.3 Family — Nonprofit Cultural
+ Purpose
+ This Family is for cultural, arts, heritage, education, or community-centered nonprofit websites where tradition, community, and meaning matter as much as usability.
+ Overall posture
+ • culturally rich
+ • respectful
+ • elegant
+ • community-aware
+ • welcoming
+ • capable of representing events, knowledge, and tradition
+ Palette tendency
+ • warm, heritage-aware, or celebratory depending on the Scheme
+ • richer than the other Families
+ • still governed and disciplined
+ Typography tendency
+ • editorial, elegant, and readable
+ • may carry more cultural or traditional sensibility
+ • should still remain practical for digital reading
+ Spacing tendency
+ • moderate to relaxed
+ • should allow content to breathe
+ • should support event, educational, and narrative content
+ Radius tendency
+ • soft to moderately soft
+ • not harshly technical
+ Out-of-bounds conditions
+ • cold technical minimalism that strips away cultural character
+ • loud commercial styling that feels sales-driven
+ • novelty or playful treatments that trivialize the mission
+ • hyper-corporate visual language
+ Allowed Schemes
+ • Cultural Heritage
+ • Cultural Celebration
+ • Cultural Learning
+A.4 Scheme Profiles
+A.4.1 Scheme — Professional Cool
+ Parent Family
+ Startup / Professional
+ Primary use signal
+ Executive credibility and premium strategic seriousness.
+ Intended visual character
+ • restrained
+ • polished
+ • premium
+ • cool-neutral
+ • serious
+ • low ornament
+ • executive and structured
+ Appropriate use cases
+ • highly credible
+ • thoughtful
+ • disciplined
+ • strategically mature
+ • calm rather than energetic
+ Palette tendency
+ • cool neutrals
+ • restrained accent use
+ • low saturation
+ • premium contrast rather than loud contrast
+ Typography tendency
+ • modern professional
+ • structured
+ • highly readable
+ • slight editorial discipline is acceptable
+ • should not feel traditional or decorative
+ Spacing tendency
+ • standard or moderately relaxed
+ • clean section rhythm
+ • no compressed density
+ • no highly loose lifestyle spacing
+ Radius tendency
+ • minimal preferred
+ • soft allowed only if still disciplined
+ Preset fit guidance
+ Typography presets allowed for this Scheme should feel:
+ • professional
+ • modern
+ • credible
+ • restrained
+ Spacing presets allowed for this Scheme should feel:
+ • structured
+ • disciplined
+ • clean
+ Radius presets allowed for this Scheme should feel:
+ • minimal
+ • controlled
+ • subtly softened at most
+ Preset exclusion guidance
+ Typography presets should not feel:
+ • playful
+ • romantic
+ • highly traditional
+ • decorative
+ Spacing presets should not feel:
+ • loose
+ • casual
+ • lifestyle-oriented
+ Radius presets should not feel:
+ • playful
+ • exaggerated
+ • soft in a way that weakens executive discipline
+ Likely default posture
+ • typography default should be the most restrained professional-modern option
+ • spacing default should be standard
+ • radius default should be minimal
+A.4.2 Scheme — Modern Technical
+ Parent Family
+ Startup / Professional
+ Primary use signal
+ Product and system clarity with digital-technical fluency.
+ Intended visual character
+ • technical
+ • modern
+ • crisp
+ • product-aware
+ • structured
+ • efficient
+ • more digital than editorial
+ Appropriate use cases
+ • digitally fluent
+ • product-minded
+ • capable of systems thinking
+ • modern and implementation-oriented
+ Palette tendency
+ • cleaner technical neutrals
+ • sharper accent control
+ • slightly stronger contrast than Professional Cool
+ • no warm advisory feel
+ Typography tendency
+ • modern
+ • product-oriented
+ • crisp
+ • efficient
+ • less editorial than other options
+ Spacing tendency
+ • standard preferred
+ • slightly tighter discipline acceptable
+ • not expansive or lounge-like
+ Radius tendency
+ • minimal preferred
+ • soft only in limited measure
+ Preset fit guidance
+ Typography presets allowed for this Scheme should feel:
+ • technical
+ • clean
+ • modern
+ • implementation-aware
+ Spacing presets allowed for this Scheme should feel:
+ • efficient
+ • disciplined
+ • product-like
+ Radius presets allowed for this Scheme should feel:
+ • minimal
+ • exact
+ • non-playful
+ Preset exclusion guidance
+ Typography presets should not feel:
+ • heritage-oriented
+ • warm editorial
+ • culturally expressive
+ • overly soft
+ Spacing presets should not feel:
+ • expansive
+ • lounge-like
+ • highly relaxed
+ Radius presets should not feel:
+ • rounded in a friendly or casual way
+ • decorative
+ • playful
+ Likely default posture
+ • typography default should be the most product-technical option
+ • spacing default should be standard
+ • radius default should be minimal
+A.4.3 Scheme — Warm Professional
+ Parent Family
+ Startup / Professional
+ Primary use signal
+ Advisory warmth with premium business credibility.
+ Intended visual character
+ • professional
+ • warm
+ • premium
+ • human
+ • advisory
+ • structured but less cool than Professional Cool
+ Appropriate use cases
+ • expert and approachable
+ • premium but not cold
+ • strategic and human
+ • serious without appearing severe
+ Palette tendency
+ • warmer neutrals
+ • controlled warmth
+ • softer contrast than Modern Technical
+ • still credible and clean
+ Typography tendency
+ • editorial-professional
+ • modern but slightly warmer
+ • suited to advisory or thought-leadership content
+ Spacing tendency
+ • standard to relaxed
+ • slightly more breathable than Modern Technical
+ Radius tendency
+ • soft controlled radius is more acceptable here
+ • minimal still possible but not required
+ Preset fit guidance
+ Typography presets allowed for this Scheme should feel:
+ • warm
+ • professional
+ • editorial in a disciplined way
+ • readable for longer-form content
+ Spacing presets allowed for this Scheme should feel:
+ • breathable
+ • composed
+ • premium
+ Radius presets allowed for this Scheme should feel:
+ • soft controlled
+ • minimal if still warm enough in the total composition
+ Preset exclusion guidance
+ Typography presets should not feel:
+ • coldly technical
+ • highly decorative
+ • culturally ceremonial
+ Spacing presets should not feel:
+ • tight and product-like in a harsh way
+ • loose and lifestyle-like
+ Radius presets should not feel:
+ • exaggerated
+ • playful
+ • overly sharp if they undermine the advisory warmth
+ Likely default posture
+ • typography default should be the strongest editorial-professional option
+ • spacing default should be relaxed if it remains disciplined
+ • radius default should be soft or softly controlled
+A.4.4 Scheme — Personal Calm
+ Parent Family
+ Personal
+ Primary use signal
+ Reflective personal voice and calm editorial presence.
+ Intended visual character
+ • calm
+ • reflective
+ • understated
+ • editorial
+ • personal
+ • serious but gentle
+ Appropriate use cases
+ • authored
+ • thoughtful
+ • clear
+ • low-noise
+ • contemplative
+ Palette tendency
+ • soft neutrals
+ • calm contrasts
+ • understated accents
+ • not highly energetic
+ Typography tendency
+ • editorial
+ • readable
+ • thoughtful
+ • not too technical
+ Spacing tendency
+ • relaxed preferred
+ • generous breathing room
+ Radius tendency
+ • soft acceptable
+ • minimal also acceptable if the overall tone stays calm
+ Preset fit guidance
+ Typography presets allowed for this Scheme should feel:
+ • reflective
+ • editorial
+ • readable
+ • human
+ Spacing presets allowed for this Scheme should feel:
+ • relaxed
+ • breathable
+ • calm
+ Radius presets allowed for this Scheme should feel:
+ • soft
+ • lightly rounded
+ • never playful
+ Preset exclusion guidance
+ Typography presets should not feel:
+ • sharply technical
+ • corporate
+ • festive
+ • ornate
+ Spacing presets should not feel:
+ • cramped
+ • aggressive
+ • hyper-structured
+ Radius presets should not feel:
+ • playful
+ • exaggerated
+ • consumer-casual
+ Likely default posture
+ • typography default should be the calmest editorial option
+ • spacing default should be relaxed
+ • radius default should be soft
+A.4.5 Scheme — Personal Modern
+ Parent Family
+ Personal
+ Primary use signal
+ Contemporary personal identity with clean modern presentation.
+ Intended visual character
+ • modern
+ • personal
+ • clean
+ • confident
+ • contemporary
+ • slightly sharper than Personal Calm
+ Appropriate use cases
+ • individual
+ • current
+ • digitally aware
+ • less reflective and more present-tense
+ Palette tendency
+ • clean modern neutrals
+ • controlled accents
+ • slightly stronger contrast than Personal Calm
+ Typography tendency
+ • modern
+ • identity-aware
+ • still readable
+ • can lean slightly product-aware without becoming corporate
+ Spacing tendency
+ • standard to moderately relaxed
+ • cleaner and slightly tighter than Personal Calm
+ Radius tendency
+ • minimal to soft
+ • should stay contemporary and controlled
+ Preset fit guidance
+ Typography presets allowed for this Scheme should feel:
+ • modern
+ • personal
+ • clean
+ • contemporary
+ Spacing presets allowed for this Scheme should feel:
+ • clean
+ • modern
+ • moderately open
+ Radius presets allowed for this Scheme should feel:
+ • minimal or soft
+ • contemporary rather than playful
+ Preset exclusion guidance
+ Typography presets should not feel:
+ • overly traditional
+ • ceremonial
+ • heavily corporate
+ Spacing presets should not feel:
+ • cramped and product-harsh
+ • overly loose and lounge-like
+ Radius presets should not feel:
+ • playful
+ • ornamental
+ • overly rounded in a casual consumer style
+ Likely default posture
+ • typography default should be the most modern personal option
+ • spacing default should be standard
+ • radius default should be minimal or lightly soft
+A.4.6 Scheme — Personal Warm
+ Parent Family
+ Personal
+ Primary use signal
+ Approachable personal expertise with warmth and welcome.
+ Intended visual character
+ • warm
+ • personal
+ • welcoming
+ • human
+ • softer than Personal Modern
+ • less contemplative than Personal Calm
+ Appropriate use cases
+ • approachable
+ • personable
+ • expressive within restraint
+ • expert but friendly
+ Palette tendency
+ • warm neutrals
+ • softer contrast
+ • friendly accents
+ • no harsh technical feel
+ Typography tendency
+ • editorial-professional with warmth
+ • personal but readable
+ • human rather than technical
+ Spacing tendency
+ • relaxed to moderately relaxed
+ Radius tendency
+ • soft preferred
+ Preset fit guidance
+ Typography presets allowed for this Scheme should feel:
+ • warm
+ • readable
+ • personal
+ • lightly editorial
+ Spacing presets allowed for this Scheme should feel:
+ • open
+ • comfortable
+ • welcoming
+ Radius presets allowed for this Scheme should feel:
+ • soft
+ • calm
+ • controlled
+ Preset exclusion guidance
+ Typography presets should not feel:
+ • cold technical
+ • heritage ceremonial
+ • highly ornamental
+ Spacing presets should not feel:
+ • tight and severe
+ • excessively loose in a lifestyle-magazine sense
+ Radius presets should not feel:
+ • sharp-technical
+ • playful
+ • exaggerated
+ Likely default posture
+ • typography default should be the warmest readable editorial option
+ • spacing default should be relaxed
+ • radius default should be soft
+A.4.7 Scheme — Cultural Heritage
+ Parent Family
+ Nonprofit Cultural
+ Primary use signal
+ Tradition, continuity, and respectful cultural representation.
+ Intended visual character
+ • heritage-oriented
+ • elegant
+ • respectful
+ • culturally grounded
+ • timeless
+ • restrained richness
+ Appropriate use cases
+ • rooted
+ • respectful of tradition
+ • serious about culture and continuity
+ • not commercialized
+ Palette tendency
+ • warm heritage tones
+ • richer but restrained values
+ • depth without loudness
+ Typography tendency
+ • editorial
+ • elegant
+ • tradition-aware
+ • still digital-readable
+ Spacing tendency
+ • relaxed
+ • respectful of narrative content and event information
+ Radius tendency
+ • soft
+ • never sharp-technical
+ Preset fit guidance
+ Typography presets allowed for this Scheme should feel:
+ • heritage-aware
+ • editorial
+ • elegant
+ • grounded
+ Spacing presets allowed for this Scheme should feel:
+ • relaxed
+ • spacious
+ • dignified
+ Radius presets allowed for this Scheme should feel:
+ • soft
+ • calm
+ • non-technical
+ Preset exclusion guidance
+ Typography presets should not feel:
+ • product-technical
+ • cold corporate
+ • overly playful
+ Spacing presets should not feel:
+ • cramped
+ • product-tight
+ • overly efficient in a technical sense
+ Radius presets should not feel:
+ • sharp
+ • technical
+ • casual or playful
+ Likely default posture
+ • typography default should be the most tradition-aware editorial option
+ • spacing default should be relaxed
+ • radius default should be soft
+A.4.8 Scheme — Cultural Celebration
+ Parent Family
+ Nonprofit Cultural
+ Primary use signal
+ Community celebration and event-forward cultural energy.
+ Intended visual character
+ • vibrant within discipline
+ • celebratory
+ • communal
+ • warm
+ • energetic but not loud
+ • culturally expressive
+ Appropriate use cases
+ • event-oriented
+ • welcoming
+ • alive
+ • community-centered
+ Palette tendency
+ • richer accents
+ • warmer or more saturated controlled values
+ • celebratory but not chaotic
+ Typography tendency
+ • expressive but readable
+ • editorial with energy
+ • not overly restrained
+ Spacing tendency
+ • relaxed
+ • event-friendly
+ • not cramped
+ Radius tendency
+ • soft preferred
+ • should not become playful in a casual consumer sense
+ Preset fit guidance
+ Typography presets allowed for this Scheme should feel:
+ • expressive
+ • warm
+ • community-aware
+ • readable
+ Spacing presets allowed for this Scheme should feel:
+ • open
+ • lively
+ • breathable
+ Radius presets allowed for this Scheme should feel:
+ • soft
+ • welcoming
+ • moderately rounded without novelty
+ Preset exclusion guidance
+ Typography presets should not feel:
+ • coldly technical
+ • hyper-corporate
+ • severe
+ Spacing presets should not feel:
+ • cramped
+ • harshly technical
+ • tight in a product-oriented way
+ Radius presets should not feel:
+ • sharp
+ • technical
+ • playful in a casual or juvenile way
+ Likely default posture
+ • typography default should be the most expressive controlled editorial option
+ • spacing default should be relaxed
+ • radius default should be soft
+A.4.9 Scheme — Cultural Learning
+ Parent Family
+ Nonprofit Cultural
+ Primary use signal
+ Educational clarity and welcoming knowledge sharing.
+ Intended visual character
+ • educational
+ • clear
+ • welcoming
+ • calm
+ • community-oriented
+ • knowledge-sharing
+ Appropriate use cases
+ • accessible
+ • instructive
+ • structured
+ • warm but not ceremonial
+ Palette tendency
+ • warm-neutral or calm-rich
+ • supportive rather than dramatic
+ Typography tendency
+ • readable
+ • educational
+ • editorial-professional
+ • less ceremonial than Cultural Heritage
+ Spacing tendency
+ • moderate to relaxed
+ • clear for instructional and informational content
+ Radius tendency
+ • soft controlled
+ Preset fit guidance
+ Typography presets allowed for this Scheme should feel:
+ • readable
+ • educational
+ • welcoming
+ • calm
+ Spacing presets allowed for this Scheme should feel:
+ • clear
+ • moderately open
+ • supportive of instructional reading
+ Radius presets allowed for this Scheme should feel:
+ • soft
+ • calm
+ • unobtrusive
+ Preset exclusion guidance
+ Typography presets should not feel:
+ • sharp technical
+ • overly celebratory
+ • ceremonial in excess
+ Spacing presets should not feel:
+ • cramped
+ • harshly product-like
+ • overly lounge-like
+ Radius presets should not feel:
+ • sharp
+ • technical
+ • playful
+ Likely default posture
+ • typography default should be the clearest educational editorial option
+ • spacing default should be relaxed or moderately relaxed
+ • radius default should be soft
+A.5 Use of Appendix A in later instantiation
+ This appendix is the governed semantic basis for:
+ • Family record instantiation
+ • Scheme record instantiation
+ • allowedTypographyPresets selection
+ • defaultTypographyPreset selection
+ • allowedSpacingPresets selection
+ • defaultSpacingPreset selection
+ • allowedRadiusPresets selection
+ • defaultRadiusPreset selection
+ • current design selection
+ Appendix A must be used together with the main body rules and the structural templates in the later appendices. It is not a replacement for those templates. It constrains how they are instantiated.
+ 
+
+APPENDIX B — DESIGN CONFIGURATION TEMPLATES
+Appendix B — Design Configuration Templates
+This appendix defines the normalized templates for the design configuration portion of the Site Configuration Model. These templates are authoritative. In the event of ambiguity between an instantiated object record and the declared template structure in this appendix, the declared template structure governs unless changed through governed revision.
+
+B.1 Purpose
+This appendix defines what design objects exist, what fields each may contain, which fields are required, and how allowed sets, defaults, and current selections work.
+
+B.2 Object format rule
+Each design object must follow its declared structure exactly. A field may not be added unless it belongs to that object's declared responsibility, is accepted as part of the governed model, and does not duplicate an already-governed responsibility elsewhere.
+
+B.3 Family template
+Field	Required / Optional	Description/Rule
+key	Required	Unique among all Family objects
+label	Required	Human-readable name
+description	Required	Purpose and character of the Family
+allowedSchemes	Required	List of valid Scheme keys; every Scheme in this list must have parentFamily equal to this Family key
+status	Required	From the governed status set — see Appendix C
+
+B.4 Scheme template
+Field	Required / Optional	Description/Rule
+key	Required	Unique among all Scheme objects
+label	Required	Human-readable name
+description	Required	Visual character and intended use
+parentFamily	Required	Must reference one valid Family
+colors	Required	Semantic color roles per §5.1
+layout	Required	Layout values per §5.2 including authoritative breakpoint values
+buttons	Optional/Minimal	Per §5.3 — may be minimal where derivable from colors and radius
+emailPalette	Optional	Per §5.4
+allowedTypographyPresets	Required	References to existing Typography Presets
+defaultTypographyPreset	Required	Must be one member of allowedTypographyPresets
+allowedSpacingPresets	Required	References to existing Spacing Presets
+defaultSpacingPreset	Required	Must be one member of allowedSpacingPresets
+allowedRadiusPresets	Required	References to existing Radius Presets
+defaultRadiusPreset	Required	Must be one member of allowedRadiusPresets
+status	Required	From the governed status set
+notes	Optional	Governed interpretive notes
+
+B.5 Typography Preset template
+Field	Required / Optional	Description/Rule
+key	Required	Unique identifier
+label	Required	Human-readable name
+bodyFontFamily	Required	Primary body font family
+displayFontFamily	Optional	Display font family if different from body
+textRoles.display	Required	fontSize, lineHeight, fontWeight, fontStyle, letterSpacing (optional)
+textRoles.h1	Required	fontSize, lineHeight, fontWeight, fontStyle, letterSpacing (optional)
+textRoles.h2	Required	fontSize, lineHeight, fontWeight, fontStyle, letterSpacing (optional)
+textRoles.h3	Required	fontSize, lineHeight, fontWeight, fontStyle, letterSpacing (optional)
+textRoles.body	Required	fontSize, lineHeight, fontWeight, fontStyle, letterSpacing (optional)
+textRoles.bodySmall	Required	fontSize, lineHeight, fontWeight, fontStyle, letterSpacing (optional)
+textRoles.quote	Required	fontSize, lineHeight, fontWeight, fontStyle, letterSpacing (optional)
+textRoles.quoteAttribution	Required	fontSize, lineHeight, fontWeight, fontStyle, letterSpacing (optional)
+textRoles.label	Required	fontSize, lineHeight, fontWeight, fontStyle, letterSpacing (optional)
+textRoles.button	Required	fontSize, lineHeight, fontWeight, fontStyle, letterSpacing (optional)
+status	Required	From the governed status set
+
+B.6 Typography Usage Configuration template
+Field	Required / Optional	Description/Rule
+homepageHeroTitle	Optional	May map to display; semantic heading level must still follow page structure
+homepageHeroSupportingText	Optional	Absent fields use governed fallback rule — see §4.7
+pageTitle	Required	Must reference a valid text role; should normally map to h1
+sectionTitle	Required	Should normally map to h2
+subsectionTitle	Required	Should normally map to h3
+bodyParagraph	Required	Should normally map to body
+supportingText	Optional	Absent fields use governed fallback rule
+eyebrowLabel	Optional	Absent fields use governed fallback rule
+buttonText	Required	Should normally map to button
+cardTitle	Optional	Absent fields use governed fallback rule
+cardSummary	Optional	Absent fields use governed fallback rule
+faqQuestion	Optional	Absent fields use governed fallback rule
+faqAnswer	Optional	Absent fields use governed fallback rule
+quoteText	Optional	Absent fields use governed fallback rule; should normally map to quote
+quoteAttribution	Optional	Absent fields use governed fallback rule; should normally map to quoteAttribution
+
+B.7 Spacing Preset template
+Field	Required / Optional	Description/Rule
+key	Required	Unique identifier
+label	Required	Human-readable name
+baseSpacingUnit	Required	Base unit
+spacingScale	Required	Derived scale
+sectionPaddingCompact	Required	Compact section padding
+sectionPaddingRegular	Required	Regular section padding
+sectionPaddingSpacious	Required	Spacious section padding
+heroPaddingCompact	Required	Compact hero padding
+heroPaddingRegular	Required	Regular hero padding
+heroPaddingSpacious	Required	Spacious hero padding
+mobileSectionPadding	Required	Mobile section padding
+status	Required	From the governed status set
+
+B.8 Radius Preset template
+Field	Required / Optional	Description/Rule
+key	Required	Unique identifier
+label	Required	Human-readable name
+buttonRadius	Required	Border radius for buttons
+cardRadius	Required	Border radius for cards
+generalRadiusScale	Optional	General radius scale where needed
+status	Required	From the governed status set
+
+B.9 Current Design Selection template
+Field	Required / Optional	Description/Rule
+currentFamily	Required	Must reference an existing Family
+currentScheme	Required	Must reference an existing Scheme allowed by currentFamily
+currentTypographyPreset	Required	Must be one of the allowedTypographyPresets of currentScheme
+currentSpacingPreset	Required	Must be one of the allowedSpacingPresets of currentScheme
+currentRadiusPreset	Required	Must be one of the allowedRadiusPresets of currentScheme
+
+B.10 Design Rule template
+Field	Required / Optional	Description/Rule
+key	Required	Unique identifier
+label	Required	Human-readable name
+description	Required	What this rule governs
+ruleType	Required	One of: selection, defaulting, validation, override, lifecycle, extensibility
+ruleContent	Required	The governing logic or constraint
+status	Required	From the governed status set
+
+APPENDIX C — NON-DESIGN CONFIGURATION TEMPLATES
+Appendix C — Non-Design Configuration Templates
+C.1 Purpose
+This appendix defines the normalized templates for the non-design configuration portion of the Site Configuration Model. In the event of ambiguity between an instantiated object record and the declared template structure in this appendix, the declared template structure governs unless changed through governed revision.
+
+C.2 Non-Design Configuration Object format rule
+Each non-design configuration object must follow its declared structure exactly. A field may not be added unless it belongs to that object's declared responsibility, is accepted as part of the governed model, and does not duplicate an already-governed responsibility elsewhere.
+
+C.3 Identity and Brand Configuration template
+Object: Identity and Brand Configuration Object
+Allowed fields: legalName, tradingName, tagline, contactEmail, contactPhone, mailingAddress, logo assets, favicon assets, footer identity text, policy ownership text, social profile references, copyright format.
+
+C.4 Navigation Configuration template
+Object: Navigation Configuration Object
+Allowed fields: primary navigation labels, primary navigation order, Framework secondary navigation labels and order, Solutions secondary navigation labels and order, Insights secondary navigation labels and order, About secondary navigation labels and order, mobile secondary navigation pattern.
+
+C.5 Content Ordering and Display Fallback Configuration template
+Object: Content Ordering and Display Fallback Configuration Object
+Allowed fields: homepage fallback ordering rule, ordering tiebreaker rule, minimum content state by homepage section, placeholder content by homepage section, FAQ placement governance.
+
+C.6 Operational Configuration template
+Object: Operational Configuration Object
+Allowed fields: public content lifecycle status labels, inquiry workflow status labels, form field labels and helper text, inquiry success message, resource request message, response expectation text, date and time display format conventions, implementation-scope decisions.
+
+C.7 SEO and Metadata Configuration template
+Object: SEO and Metadata Configuration Object
+Allowed fields: default metadata values by content type, canonical rules, robots rules, sitemap rules, structured-data mappings by content type, social sharing asset references by content type.
+
+Field rules:
+•	value entries are used for defaults
+•	rule entries are used for canonical, robots, and sitemap behavior
+•	mapping entries are used for structured-data assignment
+•	asset entries are used for social sharing references
+
+APPENDIX D — SHARED RULES AND VALUE SETS
+Appendix D — Shared Rules and Value Sets
+D.1 Status set
+The governed status set for current-phase configuration objects is:
+Status	Meaning
+Draft	Being defined; not yet approved for use
+Approved	Approved and available for use
+Deprecated	No longer recommended; may not be newly selected once deprecated; must be replaced before removal
+Deferred	Intentionally excluded from the current phase; must be explicitly marked
+Not Used in Current Phase	Structurally defined but not active in the current phase; must be explicitly marked
+
+D.2 Configurability classes
+Class	Meaning
+Fixed	Set by governance; may not be changed without governed revision
+Selectable	May be changed to another approved option within the governed allowed set
+Override Allowed	Has a governed default but may be overridden within approved boundaries
+System Managed	Managed by the platform or CMS within governed constraints
+
+D.3 Entry types
+Entry Type	Used For
+Allowed Set Entry	Defining which values are permitted within an allowed set
+Current Selection Entry	Recording which value is currently active
+Default Mapping Entry	Recording the default value before any override or selection
+Rule Entry	Defining governing logic
+Value Entry	Defining a specific governed value
+Asset Entry	Referencing a governed asset
+Mapping Entry	Defining a correspondence between two governed sets
+
+D.4 Governing interpretation rule
+Where there is ambiguity between an instantiated object record and the declared template structure in the appendices, the declared template structure governs unless changed through governed revision.
+
+D.5 Bottom line
+The appendices define the formal structural templates of the Site Configuration Model. Once instantiated with actual values, those instantiated appendices can become direct structured inputs for spreadsheet-based configuration, CMS seeding, JSON or YAML transformation, or code generation workflows.
+
+APPENDIX E — CONFIGURABILITY MAPPING
+Appendix E — Configurability Mapping
+E.1 Purpose
+This appendix defines the governed configurability mapping by entry responsibility for all configuration entries in the Site Configuration Model. No field or entry may use a configurability class outside the mapping defined here unless a higher-authority governed rule explicitly narrows a specific case.
+
+E.2 Design Configuration zone mapping
+Entry Responsibility	Allowed Configurability Class
+Family.allowedSchemes	Fixed
+Family.key, label, description, status	Fixed
+Scheme.parentFamily	Fixed
+Scheme.colors	Fixed
+Scheme.layout	Fixed
+Scheme.buttons	Fixed or System Managed
+Scheme.emailPalette	Fixed
+Scheme.shadowElevation	Fixed
+Scheme.motion	Fixed
+Scheme.allowedTypographyPresets	Fixed
+Scheme.defaultTypographyPreset	Fixed
+Scheme.allowedSpacingPresets	Fixed
+Scheme.defaultSpacingPreset	Fixed
+Scheme.allowedRadiusPresets	Fixed
+Scheme.defaultRadiusPreset	Fixed
+Scheme.key, label, description, status, notes	Fixed
+Typography Preset — all fields	Fixed
+Typography Usage Configuration — required fields	Fixed
+Typography Usage Configuration — optional fields	Fixed or System Managed
+Spacing Preset — all fields	Fixed
+Radius Preset — all fields	Fixed
+Current Design Selection — currentFamily	Selectable
+Current Design Selection — currentScheme	Selectable
+Current Design Selection — currentTypographyPreset	Selectable
+Current Design Selection — currentSpacingPreset	Selectable
+Current Design Selection — currentRadiusPreset	Selectable
+Design Rule entries	Fixed
+
+E.3 Non-design Configuration zone mapping
+Entry Responsibility	Allowed Configurability Class
+Identity — legalName, tradingName	Fixed
+Identity — tagline	Override Allowed
+Identity — contactEmail, contactPhone, mailingAddress	Override Allowed
+Identity — logo assets, favicon assets	Override Allowed
+Identity — footer identity text	Override Allowed
+Identity — policy ownership text	Fixed
+Identity — social profile references	Override Allowed
+Identity — copyright format	Fixed
+Navigation — primary labels and order	Fixed
+Navigation — secondary labels and order per section	Fixed
+Navigation — mobile secondary navigation pattern	Fixed
+Content Ordering — homepage fallback ordering rule	Fixed
+Content Ordering — ordering tiebreaker rule	Fixed
+Content Ordering — minimum content state per section	Override Allowed
+Content Ordering — placeholder content labels	Override Allowed
+Content Ordering — FAQ placement governance	Fixed
+Operational — lifecycle status labels	Fixed
+Operational — inquiry workflow status labels	Fixed
+Operational — form field labels and helper text	Override Allowed
+Operational — validation message text	Override Allowed
+Operational — submission confirmation message text	Override Allowed
+Operational — response expectation statement	Override Allowed
+Operational — date and time format conventions	Fixed
+Operational — implementation-scope decisions	Fixed
+SEO — default metadata values	Override Allowed
+SEO — canonical rules	Fixed
+SEO — robots rules	Fixed
+SEO — sitemap rules	Fixed
+SEO — structured data mappings	Fixed
+SEO — social sharing asset references	Override Allowed
+
+E.4 Mapping governance rule
+This mapping is a governed instrument of the Site Configuration Document. Changes to configurability class assignments require governed revision. No implementer may unilaterally change the configurability class of an entry without review against this mapping and the governing Website Specification.
+
+
+Final Status
+This is the Plenor Site Configuration Document, version 1.0, current phase. It is the authoritative companion instrument to the Plenor.ai Website Specification v1.0. It defines the governed configuration model — the object structures, rules, validation logic, and completion criteria — that the Site Configuration Record must satisfy for the plenor.ai site.
+
+Instantiation Status
+This document defines the governing structure, object model, templates, shared rules, and Family and Scheme meaning definitions for the current phase. Instantiation — the population of actual values into the governed object structures — is the next required step before this document is considered complete per Website Specification §8.6 completion criteria.

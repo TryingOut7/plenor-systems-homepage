@@ -1,0 +1,511 @@
+
+Website Realization and Page Composition Standard
+Level 2 Artifact
+
+Version 1.0  |  Baseline
+Status
+Governing artifact — active realization authority.
+
+
+1.  Purpose, Scope, Role, and Relationship
+1.1  Purpose
+This document defines the realization standard for website solutions governed under the Website Solution System Framework.
+
+Its purpose is to define:
+•	the buildable modules used to realize the website solution
+•	the reusable components used across those modules
+•	the governed page model used to manage and construct pages
+•	the rules by which modules and components are composed into pages
+•	the CMS-managed versus fixed aspects of realization
+•	the conformance rules that ensure realized pages and modules remain within the governed structural system
+1.2  Scope
+This document is in scope for:
+•	buildable module definition and classification
+•	reusable component definition and usage rules
+•	the distinction between page type, page instance, and page composition
+•	module integration contracts
+•	page construction rules
+•	page-level orchestration and ownership
+•	CMS-managed versus fixed realization concerns
+•	conformance rules for realization and page composition
+1.3  Out of Scope
+This document is not the place where:
+•	product requirements for a specific website are defined
+•	the structural architecture of the website solution is defined
+•	current site-specific configuration values are defined
+•	stack-specific technical implementation choices are defined
+
+Those belong to the Website Specification, Website Solution Architecture Standard, Site Configuration artifacts, and Technical Build Profile respectively.
+1.4  Role
+This document is the Level 2 realization and composition artifact for the website solution system.
+
+It defines the governed buildable system that realizes the structural architecture and the governed way in which pages are composed and managed.
+1.5  Governing Relationship
+This document derives from:
+•	Website Solution System Framework
+•	Website Specification
+•	Site Configuration Standard
+•	Site Configuration Record
+•	Website Solution Architecture Standard
+
+This document constrains:
+•	Technical Build Profile
+•	site-specific page and module realization decisions
+•	developer implementation decisions
+•	code-generation outputs related to modules, components, page composition, and CMS-managed variation
+1.6  Authority
+This document is authoritative within its declared scope for the buildable realization system, reusable component usage, page model, and page composition rules.
+
+It must not override upstream artifacts within their scope and must not be silently overridden by downstream artifacts.
+2.  Governing Principles
+2.1  Realization Must Conform to Architecture
+All buildable modules, reusable components, page models, and page composition rules must conform to the Website Solution Architecture Standard.
+2.2  Module Versus Component Distinction
+Buildable modules and reusable components are distinct constructs and must not be conflated.
+2.3  Page Composition Is Governed
+Pages must be composed through governed page rules and composition logic, not through local improvisation.
+2.4  Page Composition Is Centrally Owned
+Page construction is owned by the governed page composition model, not by individual modules or components.
+2.5  CMS Manages Approved Variation, Not Structural Invention
+The CMS may manage page instances and approved page-level or module-level variation, but may not invent new structural behavior, new buildable module categories, or new composition rules.
+2.6  Reusable Before Bespoke
+Where a realization need can be satisfied through an approved reusable module or approved reusable component without distortion, that option must be preferred over bespoke local creation.
+2.7  Constrained Composition Is the Default
+The default authoring and realization posture is constrained composition, not open composition.
+2.8  Structural Clarity Over Local Convenience
+Modules, components, and page composition rules must remain clear and governable even where local shortcuts would seem faster.
+3.  Buildable Modules
+3.1  Buildable Module Meaning
+A buildable module is a larger self-contained realizable website unit used to deliver a meaningful website capability or page-level function within the structural architecture.
+
+A buildable module:
+•	has a defined purpose
+•	has defined inputs and outputs
+•	may consume governed content and governed configuration
+•	may use reusable components
+•	may participate in governed page composition
+•	does not redefine the structural architecture
+
+A buildable module is not:
+•	a logical module from the Website Solution Architecture Standard
+•	a reusable UI component
+•	a free-form section invented locally
+•	a page type
+•	a whole page
+
+It is a realizable functional unit used within governed page composition.
+3.2  Buildable Module Categories
+The buildable module model contains three governed categories:
+•	Site-frame modules — buildable modules that provide site-wide or cross-page realized structure and are used across multiple page types
+•	Page-body modules — buildable modules that provide page-facing realized functional content or interaction within one or more page types
+•	Support modules — non-visible or supporting realization units required to complete governed page behavior where such responsibility is not already sufficiently covered by page composition or reusable components
+
+All buildable modules must be classified into one of these three categories.
+3.3  Canonical Buildable Modules
+The closed starting set of canonical buildable modules is:
+
+Site-frame modules:
+•	Primary Navigation Module
+•	Header Identity Module
+•	Footer Module
+
+Page-body modules:
+•	Homepage Hero Module
+•	Section Landing Module
+•	Listing Module
+•	Detail Module
+•	Rich Content Section Module
+•	Featured Content Module
+•	Call-to-Action Module
+•	Inquiry Module
+•	FAQ Module
+•	Proof and Testimonial Module
+
+Support modules:
+•	Metadata Output Module
+•	Redirect and Canonical Handling Module, where required by scope
+3.4  Buildable Module Definition Requirements
+Every buildable module defined or instantiated under this standard must specify:
+•	purpose
+•	primary functional responsibility
+•	required inputs
+•	optional inputs
+•	governed content consumed
+•	governed configuration consumed
+•	outputs or rendered responsibilities
+•	reusable components it may use
+•	dependencies on other approved services or modules where allowed
+•	what it must not do
+•	which logical module or logical modules from the Website Solution Architecture Standard it primarily realizes
+3.5  Buildable Module Ownership
+Each buildable module must own one primary functional realization responsibility.
+
+It must not absorb unrelated page-level, configuration-level, or architecture-level responsibilities merely because doing so is locally convenient.
+3.6  Buildable Module Extension
+A new buildable module may be introduced only when:
+•	the need cannot be satisfied by an existing buildable module without distortion
+•	the need cannot be satisfied by page composition using existing buildable modules and reusable components
+•	the new module is added through governed extension
+4.  Reusable Components
+4.1  Reusable Component Meaning
+A reusable component is a smaller reusable building part that may be used across multiple buildable modules and contexts.
+
+A reusable component:
+•	performs a smaller rendering or interaction job
+•	is composable within approved contexts
+•	does not become a substitute for a buildable module
+•	does not assume ownership of page-level concerns unless explicitly delegated
+
+A reusable component is not:
+•	a logical module
+•	a buildable module
+•	a page type
+•	a page composition rule
+
+It is a reusable building part.
+4.2  Canonical Reusable Components
+The closed starting set of canonical reusable components is:
+•	Button
+•	Link Group
+•	Section Header
+•	Rich Text Block
+•	Media Block
+•	Card
+•	Card Grid
+•	Badge or Label
+•	Breadcrumb
+•	Form Field
+•	Field Group
+•	Accordion Item
+•	Quote Block
+•	CTA Strip
+•	Pagination Control
+•	Tag List
+4.3  Reusable Component Definition Requirements
+Every reusable component defined or instantiated under this standard must specify:
+•	purpose
+•	contexts in which it may be used
+•	contexts in which it must not be used as a substitute for a module
+•	inputs
+•	outputs or rendered responsibility
+•	accessibility expectations where relevant
+•	interaction expectations where relevant
+•	configuration consumed where relevant
+•	composability constraints
+4.4  Anti-Substitution Rule
+A reusable component must not be used to substitute for a buildable module merely because the module would require more discipline or more explicit composition.
+4.5  Component Ownership
+A reusable component must not silently assume page-level ownership, module-level ownership, or architectural ownership unless explicitly delegated by a governed rule.
+4.6  Module and Component Relationship Rules
+Buildable modules may use reusable components.
+
+Reusable components do not replace buildable modules.
+
+A reusable component may be shared across multiple buildable modules only where its meaning remains consistent across those contexts.
+
+A buildable module may specialize component usage within approved bounds, but may not redefine the component into a new implicit component or new implicit module without governed extension.
+5.  Page Model
+5.1  Page Type
+A page type is a governed structural pattern that defines:
+•	what a page is for
+•	which buildable modules are allowed, required, optional, prohibited, or repeatable
+•	what page-level concerns apply
+•	what CMS-managed variation is allowed
+
+For each page type, this standard or its governed extension must define:
+•	page purpose
+•	mandatory modules
+•	optional modules
+•	prohibited modules
+•	repeatable modules
+•	mutually exclusive modules, if any
+•	page-level concerns
+•	allowed CMS-managed variation
+•	page regions, if page regions are used
+5.2  Canonical Page Types
+The closed starting set of canonical page types is:
+•	Home
+•	Section Landing
+•	Listing
+•	Detail
+•	Contact
+•	Static Information
+5.2A  Page Type Versus Buildable Module Rule
+A page type defines the class of page and the composition rules that govern it. A buildable module defines a realizable functional unit that may be used within one or more page types. A page type is not a module, and a module is not a page type, even where their names are related. A page type may require one or more specific buildable modules as part of its governed composition pattern.
+5.3  Page Instance
+A page instance is a specific managed page that conforms to a page type.
+
+A page instance defines:
+•	content bindings
+•	metadata and page-specific settings
+•	lifecycle state
+•	approved selected modules within page-type rules
+•	approved page-level variation within governed bounds
+5.4  Page Composition
+Page composition is the governed assembly of a page instance from approved buildable modules and reusable components according to page-type rules.
+5.5  Realization Classification Rules
+Every realized concern in the governed website system must be classified as one of the following:
+•	buildable module
+•	reusable component
+•	page type concern
+•	page instance concern
+•	page composition concern
+•	CMS-managed variation concern
+
+If the concern is a larger self-contained functional website unit that delivers a meaningful capability within page composition, classify it as a buildable module.
+
+If the concern is a smaller reusable building part that supports one or more buildable modules across contexts, classify it as a reusable component.
+
+If the concern defines what classes of pages exist and what module composition rules apply to them, classify it as a page type concern.
+
+If the concern defines page-specific bindings, metadata, settings, or lifecycle for one realized page, classify it as a page instance concern.
+
+If the concern defines how approved modules are assembled, ordered, regioned, or coordinated on a page, classify it as a page composition concern.
+
+If the concern defines what editors may vary within governed bounds, classify it as a CMS-managed variation concern.
+
+A concern must not be classified as a reusable component merely because doing so is easier than defining a proper buildable module.
+
+A concern must not be classified as a buildable module merely because it is visually prominent if its real responsibility is page type, page composition, or CMS-managed variation.
+6.  Page Composition Rules
+6.1  Page Composition Ownership
+A page is assembled by the governed page composition mechanism.
+
+Buildable modules do not assemble the page themselves.
+6.2  Page-Level Ownership
+Page-level concerns are owned by the page composition model unless explicitly delegated to a buildable module by the page type definition.
+
+A buildable module must not assume ownership of a page-level concern unless that delegation is explicit.
+6.3  Module Ownership Limit
+A buildable module may be visually prominent or functionally central on a page, but it does not thereby own the page structure.
+
+Page structure, page-level sequencing, page-level accessibility hierarchy, and page-level orchestration remain owned by the page composition model unless explicitly delegated by the page type definition.
+6.4  Page Regions
+A page type may define governed page regions where composition control requires regional placement.
+
+When page regions are defined, buildable modules must be placed only within those approved regions and according to the page composition rules for that page type.
+6.5  Ordering
+A page type must define the ordering logic for its modules wherever order is structurally significant.
+
+Modules must not be reordered in a way that violates:
+•	mandatory precedence
+•	required explanatory sequence
+•	required interaction sequence
+•	required page-level accessibility structure
+6.6  Repeatability
+Only modules explicitly marked repeatable for a page type may appear multiple times within one page composition.
+6.7  Prohibitions and Mutual Exclusivity
+A prohibited module for a page type must not appear on a page instance of that type.
+
+Where modules are declared mutually exclusive for a page type, the page composition model must enforce that constraint.
+6.8  Page Type Composition Rules
+The following page type rules define the closed starting composition set for the canonical page types. Site-specific realization profiles may further constrain these rules, but may not weaken mandatory, prohibited, or ownership conditions without governed exception.
+Home page type
+Mandatory modules:
+•	Primary Navigation Module
+•	Header Identity Module
+•	Homepage Hero Module
+•	Footer Module
+•	Metadata Output Module
+Optional modules:
+•	Rich Content Section Module
+•	Featured Content Module
+•	Call-to-Action Module
+•	Proof and Testimonial Module
+•	Inquiry Module only where the page type explicitly permits inquiry as a secondary module
+Prohibited modules:
+•	none unless declared by site-specific realization profile
+Repeatable modules:
+•	Rich Content Section Module
+•	Featured Content Module within approved regions
+•	Call-to-Action Module within approved regions
+Section Landing page type
+Mandatory modules:
+•	Primary Navigation Module
+•	Header Identity Module
+•	Section Landing Module
+•	Footer Module
+•	Metadata Output Module
+Optional modules:
+•	Rich Content Section Module
+•	Featured Content Module
+•	Call-to-Action Module
+•	FAQ Module
+Prohibited modules:
+•	none unless declared by site-specific realization profile
+Repeatable modules:
+•	Rich Content Section Module within approved regions
+Listing page type
+Mandatory modules:
+•	Primary Navigation Module
+•	Header Identity Module
+•	Listing Module
+•	Footer Module
+•	Metadata Output Module
+Optional modules:
+•	Rich Content Section Module
+•	Call-to-Action Module
+Prohibited modules:
+•	none unless declared by site-specific realization profile
+Repeatable modules:
+•	none unless explicitly approved
+Detail page type
+Mandatory modules:
+•	Primary Navigation Module
+•	Header Identity Module
+•	Detail Module
+•	Footer Module
+•	Metadata Output Module
+Optional modules:
+•	Featured Content Module
+•	Call-to-Action Module
+•	Proof and Testimonial Module where the page type permits
+Prohibited modules:
+•	none unless declared by site-specific realization profile
+Repeatable modules:
+•	none unless explicitly approved
+Contact page type
+Mandatory modules:
+•	Primary Navigation Module
+•	Header Identity Module
+•	Inquiry Module
+•	Footer Module
+•	Metadata Output Module
+Optional modules:
+•	Rich Content Section Module within approved regions
+•	FAQ Module
+Prohibited modules:
+•	none unless declared by site-specific realization profile
+Repeatable modules:
+•	none unless explicitly approved
+Static Information page type
+Mandatory modules:
+•	Primary Navigation Module
+•	Header Identity Module
+•	Rich Content Section Module
+•	Footer Module
+•	Metadata Output Module
+Optional modules:
+•	Call-to-Action Module
+Prohibited modules:
+•	none unless declared by site-specific realization profile
+Repeatable modules:
+•	Rich Content Section Module
+6.9  Module Integration Contracts
+Every buildable module must expose a defined integration contract.
+
+Each integration contract must define:
+•	required inputs
+•	optional inputs
+•	required content bindings
+•	optional content bindings
+•	required configuration bindings
+•	page context required, if any
+•	outputs or rendered responsibility
+•	reusable components used
+•	assumptions permitted about neighboring modules
+•	assumptions prohibited about neighboring modules
+•	page-level services or facilities it may use
+•	page-level concerns it is explicitly delegated, if any
+
+A buildable module must not depend on hidden local assumptions about page composition, neighboring modules, or CMS data shape outside its declared contract.
+7.  CMS Management Rules
+7.1  What the CMS May Manage
+The CMS may manage page instances and approved page-level or module-level variation within governed bounds.
+
+Where explicitly permitted by the relevant page type and module contract, the CMS may manage:
+•	page instances
+•	approved module selection within allowed sets
+•	approved module ordering where ordering is flexible
+•	approved featured-content selection
+•	page metadata
+•	lifecycle state
+•	page-specific textual or media content
+•	approved page-specific settings
+7.2  What the CMS May Not Manage
+The CMS may not:
+•	invent new buildable module categories
+•	invent new reusable component categories
+•	redefine page types
+•	bypass page composition rules
+•	violate dependency or ownership rules
+•	redefine structural responsibilities
+•	bypass governed configuration pathways
+7.3  Default Authoring Posture
+The default authoring posture is constrained composition.
+
+Editors may vary only those aspects explicitly declared as CMS-manageable for the relevant page type, page instance, or buildable module.
+
+Open composition is not the default behavior.
+8.  Structural Conformity, Extension, and Mapping
+8.1  Relationship to the Website Solution Architecture Standard
+Every buildable module must map to one or more logical modules from the Website Solution Architecture Standard.
+
+This document must realize the structural system defined by the Website Solution Architecture Standard and must not redefine the meaning of its logical modules.
+
+Page composition rules, module contracts, and CMS page-management rules must preserve:
+•	logical module boundaries
+•	dependency rules
+•	orthogonality rules
+•	architecture invariants
+8.2  Extension Rules
+This standard must support approved growth without local invention.
+
+A new buildable module may be introduced only through governed extension.
+
+A new reusable component may be introduced only when:
+•	an existing reusable component cannot serve the need without distortion
+•	the need does not properly belong to an existing buildable module
+•	the new reusable component is added through governed extension
+
+A new page type may be introduced only through governed extension.
+
+A new page composition rule or new page-level orchestration rule may be introduced only through governed extension.
+8.3  Technology Boundary and Mapping Readiness
+This document must remain independent of specific implementation technologies.
+
+The buildable modules, reusable components, page types, and page composition rules must be defined clearly enough that the Technical Build Profile can map them to the chosen stack through straightforward translation rather than reinterpretation.
+9.  Site-Specific Realization and Conformance
+9.1  Required Contents of Site-Specific Realization Profiles
+Every site-specific realization profile derived from this standard must include:
+•	scope and relationship to upstream artifacts
+•	selected canonical buildable modules
+•	selected canonical reusable components
+•	selected page types
+•	page-type-specific module composition
+•	module contracts used
+•	CMS-managed versus fixed choices
+•	deviations or extensions, if any
+•	conformance checks
+9.2  Conformance Model
+Conformance exists to ensure that realized website pages and modules remain within the governed buildable system and continue to conform to the Website Solution Architecture Standard.
+
+At minimum, assess:
+•	were only approved buildable modules used
+•	were reusable components used within approved bounds
+•	were page types respected
+•	were prohibited modules excluded
+•	were mandatory modules included
+•	were page composition rules followed
+•	was page composition centrally owned
+•	were module contracts respected
+•	did CMS-managed variation remain within approved bounds
+•	did realization preserve the structural rules defined upstream
+
+Conformance to this standard must be assessed whenever:
+•	a new site-specific realization profile is created
+•	a materially revised realization profile is proposed
+•	a new buildable module, reusable component, page type, or composition rule is proposed
+
+Conformance assessment must be performed by the document owner or delegated governance owner for website realization and page composition.
+
+A realized page, module, component usage pattern, or CMS-managed behavior that materially violates this standard's buildable module model, component model, page model, composition rules, CMS rules, or upstream structural constraints must not be treated as accepted until the non-conformance is resolved or explicitly authorized as a governed exception.
+9.3  Final Governing Statements
+This document defines the buildable realization system for website solutions governed under the Website Solution System Framework.
+
+This document is authoritative within its declared scope for:
+•	buildable modules
+•	reusable components
+•	page model
+•	page composition
+•	CMS-managed realization boundaries

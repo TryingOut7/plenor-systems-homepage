@@ -100,6 +100,7 @@ export const FrameworkEntries: CollectionConfig = {
         position: 'sidebar',
         date: {
           pickerAppearance: 'dayAndTime',
+          displayFormat: 'yyyy-MM-dd HH:mm',
         },
       },
     },

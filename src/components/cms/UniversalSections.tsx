@@ -34,6 +34,7 @@ export default function UniversalSections({
   collections,
   guideFormLabels,
   inquiryFormLabels,
+  pageSlug,
 }: UniversalSectionsProps) {
   const MAX_NEST_DEPTH = 5;
 
@@ -71,6 +72,34 @@ export default function UniversalSections({
       const sectionRecord = asSectionRecord(section);
 
       if (!isSectionVisible(sectionRecord)) return null;
+
+      // ENFORCE GOVERNANCE CONSTRAINT: FAQ blocks may only be embedded in Framework, Solutions, or Contact
+      if (section.blockType === 'faqSection' && pageSlug) {
+        const rootSegment = pageSlug.split('/')[0];
+        if (!['framework', 'solutions', 'contact'].includes(rootSegment)) {
+          if (process.env.NODE_ENV !== 'production') {
+            return (
+              <div
+                key={sectionKey}
+                style={{
+                  margin: '16px auto',
+                  maxWidth: '760px',
+                  padding: '16px',
+                  border: '2px dashed #f59e0b',
+                  borderRadius: '6px',
+                  backgroundColor: '#fffbeb',
+                  color: '#92400e',
+                  fontFamily: 'monospace',
+                  fontSize: '13px',
+                }}
+              >
+                <strong>[Governance Block]</strong> FAQ sections are only allowed in Framework, Solutions, or Contact pages.
+              </div>
+            );
+          }
+          return null;
+        }
+      }
 
       const size = normalizeSize(sectionRecord.size);
       const baseTheme = normalizeTheme(sectionRecord.theme);
@@ -153,6 +182,7 @@ export default function UniversalSections({
         collections,
         guideFormLabels,
         inquiryFormLabels,
+        pageSlug,
         renderNestedSection,
       });
 

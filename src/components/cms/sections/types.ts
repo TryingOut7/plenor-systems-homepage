@@ -48,6 +48,7 @@ export interface UniversalSectionsProps {
   collections: CollectionData;
   guideFormLabels?: GuideFormLabels;
   inquiryFormLabels?: InquiryFormLabels;
+  pageSlug?: string;
 }
 
 export type SectionRecord = PageSection & Record<string, unknown>;
@@ -69,6 +70,7 @@ export interface SectionRendererProps {
   collections: CollectionData;
   guideFormLabels?: GuideFormLabels;
   inquiryFormLabels?: InquiryFormLabels;
+  pageSlug?: string;
   renderNestedSection: (section: PageSection, index: number, keyPrefix?: string) => ReactNode;
 }
 

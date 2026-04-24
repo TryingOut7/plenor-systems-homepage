@@ -1,0 +1,851 @@
+
+PLENOR.AI
+Website Specification
+
+Version 1.0
+Locked Current-Phase Authoritative Product Specification
+Status
+Governing artifact — active current-phase product authority.
+Document Owner
+plenor.ai product/site owner or delegated website owner
+Dependent Instruments
+Site Configuration Standard
+Site Configuration Record
+
+PART 1 — DOCUMENT CONTROL AND OWNERSHIP
+1. Document Purpose, Ownership, and Change Control
+1.1 Purpose
+This specification defines the plenor.ai website/application to be built and operated. It is the authoritative product specification for the current phase.
+
+1.2 Scope of this specification
+This specification defines:
+•	product goals and priorities
+•	users, jobs to be done, capabilities, features, and priorities
+•	navigation and information architecture
+•	content model
+•	page and view requirements
+•	inquiry and lead-capture flows
+•	CMS management behavior
+•	site configuration governance
+•	responsive application requirements
+•	accessibility requirements
+•	search, metadata, and URL governance
+•	technical setup expectations
+•	site operations
+•	quality requirements and acceptance criteria
+•	derived LLM build prompt requirements
+
+Dependent Instruments
+This specification is accompanied by a required dependent instrument family: the Site Configuration Standard and the Site Configuration Record. The Site Configuration Standard defines the governed configuration model, rules, validation logic, and completion criteria for the configuration categories established in §8.6. The Site Configuration Record defines the active current-phase values that instantiate that model for the plenor.ai site. Both instruments must be satisfied. Both are subordinate to this specification in governance terms but authoritative within their own declared scopes. Neither overrides the other within its own domain.
+
+1.3 Ownership
+The document owner is the plenor.ai product/site owner or delegated website owner.
+
+1.4 Intended use
+This specification is intended to guide:
+•	website design
+•	web application implementation
+•	CMS configuration
+•	content modeling
+•	LLM-assisted code generation
+•	acceptance review
+
+1.5 Prohibited use
+This specification must not be treated as:
+•	a generic startup website template
+•	a substitute for CMS platform documentation
+•	permission to introduce unsupported or out-of-scope features
+•	permission to silently inherit patterns from the current live site if they contradict this specification
+
+1.6 Change control
+Changes to this specification must be made through controlled revision. Downstream implementation must not silently override specification content.
+
+Changes to required dependent instruments of this specification, including the Site Configuration Standard and Site Configuration Record, are subject to the same change control discipline. A change to a dependent instrument that affects a requirement, constraint, or acceptance criterion governed by this specification must be treated as a governed change and must not be made without review against this specification.
+
+1.7 Authority of downstream prompt
+Any LLM build prompt derived from this specification is subordinate to this specification and may not expand or contradict it.
+
+PART 2 — WEBSITE GOALS, PRODUCT REQUIREMENTS, AND OPERATING PRINCIPLES
+2. Website Goals, Priorities, Constraints, and Operating Principles
+2.1 Product framing
+Plenor.ai is a CMS-operated, company-and-offer-centered, framework-demonstrating, lead-generating, responsive web application.
+
+It is the public website for plenor.ai and also serves as the first concrete demonstration of the CMS-driven website approach plenor.ai intends to use.
+
+2.2 Product goals
+The product must:
+•	explain what plenor.ai is clearly and credibly
+•	explain the website/framework approach without requiring technical interpretation by visitors
+•	present plenor.ai's offers, thinking, and differentiators in a structured way
+•	enable routine content and design-management work through the CMS without developer dependence
+•	support lead generation through inquiry and resource capture paths
+•	remain usable and coherent across desktop, tablet, and mobile
+•	provide a strong enough content and structure model that the site can later evolve without architectural rewrite
+•	make site content understandable to both human visitors and search engines through clear information structure, descriptive metadata, and crawlable internal linking
+
+2.3 Priority hierarchy
+Priority hierarchy governs homepage emphasis, feature priority, navigation emphasis, implementation order, and what remains supporting rather than dominant. It must be treated as a genuine prioritization rule, not decorative language.
+
+2.3.1 Primary — Company positioning and framework/service clarity
+What plenor.ai is, what problem it solves, how the approach works, and how a prospective customer engages.
+
+2.3.2 Secondary — Offer explanation and proof
+Capabilities, service or solution areas, selected examples, implementation approach, and credibility-building content.
+
+2.3.3 Tertiary — Insights and reusable knowledge
+Articles, essays, guidance, resources, and framework-oriented explanatory content.
+
+2.3.4 Supporting — Company background and contact paths
+About, contact, FAQs, policy pages, and other supporting trust surfaces.
+
+2.4 Constraints
+The product must operate within these constraints:
+•	routine content management must occur through the CMS
+•	routine design and layout adjustments must occur through approved CMS controls where supported
+•	custom development should be avoided when the CMS/platform default behavior is sufficient
+•	theme control is curated for the current phase
+•	the current phase is for plenor.ai only and does not need to expose multi-site administration
+•	the site must not depend on placeholder production content such as generic contact data, generic branding labels, or uncustomized policy identity text
+•	generic framework capability may be implied by structure and behavior, but the site is not required to expose a separate platform product area in the current phase unless explicitly enabled
+•	all production pages must use accurate company identity, contact information, and policy ownership details
+•	the production site must be served over HTTPS
+
+2.5 Operating principles
+The product must follow these operating principles:
+•	content is created once and reused across approved locations
+•	company positioning and offer clarity take precedence over decorative marketing language
+•	CMS-managed behavior comes first; platform default behavior is the fallback when needed
+•	shared components remain structurally stable
+•	flexible content control exists only within approved boundaries
+•	every user-facing feature must trace to a defined user need and site purpose
+•	the website must be credible as both a company site and a demonstration of disciplined CMS-driven implementation
+•	accessibility is a first-class product requirement, not a later-stage enhancement
+•	headings, labels, link text, and calls to action must be descriptive and understandable out of context
+•	form interactions must minimize user error and provide clear recovery paths
+
+3. Users, Jobs to Be Done, Capabilities, Features, and Priorities
+3.1 Governing traceability chain
+All user-facing and CMS-facing features must be justified through this chain:
+
+User → Job to Be Done → Capability → Feature → Page/View or CMS Surface → Priority
+
+A feature may not be introduced unless it can be traced through this chain.
+
+3.2 Priority levels
+•	P1 — mandatory for MVP
+•	P2 — important but not blocking MVP
+•	P3 — optional or later-phase
+
+3.2A Priority application rule
+•	P1 — mandatory for MVP and required to satisfy primary users or primary operational needs
+•	P2 — important for usability, visibility, credibility, or manageability, but not blocking MVP
+•	P3 — optional or future-phase
+
+A page, view, content type, or workflow element may not be treated as P1 unless it directly supports a P1 capability.
+
+3.3 User set
+3.3.1 Website Admin / Owner
+A CMS/editorial role with full control over site content, publishing, configuration, approved visual settings, and reusable content selection.
+
+3.3.2 Contributor / Editor
+A CMS/editorial role with limited content contribution rights and controlled publishing authority.
+
+3.3.3 Prospective Customer / Buyer
+A public user seeking to understand what plenor.ai offers, whether it is relevant, and how to engage.
+
+3.3.4 Evaluator / Researching Visitor
+A public user comparing options, assessing credibility, and reviewing framework or method depth before engaging.
+
+3.3.5 Partner / Collaborator
+A public user seeking to understand plenor.ai's approach, positioning, and collaboration fit.
+
+3.3.6 General Reader
+A public user consuming explanatory, educational, or insight-oriented content without immediate buying intent.
+
+3.4 JTBD, capabilities, features, page/view mapping, and priorities
+3.4.1 Prospective Customer / Buyer — P1
+JTBD: When I arrive at the site, I want to understand quickly what plenor.ai is, what it offers, and whether it is relevant to my needs so I can decide whether to engage.
+Capabilities: positioning clarity, offer discovery, contact path access, trust evaluation.
+Features: homepage value proposition, offer/solution pages, capability summaries, contact CTA paths, inquiry form, selected proof content.
+Primary pages/views: Home, Solutions, Framework, Contact.
+
+3.4.2 Evaluator / Researching Visitor — P1
+JTBD: When I am assessing plenor.ai, I want to understand its approach, operating model, and differentiators so I can evaluate credibility and fit.
+Capabilities: framework understanding, implementation-model visibility, proof consumption, company understanding.
+Features: framework page, about page, FAQs, insights/resources, proof/example blocks.
+Primary pages/views: Framework, About, Insights, FAQ.
+
+3.4.3 General Reader — P2
+JTBD: When I want to learn from plenor.ai, I want access to structured insight content and reusable guidance so I can understand the approach without committing to a sales interaction.
+Capabilities: article discovery, resource access, category browsing.
+Features: insights landing page, insight detail pages, downloadable resources where enabled, related-content links.
+Primary pages/views: Insights, Insight Detail, selected homepage sections.
+
+3.4.4 Partner / Collaborator — P2
+JTBD: When I want to evaluate collaboration potential, I want to understand plenor.ai's positioning, scope, and operating style so I can determine alignment.
+Capabilities: company overview, offer understanding, contact path access.
+Features: about page, selected offer pages, contact flow.
+Primary pages/views: About, Solutions, Contact.
+
+3.4.5 Website Admin / Owner — P1
+JTBD: When I manage the site, I want to update content, ordering, visibility, and approved visual settings without developer help so the site stays current and credible.
+Capabilities: content creation and editing, publishing and unpublishing, ordering and visibility control, theme and branding control, CTA management, homepage curation, lifecycle control.
+Features: CMS management surfaces, content forms, publish controls, ordering controls, approved theme controls, brand asset controls, featured-content selection, lifecycle and slug management.
+Primary pages/views: CMS/admin surfaces, homepage composition areas, content-type management areas.
+
+3.4.6 Contributor / Editor — P2
+JTBD: When I help maintain the site, I want to update approved content safely and submit it for review without risking structural or publishing errors.
+Capabilities: limited editing, controlled submission, safe contribution.
+Features: contributor edit forms, review-before-publish workflow, limited ordering controls where allowed.
+Primary pages/views: CMS/editorial surfaces.
+
+PART 3 — NAVIGATION, INFORMATION ARCHITECTURE, CONTENT, AND EXPERIENCE
+4. Navigation and Information Architecture
+4.1 Primary navigation
+The locked primary navigation for the current phase is:
+•	Home — curated entry point and summary of the site
+•	Framework — explanation of the Plenor approach, method, and website/CMS-driven model
+•	Solutions — the offer and capability area
+•	Insights — articles, essays, guidance, and reusable knowledge content
+•	About — company background, founder/team positioning, and operating philosophy
+•	Contact — inquiry and engagement path
+
+4.2 Secondary navigation usage
+Secondary navigation is used in: Framework, Solutions, Insights, and About.
+
+Home and Contact do not use formal secondary navigation in the current phase unless later needed.
+
+4.3 Secondary navigation behavior
+Secondary navigation must behave consistently across the site wherever implemented. Consistency includes placement, visual style, selected state, hover/focus state, routing pattern, and responsive/mobile behavior. The internal page or view reached after a secondary navigation item is selected may vary by section.
+
+4.4 Framework section structure
+Framework is the explanation area for Plenor's method, operating model, and CMS-driven website approach. It must explain what the approach is, how it works, and why it is different. It must not become a duplicate service catalog.
+
+Framework uses concept-based secondary navigation. Initial categories:
+•	What Plenor Is
+•	How the Approach Works
+•	CMS-Driven Website Model
+•	Why This Is Different
+
+4.5 Solutions section structure
+Solutions is the offer area for what plenor.ai provides to a customer. It must describe customer-facing offer categories, engagement-relevant capabilities, and practical delivery scope. It must not restate framework theory unless needed for context.
+
+Solutions uses category-based secondary navigation. Initial categories:
+•	Strategy and Definition
+•	Website and CMS Implementation
+•	Framework-Led Delivery
+
+4.6 Insights section structure
+Insights uses content-based secondary navigation. Initial categories:
+•	Articles
+•	Essays
+•	Guides/Resources
+
+Each category leads to its own page or view with content appropriate to that category.
+
+4.7 About section structure
+About uses secondary navigation. Initial categories:
+•	Company
+•	Founder / Leadership
+•	Working Principles
+
+Each secondary item leads to its own page or view within the About section.
+
+4.8 Access-path principles
+The site must define and support:
+•	landing pages
+•	listing pages
+•	detail pages
+•	cross-links between related content
+•	homepage reuse of content from other sections
+
+4.9 Content reuse rule
+Content must be created once in the CMS and reused across approved locations. Duplicated manual maintenance of the same content across multiple pages is not allowed.
+
+5. Content Model — Content Types, Fields, Relationships, Status, and CMS Ownership
+5.1 Content model purpose
+The content model defines the reusable content entities managed through the CMS.
+
+5.2 Core content types
+5.2.1 Site Page
+Represents a primary section landing page or a controlled standalone page.
+Required fields: title, page slug, summary, body content, display status, SEO title, SEO description.
+Optional fields: hero variant, primary CTA, secondary CTA, related content, featured flag, ordering value.
+
+5.2.2 Solution / Offer Entry
+Represents a plenor.ai offer, solution area, or capability entry.
+Allowed categories: Strategy and Definition • Website and CMS Implementation • Framework-Led Delivery.
+Required fields: title, category, short summary, detail content, display status.
+Optional fields: icon or image, featured flag, ordering value, related insight entries, CTA label, CTA target.
+
+5.2.3 Framework Entry
+Represents a structured explanation of the Plenor approach, model, or method.
+Allowed categories: What Plenor Is • How the Approach Works • CMS-Driven Website Model • Why This Is Different.
+Required fields: title, framework category, short summary, detail content, display status.
+Optional fields: diagram/image, featured flag, ordering value, related solution entries, related insight entries.
+
+5.2.4 Insight Entry
+Represents an article, essay, guide, or reusable knowledge item.
+Allowed categories: Article • Essay • Guide/Resource.
+Required fields: title, insight category, short summary, detail content, author or attributed source label, publish date, display status.
+Optional fields: thumbnail or primary image, downloadable resource link, related framework entry, related solution entry, featured flag, ordering value.
+
+5.2.5 About Profile Entry
+Represents a person or structured profile entry used in the About section.
+Allowed categories: Founder / Leadership • Team Member • Advisor, if enabled later.
+Required fields: name, about category, profile image, short bio or summary, detail content, display status.
+Optional fields: role/title, affiliation, external link where approved, ordering value.
+
+5.2.6 FAQ Entry
+Represents a question-and-answer item.
+Required fields: question, answer, display status, category.
+Optional fields: ordering value, related page/section.
+
+5.2.7 Testimonial / Proof Entry
+Represents a credibility-building item.
+Required fields: proof type, title or source name, summary content, display status.
+Optional fields: logo/image, external link, ordering value, related solution entry.
+Governance Note
+If real testimonials, client names, logos, or measurable outcomes are not yet approved, this content type may remain structurally enabled but unpublished in the current phase.
+
+5.2.8 CTA / Lead Magnet Entry
+Represents a reusable call-to-action block or downloadable asset.
+Required fields: title, CTA label, CTA target type, display status.
+Optional fields: summary text, downloadable asset, form linkage, featured flag, ordering value.
+
+5.2.9 Inquiry Submission
+Represents contact or lead-capture records used in workflows.
+Required fields: name, email, inquiry type, message, submission date, workflow status.
+Allowed workflow statuses: Submitted • Under Review • Responded • Closed.
+
+5.2.10 Site Settings / Global Content
+Represents global shared settings: header configuration, footer content, selected theme, logo, contact details, social links where approved, and global CTA settings.
+
+5.2.10A Search and metadata fields
+Where applicable, CMS-managed content types that generate public pages must support:
+•	unique page title
+•	meta description
+•	canonical URL or canonical preference where needed
+•	indexability control where operationally required
+•	social sharing title, description, and image where supported
+•	structured data fields or mappings where the platform supports them cleanly
+
+5.2.10B Public content lifecycle statuses
+All public CMS-managed content types that generate pages or reusable site content must support a governed lifecycle.
+Baseline lifecycle statuses: Draft • In Review • Published • Archived.
+Rules:
+•	Draft content is not public
+•	In Review content is not public unless explicitly previewed in an approved review mode
+•	Published content is public and subject to quality, metadata, and accessibility requirements
+•	Archived content is not primary public content and must either remain intentionally accessible or be redirected/retired according to redirect rules
+
+5.3 Relationships
+•	Home page ↔ featured Framework entries
+•	Home page ↔ featured Solution/Offer entries
+•	Home page ↔ featured Insight entries
+•	Home page ↔ featured CTA/Lead Magnet entries
+•	Framework Entry ↔ related Solution/Offer entries
+•	Framework Entry ↔ related Insight entries
+•	Solution/Offer Entry ↔ related Insight entries
+•	About section ↔ About Profile entries
+•	FAQ entries ↔ relevant section pages
+
+5.4 CMS ownership
+All core content types must be manageable through the CMS without developer intervention for routine updates.
+
+6. Page and View Requirements
+6.1 Home
+The Home page is a curated summary page.
+
+Required sections:
+•	hero or lead value proposition
+•	what plenor.ai is
+•	featured framework or approach content
+•	featured solutions/offers
+•	selected insight or resource content
+•	credibility/proof section where approved
+•	primary CTA section
+•	footer
+
+Rules:
+•	Home must reuse CMS-managed content from source entries
+•	Home must not require manual recreation of source content
+•	if no items are explicitly featured through CMS selection, sections must fall back to the most recent eligible entries by approved ordering rules
+•	each Home section that reuses CMS content must have a defined minimum content state; a section with no available content must either hide gracefully or display a CMS-managed placeholder, not an empty layout block
+•	section ordering on the Home page may be adjusted through the CMS where the platform supports it; if unsupported, the order listed above is the default
+•	the Home page must present the company proposition, the framework explanation path, and the offer path as distinct but connected routes
+•	the Home page must not repeat the same value proposition copy across multiple sections without adding new information
+•	each major homepage section must have a distinct informational purpose
+
+6.2 Framework landing page
+The Framework page is the primary explanation area for the Plenor approach.
+Required content organization:
+•	category-based structure through secondary navigation
+•	listing or structured section treatment for framework entries
+•	detail-page support where fuller explanation is needed
+
+6.3 Solutions landing page
+The Solutions page is the primary offer-browsing area.
+Required content organization:
+•	category-based organization
+•	offer or capability summaries
+•	listing entries linking to detail pages where applicable
+•	CTA path to inquiry/contact
+
+6.4 Framework and Solution detail pages
+Each detail page must be generated from its CMS entry.
+Required content: title, category, summary/detail, related content if available, CTA path if applicable.
+
+6.5 Insights landing and category pages
+Each Insights category page must present its category as a dedicated page/view reached through secondary navigation.
+Default presentation pattern:
+•	category intro block
+•	listing or card-based presentation for related entries
+•	detail-page navigation for entries requiring full content display
+
+6.6 Insight detail page
+Each insight detail page must be generated from the corresponding CMS entry.
+Required content: title, category, publish date, author or source label, detail content, related content if available.
+
+6.7 About pages
+Company, Founder / Leadership, and Working Principles each use a dedicated page/view reached through About secondary navigation.
+Default presentation pattern:
+•	category intro block
+•	structured profile or narrative presentation
+•	detail-page support where fuller profile presentation is needed
+
+Detail-page requirement: detail pages are required for profile entries if the selected pattern needs fuller bio presentation beyond summary cards.
+
+6.8 FAQ page or embedded FAQ areas
+FAQ content may appear as a dedicated page or as approved embedded blocks within Framework, Solutions, or Contact pages. It must remain CMS-managed.
+
+FAQ placement must follow a governed placement rule. The implementation must define which sections are allowed to host embedded FAQ blocks and must not permit ad hoc FAQ placement outside those approved locations.
+
+6.9 Contact page
+The Contact page uses a single primary page/view.
+Required sections: contact intro, inquiry form, contact details, response expectation statement, footer.
+Optional sections: qualification prompts, CTA support for downloadable resources, alternate inquiry paths.
+
+6.10 Policy pages
+Privacy Policy and any other required legal/policy pages must use controlled pages with customized company identity and contact information. Placeholder values are not allowed in the current phase.
+
+6.10A Search and URL governance
+The site must follow these search and URL rules:
+•	each public page must have a descriptive and unique page title appropriate to its content
+•	each important public page should have a relevant meta description
+•	URLs must be descriptive, stable, and human-readable
+•	words in URLs should be separated cleanly using hyphens where supported by the platform
+•	duplicate or near-duplicate public pages must have a canonicalization approach where applicable
+•	internal links must be crawlable and use descriptive anchor text
+•	public pages generated from CMS entries must remain discoverable through internal linking and navigation structures
+•	supported structured data should be used where it accurately represents the page's visible content and can be managed reliably
+
+6.10B Redirect and retirement rules
+When a public page slug or URL changes, the implementation must preserve continuity through approved redirect behavior where applicable.
+Rules:
+•	deleted or replaced public pages must not leave broken internal links where avoidable
+•	redirect behavior must be managed through the platform or deployment configuration in a controlled way
+•	canonical preference and redirect behavior must not conflict
+•	archived content that remains public must be clearly distinguishable from current primary content where relevant
+
+6.11 Reordering rules
+Approved sections on major pages may be reordered through the CMS where supported by the platform. If unsupported, platform default ordering may be used for the current phase.
+
+7. User Flows — Inquiry, Lead Capture, and Content Access Rules
+7.1 General inquiry flow
+Users must be able to submit general inquiries through a CMS-managed flow.
+
+7.2 Lead capture flow
+One reusable configurable lead-capture flow is required for downloadable assets or request-based follow-up where enabled.
+
+7.3 Inquiry and lead flow steps
+The baseline inquiry flow must support:
+•	user completes inquiry or lead form
+•	site confirms submission received
+•	record is created in the admin/CMS surface
+•	admin reviews submission
+•	admin updates workflow status
+•	team follows up outside the site or through integrated tooling if enabled
+
+7.4 Inquiry fields
+The inquiry flow should support: name, email, organization (optional), inquiry type, message, optional interest area, consent acknowledgement where required.
+
+7.4A Form usability and accessibility rules
+All inquiry and lead-capture forms must follow these rules:
+•	every input must have a persistent visible label
+•	placeholder text must not be used as the sole label
+•	helper text must be used where misunderstanding is likely
+•	validation errors must be specific and tied to the relevant field
+•	validation messaging must be visually aligned with the relevant input
+•	field types and input lengths must be appropriate to the expected input
+•	form controls must remain usable by keyboard and touch input
+•	submission success and error states must be clearly communicated
+•	any client-side validation must be mirrored server-side where required for security and data integrity
+
+7.5 Workflow statuses and actors
+Baseline statuses: Submitted • Under Review • Responded • Closed.
+
+Actor responsibility:
+•	User creates Submitted through the form interaction
+•	Admin reviews and sets Under Review, Responded, or Closed
+•	Contributor does not change inquiry workflow status unless explicitly granted that authority
+
+7.6 Notification and messaging rules
+Required user messaging:
+•	after inquiry submission: inquiry received
+•	after lead resource request: request received or asset delivered, depending on the configured pattern
+•	the site must not imply instant human response unless that capability is actually enabled
+
+Where email or notification tooling is enabled, these status changes should generate matching user notifications. Where such tooling is not enabled in the current phase, the visible confirmation language and admin workflow remain authoritative.
+
+PART 4 — CMS OPERATION, RESPONSIVE APPLICATION BEHAVIOR, AND SITE MANAGEMENT
+8. CMS Management Model
+8.1 CMS operation principle
+Routine site management must occur through the CMS without developer dependence.
+
+8.1A CMS requirement classification
+CMS-related behaviors in this specification fall into three categories:
+
+Required CMS behavior
+These must be supported in the current phase and may not fall back without changing the product intent:
+•	creation and editing of Framework entries through the CMS
+•	creation and editing of Solution/Offer entries through the CMS
+•	creation and editing of Insight entries through the CMS
+•	creation and editing of About profile entries through the CMS
+•	generation of detail pages/views from CMS entries
+•	routine publishing and unpublishing by authorized roles
+•	homepage featured-content selection
+•	management of contact details and global site settings
+•	management of inquiry submissions and workflow statuses
+•	management of public content lifecycle status
+•	management of slug changes and redirect records where the platform supports them
+•	archive and unpublish control for public content
+
+Preferred CMS behavior
+These should be supported where the selected CMS/platform allows them cleanly:
+•	approved primary-navigation ordering
+•	approved section ordering on major pages
+•	curated theme selection
+•	header logo updates
+•	reusable listing/detail generation
+•	reusable CTA block selection and placement
+•	FAQ block placement
+
+Allowed fallback behavior
+Where preferred behavior is unsupported, platform-default behavior may be used in the current phase for:
+•	ordering within approved navigation structures
+•	ordering within approved page sections
+•	theme-control presentation model
+•	shared-component editing surface
+•	non-critical presentation controls
+
+Governing Rule
+Regardless of which theme-control presentation model applies — preferred or fallback — all theme controls must remain bounded by the Site Configuration Standard and may resolve only to values instantiated in the Site Configuration Record. Fallback behavior does not permit CMS controls that expose values outside the governed configuration set. Fallback may not remove required CMS behavior.
+
+8.2 CMS-managed areas
+The CMS must manage, where supported:
+•	framework content
+•	solutions/offers
+•	insight entries
+•	about profile entries
+•	homepage featured selections
+•	page body content where practical
+•	FAQs
+•	CTA/lead magnet content
+•	footer content
+•	approved navigation order and labels where supported
+•	approved section ordering where supported
+•	approved theme settings
+•	approved branding assets in scope
+•	contact details and company identity fields used in policies and footer
+
+8.3 Shared components
+Header and footer are shared global components.
+
+8.4 Header controls
+The CMS should support, where the platform allows:
+•	approved primary-nav ordering
+•	approved labels
+•	header logo update
+•	show/hide behavior for approved items
+•	primary CTA setting where used
+
+8.5 Footer controls
+The CMS should support footer content updates and approved ordering where supported.
+
+8.6 Site Configuration Governance
+8.6.1 Purpose and authority
+The Site Configuration Standard and Site Configuration Record together form the required configuration instrument family for this specification. The Site Configuration Standard is the authoritative definition of the governed configuration model, including object structures, rules, validation logic, and completion criteria. The Site Configuration Record is the authoritative source of the active current-phase configuration values for the site. Technology changes, CMS replacements, and front-end framework changes do not alter the governed model or the governed active values within their declared scopes. Implementations must conform to both instruments. Neither instrument conforms to implementations.
+
+CMS theme controls and all other governed site controls operate within the boundaries defined by the Site Configuration Standard and may resolve only to values instantiated in the Site Configuration Record. Controls that would produce values outside the governed configuration set are not permitted, including free-form color, font, or spacing inputs.
+
+8.6.2 Relationship to this specification
+The Site Configuration Standard and Site Configuration Record are dependent instruments of this specification. This specification governs what configuration categories must exist, what rules apply to them, and what constraints their configuration entries must satisfy. The Site Configuration Standard governs the configuration model. The Site Configuration Record governs the active current-phase entries that instantiate that model. Both instruments must be satisfied; neither overrides the other within its own domain.
+
+Where this specification defines a behavioral or accessibility requirement that constrains configuration entries — including contrast, typography, breakpoints, identity, and operational values — the Site Configuration Standard must govern those requirements at model level and the Site Configuration Record must satisfy them at active-value level.
+
+8.6.3 Configuration categories
+The Site Configuration Standard and Site Configuration Record together must define governed configuration entries across the following categories for the current phase. Each configuration entry must be explicitly traced to the governing specification section or sections. The configuration instrument family is organized by its own stable configuration taxonomy; it does not mechanically mirror the specification structure.
+
+Category 1 — Design Configuration
+The design configuration zone uses a structured object hierarchy — Family, Scheme, Typography Preset, Typography Usage Configuration, Spacing Preset, Radius Preset, Current Design Selection, and Design Rules. The spec governs the following design configuration requirements which the object model must satisfy:
+•	a governed color system must define semantic roles covering brand, surface, background, text, border, and state — including focus, hover, active, disabled, error, and success
+•	a governed typography system must define a full text role hierarchy covering at minimum: display, h1, h2, h3, body, bodySmall, label, button — with font family, size, weight, line height, and letter spacing where applicable; additional text roles may be added as governed extensions provided they are formally defined in the Site Configuration Standard and instantiated in the Site Configuration Record before use
+•	a governed typography usage mapping must define which text roles apply to which content and interface elements
+•	a governed spacing system must define a base unit, a derived scale, section and hero padding variants, and mobile padding
+•	a governed shape system must define button and card radius values
+•	an elevation and shadow system must be defined or explicitly marked as out of scope
+•	a governed motion system must define transition duration values and easing functions
+•	Breakpoints: configuration entries in Scheme.layout of the Site Configuration Record are the authoritative source for the responsive breakpoint model; §9.5 must conform to these values; in the event of mismatch the Site Configuration Record governs and the mismatch must be corrected through governed change before acceptance
+•	all design configuration objects must satisfy the accessibility constraints defined in §8.6.7
+
+Category 2 — Identity and Brand Values
+•	Company legal name and trading name where different
+•	Company tagline or positioning statement
+•	Contact details — email, phone where applicable, mailing address where applicable
+•	Logo asset references — primary, reversed, and favicon/touch icon variants
+•	Footer identity text
+•	Policy page identity text and ownership references
+•	Social profile links where approved
+•	Copyright notice format and year convention
+
+Category 3 — Navigation Values
+•	Primary navigation item labels and governed order
+•	Secondary navigation item labels and governed order per section
+•	Mobile navigation behavior pattern — consistent across all sections using secondary navigation
+
+Category 4 — Content Ordering and Display Fallback Values
+•	Homepage fallback ordering rule — the ordering logic applied when no items are explicitly featured through CMS selection
+•	Content ordering tiebreaker rule — the deterministic ordering rule applied when two or more entries share the same ordering value
+•	Minimum content state per homepage section — the minimum number of eligible published entries required before a section renders rather than hides
+•	Placeholder content labels used when a section hides gracefully due to insufficient published entries
+
+Category 5 — Operational Values
+•	Public content lifecycle status labels — Draft, In Review, Published, Archived — and display conventions
+•	Inquiry workflow status labels — Submitted, Under Review, Responded, Closed — and display conventions
+•	Form field labels, helper text, and validation message text for all governed forms
+•	Submission confirmation message text — inquiry received, resource request received
+•	Response expectation statement text used on the Contact page
+•	Date and time format conventions used across public-facing and admin-facing surfaces
+•	Implementation-scope decisions — a governed record of current-phase decisions for each conditional technical area identified in §10.2
+
+Category 6 — SEO and Metadata Values
+•	Default meta description pattern per content type where a CMS entry does not define its own
+•	Canonical preference rule per content type
+•	Structured data type mappings per content type where platform-supported
+•	Robots.txt configuration — crawl rules and disallow directives
+•	XML sitemap configuration — inclusion rules, update frequency conventions, priority values per content type
+•	Social sharing image defaults per content type where a CMS entry does not define its own
+
+8.6.4 Inclusion rule
+A configuration entry belongs in the Site Configuration Standard and Site Configuration Record if it is a governed site entry whose approved definition, consistency, or change must be controlled at the site level — especially where it changes independently of code, affects multiple surfaces, or affects a quality requirement or acceptance criterion in §12.
+
+8.6.5 Exclusion rule
+Implementation defaults that have no governance consequence do not belong in the Site Configuration Standard or Site Configuration Record. A value that only matters inside a single component and whose change has no cross-surface or acceptance impact stays in the implementation.
+
+8.6.6 Token and configuration governance rules
+•	Every governed configuration entry must have a defined name, category, and value or rule representation in the Site Configuration Standard and Site Configuration Record
+•	Value names must be stable and implementation-agnostic — they must describe the design or configuration decision rather than referencing a specific technology, framework, platform, or raw value. Naming convention including separator style and casing must be defined in the Site Configuration Standard and applied consistently across all categories
+•	Configuration entries may not be introduced directly in implementation code without first being defined as governed configuration entries in the Site Configuration Standard and, where active, instantiated in the Site Configuration Record
+•	Configuration entry additions and changes are governed changes and must be reflected in the Site Configuration Standard and, where active, in the Site Configuration Record before implementation use
+•	Deprecated configuration entries must be marked as deprecated and must not be reintroduced under new names without review
+•	Motion and transition values must respect reduced-motion accessibility requirements; implementations using these values must honor the operating system or browser reduced-motion preference
+
+8.6.7 Accessibility constraints on configuration entries
+Configuration entries must satisfy the accessibility requirements defined in §9.6.
+
+Color value combinations used as approved selections must satisfy WCAG 2.2 Level AA contrast requirements. A combination that fails this threshold may not be used as an approved selection.
+
+Typography values must define font size and weight values that support readable text rendering across all breakpoints. The accessibility baseline is defined in §9.6. Breakpoint definitions are governed by §9.5. Values that would produce unreadable or inaccessible text at any supported breakpoint are not permitted as approved selections.
+
+9. Responsive Web Application Requirements
+9.1 Core requirement
+The product must behave as a responsive web application across desktop, tablet, and mobile.
+
+9.2 Responsive navigation
+Mobile primary navigation must use a hamburger-style collapsed menu. The menu must expand on tap and collapse on selection or outside tap.
+
+Secondary navigation on mobile must appear either as a horizontally scrollable tab row or as an inline expanded list beneath the primary selection, consistent across all sections that use secondary navigation. The same pattern must be applied in all sections. It must not vary by section.
+
+9.3 Responsive listings and detail views
+Listings, cards, detail pages, forms, and shared components must adapt cleanly to smaller screens.
+
+9.4 Touch-friendly interaction
+Interactive controls must be usable on touch devices.
+
+9.5 Breakpoint model
+The implementation must define and apply a consistent breakpoint model across the product.
+
+Minimum required breakpoints:
+•	Mobile: up to 767px
+•	Tablet: 768px to 1023px
+•	Desktop: 1024px and above
+
+All layouts, listings, cards, forms, and shared components must be tested and confirmed at all three breakpoints. No layout may be desktop-only or untested at mobile width.
+
+Breakpoint Authority
+The breakpoint values used in implementation must conform to the breakpoint configuration entries defined in Scheme.layout of the Site Configuration Record. The Site Configuration Record is the authoritative source. The minimum thresholds stated in this section are governing minimum requirements that the Site Configuration Standard and Site Configuration Record must satisfy. In the event of mismatch, the Site Configuration Record governs provided its values satisfy these minimum thresholds. If the Site Configuration Record defines values that conflict with these minimum thresholds, both instruments are in violation and must be corrected through governed change before acceptance.
+
+9.6 Accessibility requirements
+The product must conform to WCAG 2.2 Level AA for the current phase.
+
+At minimum, implementation and acceptance must confirm:
+•	each public page has a descriptive page title
+•	headings are descriptive and reflect page organization
+•	link text communicates destination or action clearly
+•	non-text content has appropriate text alternatives
+•	keyboard navigation is supported for navigation, forms, and interactive controls
+•	focus visibility is preserved for interactive elements
+•	color contrast and state communication do not rely on color alone
+•	form errors and confirmations are programmatically and visually understandable
+
+9.7 Performance requirements
+The product must be designed and tested with real-user performance in mind.
+
+At minimum:
+•	the implementation must monitor Core Web Vitals for public pages where data becomes available
+•	performance review must consider loading performance, interaction responsiveness, and visual stability
+•	large media, scripts, and third-party embeds must be controlled so they do not unnecessarily degrade page experience
+•	no major page template may be accepted without performance review on mobile and desktop conditions appropriate to the current phase
+•	for the current phase, performance is a monitored quality obligation and review criterion unless explicit passing thresholds are separately declared and approved for acceptance use
+
+10. Technical Setup — Integrations, CMS, and Supporting Services
+10.1 CMS/platform alignment
+The downstream implementation must reflect the actual selected CMS and platform behavior.
+
+10.2 Required technical areas
+Required in the current phase:
+•	CMS/content management
+•	navigation and page/view support
+•	listing/detail generation from CMS entries
+•	inquiry/submission handling
+•	hosting/runtime support
+•	responsive front-end behavior
+•	SEO metadata support
+•	reusable CTA/content selection support
+•	XML sitemap generation or equivalent discoverability support
+•	robots and indexing controls where operationally required
+•	canonical URL support for duplicate-management scenarios
+•	structured data support where applicable and platform-supported
+
+Conditional in the current phase:
+•	email/notification support — required only if automated follow-up notifications are enabled
+•	downloadable resource delivery — required only if gated resources are enabled
+•	analytics/event tracking — required only if explicitly brought into MVP scope
+
+Implementation-Scope Decision Record
+The downstream implementation must confirm which conditional areas are in scope before CMS configuration work begins. The current-phase decision for each conditional technical area must be recorded in a governed implementation-scope decision record before CMS configuration work begins. Where the current phase uses the Site Configuration Record to hold implementation-scope decisions, the recorded decision must appear there explicitly.
+
+10.2A Security and measurement baseline
+Required in the current phase:
+•	HTTPS in production
+•	spam protection or abuse mitigation for public forms
+•	analytics or equivalent measurement support if the team intends to evaluate traffic, CTA use, or content performance during MVP
+
+Conditional in the current phase:
+•	advanced event tracking
+•	CRM integration
+•	marketing automation integration
+
+PART 4 CONTINUED — SITE MANAGEMENT
+11. Site Operations — Admin Roles, Content Updates, Publishing Workflow, and Manual Review
+11.1 Admin role
+Admins may:
+•	create, edit, and publish content
+•	update inquiry workflow statuses
+•	manage approved ordering
+•	manage approved theme settings
+•	manage logo and approved identity text
+•	manage homepage featured selections
+•	manage reusable CTA entries
+
+11.2 Contributor role
+Contributors may:
+•	create and edit approved content
+•	submit changes for review
+•	operate within allowed permissions
+
+11.3 Publishing workflow
+The site must support a controlled publishing workflow appropriate to Admin and Contributor roles.
+
+The publishing workflow must include review and lifecycle-state control for public content, not only inquiry records.
+
+PART 5 — QUALITY, READINESS, AND BUILD INPUT
+12. Quality Requirements, Testing, and Acceptance Criteria
+12.1 Quality requirements
+The product must satisfy the following measurable quality requirements:
+•	all primary and secondary navigation links must resolve correctly at desktop, tablet, and mobile breakpoints
+•	no CMS content update to an existing entry must require developer intervention for routine tasks
+•	all detail pages for Framework, Solutions, Insights, and About profile content must be generated from CMS entries without manual page creation
+•	no Home section must display an empty layout block when its source content is unavailable
+•	curated theme changes and logo or shared identity updates must take effect without a code deployment
+•	policy pages and shared contact surfaces must not contain placeholder entity names or placeholder contact information
+•	inquiry flow steps must appear in the correct order with correct status transitions
+•	shared navigation and secondary navigation behavior must remain consistent across sections that use them
+•	all pages must satisfy the defined WCAG 2.2 Level AA baseline for current-phase components and flows
+•	headings, labels, titles, and link text must be descriptive and consistent
+•	forms must provide clear validation and recovery behavior without relying on placeholder-only labeling
+•	all important public pages must have unique titles and non-placeholder metadata
+•	internal links must be crawlable and descriptively labeled
+•	public page URLs must be stable and human-readable
+•	generated public pages must remain discoverable through site navigation, linking, or sitemap support
+•	production pages must use correct company identity and contact information across shared surfaces and policy pages
+•	public forms must have basic abuse mitigation appropriate to the selected platform
+•	major page templates must be reviewed for mobile and desktop performance behavior before acceptance
+•	all CMS theme and configuration controls must resolve only to governed configuration entries defined by the Site Configuration Standard and instantiated in the Site Configuration Record; no CMS control may expose free-form inputs that produce outputs outside the governed configuration set
+•	the Site Configuration Standard and Site Configuration Record must be completed before the production site is accepted; completion requires that all configuration categories defined in §8.6.3 have governed configuration entries, that each required entry is assigned a value or explicitly marked as out of scope, deferred, or not used in the current phase where permitted by this specification, that naming conventions are defined and applied consistently, and that all applicable entries satisfy the accessibility constraints defined in §8.6.7
+
+12.1A Content clarity requirements
+The product must satisfy these content clarity requirements:
+•	Framework and Solutions content must remain semantically distinct
+•	headings and navigation labels must describe the information they lead to
+•	repeated copy across major pages must be controlled so that each page provides incremental value
+•	supporting pages must deepen understanding, not merely restate homepage claims
+
+12.2 Acceptance criteria
+At minimum, acceptance must confirm:
+•	primary and secondary navigation behave as specified
+•	Framework section pages follow their defined structure
+•	Solutions section pages follow their defined structure
+•	Insight entries support summary and detail content correctly
+•	About entries support image upload and bio content where enabled
+•	detail pages for Framework, Solutions, Insights, and About profile entries are generated from CMS entries
+•	Contact page includes all required sections
+•	homepage featured content is CMS-managed and does not require manual duplication
+•	required CMS behavior remains CMS-managed even when preferred CMS behavior falls back to platform-default behavior
+•	curated theming and logo changes work within approved boundaries
+•	inquiry submissions are recorded and workflow statuses can be changed only by authorized roles
+•	all company identity and contact references are customized and production-appropriate
+•	CMS-managed content updates do not require developer intervention for routine tasks
+•	public content lifecycle states work as specified
+•	changed public URLs do not create unmanaged broken navigation where redirect support is in scope
+•	archived content behavior follows the defined lifecycle and routing rules
+•	HTTPS is enabled in production
+•	no placeholder brand, contact, or policy identity values remain in production content
+•	public forms include the approved abuse-mitigation mechanism
+•	performance review has been completed for major page templates
+•	all CMS theme and configuration controls resolve only to governed configuration entries defined by the Site Configuration Standard and instantiated in the Site Configuration Record, and do not expose free-form inputs outside the governed configuration set
+•	the Site Configuration Standard and Site Configuration Record are completed, governed, and confirmed as satisfied by the implementation before acceptance
+
+13. LLM Build Prompt — Derived from This Specification
+13.1 Rule
+Any LLM build prompt must be derived from this specification and may not contradict or expand it.
+
+13.1A Derivation rule
+The LLM build prompt must be structured to map to the specification sections in the order they appear. It must not flatten the specification into a single undifferentiated instruction block.
+
+Each major specification area — goals, navigation, content model, page/view requirements, user flows, CMS model, site configuration governance, responsive requirements, accessibility requirements, search and URL governance, technical setup, and acceptance criteria — must be represented as a distinct prompt section or instruction group. The prompt must reference specification section numbers where precision is required.
+
+It must not introduce requirements, patterns, or behaviors not present in this specification, except for neutral implementation syntax needed to express the specified behavior. Where configuration governance is involved, the prompt must preserve the authority split: this specification governs product behavior, the Site Configuration Standard governs the configuration model and rules, and the Site Configuration Record governs the active current-phase values.
+
+Final Status
+This is the locked governance-grade specification content for the plenor.ai website, version 1.0, current phase. It is the authoritative basis for design, implementation, CMS configuration, site configuration, and acceptance review.
+
+Lock Notes
+Each open business item listed below must be resolved either through governed configuration, where the specification already permits that decision to vary, or through controlled specification revision where the decision changes governed structure, scope, or behavior.
+
+•	whether "Solutions" remains the final top-level label
+•	whether Insights is fully public in MVP or initially limited
+•	whether testimonial/proof content is active at launch or structurally enabled but unpublished
+•	whether analytics and CRM are MVP or post-MVP
+•	actual configuration entries, mappings, and directives in the Site Configuration Standard and Site Configuration Record — these are governed design and operational decisions, not specification defects

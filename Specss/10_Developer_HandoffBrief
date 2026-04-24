@@ -1,0 +1,313 @@
+
+PLENOR.AI
+Developer Handoff Brief
+Version 1.0  —  Current Phase
+Status
+Orientation document — canonical first-pass entry point, non-governing.
+
+Purpose of this document
+This brief is the canonical entry point for first-pass use of the plenor.ai website document set. It tells you what you are building, which documents govern which concerns, what to read first, what to build first, and what remains pending.
+This brief is an orientation document. It does not define product requirements, active configuration values, architecture rules, realization rules, or stack-specific technical authority. It directs the reader to the governing artifacts that do.
+
+Document set
+Website Solution System Framework v2.0	Artifact-stack, boundary, derivation, extension, and conformance authority
+Website Specification v1.0	Product behavior, page requirements, CMS behavior, responsive and accessibility requirements, and acceptance authority
+Site Configuration Standard v1.0	Configuration model, rules, validation logic, and completion criteria
+Site Configuration Record v1.0	Active current-phase governed configuration values
+Website Solution Architecture Standard v1.0	Logical module system and structural architecture authority
+Website Realization and Page Composition Standard v1.0	Buildable modules, reusable components, page types, page instances, and page-composition authority
+Technical Build Profile v1.0	Stack-specific technical realization authority once fully instantiated and approved
+
+SECTION 1
+What You Are Building
+Plenor.ai is a company website for a professional services and advisory business. The site explains what plenor.ai is, presents its service offerings, shares insight content, and enables prospective customers to make contact. It is also the first live demonstration of the CMS-driven website approach that plenor.ai uses and sells.
+
+The site is a CMS-operated responsive web application. All content — pages, entries, and configuration — is managed through the CMS. The front-end renders from CMS-supplied data. Developers do not manually maintain content.
+
+The six sections of the site
+Section	Purpose	Secondary navigation
+Home	Curated entry point summarising the company, approach, offers, and selected insights	None
+Framework	Explains the Plenor method and CMS-driven approach — not a service catalog	What Plenor Is  /  How the Approach Works  /  CMS-Driven Website Model  /  Why This Is Different
+Solutions	The offer and capability area — what plenor.ai delivers to customers	Strategy and Definition  /  Website and CMS Implementation  /  Framework-Led Delivery
+Insights	Articles, essays, and guides — structured knowledge content	Articles  /  Essays  /  Guides/Resources
+About	Company background, founder/leadership profile, and working principles	Company  /  Founder / Leadership  /  Working Principles
+Contact	Inquiry form and engagement path — single page, no secondary navigation	None
+
+Build priority
+Priority governs implementation order. Build P1 items first and do not move to P2 until P1 is complete and stable.
+
+P1 — Build first	Home page, Framework section, Solutions section, Contact page and inquiry form, CMS content management for all content types, detail page generation from CMS entries, responsive behavior at all three breakpoints, WCAG 2.2 Level AA baseline
+P2 — Build next	Insights section, About section, FAQ areas, lead capture flow, contributor role and review workflow, performance review
+P3 — Later phase	Downloadable resource delivery, CRM integration, advanced analytics, marketing automation
+
+KEY CONSTRAINT	Routine content management must work through the CMS without developer intervention.
+All detail pages for Framework, Solutions, Insights, and About must be generated from CMS entries — not manually created.
+CMS theme and configuration controls must resolve only to values defined in the Site Configuration Record. Free-form color, font, or spacing inputs are not permitted.
+
+SECTION 2
+The Governing Documents and Their Roles
+The implementation is governed by a bounded document set. These documents are not alternatives to each other. Each document governs a specific concern and must be used within its own scope.
+Website Solution System Framework
+Use it for: understanding the artifact stack, artifact roles, boundary rules, derivation rules, and conformance model.
+Do not use it for: site-specific build decisions, active values, page rules, or implementation choices.
+Read it when: onboarding to the overall system or resolving document-boundary questions.
+Website Specification
+Use it for: what the website must do, what pages and flows must exist, what CMS behavior is required, and what acceptance must confirm.
+Do not use it for: active configuration values, structural decomposition, buildable module rules, or stack selection.
+Read it when: first pass and whenever product or acceptance questions arise.
+Site Configuration Standard
+Use it for: configuration object structure, rules, validation logic, completion criteria, and governed configurability model.
+Do not use it for: active current-phase values.
+Read it when: implementing or validating configuration pathways and CMS controls.
+Site Configuration Record
+Use it for: active design, navigation, operational, SEO, and other current-phase governed values.
+Do not use it for: changing the configuration model or interpreting new allowed structures.
+Read it when: implementing any active site value.
+Website Solution Architecture Standard
+Use it for: logical modules, dependency rules, orthogonality rules, structural assembly boundaries, and architecture-level concerns.
+Do not use it for: buildable module composition details or stack-specific implementation choices.
+Read it when: determining where a concern belongs structurally.
+Website Realization and Page Composition Standard
+Use it for: buildable modules, reusable components, page types, page instances, page composition rules, and CMS-managed variation boundaries.
+Do not use it for: architecture-level logical module meaning or stack-specific implementation mapping.
+Read it when: implementing pages, modules, and composition behavior.
+Technical Build Profile
+Use it for: selected stack decisions, technical mappings, runtime contracts, implementation rules, environment model, and technical conformance.
+Do not use it for: product requirements or redefining architecture or realization semantics.
+Read it when: the profile is fully instantiated and approved — not before, as the current template is not yet an operative authority.
+
+SECTION 3
+Content Types and CMS Data Model
+The CMS must support the following content types. Every content type must be fully manageable through the CMS without developer intervention for routine updates. Detail pages for Framework, Solutions, Insights, and About profiles must be generated from CMS entries automatically.
+
+Core content types
+Content type	Required fields	Key notes
+Site Page	title, slug, summary, body, display status, SEO title, SEO description	Landing pages and controlled standalone pages
+Framework Entry	title, category, short summary, detail content, display status	Categories: What Plenor Is / How the Approach Works / CMS-Driven Website Model / Why This Is Different
+Solution / Offer Entry	title, category, short summary, detail content, display status	Categories: Strategy and Definition / Website and CMS Implementation / Framework-Led Delivery
+Insight Entry	title, category, short summary, detail content, author label, publish date, display status	Categories: Article / Essay / Guide/Resource
+About Profile Entry	name, category, profile image, short bio, detail content, display status	Categories: Founder / Leadership / Team Member
+FAQ Entry	question, answer, display status, category	May be embedded in Framework, Solutions, or Contact only
+Testimonial / Proof Entry	proof type, title or source name, summary content, display status	Structurally enabled but may remain unpublished at launch
+CTA / Lead Magnet Entry	title, CTA label, CTA target type, display status	Reusable blocks selectable for homepage and page sections
+Inquiry Submission	name, email, inquiry type, message, submission date, workflow status	Internal admin record — not a public content type
+Site Settings / Global Content	header config, footer content, logo, contact details, global CTA settings	Global shared settings for header and footer components
+
+Content lifecycle statuses
+Every public content type must support these four statuses. Draft and In Review content is never public. Only Published content appears on the site.
+
+Draft	Being authored — not public
+In Review	Awaiting approval — not public unless previewed in an approved review mode
+Published	Live and public — subject to all quality and accessibility requirements
+Archived	No longer primary content — must be redirected or remain intentionally accessible, not simply broken
+
+Content relationships
+These relationships must be supported in the CMS data model so that related content can be surfaced on detail pages and the homepage.
+
+Home page	↔  featured Framework entries, featured Solution entries, featured Insight entries, featured CTA entries
+Framework Entry	↔  related Solution entries, related Insight entries
+Solution Entry	↔  related Insight entries
+About section	↔  About Profile entries
+FAQ entries	↔  relevant section pages
+
+Homepage content fallback rules
+When no items are explicitly featured through CMS selection, sections fall back using these rules in order:
+
+Step 1	Use eligible published items in ascending orderingValue
+Step 2	If orderingValue is absent, use publish date descending
+Tiebreaker	Lower orderingValue wins. If tied: more recent publish date wins. If still tied: title ascending alphabetically
+Empty section	Hide the section gracefully — do not render an empty layout block
+Minimum per section	1 published item required for Framework, Solutions, Insights, and CTA sections to render. 1 approved published item for proof/testimonial section.
+
+SECTION 4
+Pages, Flows, and Navigation Behavior
+
+Home page — required sections in order
+1. Hero / lead value proposition	Brand statement and primary CTA — defines what plenor.ai is
+2. What plenor.ai is	Brief company positioning block
+3. Featured framework content	CMS-selected or fallback Framework entries
+4. Featured solutions / offers	CMS-selected or fallback Solution entries
+5. Selected insights or resources	CMS-selected or fallback Insight entries
+6. Credibility / proof section	Testimonial entries — only if approved published content exists
+7. Primary CTA section	Reusable CTA entry — configurable through CMS
+8. Footer	Global shared component
+
+Navigation behavior
+Primary navigation uses six items in a fixed order: Home, Framework, Solutions, Insights, About, Contact. Secondary navigation appears within Framework, Solutions, Insights, and About. It must behave consistently across all four sections — same placement, same visual style, same selected state and hover/focus states, same routing pattern.
+
+MOBILE NAVIGATION	Primary navigation on mobile uses a hamburger-style collapsed menu. It expands on tap and collapses on selection or outside tap.
+Secondary navigation on mobile uses a horizontally scrollable tab row — consistently across all sections. It must not vary by section.
+
+Detail page generation
+Framework entries, Solution entries, Insight entries, and About Profile entries each require detail pages. These pages must be generated automatically from the corresponding CMS entry. They must not be manually created. The required content for each detail page is:
+
+Framework detail	Title, category, summary and detail content, related solutions and insights if available, CTA path
+Solution detail	Title, category, summary and detail content, related insights if available, CTA path
+Insight detail	Title, category, publish date, author or source label, detail content, related content if available
+About profile detail	Name, role/title, profile image, full bio content — required if the listing pattern uses summary cards
+
+Contact page and inquiry flow
+The Contact page is a single view. It must contain: contact intro, inquiry form, contact details, response expectation statement, and footer.
+
+The inquiry form must include these fields:
+
+Name	Label: "Your name"  —  required
+Email	Label: "Work email"  —  required
+Organization	Label: "Organization"  —  optional
+Inquiry type	Label: "What can we help you with?"  —  required
+Message	Label: "Tell us a bit about your need"  —  required Helper text: "A short description is enough for an initial response."
+
+VALIDATION MESSAGES — Use the exact text defined in the Site Configuration Record Section 2.4. Do not invent validation error strings. Required field errors, format errors, and submission failure messages are all governed operational values.
+
+After successful submission, display: "Thanks. Your inquiry has been received."
+Response expectation statement: "We typically respond within two business days."
+
+The inquiry submission creates an internal record with workflow status Submitted. Admin users can move it to Under Review, Responded, or Closed. Contributors cannot change workflow status.
+
+FORM REQUIREMENTS	Every input must have a persistent visible label — placeholder text must not be used as the sole label.
+Validation errors must be field-specific and visually aligned with the relevant input.
+Success and error states must be clearly communicated — both visually and programmatically.
+All forms must include spam / abuse mitigation appropriate to the platform.
+Client-side validation must be mirrored server-side.
+
+SECTION 5
+CMS Behavior and User Roles
+
+Required CMS behavior
+These behaviors must work through the CMS in the current phase. They may not fall back to developer intervention:
+
+Content management	Create, edit, and manage Framework, Solution, Insight, and About Profile entries
+Detail page generation	Detail pages generated automatically from CMS entries — no manual page creation
+Publishing control	Publish and unpublish content by authorized roles
+Homepage curation	Select featured content for homepage sections through the CMS
+Global settings	Manage contact details, identity text, logo, and global CTA settings
+Inquiry management	View inquiry submissions and update workflow statuses
+Lifecycle management	Move content through Draft / In Review / Published / Archived statuses
+Redirect management	Manage slug changes and redirect records where the platform supports it
+
+Preferred CMS behavior
+These should be supported where the platform allows, but may fall back to platform defaults in the current phase:
+
+Navigation ordering	Manage primary nav order and labels through the CMS
+Section ordering	Manage section order on major pages through the CMS
+Theme selection	Select active scheme through the CMS
+Logo updates	Update header logo through the CMS
+CTA placement	Select and place reusable CTA blocks through the CMS
+FAQ placement	Place FAQ blocks in approved sections through the CMS
+
+FALLBACK RULE	When preferred CMS behavior is not supported by the platform, platform-default behavior is acceptable for the current phase.
+However: all theme and configuration controls must still resolve only to governed values from the Site Configuration Record.
+Fallback behavior does not permit free-form inputs that produce values outside the governed configuration set.
+
+Scheme switcher implementation
+The CMS must expose a scheme selector that allows an admin to switch the active visual theme for the site. The following guidance defines exactly how this must be implemented. There is no interpretation required — the governed data model already contains all the information the selector needs.
+Family boundary
+For the current phase, the active Family is fixed. The plenor.ai site operates under the startup_professional Family. This is a deployment decision, not a runtime configuration decision. The CMS must not expose Family selection. Only Scheme selection is exposed, and only schemes belonging to the active Family are presented.
+The three selectable schemes for plenor.ai in the current phase are: Professional Cool, Modern Technical, and Warm Professional. These are the schemes in the allowedSchemes list for the startup_professional Family with a status of Approved. No other schemes may be presented.
+Dropdown construction
+The CMS scheme dropdown must be constructed and behave as follows:
+
+Step	Required behavior
+Read active Family	Read currentFamily from Current Design Selection. For the current phase this will always be startup_professional.
+Filter schemes	From the Scheme Records, select all schemes where parentFamily matches the active Family and status is Approved. These are the only options presented in the dropdown.
+Present the dropdown	Display the filtered scheme list. The currently active scheme (read from currentScheme in Current Design Selection) should be shown as the selected value.
+Write selection	Write the selected scheme identifier back to currentScheme in Current Design Selection. Trigger preset cascade resolution before committing. Do not commit the change until cascade resolution is complete.
+Preset cascade resolution on scheme switch
+When the admin selects a new scheme, the three active presets — typography, spacing, and radius — must each be validated against the new scheme’s allowed preset sets before the switch is committed. The rule is:
+If the current preset is in the new scheme’s allowed set for that dimension, it is preserved. If it is not, it is automatically replaced by the new scheme’s default for that dimension. This resolution occurs before the new configuration is committed.
+The following table shows the preset cascade behavior for a switch from Warm Professional to Professional Cool, using the current active presets as an example:
+
+Preset dimension	Current active preset	In new scheme’s allowed set?	Resolution
+Typography	tp_editorial_professional	Yes	Preserved
+Spacing	sp_relaxed	Yes	Preserved
+Radius	rd_soft_controlled	Yes	Preserved
+
+NOTE	The example above shows a switch where all three presets survive because they happen to exist in both schemes’ allowed sets. This will not always be the case. If an admin switches to a scheme that does not include the current typography preset in its allowed set, that preset must be automatically replaced by the new scheme’s defaultTypographyPreset. The same applies to spacing (defaultSpacingPreset) and radius (defaultRadiusPreset). This resolution must occur before committing the switch, not after. The admin should not need to take any action; the system resolves it automatically.
+The Family boundary is fixed for the current phase. Do not expose Family selection in the CMS. If the model needs to support multi-Family switching in a future phase, the configurability class on currentFamily can be changed from Fixed to Selectable in the standard at that time. No structural changes to the data model will be required.
+
+User roles
+Admin / Owner	Full access — create, edit, publish, manage configuration, manage inquiry statuses, manage featured selections, manage CTA entries
+Contributor / Editor	Limited access — create and edit approved content, submit for review, cannot publish or change inquiry workflow status unless explicitly granted
+
+SECTION 6
+SEO, Accessibility, and Performance
+
+SEO and metadata
+Every public page must have a unique, descriptive page title. Page title patterns from the Site Configuration Record:
+
+Site Page	{page_title} | Plenor.ai
+Solution entry	{entry_title} | Solutions | Plenor.ai
+Framework entry	{entry_title} | Framework | Plenor.ai
+Insight entry	{entry_title} | Insights | Plenor.ai
+About profile entry	{entry_title} | About | Plenor.ai
+
+These patterns apply only when a CMS entry does not define its own title or description. Boilerplate metadata repeated across multiple pages is not permitted.
+
+URLs must be descriptive, stable, and human-readable with hyphen-separated words. When a slug changes, implement a redirect. Do not leave broken internal links.
+
+Structured data mappings: Home = WebSite, Framework / Solutions / About / Contact pages = WebPage, Insight entries = Article, Organisation identity = Organization.
+
+Sitemap: include all published canonical public pages. Exclude draft, in-review, preview, and admin URLs. Crawl frequency: Home and Insights weekly, all others monthly.
+
+Accessibility — WCAG 2.2 Level AA
+The site must conform to WCAG 2.2 Level AA. The following must be confirmed at acceptance:
+
+Page titles	Every public page has a unique, descriptive title
+Headings	Descriptive and reflect page organisation — not decorative
+Link text	Communicates destination or action clearly — not "click here" or "read more"
+Images	All non-text content has appropriate alt text
+Keyboard navigation	All navigation, forms, and interactive controls are keyboard-operable
+Focus visibility	Focus indicator is visible for all interactive elements — focus ring color: #0F766E
+Color contrast	All text meets WCAG 2.2 AA contrast ratios — state communication does not rely on color alone
+Form errors	Errors are field-specific, visually aligned, and programmatically announced
+
+Performance
+Performance is a monitored quality obligation for the current phase — not a numeric gate unless thresholds are separately declared. The following must be completed before acceptance:
+
+Core Web Vitals	Monitor for all public pages where data is available
+Template review	No major page template accepted without performance review on mobile and desktop
+Media and scripts	Large images, scripts, and third-party embeds must not unnecessarily degrade page experience
+
+SECTION 7
+Open Items and Acceptance
+
+Owner-supplied values required before production
+The following values are explicitly deferred in the Site Configuration Record. The implementation must be built to accommodate them without placeholder production content. These must be supplied by the site owner before production acceptance:
+
+Contact email address	Required for Contact page and footer
+Primary logo asset	Required for header
+Reversed logo asset	Required for dark-background contexts
+Favicon and touch icon	Required for browser tab and mobile home screen
+Default OG / social sharing image	Required for social sharing metadata across all pages
+
+PRODUCTION RULE	No placeholder entity names, contact information, or policy identity values may remain in production content.
+Policy pages must use correct company identity: Plenor Systems LLC.
+Footer identity: © {current_year} Plenor Systems LLC. All rights reserved.
+
+Implementation-scope decisions for the current phase
+These decisions are recorded in the Site Configuration Record (Section 2.4):
+
+Analytics / event tracking	Approved — basic analytics only
+Email / notification support	Deferred — not required for current phase
+Downloadable resource delivery	Deferred — not required for current phase
+Advanced event tracking	Not used in current phase
+CRM integration	Not used in current phase
+Marketing automation	Not used in current phase
+
+Acceptance criteria summary
+The full acceptance criteria are in Section 12 of the Website Specification. At minimum the following must be confirmed before the site can be accepted:
+
+Navigation	Primary and secondary navigation resolve correctly at desktop, tablet, and mobile
+CMS-generated detail pages	Framework, Solutions, Insights, and About profile detail pages generate from CMS entries without manual creation
+CMS independence	Routine content updates do not require developer intervention
+Homepage sections	No homepage section displays an empty layout block when source content is unavailable
+Configuration controls	All CMS theme and configuration controls resolve only to values defined in the Site Configuration Record
+Identity correctness	No placeholder brand, contact, or policy identity values in production content
+Inquiry flow	Submissions recorded, workflow statuses transition correctly, only authorized roles can change status
+Accessibility	WCAG 2.2 Level AA confirmed for all current-phase components and flows
+HTTPS	Production site served over HTTPS
+Abuse mitigation	Public forms include the approved spam/abuse mitigation mechanism
+Performance review	Completed for all major page templates
+Site Configuration Record	Completed, governed, and confirmed as satisfied by the implementation
+Pending technical item
+The Technical Build Profile is not yet operative. Use it only after Section 0, all selected-technology sections, and the conformance model are fully instantiated and approved. Until then, stack-selection guidance is carried in Section 0 of the Technical Build Profile.

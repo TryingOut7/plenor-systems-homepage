@@ -125,6 +125,7 @@ export default async function HomePage() {
           collections={collectionData}
           guideFormLabels={siteSettings?.guideForm}
           inquiryFormLabels={siteSettings?.inquiryForm}
+          pageSlug="home"
         />
       ) : (
         <section
@@ -179,6 +180,7 @@ export default async function HomePage() {
           collections={collectionData}
           guideFormLabels={siteSettings?.guideForm}
           inquiryFormLabels={siteSettings?.inquiryForm}
+          pageSlug="home"
         />
       ) : (
         <section style={{ padding: 'var(--ui-spacing-section-regular)' }}>
@@ -541,6 +543,7 @@ export default async function HomePage() {
           collections={collectionData}
           guideFormLabels={siteSettings?.guideForm}
           inquiryFormLabels={siteSettings?.inquiryForm}
+          pageSlug="home"
         />
       ) : (
         <section

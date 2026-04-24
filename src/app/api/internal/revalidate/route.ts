@@ -18,6 +18,9 @@ import { NextRequest, NextResponse } from 'next/server';
 const ALL_FRONTEND_PATHS = [
   '/',
   '/about',
+  '/framework',
+  '/solutions',
+  '/insights',
   '/services',
   '/pricing',
   '/contact',
@@ -52,9 +55,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     // Revalidate dynamic route templates.
     revalidatePath('/[...slug]', 'page');
+    revalidatePath('/about/[slug]', 'page');
+    revalidatePath('/framework/[slug]', 'page');
+    revalidatePath('/solutions/[slug]', 'page');
+    revalidatePath('/insights/[slug]', 'page');
     revalidatePath('/services/[slug]', 'page');
     revalidatePath('/blog/[slug]', 'page');
-    revalidated.push('path:/[...slug]', 'path:/services/[slug]', 'path:/blog/[slug]');
+    revalidated.push(
+      'path:/[...slug]',
+      'path:/about/[slug]',
+      'path:/framework/[slug]',
+      'path:/solutions/[slug]',
+      'path:/insights/[slug]',
+      'path:/services/[slug]',
+      'path:/blog/[slug]',
+    );
   } else {
     for (const path of body.paths ?? []) {
       if (typeof path === 'string' && path.startsWith('/')) {

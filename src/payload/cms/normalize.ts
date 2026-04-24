@@ -113,23 +113,32 @@ export function normalizeServiceItem(doc: Record<string, unknown>): ServiceItem 
     priceFrom: doc.priceFrom as number | undefined,
     currency: doc.currency as string | undefined,
     seo: normalizeSeo(doc.seo),
-    heroImage: normalizeMedia(doc.heroImage),
+    heroImage: normalizeMedia(doc.heroImage ?? doc.coverImage),
   };
 }
 
 export function normalizeBlogPost(doc: Record<string, unknown>): BlogPost {
+  const rawCategory = doc.category;
+  const normalizedCategory =
+    typeof rawCategory === 'string'
+      ? {
+          name: rawCategory.replace(/-/g, ' '),
+          slug: rawCategory,
+        }
+      : (rawCategory as BlogPost['category']);
+
   return {
     id: String(doc.id),
     title: doc.title as string | undefined,
     slug: doc.slug as string | undefined,
-    excerpt: doc.excerpt as string | undefined,
-    coverImage: normalizeMedia(doc.coverImage),
+    excerpt: (doc.excerpt as string | undefined) || (doc.summary as string | undefined),
+    coverImage: normalizeMedia(doc.coverImage ?? doc.heroImage),
     body: doc.body,
     publishedAt: doc.publishedAt as string | undefined,
     isFeatured: doc.isFeatured as boolean | undefined,
     readingTimeMinutes: doc.readingTimeMinutes as number | undefined,
     tags: doc.tags as BlogPost['tags'],
-    category: doc.category as BlogPost['category'],
+    category: normalizedCategory,
     resourceUrl: doc.resourceUrl as string | undefined,
     resourceFile: normalizeMedia(doc.resourceFile),
     seo: normalizeSeo(doc.seo),

@@ -1,0 +1,372 @@
+Developer Reading Guide
+For a developer who can build websites but is new to this document set
+1. Purpose of This Guide
+This guide explains what documents to read, in what order to read them, and what you are expected to learn from each one.
+
+You are not being asked to read everything at once and hold it all in your head. You are reading in a sequence so you can answer these questions in the right order:
+
+1.	What kind of system is this?
+2.	What is this specific website supposed to do?
+3.	What exact settings and values must I use?
+4.	How is the solution organized?
+5.	How are pages and modules supposed to be built?
+6.	How is the chosen technology stack supposed to implement all of that?
+
+The documents are separated on purpose. Each one answers a different kind of question. The goal is to understand the role of each document so you know where to look when you need something.
+
+2. Reading Sequence
+Read the documents in this order:
+
+7.	Document 1 — Website Solution System Framework
+8.	Document 10 — Developer Handoff Brief
+9.	Document 2 — Website Specification
+10.	Document 4 — Site Configuration Record
+11.	Document 3 — Site Configuration Standard
+12.	Document 5 — Website Solution Architecture Standard
+13.	Document 6 — Website Realization and Page Composition Standard
+14.	Document 7 — Developer Handbook
+15.	Document 9 — Technical Build Profile, only when it is fully filled in and approved
+
+This sequence starts with the overall map, then moves to the project itself, then to the requirements and actual values, then to structure and page-building rules, and finally to the technical implementation layer.
+
+3. What to Read and What You Should Learn
+Document 1 — Website Solution System Framework
+Read this first, once.
+
+Read it to understand the map of the whole system.
+
+This document explains:
+•	why there are multiple documents
+•	what each document is for
+•	what belongs in each document
+•	how the documents relate to each other
+•	why local invention is not allowed when something is already governed elsewhere
+
+What you should learn
+–	The Website Specification tells you what must be built
+–	The Site Configuration Record gives you the current approved settings and values for this site
+–	The Site Configuration Standard explains how those settings and values are structured
+–	The Architecture Standard explains how the solution is organized
+–	The Realization Standard explains how pages, modules, and components are built
+–	The Technical Build Profile explains how the chosen stack implements the governed system
+
+What you should know after reading it
+You should be able to tell which document to check when you have:
+•	a requirements question
+•	a settings or values question
+•	a configuration-structure question
+•	a structure question
+•	a page-building question
+•	a stack-specific technical question
+
+Important note:  This is an overview document. It is not your day-to-day build document.
+
+Document 10 — Developer Handoff Brief
+Read this second.
+
+Read it to understand this specific website project.
+
+This document explains:
+•	what the site is
+•	what sections it includes
+•	what the build priorities are
+•	what should be built first
+•	which documents matter most during implementation
+
+What you should learn
+–	what the project is trying to deliver
+–	what counts as P1, P2, and P3
+–	what the first implementation priorities are
+–	how to enter the project without trying to use every document all at once
+
+What you should know after reading it
+•	what this site is
+•	what matters most in the current phase
+•	what should be built first
+•	which documents you will use most often during implementation
+
+Important note:  This is your entry document for the project.
+
+Document 2 — Website Specification
+Read this third.
+
+Read it to understand what must be built.
+
+This document explains:
+•	site goals and priorities
+•	users and needs
+•	navigation and information architecture
+•	content model and content types
+•	page and view requirements
+•	inquiry and lead-capture behavior
+•	CMS requirements
+•	accessibility, search, URL, and responsive requirements
+•	acceptance criteria
+
+What you should learn
+–	what pages are required
+–	what flows are required
+–	what content types the CMS must support
+–	what the site must do
+–	what the CMS must do
+–	what the build must satisfy before it can be accepted
+
+What you should know after reading it
+You should be able to answer:
+•	what pages and flows are mandatory
+•	what the CMS must support
+•	what behavior is required versus preferred
+•	what conditions must be met for the build to be accepted
+
+Important note:  This is the main requirements document.
+
+Document 4 — Site Configuration Record
+Read this fourth.
+
+Read it to understand the current approved settings and values for this site.
+
+This document contains:
+•	the active design selection
+•	the current scheme
+•	typography values
+•	spacing values
+•	radius values
+•	navigation labels and order
+•	operational text and messages
+•	status labels
+•	SEO and metadata values where applicable
+
+What you should learn
+–	which theme is active
+–	which typography, spacing, and radius settings are active
+–	which labels, messages, and statuses are already defined
+–	which navigation values are approved
+–	which values the implementation must consume directly
+
+What you should know after reading it
+You should be able to answer:
+•	what exact visual values to use
+•	what exact labels and messages to use
+•	what exact status values to use
+•	what exact navigation labels and order to use
+•	what you must not invent on your own because it is already defined here
+
+Important note:  This document contains the current approved settings and values for the site. It must follow the structure and rules defined in the Site Configuration Standard.
+
+Document 3 — Site Configuration Standard
+Read this after Document 4.
+
+Read it to understand how the settings in Document 4 are organized.
+
+This document explains:
+•	the configuration model
+•	what a family is
+•	what a scheme is
+•	what a preset is
+•	what current selection means
+•	how configuration is structured
+•	how configuration is validated
+•	what the record is allowed to contain
+
+What you should learn
+–	why the values in Document 4 are structured the way they are
+–	how the configuration model works
+–	how different configuration objects relate to each other
+–	what the implementation must respect when reading or exposing settings
+
+What you should know after reading it
+You should be able to answer:
+•	what kinds of settings are allowed
+•	how those settings are grouped and validated
+•	why the implementation must follow a defined configuration path instead of inventing local settings or shortcuts
+
+Important note:  Document 4 tells you the current approved values. Document 3 tells you the structure and rules behind those values.
+
+Document 5 — Website Solution Architecture Standard
+Read this after Documents 2 and 4.
+
+Read it to understand how the solution is organized at a structural level.
+
+This document explains structural responsibilities such as:
+•	content access
+•	content normalization
+•	configuration resolution
+•	navigation and route structure
+•	experience assembly
+•	shared presentation
+•	section-specific presentation
+•	interaction handling
+•	metadata and discoverability
+
+What you should learn
+–	how different responsibilities are separated
+–	what kind of concern belongs in which structural area
+–	why structure is different from UI components and page content
+–	why some concerns must stay separate instead of being mixed together
+
+What you should know after reading it
+You should be able to answer:
+•	where a concern belongs structurally
+•	what should remain separate
+•	why content access, configuration resolution, rendering, page assembly, and interaction handling are not the same thing
+
+Important note:  This is the structure document. It is about how the solution is organized, not about page-level UI pieces.
+
+Document 6 — Website Realization and Page Composition Standard
+Read this after Document 5.
+
+Read it to understand how the structural model turns into actual build work.
+
+This document explains:
+•	what a buildable module is
+•	what a reusable component is
+•	what a page type is
+•	what a page instance is
+•	how page composition works
+•	what the CMS may and may not vary
+•	what kinds of modules and components are allowed
+
+What you should learn
+–	how pages are assembled
+–	what counts as a module
+–	what counts as a smaller reusable component
+–	where page rules live
+–	where module rules live
+–	where CMS control starts and stops
+
+What you should know after reading it
+You should be able to answer:
+•	what parts of the site are modules
+•	what parts are reusable components
+•	what kind of page types exist
+•	how a page is put together
+•	what editors are allowed to vary and what they are not allowed to vary
+
+Important note:  Document 5 explains structure. Document 6 explains how that structure is realized as pages, modules, components, and composition rules.
+
+Document 7 — Developer Handbook
+Read this after Documents 5 and 6.
+
+Read it to understand how the system works in practice.
+
+This document gives:
+•	practical distinctions
+•	examples
+•	operational explanations
+•	simple ways to think about pages, modules, components, and page instances
+
+What you should learn
+–	how the ideas in Documents 5 and 6 look in real work
+–	how to interpret the model while building
+–	how to decide where something belongs when you are unsure
+
+What you should know after reading it
+You should be able to answer:
+•	how to apply the document system while building a page
+•	how to think through common cases in a practical way
+•	how to avoid confusing modules, components, and page rules during implementation
+
+Important note:  This is a guidance document. It helps you use the system, but it is not the main authority for requirements or values.
+
+Document 9 — Technical Build Profile
+Read this last, and only when it is fully filled in and approved.
+
+Read it to understand the selected stack and the technical implementation rules.
+
+This document explains:
+•	which technologies are selected
+•	why they were selected
+•	where responsibilities live in the code
+•	how configuration is resolved at runtime
+•	what technical contracts and boundaries must be preserved
+•	what technical rules the implementation must follow
+
+What you should learn
+–	how the governed system is implemented in the chosen stack
+–	how runtime configuration flows
+–	what the technical boundaries are
+–	what contracts and mappings the implementation must preserve
+
+What you should know after reading it
+You should be able to answer:
+•	which stack is in use
+•	where major responsibilities live technically
+•	how the configuration reaches the runtime
+•	what technical boundaries and rules you must not break
+
+Important note:  Do not treat this as active technical authority until it is fully filled in and approved.
+
+4. Plain-Language Summary of the Sequence
+Here is the simplest way to think about the full reading order:
+
+16.	Document 1 — understand the map
+17.	Document 10 — understand this project
+18.	Document 2 — understand what must be built
+19.	Document 4 — understand the exact values to use
+20.	Document 3 — understand how those values are structured
+21.	Document 5 — understand how the solution is organized
+22.	Document 6 — understand how pages and modules are built
+23.	Document 7 — understand how to use the system in practice
+24.	Document 9 — understand the technical implementation model, when active
+
+5. What You Should Know at the End
+By the time you finish this reading path, you should be able to answer these questions clearly:
+
+•	What is this website supposed to do?
+•	What should be built first?
+•	What exact approved settings and values must I use?
+•	How are those values organized?
+•	How is the solution organized?
+•	What is a module?
+•	What is a reusable component?
+•	How is a page put together?
+•	Which document should I check when I have a requirements question?
+•	Which document should I check when I have a settings or values question?
+•	Which document should I check when I have a configuration-structure question?
+•	Which document should I check when I have a structure question?
+•	Which document should I check when I have a page-building or composition question?
+•	Which document should I check when I have a stack-specific technical question?
+
+6. What Your Main Working Documents Will Be After Onboarding
+After this first full reading pass, the documents you will use most often during normal implementation will usually be:
+
+•	Document 10 for task orientation
+•	Document 2 for requirements
+•	Document 4 for approved settings and values
+•	Document 6 for module and page-building questions
+
+You should still understand Documents 3, 5, 7, and 9, but you will usually open them when a specific question requires them.
+
+7. When Something Is Unclear
+Do not invent missing settings, missing structure, or missing rules on your own.
+
+Use this path:
+
+•	requirement question → Document 2
+•	approved settings and values question → Document 4
+•	configuration structure question → Document 3
+•	structure question → Document 5
+•	module or page-building question → Document 6
+•	practical interpretation question → Document 7
+•	stack-specific technical question → Document 9, only when active
+
+If the answer is still not clear after checking the right document, stop and escalate instead of guessing.
+
+Use this message:
+
+“I am building ____. I checked Document __, Section __. I still cannot determine ____.  ”
+
+That is the correct behavior. Do not fill the gap by guessing.
+
+8. Final Working Rule
+Use the full sequence once to understand the system.
+
+After that:
+
+•	use Document 10 to stay oriented
+•	use Document 2 to know what must be built
+•	use Document 4 to know what exact values to use
+•	use Document 6 when the question is about modules, pages, or composition
+•	use Documents 3, 5, 7, and 9 when the question specifically calls for them
+
+That is the intended way to work with this document set.

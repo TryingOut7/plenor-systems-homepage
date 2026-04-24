@@ -82,6 +82,20 @@ export const Testimonials: CollectionConfig = {
         position: 'sidebar',
       },
     },
+    // {
+    //   name: 'proofType',
+    //   type: 'select',
+    //   required: true,
+    //   options: [
+    //     { label: 'Quote', value: 'quote' },
+    //     { label: 'Case Study Summary', value: 'case_study' },
+    //     { label: 'Metric', value: 'metric' },
+    //   ],
+    //   admin: {
+    //     position: 'sidebar',
+    //     description: 'Governed categorization for this proof entry.',
+    //   },
+    // },
     {
       name: 'role',
       type: 'text',

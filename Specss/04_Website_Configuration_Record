@@ -1,0 +1,1490 @@
+PLENOR.AI
+plenor_site_configuration_record_v1.0.docx
+Current-Phase Instantiation
+Full Schema-Level Record Form
+
+Current-Phase Instantiation
+
+Full Schema-Level Record Form
+Relationship to the Standard
+This document is the active current-phase instantiation of the Plenor Site Configuration Standard v1.0. It defines the active governed configuration values for the plenor.ai site and must conform to the Standard’s object structures and validation rules.
+All records in this document conform to the object structures and validation rules defined in the Plenor Site Configuration Standard v1.0.
+
+1. Design Configuration Records
+
+1.1 Family Records
+
+Family Record — startup_professional
+
+key: startup_professional
+label: Startup / Professional
+description: Business-facing websites that need to communicate credibility, capability, clarity, and modern execution.
+allowedSchemes:
+•	professional_cool
+•	modern_technical
+•	warm_professional
+status: Approved
+
+Family Record — personal
+
+key: personal
+label: Personal
+description: Personal, expert, author, or individual-identity websites where the person is central but the site remains credible and refined.
+allowedSchemes:
+•	personal_calm
+•	personal_modern
+•	personal_warm
+status: Approved
+
+Family Record — nonprofit_cultural
+
+key: nonprofit_cultural
+label: Nonprofit Cultural
+description: Cultural, arts, heritage, education, or community-centered nonprofit websites where tradition, community, and meaning matter as much as usability.
+allowedSchemes:
+•	cultural_heritage
+•	cultural_celebration
+•	cultural_learning
+status: Approved
+
+1.2 Typography Preset Records
+
+Typography Preset Record — tp_professional_modern
+
+key: tp_professional_modern
+label: Professional Modern
+bodyFontFamily: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif
+displayFontFamily: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif
+textRoles:
+
+display
+•	fontSize: 3rem
+•	lineHeight: 1.1
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.02em
+
+h1
+•	fontSize: 2.375rem
+•	lineHeight: 1.15
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.02em
+
+h2
+•	fontSize: 1.875rem
+•	lineHeight: 1.2
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.015em
+
+h3
+•	fontSize: 1.3125rem
+•	lineHeight: 1.3
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.01em
+
+body
+•	fontSize: 1rem
+•	lineHeight: 1.65
+•	fontWeight: 400
+•	fontStyle: normal
+•	letterSpacing: 0
+
+bodySmall
+•	fontSize: 0.9375rem
+•	lineHeight: 1.6
+•	fontWeight: 400
+•	fontStyle: normal
+•	letterSpacing: 0
+
+label
+•	fontSize: 0.8125rem
+•	lineHeight: 1.4
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: 0.06em
+
+button
+•	fontSize: 0.9375rem
+•	lineHeight: 1.2
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: 0.01em
+
+quote
+•	fontSize: 1.125rem
+•	lineHeight: 1.6
+•	fontWeight: 400
+•	fontStyle: italic
+•	letterSpacing: 0
+
+quoteAttribution
+•	fontSize: 0.9375rem
+•	lineHeight: 1.5
+•	fontWeight: 500
+•	fontStyle: normal
+•	letterSpacing: 0.01em
+
+status: Approved
+
+Typography Preset Record — tp_editorial_professional
+
+key: tp_editorial_professional
+label: Editorial Professional
+bodyFontFamily: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif
+displayFontFamily: "Newsreader", Georgia, serif
+textRoles:
+
+display
+•	fontSize: 3.125rem
+•	lineHeight: 1.1
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.02em
+
+h1
+•	fontSize: 2.5rem
+•	lineHeight: 1.15
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.02em
+
+h2
+•	fontSize: 2rem
+•	lineHeight: 1.2
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.015em
+
+h3
+•	fontSize: 1.375rem
+•	lineHeight: 1.3
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.01em
+
+body
+•	fontSize: 1rem
+•	lineHeight: 1.7
+•	fontWeight: 400
+•	fontStyle: normal
+•	letterSpacing: 0
+
+bodySmall
+•	fontSize: 0.9375rem
+•	lineHeight: 1.65
+•	fontWeight: 400
+•	fontStyle: normal
+•	letterSpacing: 0
+
+label
+•	fontSize: 0.8125rem
+•	lineHeight: 1.4
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: 0.06em
+
+button
+•	fontSize: 0.9375rem
+•	lineHeight: 1.2
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: 0.01em
+
+quote
+•	fontSize: 1.1875rem
+•	lineHeight: 1.65
+•	fontWeight: 400
+•	fontStyle: italic
+•	letterSpacing: 0
+
+quoteAttribution
+•	fontSize: 0.9375rem
+•	lineHeight: 1.5
+•	fontWeight: 500
+•	fontStyle: normal
+•	letterSpacing: 0.01em
+
+status: Approved
+
+Typography Preset Record — tp_personal_editorial
+
+key: tp_personal_editorial
+label: Personal Editorial
+bodyFontFamily: "Source Sans 3", Inter, ui-sans-serif, system-ui, sans-serif
+displayFontFamily: "Source Serif 4", Georgia, serif
+textRoles:
+
+display
+•	fontSize: 3rem
+•	lineHeight: 1.12
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.02em
+
+h1
+•	fontSize: 2.375rem
+•	lineHeight: 1.18
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.02em
+
+h2
+•	fontSize: 1.875rem
+•	lineHeight: 1.24
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.015em
+
+h3
+•	fontSize: 1.3125rem
+•	lineHeight: 1.32
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.01em
+
+body
+•	fontSize: 1rem
+•	lineHeight: 1.72
+•	fontWeight: 400
+•	fontStyle: normal
+•	letterSpacing: 0
+
+bodySmall
+•	fontSize: 0.9375rem
+•	lineHeight: 1.65
+•	fontWeight: 400
+•	fontStyle: normal
+•	letterSpacing: 0
+
+label
+•	fontSize: 0.8125rem
+•	lineHeight: 1.4
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: 0.05em
+
+button
+•	fontSize: 0.9375rem
+•	lineHeight: 1.2
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: 0.01em
+
+quote
+•	fontSize: 1.25rem
+•	lineHeight: 1.68
+•	fontWeight: 400
+•	fontStyle: italic
+•	letterSpacing: 0
+
+quoteAttribution
+•	fontSize: 0.9375rem
+•	lineHeight: 1.5
+•	fontWeight: 500
+•	fontStyle: normal
+•	letterSpacing: 0.01em
+
+status: Approved
+
+Typography Preset Record — tp_cultural_editorial
+
+key: tp_cultural_editorial
+label: Cultural Editorial
+bodyFontFamily: "Source Sans 3", Inter, ui-sans-serif, system-ui, sans-serif
+displayFontFamily: "Cormorant Garamond", Georgia, serif
+textRoles:
+
+display
+•	fontSize: 3.25rem
+•	lineHeight: 1.08
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.02em
+
+h1
+•	fontSize: 2.625rem
+•	lineHeight: 1.14
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.02em
+
+h2
+•	fontSize: 2rem
+•	lineHeight: 1.2
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.015em
+
+h3
+•	fontSize: 1.375rem
+•	lineHeight: 1.3
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: -0.01em
+
+body
+•	fontSize: 1rem
+•	lineHeight: 1.72
+•	fontWeight: 400
+•	fontStyle: normal
+•	letterSpacing: 0
+
+bodySmall
+•	fontSize: 0.9375rem
+•	lineHeight: 1.66
+•	fontWeight: 400
+•	fontStyle: normal
+•	letterSpacing: 0
+
+label
+•	fontSize: 0.8125rem
+•	lineHeight: 1.4
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: 0.05em
+
+button
+•	fontSize: 0.9375rem
+•	lineHeight: 1.2
+•	fontWeight: 600
+•	fontStyle: normal
+•	letterSpacing: 0.01em
+
+quote
+•	fontSize: 1.25rem
+•	lineHeight: 1.7
+•	fontWeight: 400
+•	fontStyle: italic
+•	letterSpacing: 0
+
+quoteAttribution
+•	fontSize: 0.9375rem
+•	lineHeight: 1.5
+•	fontWeight: 500
+•	fontStyle: normal
+•	letterSpacing: 0.01em
+
+status: Approved
+
+1.3 Spacing Preset Records
+
+Spacing Preset Record — sp_standard
+
+key: sp_standard
+label: Standard
+baseSpacingUnit: 8px
+spacingScale:
+•	1 = 8px
+•	2 = 16px
+•	3 = 24px
+•	4 = 32px
+•	5 = 40px
+•	6 = 48px
+•	7 = 56px
+•	8 = 64px
+sectionPaddingCompact: 48px
+sectionPaddingRegular: 72px
+sectionPaddingSpacious: 96px
+heroPaddingCompact: 64px
+heroPaddingRegular: 88px
+heroPaddingSpacious: 120px
+mobileSectionPadding: 32px
+status: Approved
+
+Spacing Preset Record — sp_relaxed
+
+key: sp_relaxed
+label: Relaxed
+baseSpacingUnit: 8px
+spacingScale:
+•	1 = 8px
+•	2 = 16px
+•	3 = 24px
+•	4 = 32px
+•	5 = 40px
+•	6 = 48px
+•	7 = 56px
+•	8 = 64px
+sectionPaddingCompact: 56px
+sectionPaddingRegular: 80px
+sectionPaddingSpacious: 112px
+heroPaddingCompact: 72px
+heroPaddingRegular: 96px
+heroPaddingSpacious: 128px
+mobileSectionPadding: 40px
+status: Approved
+
+Spacing Preset Record — sp_dignified
+
+key: sp_dignified
+label: Dignified
+baseSpacingUnit: 8px
+spacingScale:
+•	1 = 8px
+•	2 = 16px
+•	3 = 24px
+•	4 = 32px
+•	5 = 40px
+•	6 = 48px
+•	7 = 56px
+•	8 = 64px
+sectionPaddingCompact: 64px
+sectionPaddingRegular: 88px
+sectionPaddingSpacious: 120px
+heroPaddingCompact: 80px
+heroPaddingRegular: 112px
+heroPaddingSpacious: 144px
+mobileSectionPadding: 40px
+status: Approved
+
+1.4 Radius Preset Records
+
+Radius Preset Record — rd_minimal
+
+key: rd_minimal
+label: Minimal
+buttonRadius: 6px
+cardRadius: 10px
+generalRadiusScale:
+•	sm = 4px
+•	md = 6px
+•	lg = 10px
+•	xl = 14px
+status: Approved
+
+Radius Preset Record — rd_soft_controlled
+
+key: rd_soft_controlled
+label: Soft Controlled
+buttonRadius: 10px
+cardRadius: 16px
+generalRadiusScale:
+•	sm = 8px
+•	md = 12px
+•	lg = 16px
+•	xl = 24px
+status: Approved
+
+Radius Preset Record — rd_soft
+
+key: rd_soft
+label: Soft
+buttonRadius: 14px
+cardRadius: 20px
+generalRadiusScale:
+•	sm = 10px
+•	md = 14px
+•	lg = 20px
+•	xl = 28px
+status: Approved
+
+1.5 Scheme Records with full attributes
+
+Scheme Record — warm_professional
+
+key: warm_professional
+label: Warm Professional
+description: Premium advisory business theme with human warmth and disciplined editorial expression.
+parentFamily: startup_professional
+
+colors:
+•	primary: #1E4A59
+•	primaryHover: #173A46
+•	background: #FBF8F2
+•	surface: #FFFFFF
+•	sectionAlt: #F2ECE2
+•	text: #1F2933
+•	textMuted: #5C6670
+•	border: #D8D0C3
+•	link: #1E4A59
+•	focusRing: #0F766E
+•	success: #2F7A3E
+•	warning: #B7791F
+•	error: #C0392B
+
+layout:
+•	containerMaxWidth: 1200px
+•	navHeight: 72px
+•	breakpointMobileMax: 767px
+•	breakpointTabletMin: 768px
+•	breakpointTabletMax: 1023px
+•	breakpointDesktopMin: 1024px
+
+buttons:
+•	primaryBackground: #1E4A59
+•	primaryBackgroundHover: #173A46
+•	primaryText: #FFFFFF
+•	secondaryBackground: #F2ECE2
+•	secondaryBackgroundHover: #E8DFD2
+•	secondaryText: #1F2933
+•	secondaryTextHover: #111827
+•	ghostBackground: transparent
+•	ghostBackgroundHover: #F2ECE2
+•	ghostText: #1E4A59
+•	navBackground: #1E4A59
+•	navBackgroundHover: #173A46
+•	navText: #FFFFFF
+
+emailPalette:
+•	primary: #1E4A59
+•	muted: #6B7280
+•	text: #1F2933
+•	background: #FBF8F2
+•	white: #FFFFFF
+•	border: #D8D0C3
+•	error: #C0392B
+
+
+shadowElevation:
+•	status: Not Used in Current Phase
+•	interpretation: Depth is expressed through spacing, border, contrast, and radius rather than a governed shadow tier system in the current phase.
+
+motion:
+•	durationFast: 120ms
+•	durationStandard: 180ms
+•	durationSlow: 240ms
+•	easingStandard: cubic-bezier(0.2, 0, 0, 1)
+•	easingEnter: cubic-bezier(0, 0, 0, 1)
+•	easingExit: cubic-bezier(0.4, 0, 1, 1)
+•	reducedMotionRule: Honor operating-system or browser reduced-motion preference. Remove non-essential motion and reduce remaining transitions to near-zero duration.
+
+allowedTypographyPresets:
+•	tp_editorial_professional
+•	tp_professional_modern
+defaultTypographyPreset: tp_editorial_professional
+
+allowedSpacingPresets:
+•	sp_standard
+•	sp_relaxed
+defaultSpacingPreset: sp_relaxed
+
+allowedRadiusPresets:
+•	rd_soft_controlled
+•	rd_minimal
+defaultRadiusPreset: rd_soft_controlled
+
+status: Approved
+notes: Selected for current phase because plenor.ai should feel expert, premium, human, and advisory rather than coldly technical.
+
+Scheme Record — professional_cool
+
+key: professional_cool
+label: Professional Cool
+description: Restrained, premium, cool-toned business theme for executive credibility.
+parentFamily: startup_professional
+
+colors:
+•	primary: #214A6B
+•	primaryHover: #17354D
+•	background: #F7F9FB
+•	surface: #FFFFFF
+•	sectionAlt: #EEF2F6
+•	text: #1E293B
+•	textMuted: #5B6470
+•	border: #D5DDE6
+•	link: #214A6B
+•	focusRing: #0F766E
+•	success: #2F7A3E
+•	warning: #B7791F
+•	error: #C0392B
+
+layout:
+•	containerMaxWidth: 1200px
+•	navHeight: 72px
+•	breakpointMobileMax: 767px
+•	breakpointTabletMin: 768px
+•	breakpointTabletMax: 1023px
+•	breakpointDesktopMin: 1024px
+
+buttons:
+•	primaryBackground: #214A6B
+•	primaryBackgroundHover: #17354D
+•	primaryText: #FFFFFF
+•	secondaryBackground: #EEF2F6
+•	secondaryBackgroundHover: #E2E8F0
+•	secondaryText: #1E293B
+•	secondaryTextHover: #0F172A
+•	ghostBackground: transparent
+•	ghostBackgroundHover: #EEF2F6
+•	ghostText: #214A6B
+•	navBackground: #214A6B
+•	navBackgroundHover: #17354D
+•	navText: #FFFFFF
+
+emailPalette:
+•	primary: #214A6B
+•	muted: #6B7280
+•	text: #1E293B
+•	background: #F7F9FB
+•	white: #FFFFFF
+•	border: #D5DDE6
+•	error: #C0392B
+
+
+shadowElevation:
+•	status: Not Used in Current Phase
+•	interpretation: Depth is expressed through spacing, border, contrast, and radius rather than a governed shadow tier system in the current phase.
+
+motion:
+•	durationFast: 120ms
+•	durationStandard: 180ms
+•	durationSlow: 240ms
+•	easingStandard: cubic-bezier(0.2, 0, 0, 1)
+•	easingEnter: cubic-bezier(0, 0, 0, 1)
+•	easingExit: cubic-bezier(0.4, 0, 1, 1)
+•	reducedMotionRule: Honor operating-system or browser reduced-motion preference. Remove non-essential motion and reduce remaining transitions to near-zero duration.
+
+allowedTypographyPresets:
+•	tp_professional_modern
+•	tp_editorial_professional
+defaultTypographyPreset: tp_professional_modern
+
+allowedSpacingPresets:
+•	sp_standard
+•	sp_relaxed
+defaultSpacingPreset: sp_standard
+
+allowedRadiusPresets:
+•	rd_minimal
+•	rd_soft_controlled
+defaultRadiusPreset: rd_minimal
+
+status: Approved
+notes: Use where the site should feel executive, calm, and premium rather than warm or technical.
+
+Scheme Record — modern_technical
+
+key: modern_technical
+label: Modern Technical
+description: Crisp, digitally fluent, product-oriented business theme.
+parentFamily: startup_professional
+
+colors:
+•	primary: #0F4C81
+•	primaryHover: #0B3A63
+•	background: #F8FAFC
+•	surface: #FFFFFF
+•	sectionAlt: #EFF4F8
+•	text: #111827
+•	textMuted: #5B6470
+•	border: #D6DEE7
+•	link: #0F4C81
+•	focusRing: #0EA5A4
+•	success: #2F7A3E
+•	warning: #B7791F
+•	error: #C0392B
+
+layout:
+•	containerMaxWidth: 1200px
+•	navHeight: 72px
+•	breakpointMobileMax: 767px
+•	breakpointTabletMin: 768px
+•	breakpointTabletMax: 1023px
+•	breakpointDesktopMin: 1024px
+
+buttons:
+•	primaryBackground: #0F4C81
+•	primaryBackgroundHover: #0B3A63
+•	primaryText: #FFFFFF
+•	secondaryBackground: #EFF4F8
+•	secondaryBackgroundHover: #E5EDF4
+•	secondaryText: #111827
+•	secondaryTextHover: #0B1220
+•	ghostBackground: transparent
+•	ghostBackgroundHover: #EFF4F8
+•	ghostText: #0F4C81
+•	navBackground: #0F4C81
+•	navBackgroundHover: #0B3A63
+•	navText: #FFFFFF
+
+emailPalette:
+•	primary: #0F4C81
+•	muted: #6B7280
+•	text: #111827
+•	background: #F8FAFC
+•	white: #FFFFFF
+•	border: #D6DEE7
+•	error: #C0392B
+
+
+shadowElevation:
+•	status: Not Used in Current Phase
+•	interpretation: Depth is expressed through spacing, border, contrast, and radius rather than a governed shadow tier system in the current phase.
+
+motion:
+•	durationFast: 120ms
+•	durationStandard: 180ms
+•	durationSlow: 240ms
+•	easingStandard: cubic-bezier(0.2, 0, 0, 1)
+•	easingEnter: cubic-bezier(0, 0, 0, 1)
+•	easingExit: cubic-bezier(0.4, 0, 1, 1)
+•	reducedMotionRule: Honor operating-system or browser reduced-motion preference. Remove non-essential motion and reduce remaining transitions to near-zero duration.
+
+allowedTypographyPresets:
+•	tp_professional_modern
+defaultTypographyPreset: tp_professional_modern
+
+allowedSpacingPresets:
+•	sp_standard
+defaultSpacingPreset: sp_standard
+
+allowedRadiusPresets:
+•	rd_minimal
+defaultRadiusPreset: rd_minimal
+
+status: Approved
+notes: Use where the site should feel system-oriented, implementation-aware, and sharper than advisory.
+
+Scheme Record — personal_calm
+
+key: personal_calm
+label: Personal Calm
+description: Reflective editorial personal theme with low-noise presentation.
+parentFamily: personal
+
+colors:
+•	primary: #556B7B
+•	primaryHover: #42525F
+•	background: #FBFBF8
+•	surface: #FFFFFF
+•	sectionAlt: #F2F2ED
+•	text: #2A3138
+•	textMuted: #64707A
+•	border: #D9DDD8
+•	link: #556B7B
+•	focusRing: #0F766E
+•	success: #2F7A3E
+•	warning: #B7791F
+•	error: #C0392B
+
+layout:
+•	containerMaxWidth: 1080px
+•	navHeight: 72px
+•	breakpointMobileMax: 767px
+•	breakpointTabletMin: 768px
+•	breakpointTabletMax: 1023px
+•	breakpointDesktopMin: 1024px
+
+buttons:
+•	primaryBackground: #556B7B
+•	primaryBackgroundHover: #42525F
+•	primaryText: #FFFFFF
+•	secondaryBackground: #F2F2ED
+•	secondaryBackgroundHover: #E7E8E0
+•	secondaryText: #2A3138
+•	secondaryTextHover: #1F252B
+•	ghostBackground: transparent
+•	ghostBackgroundHover: #F2F2ED
+•	ghostText: #556B7B
+•	navBackground: #556B7B
+•	navBackgroundHover: #42525F
+•	navText: #FFFFFF
+
+emailPalette:
+•	primary: #556B7B
+•	muted: #6B7280
+•	text: #2A3138
+•	background: #FBFBF8
+•	white: #FFFFFF
+•	border: #D9DDD8
+•	error: #C0392B
+
+
+shadowElevation:
+•	status: Not Used in Current Phase
+•	interpretation: Depth is expressed through spacing, border, contrast, and radius rather than a governed shadow tier system in the current phase.
+
+motion:
+•	durationFast: 120ms
+•	durationStandard: 180ms
+•	durationSlow: 240ms
+•	easingStandard: cubic-bezier(0.2, 0, 0, 1)
+•	easingEnter: cubic-bezier(0, 0, 0, 1)
+•	easingExit: cubic-bezier(0.4, 0, 1, 1)
+•	reducedMotionRule: Honor operating-system or browser reduced-motion preference. Remove non-essential motion and reduce remaining transitions to near-zero duration.
+
+allowedTypographyPresets:
+•	tp_personal_editorial
+defaultTypographyPreset: tp_personal_editorial
+
+allowedSpacingPresets:
+•	sp_relaxed
+defaultSpacingPreset: sp_relaxed
+
+allowedRadiusPresets:
+•	rd_soft
+•	rd_soft_controlled
+defaultRadiusPreset: rd_soft
+
+status: Approved
+
+Scheme Record — personal_modern
+
+key: personal_modern
+label: Personal Modern
+description: Contemporary identity-forward personal theme with clean modern presentation.
+parentFamily: personal
+
+colors:
+•	primary: #2F5D73
+•	primaryHover: #254858
+•	background: #FAFBFC
+•	surface: #FFFFFF
+•	sectionAlt: #F1F4F6
+•	text: #1F2933
+•	textMuted: #61707A
+•	border: #D6DEE3
+•	link: #2F5D73
+•	focusRing: #0F766E
+•	success: #2F7A3E
+•	warning: #B7791F
+•	error: #C0392B
+
+layout:
+•	containerMaxWidth: 1120px
+•	navHeight: 72px
+•	breakpointMobileMax: 767px
+•	breakpointTabletMin: 768px
+•	breakpointTabletMax: 1023px
+•	breakpointDesktopMin: 1024px
+
+buttons:
+•	primaryBackground: #2F5D73
+•	primaryBackgroundHover: #254858
+•	primaryText: #FFFFFF
+•	secondaryBackground: #F1F4F6
+•	secondaryBackgroundHover: #E6ECEF
+•	secondaryText: #1F2933
+•	secondaryTextHover: #111827
+•	ghostBackground: transparent
+•	ghostBackgroundHover: #F1F4F6
+•	ghostText: #2F5D73
+•	navBackground: #2F5D73
+•	navBackgroundHover: #254858
+•	navText: #FFFFFF
+
+emailPalette:
+•	primary: #2F5D73
+•	muted: #6B7280
+•	text: #1F2933
+•	background: #FAFBFC
+•	white: #FFFFFF
+•	border: #D6DEE3
+•	error: #C0392B
+
+
+shadowElevation:
+•	status: Not Used in Current Phase
+•	interpretation: Depth is expressed through spacing, border, contrast, and radius rather than a governed shadow tier system in the current phase.
+
+motion:
+•	durationFast: 120ms
+•	durationStandard: 180ms
+•	durationSlow: 240ms
+•	easingStandard: cubic-bezier(0.2, 0, 0, 1)
+•	easingEnter: cubic-bezier(0, 0, 0, 1)
+•	easingExit: cubic-bezier(0.4, 0, 1, 1)
+•	reducedMotionRule: Honor operating-system or browser reduced-motion preference. Remove non-essential motion and reduce remaining transitions to near-zero duration.
+
+allowedTypographyPresets:
+•	tp_personal_editorial
+•	tp_professional_modern
+defaultTypographyPreset: tp_personal_editorial
+
+allowedSpacingPresets:
+•	sp_standard
+•	sp_relaxed
+defaultSpacingPreset: sp_standard
+
+allowedRadiusPresets:
+•	rd_minimal
+•	rd_soft_controlled
+defaultRadiusPreset: rd_soft_controlled
+
+status: Approved
+
+Scheme Record — personal_warm
+
+key: personal_warm
+label: Personal Warm
+description: Approachable personal-expert theme with warmth and welcome.
+parentFamily: personal
+
+colors:
+•	primary: #815C4A
+•	primaryHover: #654638
+•	background: #FCF9F6
+•	surface: #FFFFFF
+•	sectionAlt: #F4EDE7
+•	text: #2F2A26
+•	textMuted: #6B635D
+•	border: #DDD2C7
+•	link: #815C4A
+•	focusRing: #0F766E
+•	success: #2F7A3E
+•	warning: #B7791F
+•	error: #C0392B
+
+layout:
+•	containerMaxWidth: 1080px
+•	navHeight: 72px
+•	breakpointMobileMax: 767px
+•	breakpointTabletMin: 768px
+•	breakpointTabletMax: 1023px
+•	breakpointDesktopMin: 1024px
+
+buttons:
+•	primaryBackground: #815C4A
+•	primaryBackgroundHover: #654638
+•	primaryText: #FFFFFF
+•	secondaryBackground: #F4EDE7
+•	secondaryBackgroundHover: #EBE0D6
+•	secondaryText: #2F2A26
+•	secondaryTextHover: #201C19
+•	ghostBackground: transparent
+•	ghostBackgroundHover: #F4EDE7
+•	ghostText: #815C4A
+•	navBackground: #815C4A
+•	navBackgroundHover: #654638
+•	navText: #FFFFFF
+
+emailPalette:
+•	primary: #815C4A
+•	muted: #6B7280
+•	text: #2F2A26
+•	background: #FCF9F6
+•	white: #FFFFFF
+•	border: #DDD2C7
+•	error: #C0392B
+
+
+shadowElevation:
+•	status: Not Used in Current Phase
+•	interpretation: Depth is expressed through spacing, border, contrast, and radius rather than a governed shadow tier system in the current phase.
+
+motion:
+•	durationFast: 120ms
+•	durationStandard: 180ms
+•	durationSlow: 240ms
+•	easingStandard: cubic-bezier(0.2, 0, 0, 1)
+•	easingEnter: cubic-bezier(0, 0, 0, 1)
+•	easingExit: cubic-bezier(0.4, 0, 1, 1)
+•	reducedMotionRule: Honor operating-system or browser reduced-motion preference. Remove non-essential motion and reduce remaining transitions to near-zero duration.
+
+allowedTypographyPresets:
+•	tp_personal_editorial
+•	tp_editorial_professional
+defaultTypographyPreset: tp_personal_editorial
+
+allowedSpacingPresets:
+•	sp_relaxed
+defaultSpacingPreset: sp_relaxed
+
+allowedRadiusPresets:
+•	rd_soft
+•	rd_soft_controlled
+defaultRadiusPreset: rd_soft
+
+status: Approved
+
+Scheme Record — cultural_heritage
+
+key: cultural_heritage
+label: Cultural Heritage
+description: Elegant, tradition-aware nonprofit cultural theme.
+parentFamily: nonprofit_cultural
+
+colors:
+•	primary: #7B4F2B
+•	primaryHover: #603D20
+•	background: #FBF6EF
+•	surface: #FFFFFF
+•	sectionAlt: #F3E8D8
+•	text: #2F241C
+•	textMuted: #6A5E55
+•	border: #DCCDBA
+•	link: #7B4F2B
+•	focusRing: #0F766E
+•	success: #2F7A3E
+•	warning: #B7791F
+•	error: #C0392B
+
+layout:
+•	containerMaxWidth: 1120px
+•	navHeight: 72px
+•	breakpointMobileMax: 767px
+•	breakpointTabletMin: 768px
+•	breakpointTabletMax: 1023px
+•	breakpointDesktopMin: 1024px
+
+buttons:
+•	primaryBackground: #7B4F2B
+•	primaryBackgroundHover: #603D20
+•	primaryText: #FFFFFF
+•	secondaryBackground: #F3E8D8
+•	secondaryBackgroundHover: #EADCC7
+•	secondaryText: #2F241C
+•	secondaryTextHover: #201913
+•	ghostBackground: transparent
+•	ghostBackgroundHover: #F3E8D8
+•	ghostText: #7B4F2B
+•	navBackground: #7B4F2B
+•	navBackgroundHover: #603D20
+•	navText: #FFFFFF
+
+emailPalette:
+•	primary: #7B4F2B
+•	muted: #6B7280
+•	text: #2F241C
+•	background: #FBF6EF
+•	white: #FFFFFF
+•	border: #DCCDBA
+•	error: #C0392B
+
+
+shadowElevation:
+•	status: Not Used in Current Phase
+•	interpretation: Depth is expressed through spacing, border, contrast, and radius rather than a governed shadow tier system in the current phase.
+
+motion:
+•	durationFast: 120ms
+•	durationStandard: 180ms
+•	durationSlow: 240ms
+•	easingStandard: cubic-bezier(0.2, 0, 0, 1)
+•	easingEnter: cubic-bezier(0, 0, 0, 1)
+•	easingExit: cubic-bezier(0.4, 0, 1, 1)
+•	reducedMotionRule: Honor operating-system or browser reduced-motion preference. Remove non-essential motion and reduce remaining transitions to near-zero duration.
+
+allowedTypographyPresets:
+•	tp_cultural_editorial
+defaultTypographyPreset: tp_cultural_editorial
+
+allowedSpacingPresets:
+•	sp_dignified
+•	sp_relaxed
+defaultSpacingPreset: sp_dignified
+
+allowedRadiusPresets:
+•	rd_soft
+defaultRadiusPreset: rd_soft
+
+status: Approved
+
+Scheme Record — cultural_celebration
+
+key: cultural_celebration
+label: Cultural Celebration
+description: Event-forward cultural theme with lively but disciplined warmth.
+parentFamily: nonprofit_cultural
+
+colors:
+•	primary: #A44A2F
+•	primaryHover: #843A25
+•	background: #FBF7F1
+•	surface: #FFFFFF
+•	sectionAlt: #F5E5D8
+•	text: #30251F
+•	textMuted: #6A5F58
+•	border: #E1D0C3
+•	link: #A44A2F
+•	focusRing: #0F766E
+•	success: #2F7A3E
+•	warning: #B7791F
+•	error: #C0392B
+
+layout:
+•	containerMaxWidth: 1120px
+•	navHeight: 72px
+•	breakpointMobileMax: 767px
+•	breakpointTabletMin: 768px
+•	breakpointTabletMax: 1023px
+•	breakpointDesktopMin: 1024px
+
+buttons:
+•	primaryBackground: #A44A2F
+•	primaryBackgroundHover: #843A25
+•	primaryText: #FFFFFF
+•	secondaryBackground: #F5E5D8
+•	secondaryBackgroundHover: #EBD7C9
+•	secondaryText: #30251F
+•	secondaryTextHover: #211A15
+•	ghostBackground: transparent
+•	ghostBackgroundHover: #F5E5D8
+•	ghostText: #A44A2F
+•	navBackground: #A44A2F
+•	navBackgroundHover: #843A25
+•	navText: #FFFFFF
+
+emailPalette:
+•	primary: #A44A2F
+•	muted: #6B7280
+•	text: #30251F
+•	background: #FBF7F1
+•	white: #FFFFFF
+•	border: #E1D0C3
+•	error: #C0392B
+
+
+shadowElevation:
+•	status: Not Used in Current Phase
+•	interpretation: Depth is expressed through spacing, border, contrast, and radius rather than a governed shadow tier system in the current phase.
+
+motion:
+•	durationFast: 120ms
+•	durationStandard: 180ms
+•	durationSlow: 240ms
+•	easingStandard: cubic-bezier(0.2, 0, 0, 1)
+•	easingEnter: cubic-bezier(0, 0, 0, 1)
+•	easingExit: cubic-bezier(0.4, 0, 1, 1)
+•	reducedMotionRule: Honor operating-system or browser reduced-motion preference. Remove non-essential motion and reduce remaining transitions to near-zero duration.
+
+allowedTypographyPresets:
+•	tp_cultural_editorial
+•	tp_personal_editorial
+defaultTypographyPreset: tp_cultural_editorial
+
+allowedSpacingPresets:
+•	sp_relaxed
+defaultSpacingPreset: sp_relaxed
+
+allowedRadiusPresets:
+•	rd_soft
+defaultRadiusPreset: rd_soft
+
+status: Approved
+
+Scheme Record — cultural_learning
+
+key: cultural_learning
+label: Cultural Learning
+description: Educational and welcoming nonprofit cultural theme for knowledge-sharing.
+parentFamily: nonprofit_cultural
+
+colors:
+•	primary: #6E5C3D
+•	primaryHover: #564730
+•	background: #FAF8F2
+•	surface: #FFFFFF
+•	sectionAlt: #EFE8D8
+•	text: #2F2A23
+•	textMuted: #6A625A
+•	border: #D9D0C0
+•	link: #6E5C3D
+•	focusRing: #0F766E
+•	success: #2F7A3E
+•	warning: #B7791F
+•	error: #C0392B
+
+layout:
+•	containerMaxWidth: 1120px
+•	navHeight: 72px
+•	breakpointMobileMax: 767px
+•	breakpointTabletMin: 768px
+•	breakpointTabletMax: 1023px
+•	breakpointDesktopMin: 1024px
+
+buttons:
+•	primaryBackground: #6E5C3D
+•	primaryBackgroundHover: #564730
+•	primaryText: #FFFFFF
+•	secondaryBackground: #EFE8D8
+•	secondaryBackgroundHover: #E5DCC9
+•	secondaryText: #2F2A23
+•	secondaryTextHover: #201C17
+•	ghostBackground: transparent
+•	ghostBackgroundHover: #EFE8D8
+•	ghostText: #6E5C3D
+•	navBackground: #6E5C3D
+•	navBackgroundHover: #564730
+•	navText: #FFFFFF
+
+emailPalette:
+•	primary: #6E5C3D
+•	muted: #6B7280
+•	text: #2F2A23
+•	background: #FAF8F2
+•	white: #FFFFFF
+•	border: #D9D0C0
+•	error: #C0392B
+
+
+shadowElevation:
+•	status: Not Used in Current Phase
+•	interpretation: Depth is expressed through spacing, border, contrast, and radius rather than a governed shadow tier system in the current phase.
+
+motion:
+•	durationFast: 120ms
+•	durationStandard: 180ms
+•	durationSlow: 240ms
+•	easingStandard: cubic-bezier(0.2, 0, 0, 1)
+•	easingEnter: cubic-bezier(0, 0, 0, 1)
+•	easingExit: cubic-bezier(0.4, 0, 1, 1)
+•	reducedMotionRule: Honor operating-system or browser reduced-motion preference. Remove non-essential motion and reduce remaining transitions to near-zero duration.
+
+allowedTypographyPresets:
+•	tp_cultural_editorial
+•	tp_editorial_professional
+defaultTypographyPreset: tp_editorial_professional
+
+allowedSpacingPresets:
+•	sp_relaxed
+•	sp_dignified
+defaultSpacingPreset: sp_relaxed
+
+allowedRadiusPresets:
+•	rd_soft_controlled
+•	rd_soft
+defaultRadiusPreset: rd_soft_controlled
+
+status: Approved
+
+1.6 Typography Usage Configuration Record
+
+homepageHeroTitle: display
+homepageHeroSupportingText: body
+pageTitle: h1
+sectionTitle: h2
+subsectionTitle: h3
+bodyParagraph: body
+supportingText: bodySmall
+eyebrowLabel: label
+buttonText: button
+cardTitle: h3
+cardSummary: bodySmall
+faqQuestion: label
+faqAnswer: body
+quoteText: quote
+quoteAttribution: quoteAttribution
+
+1.7 Current Design Selection Record
+
+currentFamily: startup_professional
+currentScheme: warm_professional
+currentTypographyPreset: tp_editorial_professional
+currentSpacingPreset: sp_relaxed
+currentRadiusPreset: rd_soft_controlled
+
+2. Non-Design Configuration Object Records
+
+2.1 Identity and Brand Configuration Object
+
+legalName: Plenor Systems LLC
+tradingName: Plenor.ai
+tagline: Governed execution systems for the AI era.
+contactEmail: Deferred — owner-supplied before production acceptance
+contactPhone: Not used in current phase
+mailingAddress: Not used in current phase
+logo assets:
+•	primary logo = Deferred — owner-supplied before production acceptance
+•	reversed logo = Deferred — owner-supplied before production acceptance
+•	favicon/touch icon variants = Deferred — owner-supplied before production acceptance
+favicon assets:
+•	favicon = Deferred — owner-supplied before production acceptance
+•	touch icon = Deferred — owner-supplied before production acceptance
+footer identity text: © 2026 Plenor Systems LLC. All rights reserved.
+policy ownership text: This site is owned and operated by Plenor Systems LLC.
+social profile references: Not used in current phase
+copyright format: © {current_year} Plenor Systems LLC. All rights reserved.
+
+2.2 Navigation Configuration Object
+
+primary navigation labels:
+•	Home
+•	Framework
+•	Solutions
+•	Insights
+•	About
+•	Contact
+
+primary navigation order:
+•	1 Home
+•	2 Framework
+•	3 Solutions
+•	4 Insights
+•	5 About
+•	6 Contact
+
+Framework secondary navigation labels and order:
+•	1 What Plenor Is
+•	2 How the Approach Works
+•	3 CMS-Driven Website Model
+•	4 Why This Is Different
+
+Solutions secondary navigation labels and order:
+•	1 Strategy and Definition
+•	2 Website and CMS Implementation
+•	3 Framework-Led Delivery
+
+Insights secondary navigation labels and order:
+•	1 Articles
+•	2 Essays
+•	3 Guides/Resources
+
+About secondary navigation labels and order:
+•	1 Company
+•	2 Founder / Leadership
+•	3 Working Principles
+
+mobile secondary navigation pattern:
+•	horizontally scrollable tab row
+
+2.3 Content Ordering and Display Fallback Configuration Object
+
+homepage fallback ordering rule:
+•	explicit featured items first
+•	if no explicit featured items exist, use eligible published items in ascending orderingValue
+•	if orderingValue is absent, fall back to publish date descending
+
+ordering tiebreaker rule:
+•	published status required
+•	lower orderingValue wins
+•	if tied, more recent publish date wins
+•	if still tied, title ascending alphabetical
+
+minimum content state by homepage section:
+•	featured framework section = 1 item
+•	featured solutions section = 1 item
+•	featured insights section = 1 item
+•	featured CTA/resource section = 1 item
+•	proof/testimonial section = 1 approved published item
+
+placeholder content by homepage section:
+•	framework = hide section if no eligible content
+•	solutions = hide section if no eligible content
+•	insights = hide section if no eligible content
+•	CTA/resource = hide section if no eligible content
+•	proof/testimonial = hide section if no approved content
+
+FAQ placement governance:
+•	embedded FAQ blocks are allowed only in:
+•	Framework
+•	Solutions
+•	Contact
+
+2.4 Operational Configuration Object
+
+public content lifecycle status labels:
+•	Draft
+•	In Review
+•	Published
+•	Archived
+
+inquiry workflow status labels:
+•	Submitted
+•	Under Review
+•	Responded
+•	Closed
+
+form field labels and helper text:
+•	Name = Your name
+•	Email = Work email
+•	Organization = Organization
+•	Inquiry type = What can we help you with?
+•	Message = Tell us a bit about your need
+•	Helper text for message = A short description is enough for an initial response.
+
+validation message text:
+•	Name — required field: "Please enter your name."
+•	Email — required field: "Please enter your email address."
+•	Email — invalid format: "Please enter a valid email address."
+•	Inquiry type — required field: "Please select an inquiry type."
+•	Message — required field: "Please tell us a bit about your need."
+•	Form submission error: "Something went wrong. Please try again or email us directly."
+field types and constraints:
+•	Name — text input, required, maximum 100 characters
+•	Email — email input, required, maximum 254 characters
+•	Organization — text input, optional, maximum 100 characters
+•	Inquiry type — select input, required, options governed by CMS inquiry type vocabulary
+•	Message — textarea, required, minimum 10 characters, maximum 2000 characters
+•	Consent acknowledgement — checkbox, not required in current phase unless jurisdiction requires it
+
+inquiry success message:
+•	Thanks. Your inquiry has been received.
+
+resource request message:
+•	Thanks. Your request has been received.
+
+response expectation text:
+•	We typically respond within two business days.
+
+date and time display format conventions:
+•	public-facing date = Month D, YYYY
+•	admin-facing date/time = YYYY-MM-DD HH:mm
+
+implementation-scope decisions:
+•	email/notification support = Deferred
+•	downloadable resource delivery = Deferred
+•	analytics/event tracking = Approved
+•	advanced event tracking = Not used in current phase
+•	CRM integration = Not used in current phase
+•	marketing automation integration = Not used in current phase
+
+2.5 SEO and Metadata Configuration Object
+
+default metadata values by content type:
+•	Site Page = {page_title} | Plenor.ai
+•	Solution / Offer Entry = {entry_title} | Solutions | Plenor.ai
+•	Framework Entry = {entry_title} | Framework | Plenor.ai
+•	Insight Entry = {entry_title} | Insights | Plenor.ai
+•	About Profile Entry = {entry_title} | About | Plenor.ai
+
+metadata fallback rule:
+•	default patterns are used only when an entry-specific summary or description is absent
+•	fallback metadata must still describe the page-specific content
+•	repeated boilerplate descriptions across multiple pages are not permitted
+
+canonical rules:
+•	each public page self-canonicalizes by default
+•	duplicate or reused content pages canonicalize to the primary public URL
+•	archived content that remains public retains a stable canonical unless redirected
+•	canonical rules govern representative URL choice only
+
+robots rules:
+•	allow crawl of all published canonical public pages
+•	disallow admin, preview, and internal workflow URLs
+•	block indexing of draft and in-review surfaces
+•	robots rules govern crawl/index behavior and are not used as a substitute for canonical selection
+
+sitemap rules:
+•	include all published canonical public pages
+•	exclude draft, in-review, private, preview, and admin URLs
+•	update frequency convention:
+•	Home = weekly
+•	Framework = monthly
+•	Solutions = monthly
+•	Insights = weekly
+•	About = monthly
+•	Contact = monthly
+
+structured-data mappings by content type:
+•	Home = WebSite
+•	Framework / Solutions / About / Contact pages = WebPage
+•	Insight Entry = Article
+•	Organization-wide identity = Organization
+
+social sharing asset references by content type:
+•	default site-wide OG image = Deferred — owner-supplied before production acceptance
+•	insight fallback social image = site-wide default
+•	framework fallback social image = site-wide default
+•	solutions fallback social image = site-wide default
+
+Assessment
+
+This is now the correct form for an instantiated configuration set.
+
+Why this is better:
+
+•	every Family is a full record
+•	every Scheme is a full record
+•	every Typography Preset is a full record with all governed attributes
+•	every Spacing Preset is a full record with all governed attributes
+•	every Radius Preset is a full record with all governed attributes
+•	Current Design Selection is separated as its own record
+•	the five non-design configuration objects are fully instantiated separately
+
+So this now matches the schema-level expectation you described and is much closer to how a code generation tool, spreadsheet, or seed-data pipeline would actually consume it. It is also aligned to the structure and intent of the Site Configuration Document and the Website Specification.
+
+At this point, the remaining work is not conceptual. It is document insertion and owner-supplied production values.

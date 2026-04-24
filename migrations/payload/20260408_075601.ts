@@ -66,7 +66,7 @@ async function hasBackfilledOrgSchema(db: MigrateUpArgs['db']): Promise<boolean>
   ].every((key) => readBoolean(row, key));
 }
 
-export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+export async function up({ db }: MigrateUpArgs): Promise<void> {
   // `0033_generated_schema_backfill` already provisions this schema in the
   // backend SQL chain. On production databases that applied that backfill
   // before Payload recorded this migration, we should no-op and let Payload
@@ -992,7 +992,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "payload_locked_documents_rels_org_home_features_id_idx" ON "payload_locked_documents_rels" USING btree ("org_home_features_id");`)
 }
 
-export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+export async function down({ db }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
    ALTER TABLE "org_events_media_gallery" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "org_events_external_links" DISABLE ROW LEVEL SECURITY;

@@ -10,11 +10,6 @@ import HeroSection from './HeroSection';
 import ImageSection from './ImageSection';
 import LogoBandSection from './LogoBandSection';
 import OrgAboutDetailSection from './OrgAboutDetailSection';
-import OrgEventDetailSection from './OrgEventDetailSection';
-import OrgEventRegistrationSection from './OrgEventRegistrationSection';
-import OrgFeedSection from './OrgFeedSection';
-import OrgLearningDetailSection from './OrgLearningDetailSection';
-import OrgSpotlightDetailSection from './OrgSpotlightDetailSection';
 import OrgSponsorsSection from './OrgSponsorsSection';
 import PrivacyNoteSection from './PrivacyNoteSection';
 import QuoteSection from './QuoteSection';
@@ -46,11 +41,6 @@ export const SECTION_RENDERERS: Record<string, SectionRenderer> = {
   simpleTableSection: SimpleTableSection,
   comparisonTableSection: ComparisonTableSection,
   dynamicListSection: DynamicListSection,
-  orgFeedSection: OrgFeedSection,
-  orgEventDetailSection: OrgEventDetailSection,
-  orgEventRegistrationSection: OrgEventRegistrationSection,
-  orgSpotlightDetailSection: OrgSpotlightDetailSection,
-  orgLearningDetailSection: OrgLearningDetailSection,
   orgAboutDetailSection: OrgAboutDetailSection,
   orgSponsorsSection: OrgSponsorsSection,
   splitSection: SplitSection,

@@ -126,7 +126,7 @@ describe('workflow review gates', () => {
         workflowStatus: 'approved',
       },
       collection: {
-        slug: 'org-events',
+        slug: 'org-about-profiles',
       },
       req: {
         user: { id: 'u1', role: 'editor' },

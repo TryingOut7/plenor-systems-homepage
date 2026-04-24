@@ -1,6 +1,6 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
-export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+export async function up({ db }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
    ALTER TABLE "org_events" ADD COLUMN IF NOT EXISTS "registration_form_id" integer;
   DO $$ BEGIN
@@ -36,7 +36,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX IF NOT EXISTS "_org_events_v_version_version_registration_form_idx" ON "_org_events_v" USING btree ("version_registration_form_id");`)
 }
 
-export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+export async function down({ db }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
    DROP INDEX IF EXISTS "org_events_registration_form_idx";
   ALTER TABLE "org_events" DROP CONSTRAINT IF EXISTS "org_events_registration_form_id_forms_id_fk";

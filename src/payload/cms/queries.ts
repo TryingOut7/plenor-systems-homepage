@@ -340,25 +340,25 @@ export const getCollectionData = cache(async function getCollectionData(
       await Promise.all([
       withPayloadTimeout(
         payload.find({
-          collection: 'service-items',
-          ...(draft ? {} : { where: publishedFilter }),
-          sort: '-updatedAt',
-          limit: 100,
-          depth: 1,
-          ...(draft ? { draft: true } : {}),
-        }),
-        'find:service-items',
-      ),
-      withPayloadTimeout(
-        payload.find({
-          collection: 'blog-posts',
+          collection: 'solution-entries',
           ...(draft ? {} : { where: publishedFilter }),
           sort: '-publishedAt',
           limit: 100,
           depth: 1,
           ...(draft ? { draft: true } : {}),
         }),
-        'find:blog-posts',
+        'find:solution-entries:legacy-service-items',
+      ),
+      withPayloadTimeout(
+        payload.find({
+          collection: 'insight-entries',
+          ...(draft ? {} : { where: publishedFilter }),
+          sort: '-publishedAt',
+          limit: 100,
+          depth: 1,
+          ...(draft ? { draft: true } : {}),
+        }),
+        'find:insight-entries:legacy-blog-posts',
       ),
       withPayloadTimeout(
         payload.find({
@@ -430,7 +430,7 @@ export const getServiceItemBySlug = cache(async function getServiceItemBySlug(
     const payload = await getPayload();
     const result = await withPayloadTimeout(
       payload.find({
-        collection: 'service-items',
+        collection: 'solution-entries',
         where: {
           ...(draft
             ? { slug: { equals: normalizedSlug } }
@@ -447,7 +447,7 @@ export const getServiceItemBySlug = cache(async function getServiceItemBySlug(
         depth: 1,
         ...(draft ? { draft: true } : {}),
       }),
-      `find:service-items:${normalizedSlug}`,
+      `find:solution-entries:legacy-service-item:${normalizedSlug}`,
     );
     const doc = result.docs[0];
     if (!doc) return draft ? null : setMapCache(serviceItemCache, normalizedSlug, null);
@@ -477,7 +477,7 @@ export const getBlogPostBySlug = cache(async function getBlogPostBySlug(
     const payload = await getPayload();
     const result = await withPayloadTimeout(
       payload.find({
-        collection: 'blog-posts',
+        collection: 'insight-entries',
         where: {
           ...(draft
             ? { slug: { equals: normalizedSlug } }
@@ -494,7 +494,7 @@ export const getBlogPostBySlug = cache(async function getBlogPostBySlug(
         depth: 1,
         ...(draft ? { draft: true } : {}),
       }),
-      `find:blog-posts:${normalizedSlug}`,
+      `find:insight-entries:legacy-blog-post:${normalizedSlug}`,
     );
     const doc = result.docs[0];
     if (!doc) return draft ? null : setMapCache(blogPostCache, normalizedSlug, null);
@@ -868,11 +868,11 @@ export const getSitemapSlugs = cache(async function getSitemapSlugs(): Promise<S
       ),
       withPayloadTimeout(
         payload.find({
-          collection: 'service-items',
+          collection: 'solution-entries',
           where: buildPublicVisibilityWhere({ allowMissingWorkflowStatus: true }),
           limit: 500,
         }),
-        'find:service-items:sitemap',
+        'find:solution-entries:legacy-service-items:sitemap',
       ),
       withPayloadTimeout(
         payload.find({

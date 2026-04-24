@@ -70,24 +70,17 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
-    'service-items': ServiceItem;
     'site-pages': SitePage;
     'page-drafts': PageDraft;
     'page-presets': PagePreset;
     'page-playgrounds': PagePlayground;
     'reusable-sections': ReusableSection;
     'redirect-rules': RedirectRule;
-    'blog-posts': BlogPost;
-    'blog-categories': BlogCategory;
     testimonials: Testimonial;
     'audit-logs': AuditLog;
     'team-members': TeamMember;
     logos: Logo;
-    'email-templates': EmailTemplate;
-    'org-events': OrgEvent;
-    'org-spotlight': OrgSpotlight;
     'org-about-profiles': OrgAboutProfile;
-    'org-learning': OrgLearning;
     'framework-entries': FrameworkEntry;
     'solution-entries': SolutionEntry;
     'insight-entries': InsightEntry;
@@ -112,24 +105,17 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    'service-items': ServiceItemsSelect<false> | ServiceItemsSelect<true>;
     'site-pages': SitePagesSelect<false> | SitePagesSelect<true>;
     'page-drafts': PageDraftsSelect<false> | PageDraftsSelect<true>;
     'page-presets': PagePresetsSelect<false> | PagePresetsSelect<true>;
     'page-playgrounds': PagePlaygroundsSelect<false> | PagePlaygroundsSelect<true>;
     'reusable-sections': ReusableSectionsSelect<false> | ReusableSectionsSelect<true>;
     'redirect-rules': RedirectRulesSelect<false> | RedirectRulesSelect<true>;
-    'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
-    'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
     'audit-logs': AuditLogsSelect<false> | AuditLogsSelect<true>;
     'team-members': TeamMembersSelect<false> | TeamMembersSelect<true>;
     logos: LogosSelect<false> | LogosSelect<true>;
-    'email-templates': EmailTemplatesSelect<false> | EmailTemplatesSelect<true>;
-    'org-events': OrgEventsSelect<false> | OrgEventsSelect<true>;
-    'org-spotlight': OrgSpotlightSelect<false> | OrgSpotlightSelect<true>;
     'org-about-profiles': OrgAboutProfilesSelect<false> | OrgAboutProfilesSelect<true>;
-    'org-learning': OrgLearningSelect<false> | OrgLearningSelect<true>;
     'framework-entries': FrameworkEntriesSelect<false> | FrameworkEntriesSelect<true>;
     'solution-entries': SolutionEntriesSelect<false> | SolutionEntriesSelect<true>;
     'insight-entries': InsightEntriesSelect<false> | InsightEntriesSelect<true>;
@@ -154,13 +140,11 @@ export interface Config {
     'site-settings': SiteSetting;
     'ui-settings': UiSetting;
     'org-sponsors': OrgSponsor;
-    'org-home-features': OrgHomeFeature;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'ui-settings': UiSettingsSelect<false> | UiSettingsSelect<true>;
     'org-sponsors': OrgSponsorsSelect<false> | OrgSponsorsSelect<true>;
-    'org-home-features': OrgHomeFeaturesSelect<false> | OrgHomeFeaturesSelect<true>;
   };
   locale: null;
   widgets: {
@@ -333,104 +317,6 @@ export interface FolderInterface {
   folderType?: 'media'[] | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * Service landing pages and offerings shown on the website.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "service-items".
- */
-export interface ServiceItem {
-  id: number;
-  title: string;
-  slug: string;
-  /**
-   * Short summary shown in cards and SEO snippets (recommended under 320 characters).
-   */
-  summary?: string | null;
-  heroImage?: (number | null) | Media;
-  body?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  priceFrom?: number | null;
-  currency?: ('USD' | 'EUR' | 'GBP') | null;
-  isFeatured?: boolean | null;
-  tags?:
-    | {
-        tag: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Document locale. English-first now; other locales can be enabled progressively.
-   */
-  locale: 'en' | 'de' | 'fr' | 'es' | 'it';
-  /**
-   * Shared ID linking localized variants of the same content.
-   */
-  translationGroupId?: string | null;
-  /**
-   * The user who originally created this document.
-   */
-  createdBy?: (number | null) | User;
-  /**
-   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
-   */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
-  submittedBy?: (number | null) | User;
-  submittedAt?: string | null;
-  /**
-   * Editors/admins only: confirm the review checklist is complete before approving.
-   */
-  reviewChecklistComplete?: boolean | null;
-  /**
-   * Reviewer notes summarizing quality checks and decision rationale.
-   */
-  reviewSummary?: string | null;
-  approvedBy?: (number | null) | User;
-  approvedAt?: string | null;
-  /**
-   * Reason for rejection (visible to the author).
-   */
-  rejectionReason?: string | null;
-  /**
-   * SEO & Open Graph settings
-   */
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
-    ogTitle?: string | null;
-    ogDescription?: string | null;
-    ogImage?: (number | null) | Media;
-    canonicalUrl?: string | null;
-    noindex?: boolean | null;
-    nofollow?: boolean | null;
-    includeInSitemap?: boolean | null;
-  };
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * Main website pages. Core preset pages use a fixed layout; custom pages use the section builder.
@@ -1680,364 +1566,6 @@ export interface SitePage {
              */
             headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
             /**
-             * Optional heading override.
-             */
-            heading?: string | null;
-            /**
-             * Optional supporting text.
-             */
-            subheading?: string | null;
-            /**
-             * Select which org content to render.
-             */
-            feedType: 'events' | 'spotlight' | 'learning';
-            /**
-             * Featured reads curated items from org-home-features. Manual lets you pick exact entries. Automatic queries by status/category.
-             */
-            sourceMode: 'featured' | 'manual' | 'automatic';
-            /**
-             * Maximum number of cards to display (1-12).
-             */
-            limit?: number | null;
-            /**
-             * Preferred grid density on desktop.
-             */
-            columns?: ('1' | '2' | '3' | '4') | null;
-            /**
-             * Show a top-right call-to-action link.
-             */
-            includeCta?: boolean | null;
-            ctaLabel?: string | null;
-            ctaHref?: string | null;
-            /**
-             * Base path for card links. E.g. "/events" makes each event card link to "/events/{slug}". Leave blank to suppress card links.
-             */
-            itemBasePath?: string | null;
-            /**
-             * Used only for Events + Manual Selection.
-             */
-            manualEvents?: (number | OrgEvent)[] | null;
-            /**
-             * Used only for Spotlight + Manual Selection.
-             */
-            manualSpotlight?: (number | OrgSpotlight)[] | null;
-            /**
-             * Used only for Learning + Manual Selection.
-             */
-            manualLearning?: (number | OrgLearning)[] | null;
-            /**
-             * Used only for Events + Automatic by Filter.
-             */
-            eventStatus?: ('upcoming_planned' | 'current_ongoing' | 'past_completed') | null;
-            /**
-             * Used only for Spotlight + Automatic by Filter.
-             */
-            spotlightCategory?:
-              | ('student' | 'teacher' | 'volunteer' | 'local_organization' | 'local_prominent_artist')
-              | null;
-            /**
-             * Used only for Learning + Automatic by Filter.
-             */
-            learningCategory?: ('knowledge_sharing' | 'college_prep' | 'mentorship') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgFeedSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The event to display on this page.
-             */
-            event: number | OrgEvent;
-            /**
-             * Show the registration module when the event requires registration.
-             */
-            showRegistrationCta?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgEventDetailSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The event whose configured standard registration form to render. Set the form on the Org Event record.
-             */
-            event: number | OrgEvent;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgEventRegistrationSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The spotlight entry to display on this page.
-             */
-            spotlightEntry: number | OrgSpotlight;
-            /**
-             * Show the category navigation bar.
-             */
-            showCategoryNav?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgSpotlightDetailSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The learning resource to display on this page.
-             */
-            learningEntry: number | OrgLearning;
-            /**
-             * Show the category navigation bar.
-             */
-            showCategoryNav?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgLearningDetailSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
              * The about profile to display on this page.
              */
             profile: number | OrgAboutProfile;
@@ -2579,57 +2107,6 @@ export interface Form {
    * Immutable template discriminator used by frontend submission routing.
    */
   templateKey?: ('guide' | 'inquiry' | 'newsletter') | null;
-  /**
-   * Email template to use when delivering a guide to the subscriber. Only applies to forms with templateKey = "guide".
-   */
-  emailTemplate?: (number | null) | EmailTemplate;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Reusable email messages for guides, whitepapers, and other downloadable resources. Link a template to your guide form workflow so each "Send me the guide" flow delivers the right content.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "email-templates".
- */
-export interface EmailTemplate {
-  id: number;
-  /**
-   * Internal label — shown in dropdowns when linking this template to a form section.
-   */
-  name: string;
-  /**
-   * The email subject line the recipient sees in their inbox.
-   */
-  subject: string;
-  /**
-   * Short preview text shown after the subject line in most email clients (60–90 chars).
-   */
-  preheader?: string | null;
-  /**
-   * Main heading inside the email, e.g. "Here's your guide, {name}."
-   */
-  heading: string;
-  /**
-   * Bold document title shown in the email body — e.g. the guide or whitepaper name.
-   */
-  highlightTitle?: string | null;
-  /**
-   * Body copy beneath the title. Describe what the document covers or why it's valuable.
-   */
-  body?: string | null;
-  /**
-   * Label for the download / action button inside the email, e.g. "Download the guide".
-   */
-  buttonLabel?: string | null;
-  /**
-   * URL the button links to — typically a direct link to the PDF or landing page.
-   */
-  buttonUrl?: string | null;
-  /**
-   * Override the reply-to address for this specific template. Leave blank to use the default.
-   */
-  replyTo?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2733,387 +2210,6 @@ export interface Logo {
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * Community events: concerts, competitions, festivals, and workshops.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "org-events".
- */
-export interface OrgEvent {
-  id: number;
-  title: string;
-  /**
-   * Lowercase, hyphenated slug (max 120 characters).
-   */
-  slug: string;
-  eventType: 'concert' | 'competition' | 'festival' | 'workshop';
-  /**
-   * Editorial status — set manually by authors, not derived from dates.
-   */
-  eventStatus: 'upcoming_planned' | 'current_ongoing' | 'past_completed';
-  startDate: string;
-  /**
-   * Optional for multi-day or multi-session events.
-   */
-  endDate?: string | null;
-  /**
-   * Optional display time text (for example "7:00 PM").
-   */
-  startTime?: string | null;
-  /**
-   * Optional display end time text.
-   */
-  endTime?: string | null;
-  /**
-   * IANA timezone (e.g. "America/New_York"). Defaults to UTC.
-   */
-  eventTimezone?: string | null;
-  /**
-   * Short description for cards and search snippets (max 320 chars).
-   */
-  shortSummary: string;
-  description?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Primary image (recommended 1200×675, 16:9).
-   */
-  heroImage: number | Media;
-  /**
-   * Venue or location name.
-   */
-  venue?: string | null;
-  /**
-   * Full address or location details.
-   */
-  location?: string | null;
-  isFeatured?: boolean | null;
-  /**
-   * Higher values appear first within the same status bucket.
-   */
-  displayPriority?: number | null;
-  registrationRequired?: boolean | null;
-  /**
-   * Select a standard, non-template Payload form for this event. Guide, inquiry, and newsletter template forms are not allowed. Submissions will appear under Form Submissions.
-   */
-  registrationForm?: (number | null) | Form;
-  /**
-   * Optional instructions shown above the registration form.
-   */
-  registrationInstructions?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Informational: when this event becomes visible as "current".
-   */
-  displayWindowStart?: string | null;
-  /**
-   * Informational: when this event stops being shown as "current".
-   */
-  displayWindowEnd?: string | null;
-  /**
-   * Related community spotlight entries.
-   */
-  relatedSpotlight?: (number | OrgSpotlight)[] | null;
-  /**
-   * Related learning resources.
-   */
-  relatedLearning?: (number | OrgLearning)[] | null;
-  /**
-   * Sub-events within this festival.
-   */
-  relatedEvents?: (number | OrgEvent)[] | null;
-  /**
-   * Additional images for this event.
-   */
-  mediaGallery?:
-    | {
-        image: number | Media;
-        id?: string | null;
-      }[]
-    | null;
-  externalLinks?:
-    | {
-        label: string;
-        url: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * The user who originally created this document.
-   */
-  createdBy?: (number | null) | User;
-  /**
-   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.
-   */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
-  submittedBy?: (number | null) | User;
-  submittedAt?: string | null;
-  /**
-   * Editors/admins only: confirm the review checklist is complete before approving.
-   */
-  reviewChecklistComplete?: boolean | null;
-  /**
-   * Reviewer notes summarizing quality checks and decision rationale.
-   */
-  reviewSummary?: string | null;
-  approvedBy?: (number | null) | User;
-  approvedAt?: string | null;
-  /**
-   * Reason for rejection (visible to the author).
-   */
-  rejectionReason?: string | null;
-  /**
-   * SEO & Open Graph settings
-   */
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
-    ogTitle?: string | null;
-    ogDescription?: string | null;
-    ogImage?: (number | null) | Media;
-    canonicalUrl?: string | null;
-    noindex?: boolean | null;
-    nofollow?: boolean | null;
-    includeInSitemap?: boolean | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * Community spotlights: students, teachers, volunteers, and local artists.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "org-spotlight".
- */
-export interface OrgSpotlight {
-  id: number;
-  name: string;
-  /**
-   * Lowercase, hyphenated slug (max 120 characters).
-   */
-  slug: string;
-  category: 'student' | 'teacher' | 'volunteer' | 'local_organization' | 'local_prominent_artist';
-  /**
-   * Short description for cards and search snippets (max 320 chars).
-   */
-  shortSummary: string;
-  detailContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Profile/thumbnail image (recommended 400×400, 1:1).
-   */
-  thumbnailImage: number | Media;
-  /**
-   * Role or title (e.g. "Piano Student", "Lead Volunteer").
-   */
-  roleTitle?: string | null;
-  /**
-   * School, organization, or other affiliation.
-   */
-  affiliation?: string | null;
-  isFeatured?: boolean | null;
-  /**
-   * Lower values appear first within the same category.
-   */
-  displayOrder?: number | null;
-  /**
-   * Additional images for this spotlight.
-   */
-  additionalImages?:
-    | {
-        image: number | Media;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Optional external link (e.g. personal website, social media).
-   */
-  externalLink?: string | null;
-  /**
-   * Related community events.
-   */
-  relatedEvents?: (number | OrgEvent)[] | null;
-  /**
-   * The user who originally created this document.
-   */
-  createdBy?: (number | null) | User;
-  /**
-   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.
-   */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
-  submittedBy?: (number | null) | User;
-  submittedAt?: string | null;
-  /**
-   * Editors/admins only: confirm the review checklist is complete before approving.
-   */
-  reviewChecklistComplete?: boolean | null;
-  /**
-   * Reviewer notes summarizing quality checks and decision rationale.
-   */
-  reviewSummary?: string | null;
-  approvedBy?: (number | null) | User;
-  approvedAt?: string | null;
-  /**
-   * Reason for rejection (visible to the author).
-   */
-  rejectionReason?: string | null;
-  /**
-   * SEO & Open Graph settings
-   */
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
-    ogTitle?: string | null;
-    ogDescription?: string | null;
-    ogImage?: (number | null) | Media;
-    canonicalUrl?: string | null;
-    noindex?: boolean | null;
-    nofollow?: boolean | null;
-    includeInSitemap?: boolean | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * Learning resources: knowledge sharing, college prep, and mentorship.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "org-learning".
- */
-export interface OrgLearning {
-  id: number;
-  title: string;
-  /**
-   * Lowercase, hyphenated slug (max 120 characters).
-   */
-  slug: string;
-  category: 'knowledge_sharing' | 'college_prep' | 'mentorship';
-  /**
-   * Short description for cards and search snippets (max 320 chars).
-   */
-  shortSummary: string;
-  detailContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Optional thumbnail image (recommended 800×600, 4:3).
-   */
-  thumbnail?: (number | null) | Media;
-  /**
-   * Author or contributor name (optional).
-   */
-  author?: string | null;
-  isFeatured?: boolean | null;
-  /**
-   * Lower values appear first within the same category.
-   */
-  displayOrder?: number | null;
-  /**
-   * Optional external reference or resource link.
-   */
-  externalReferenceLink?: string | null;
-  /**
-   * Related community event (optional).
-   */
-  relatedEvent?: (number | null) | OrgEvent;
-  /**
-   * Related community spotlight (optional).
-   */
-  relatedSpotlight?: (number | null) | OrgSpotlight;
-  /**
-   * The user who originally created this document.
-   */
-  createdBy?: (number | null) | User;
-  /**
-   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes and set live. Admins can also set live.
-   */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
-  submittedBy?: (number | null) | User;
-  submittedAt?: string | null;
-  /**
-   * Editors/admins only: confirm the review checklist is complete before approving.
-   */
-  reviewChecklistComplete?: boolean | null;
-  /**
-   * Reviewer notes summarizing quality checks and decision rationale.
-   */
-  reviewSummary?: string | null;
-  approvedBy?: (number | null) | User;
-  approvedAt?: string | null;
-  /**
-   * Reason for rejection (visible to the author).
-   */
-  rejectionReason?: string | null;
-  /**
-   * SEO & Open Graph settings
-   */
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
-    ogTitle?: string | null;
-    ogDescription?: string | null;
-    ogImage?: (number | null) | Media;
-    canonicalUrl?: string | null;
-    noindex?: boolean | null;
-    nofollow?: boolean | null;
-    includeInSitemap?: boolean | null;
-  };
-  updatedAt: string;
-  createdAt: string;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -4377,364 +3473,6 @@ export interface ReusableSection {
             id?: string | null;
             blockName?: string | null;
             blockType: 'dynamicListSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * Optional heading override.
-             */
-            heading?: string | null;
-            /**
-             * Optional supporting text.
-             */
-            subheading?: string | null;
-            /**
-             * Select which org content to render.
-             */
-            feedType: 'events' | 'spotlight' | 'learning';
-            /**
-             * Featured reads curated items from org-home-features. Manual lets you pick exact entries. Automatic queries by status/category.
-             */
-            sourceMode: 'featured' | 'manual' | 'automatic';
-            /**
-             * Maximum number of cards to display (1-12).
-             */
-            limit?: number | null;
-            /**
-             * Preferred grid density on desktop.
-             */
-            columns?: ('1' | '2' | '3' | '4') | null;
-            /**
-             * Show a top-right call-to-action link.
-             */
-            includeCta?: boolean | null;
-            ctaLabel?: string | null;
-            ctaHref?: string | null;
-            /**
-             * Base path for card links. E.g. "/events" makes each event card link to "/events/{slug}". Leave blank to suppress card links.
-             */
-            itemBasePath?: string | null;
-            /**
-             * Used only for Events + Manual Selection.
-             */
-            manualEvents?: (number | OrgEvent)[] | null;
-            /**
-             * Used only for Spotlight + Manual Selection.
-             */
-            manualSpotlight?: (number | OrgSpotlight)[] | null;
-            /**
-             * Used only for Learning + Manual Selection.
-             */
-            manualLearning?: (number | OrgLearning)[] | null;
-            /**
-             * Used only for Events + Automatic by Filter.
-             */
-            eventStatus?: ('upcoming_planned' | 'current_ongoing' | 'past_completed') | null;
-            /**
-             * Used only for Spotlight + Automatic by Filter.
-             */
-            spotlightCategory?:
-              | ('student' | 'teacher' | 'volunteer' | 'local_organization' | 'local_prominent_artist')
-              | null;
-            /**
-             * Used only for Learning + Automatic by Filter.
-             */
-            learningCategory?: ('knowledge_sharing' | 'college_prep' | 'mentorship') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgFeedSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The event to display on this page.
-             */
-            event: number | OrgEvent;
-            /**
-             * Show the registration module when the event requires registration.
-             */
-            showRegistrationCta?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgEventDetailSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The event whose configured standard registration form to render. Set the form on the Org Event record.
-             */
-            event: number | OrgEvent;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgEventRegistrationSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The spotlight entry to display on this page.
-             */
-            spotlightEntry: number | OrgSpotlight;
-            /**
-             * Show the category navigation bar.
-             */
-            showCategoryNav?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgSpotlightDetailSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The learning resource to display on this page.
-             */
-            learningEntry: number | OrgLearning;
-            /**
-             * Show the category navigation bar.
-             */
-            showCategoryNav?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgLearningDetailSection';
           }
         | {
             /**
@@ -6368,364 +5106,6 @@ export interface PageDraft {
              */
             headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
             /**
-             * Optional heading override.
-             */
-            heading?: string | null;
-            /**
-             * Optional supporting text.
-             */
-            subheading?: string | null;
-            /**
-             * Select which org content to render.
-             */
-            feedType: 'events' | 'spotlight' | 'learning';
-            /**
-             * Featured reads curated items from org-home-features. Manual lets you pick exact entries. Automatic queries by status/category.
-             */
-            sourceMode: 'featured' | 'manual' | 'automatic';
-            /**
-             * Maximum number of cards to display (1-12).
-             */
-            limit?: number | null;
-            /**
-             * Preferred grid density on desktop.
-             */
-            columns?: ('1' | '2' | '3' | '4') | null;
-            /**
-             * Show a top-right call-to-action link.
-             */
-            includeCta?: boolean | null;
-            ctaLabel?: string | null;
-            ctaHref?: string | null;
-            /**
-             * Base path for card links. E.g. "/events" makes each event card link to "/events/{slug}". Leave blank to suppress card links.
-             */
-            itemBasePath?: string | null;
-            /**
-             * Used only for Events + Manual Selection.
-             */
-            manualEvents?: (number | OrgEvent)[] | null;
-            /**
-             * Used only for Spotlight + Manual Selection.
-             */
-            manualSpotlight?: (number | OrgSpotlight)[] | null;
-            /**
-             * Used only for Learning + Manual Selection.
-             */
-            manualLearning?: (number | OrgLearning)[] | null;
-            /**
-             * Used only for Events + Automatic by Filter.
-             */
-            eventStatus?: ('upcoming_planned' | 'current_ongoing' | 'past_completed') | null;
-            /**
-             * Used only for Spotlight + Automatic by Filter.
-             */
-            spotlightCategory?:
-              | ('student' | 'teacher' | 'volunteer' | 'local_organization' | 'local_prominent_artist')
-              | null;
-            /**
-             * Used only for Learning + Automatic by Filter.
-             */
-            learningCategory?: ('knowledge_sharing' | 'college_prep' | 'mentorship') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgFeedSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The event to display on this page.
-             */
-            event: number | OrgEvent;
-            /**
-             * Show the registration module when the event requires registration.
-             */
-            showRegistrationCta?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgEventDetailSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The event whose configured standard registration form to render. Set the form on the Org Event record.
-             */
-            event: number | OrgEvent;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgEventRegistrationSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The spotlight entry to display on this page.
-             */
-            spotlightEntry: number | OrgSpotlight;
-            /**
-             * Show the category navigation bar.
-             */
-            showCategoryNav?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgSpotlightDetailSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The learning resource to display on this page.
-             */
-            learningEntry: number | OrgLearning;
-            /**
-             * Show the category navigation bar.
-             */
-            showCategoryNav?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgLearningDetailSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
              * The about profile to display on this page.
              */
             profile: number | OrgAboutProfile;
@@ -8253,364 +6633,6 @@ export interface PagePreset {
             id?: string | null;
             blockName?: string | null;
             blockType: 'dynamicListSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * Optional heading override.
-             */
-            heading?: string | null;
-            /**
-             * Optional supporting text.
-             */
-            subheading?: string | null;
-            /**
-             * Select which org content to render.
-             */
-            feedType: 'events' | 'spotlight' | 'learning';
-            /**
-             * Featured reads curated items from org-home-features. Manual lets you pick exact entries. Automatic queries by status/category.
-             */
-            sourceMode: 'featured' | 'manual' | 'automatic';
-            /**
-             * Maximum number of cards to display (1-12).
-             */
-            limit?: number | null;
-            /**
-             * Preferred grid density on desktop.
-             */
-            columns?: ('1' | '2' | '3' | '4') | null;
-            /**
-             * Show a top-right call-to-action link.
-             */
-            includeCta?: boolean | null;
-            ctaLabel?: string | null;
-            ctaHref?: string | null;
-            /**
-             * Base path for card links. E.g. "/events" makes each event card link to "/events/{slug}". Leave blank to suppress card links.
-             */
-            itemBasePath?: string | null;
-            /**
-             * Used only for Events + Manual Selection.
-             */
-            manualEvents?: (number | OrgEvent)[] | null;
-            /**
-             * Used only for Spotlight + Manual Selection.
-             */
-            manualSpotlight?: (number | OrgSpotlight)[] | null;
-            /**
-             * Used only for Learning + Manual Selection.
-             */
-            manualLearning?: (number | OrgLearning)[] | null;
-            /**
-             * Used only for Events + Automatic by Filter.
-             */
-            eventStatus?: ('upcoming_planned' | 'current_ongoing' | 'past_completed') | null;
-            /**
-             * Used only for Spotlight + Automatic by Filter.
-             */
-            spotlightCategory?:
-              | ('student' | 'teacher' | 'volunteer' | 'local_organization' | 'local_prominent_artist')
-              | null;
-            /**
-             * Used only for Learning + Automatic by Filter.
-             */
-            learningCategory?: ('knowledge_sharing' | 'college_prep' | 'mentorship') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgFeedSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The event to display on this page.
-             */
-            event: number | OrgEvent;
-            /**
-             * Show the registration module when the event requires registration.
-             */
-            showRegistrationCta?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgEventDetailSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The event whose configured standard registration form to render. Set the form on the Org Event record.
-             */
-            event: number | OrgEvent;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgEventRegistrationSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The spotlight entry to display on this page.
-             */
-            spotlightEntry: number | OrgSpotlight;
-            /**
-             * Show the category navigation bar.
-             */
-            showCategoryNav?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgSpotlightDetailSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The learning resource to display on this page.
-             */
-            learningEntry: number | OrgLearning;
-            /**
-             * Show the category navigation bar.
-             */
-            showCategoryNav?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgLearningDetailSection';
           }
         | {
             /**
@@ -10212,364 +8234,6 @@ export interface PagePlayground {
              */
             headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
             /**
-             * Optional heading override.
-             */
-            heading?: string | null;
-            /**
-             * Optional supporting text.
-             */
-            subheading?: string | null;
-            /**
-             * Select which org content to render.
-             */
-            feedType: 'events' | 'spotlight' | 'learning';
-            /**
-             * Featured reads curated items from org-home-features. Manual lets you pick exact entries. Automatic queries by status/category.
-             */
-            sourceMode: 'featured' | 'manual' | 'automatic';
-            /**
-             * Maximum number of cards to display (1-12).
-             */
-            limit?: number | null;
-            /**
-             * Preferred grid density on desktop.
-             */
-            columns?: ('1' | '2' | '3' | '4') | null;
-            /**
-             * Show a top-right call-to-action link.
-             */
-            includeCta?: boolean | null;
-            ctaLabel?: string | null;
-            ctaHref?: string | null;
-            /**
-             * Base path for card links. E.g. "/events" makes each event card link to "/events/{slug}". Leave blank to suppress card links.
-             */
-            itemBasePath?: string | null;
-            /**
-             * Used only for Events + Manual Selection.
-             */
-            manualEvents?: (number | OrgEvent)[] | null;
-            /**
-             * Used only for Spotlight + Manual Selection.
-             */
-            manualSpotlight?: (number | OrgSpotlight)[] | null;
-            /**
-             * Used only for Learning + Manual Selection.
-             */
-            manualLearning?: (number | OrgLearning)[] | null;
-            /**
-             * Used only for Events + Automatic by Filter.
-             */
-            eventStatus?: ('upcoming_planned' | 'current_ongoing' | 'past_completed') | null;
-            /**
-             * Used only for Spotlight + Automatic by Filter.
-             */
-            spotlightCategory?:
-              | ('student' | 'teacher' | 'volunteer' | 'local_organization' | 'local_prominent_artist')
-              | null;
-            /**
-             * Used only for Learning + Automatic by Filter.
-             */
-            learningCategory?: ('knowledge_sharing' | 'college_prep' | 'mentorship') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgFeedSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The event to display on this page.
-             */
-            event: number | OrgEvent;
-            /**
-             * Show the registration module when the event requires registration.
-             */
-            showRegistrationCta?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgEventDetailSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The event whose configured standard registration form to render. Set the form on the Org Event record.
-             */
-            event: number | OrgEvent;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgEventRegistrationSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The spotlight entry to display on this page.
-             */
-            spotlightEntry: number | OrgSpotlight;
-            /**
-             * Show the category navigation bar.
-             */
-            showCategoryNav?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgSpotlightDetailSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
-             * The learning resource to display on this page.
-             */
-            learningEntry: number | OrgLearning;
-            /**
-             * Show the category navigation bar.
-             */
-            showCategoryNav?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'orgLearningDetailSection';
-          }
-        | {
-            /**
-             * System-managed structural identity key for preset and migrated sections.
-             */
-            structuralKey?: string | null;
-            /**
-             * Base theme for section typography and button styling
-             */
-            theme?: ('navy' | 'charcoal' | 'black' | 'white' | 'light') | null;
-            /**
-             * Optional eyebrow/section label for custom page layouts
-             */
-            sectionLabel?: string | null;
-            /**
-             * Optional custom background color (hex, rgb/rgba, hsl/hsla, named color, or CSS var)
-             */
-            backgroundColor?: string | null;
-            size?: ('compact' | 'regular' | 'spacious') | null;
-            /**
-             * Optional anchor ID for in-page links
-             */
-            anchorId?: string | null;
-            /**
-             * Optional CSS class name
-             */
-            customClassName?: string | null;
-            /**
-             * Hide this section without deleting it
-             */
-            isHidden?: boolean | null;
-            /**
-             * Section becomes visible on this date (optional)
-             */
-            visibleFrom?: string | null;
-            /**
-             * Section is hidden after this date (optional)
-             */
-            visibleUntil?: string | null;
-            /**
-             * Override heading size for this section (default: md)
-             */
-            headingSize?: ('xs' | 'sm' | 'md' | 'lg' | 'xl') | null;
-            /**
-             * Override text alignment for this section
-             */
-            textAlign?: ('left' | 'center' | 'right') | null;
-            /**
-             * HTML heading tag for SEO/accessibility (default: h2)
-             */
-            headingTag?: ('h1' | 'h2' | 'h3' | 'h4') | null;
-            /**
              * The about profile to display on this page.
              */
             profile: number | OrgAboutProfile;
@@ -10909,151 +8573,6 @@ export interface RedirectRule {
   deletedAt?: string | null;
 }
 /**
- * Long-form blog content. Use excerpt for card previews and search snippets.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog-posts".
- */
-export interface BlogPost {
-  id: number;
-  title: string;
-  slug: string;
-  /**
-   * Recommended 140-320 characters for previews and SEO snippets.
-   */
-  excerpt?: string | null;
-  coverImage?: (number | null) | Media;
-  body?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  publishedAt?: string | null;
-  isFeatured?: boolean | null;
-  /**
-   * Estimated reading time in minutes. Manually entered — roughly 1 minute per 200 words.
-   */
-  readingTimeMinutes?: number | null;
-  tags?:
-    | {
-        tag: string;
-        id?: string | null;
-      }[]
-    | null;
-  category: number | BlogCategory;
-  /**
-   * External resource URL
-   */
-  resourceUrl?: string | null;
-  /**
-   * Downloadable resource file
-   */
-  resourceFile?: (number | null) | Media;
-  /**
-   * Document locale. English-first now; other locales can be enabled progressively.
-   */
-  locale: 'en' | 'de' | 'fr' | 'es' | 'it';
-  /**
-   * Shared ID linking localized variants of the same content.
-   */
-  translationGroupId?: string | null;
-  /**
-   * The user who originally created this document.
-   */
-  createdBy?: (number | null) | User;
-  /**
-   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
-   */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
-  submittedBy?: (number | null) | User;
-  submittedAt?: string | null;
-  /**
-   * Editors/admins only: confirm the review checklist is complete before approving.
-   */
-  reviewChecklistComplete?: boolean | null;
-  /**
-   * Reviewer notes summarizing quality checks and decision rationale.
-   */
-  reviewSummary?: string | null;
-  approvedBy?: (number | null) | User;
-  approvedAt?: string | null;
-  /**
-   * Reason for rejection (visible to the author).
-   */
-  rejectionReason?: string | null;
-  /**
-   * SEO & Open Graph settings
-   */
-  seo?: {
-    metaTitle?: string | null;
-    metaDescription?: string | null;
-    ogTitle?: string | null;
-    ogDescription?: string | null;
-    ogImage?: (number | null) | Media;
-    canonicalUrl?: string | null;
-    noindex?: boolean | null;
-    nofollow?: boolean | null;
-    includeInSitemap?: boolean | null;
-  };
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * Categories used to organize blog posts.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog-categories".
- */
-export interface BlogCategory {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string | null;
-  /**
-   * Authors: move to "Awaiting Review" when ready. Editors: approve/request changes. Admins: set to live.
-   */
-  workflowStatus?: ('draft' | 'in_review' | 'approved' | 'rejected' | 'published' | 'archived') | null;
-  submittedBy?: (number | null) | User;
-  submittedAt?: string | null;
-  /**
-   * Editors/admins only: confirm the review checklist is complete before approving.
-   */
-  reviewChecklistComplete?: boolean | null;
-  /**
-   * Reviewer notes summarizing quality checks and decision rationale.
-   */
-  reviewSummary?: string | null;
-  approvedBy?: (number | null) | User;
-  approvedAt?: string | null;
-  /**
-   * Reason for rejection (visible to the author).
-   */
-  rejectionReason?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "testimonials".
  */
@@ -11254,6 +8773,14 @@ export interface FrameworkEntry {
     nofollow?: boolean | null;
     includeInSitemap?: boolean | null;
   };
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -11353,6 +8880,14 @@ export interface SolutionEntry {
     nofollow?: boolean | null;
     includeInSitemap?: boolean | null;
   };
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -11451,6 +8986,14 @@ export interface InsightEntry {
     nofollow?: boolean | null;
     includeInSitemap?: boolean | null;
   };
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -11468,20 +9011,24 @@ export interface Search {
   priority?: number | null;
   doc:
     | {
-        relationTo: 'service-items';
-        value: number | ServiceItem;
-      }
-    | {
         relationTo: 'site-pages';
         value: number | SitePage;
       }
     | {
-        relationTo: 'blog-posts';
-        value: number | BlogPost;
-      }
-    | {
         relationTo: 'testimonials';
         value: number | Testimonial;
+      }
+    | {
+        relationTo: 'framework-entries';
+        value: number | FrameworkEntry;
+      }
+    | {
+        relationTo: 'solution-entries';
+        value: number | SolutionEntry;
+      }
+    | {
+        relationTo: 'insight-entries';
+        value: number | InsightEntry;
       };
   updatedAt: string;
   createdAt: string;
@@ -11706,10 +9253,6 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
-        relationTo: 'service-items';
-        value: number | ServiceItem;
-      } | null)
-    | ({
         relationTo: 'site-pages';
         value: number | SitePage;
       } | null)
@@ -11734,14 +9277,6 @@ export interface PayloadLockedDocument {
         value: number | RedirectRule;
       } | null)
     | ({
-        relationTo: 'blog-posts';
-        value: number | BlogPost;
-      } | null)
-    | ({
-        relationTo: 'blog-categories';
-        value: number | BlogCategory;
-      } | null)
-    | ({
         relationTo: 'testimonials';
         value: number | Testimonial;
       } | null)
@@ -11758,24 +9293,8 @@ export interface PayloadLockedDocument {
         value: number | Logo;
       } | null)
     | ({
-        relationTo: 'email-templates';
-        value: number | EmailTemplate;
-      } | null)
-    | ({
-        relationTo: 'org-events';
-        value: number | OrgEvent;
-      } | null)
-    | ({
-        relationTo: 'org-spotlight';
-        value: number | OrgSpotlight;
-      } | null)
-    | ({
         relationTo: 'org-about-profiles';
         value: number | OrgAboutProfile;
-      } | null)
-    | ({
-        relationTo: 'org-learning';
-        value: number | OrgLearning;
       } | null)
     | ({
         relationTo: 'framework-entries';
@@ -11891,22 +9410,16 @@ export interface PayloadQueryPreset {
   relatedCollection:
     | 'users'
     | 'media'
-    | 'service-items'
     | 'site-pages'
     | 'page-drafts'
     | 'page-presets'
     | 'page-playgrounds'
     | 'reusable-sections'
     | 'redirect-rules'
-    | 'blog-posts'
-    | 'blog-categories'
     | 'testimonials'
     | 'team-members'
     | 'logos'
-    | 'org-events'
-    | 'org-spotlight'
     | 'org-about-profiles'
-    | 'org-learning'
     | 'framework-entries'
     | 'solution-entries'
     | 'insight-entries'
@@ -12009,61 +9522,6 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "service-items_select".
- */
-export interface ServiceItemsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  summary?: T;
-  heroImage?: T;
-  body?: T;
-  priceFrom?: T;
-  currency?: T;
-  isFeatured?: T;
-  tags?:
-    | T
-    | {
-        tag?: T;
-        id?: T;
-      };
-  locale?: T;
-  translationGroupId?: T;
-  createdBy?: T;
-  workflowStatus?: T;
-  submittedBy?: T;
-  submittedAt?: T;
-  reviewChecklistComplete?: T;
-  reviewSummary?: T;
-  approvedBy?: T;
-  approvedAt?: T;
-  rejectionReason?: T;
-  seo?:
-    | T
-    | {
-        metaTitle?: T;
-        metaDescription?: T;
-        ogTitle?: T;
-        ogDescription?: T;
-        ogImage?: T;
-        canonicalUrl?: T;
-        noindex?: T;
-        nofollow?: T;
-        includeInSitemap?: T;
-      };
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -12547,124 +10005,6 @@ export interface SitePagesSelect<T extends boolean = true> {
               sortDirection?: T;
               limit?: T;
               enablePagination?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgFeedSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              heading?: T;
-              subheading?: T;
-              feedType?: T;
-              sourceMode?: T;
-              limit?: T;
-              columns?: T;
-              includeCta?: T;
-              ctaLabel?: T;
-              ctaHref?: T;
-              itemBasePath?: T;
-              manualEvents?: T;
-              manualSpotlight?: T;
-              manualLearning?: T;
-              eventStatus?: T;
-              spotlightCategory?: T;
-              learningCategory?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgEventDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              event?: T;
-              showRegistrationCta?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgEventRegistrationSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              event?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgSpotlightDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              spotlightEntry?: T;
-              showCategoryNav?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgLearningDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              learningEntry?: T;
-              showCategoryNav?: T;
               id?: T;
               blockName?: T;
             };
@@ -13321,124 +10661,6 @@ export interface PageDraftsSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        orgFeedSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              heading?: T;
-              subheading?: T;
-              feedType?: T;
-              sourceMode?: T;
-              limit?: T;
-              columns?: T;
-              includeCta?: T;
-              ctaLabel?: T;
-              ctaHref?: T;
-              itemBasePath?: T;
-              manualEvents?: T;
-              manualSpotlight?: T;
-              manualLearning?: T;
-              eventStatus?: T;
-              spotlightCategory?: T;
-              learningCategory?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgEventDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              event?: T;
-              showRegistrationCta?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgEventRegistrationSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              event?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgSpotlightDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              spotlightEntry?: T;
-              showCategoryNav?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgLearningDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              learningEntry?: T;
-              showCategoryNav?: T;
-              id?: T;
-              blockName?: T;
-            };
         orgAboutDetailSection?:
           | T
           | {
@@ -14080,124 +11302,6 @@ export interface PagePresetsSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        orgFeedSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              heading?: T;
-              subheading?: T;
-              feedType?: T;
-              sourceMode?: T;
-              limit?: T;
-              columns?: T;
-              includeCta?: T;
-              ctaLabel?: T;
-              ctaHref?: T;
-              itemBasePath?: T;
-              manualEvents?: T;
-              manualSpotlight?: T;
-              manualLearning?: T;
-              eventStatus?: T;
-              spotlightCategory?: T;
-              learningCategory?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgEventDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              event?: T;
-              showRegistrationCta?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgEventRegistrationSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              event?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgSpotlightDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              spotlightEntry?: T;
-              showCategoryNav?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgLearningDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              learningEntry?: T;
-              showCategoryNav?: T;
-              id?: T;
-              blockName?: T;
-            };
         orgAboutDetailSection?:
           | T
           | {
@@ -14813,124 +11917,6 @@ export interface PagePlaygroundsSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        orgFeedSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              heading?: T;
-              subheading?: T;
-              feedType?: T;
-              sourceMode?: T;
-              limit?: T;
-              columns?: T;
-              includeCta?: T;
-              ctaLabel?: T;
-              ctaHref?: T;
-              itemBasePath?: T;
-              manualEvents?: T;
-              manualSpotlight?: T;
-              manualLearning?: T;
-              eventStatus?: T;
-              spotlightCategory?: T;
-              learningCategory?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgEventDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              event?: T;
-              showRegistrationCta?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgEventRegistrationSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              event?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgSpotlightDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              spotlightEntry?: T;
-              showCategoryNav?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgLearningDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              learningEntry?: T;
-              showCategoryNav?: T;
-              id?: T;
-              blockName?: T;
-            };
         orgAboutDetailSection?:
           | T
           | {
@@ -15540,124 +12526,6 @@ export interface ReusableSectionsSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        orgFeedSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              heading?: T;
-              subheading?: T;
-              feedType?: T;
-              sourceMode?: T;
-              limit?: T;
-              columns?: T;
-              includeCta?: T;
-              ctaLabel?: T;
-              ctaHref?: T;
-              itemBasePath?: T;
-              manualEvents?: T;
-              manualSpotlight?: T;
-              manualLearning?: T;
-              eventStatus?: T;
-              spotlightCategory?: T;
-              learningCategory?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgEventDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              event?: T;
-              showRegistrationCta?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgEventRegistrationSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              event?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgSpotlightDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              spotlightEntry?: T;
-              showCategoryNav?: T;
-              id?: T;
-              blockName?: T;
-            };
-        orgLearningDetailSection?:
-          | T
-          | {
-              structuralKey?: T;
-              theme?: T;
-              sectionLabel?: T;
-              backgroundColor?: T;
-              size?: T;
-              anchorId?: T;
-              customClassName?: T;
-              isHidden?: T;
-              visibleFrom?: T;
-              visibleUntil?: T;
-              headingSize?: T;
-              textAlign?: T;
-              headingTag?: T;
-              learningEntry?: T;
-              showCategoryNav?: T;
-              id?: T;
-              blockName?: T;
-            };
         orgAboutDetailSection?:
           | T
           | {
@@ -15817,84 +12685,6 @@ export interface RedirectRulesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog-posts_select".
- */
-export interface BlogPostsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  excerpt?: T;
-  coverImage?: T;
-  body?: T;
-  publishedAt?: T;
-  isFeatured?: T;
-  readingTimeMinutes?: T;
-  tags?:
-    | T
-    | {
-        tag?: T;
-        id?: T;
-      };
-  category?: T;
-  resourceUrl?: T;
-  resourceFile?: T;
-  locale?: T;
-  translationGroupId?: T;
-  createdBy?: T;
-  workflowStatus?: T;
-  submittedBy?: T;
-  submittedAt?: T;
-  reviewChecklistComplete?: T;
-  reviewSummary?: T;
-  approvedBy?: T;
-  approvedAt?: T;
-  rejectionReason?: T;
-  seo?:
-    | T
-    | {
-        metaTitle?: T;
-        metaDescription?: T;
-        ogTitle?: T;
-        ogDescription?: T;
-        ogImage?: T;
-        canonicalUrl?: T;
-        noindex?: T;
-        nofollow?: T;
-        includeInSitemap?: T;
-      };
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog-categories_select".
- */
-export interface BlogCategoriesSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  description?: T;
-  workflowStatus?: T;
-  submittedBy?: T;
-  submittedAt?: T;
-  reviewChecklistComplete?: T;
-  reviewSummary?: T;
-  approvedBy?: T;
-  approvedAt?: T;
-  rejectionReason?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "testimonials_select".
  */
 export interface TestimonialsSelect<T extends boolean = true> {
@@ -16005,140 +12795,6 @@ export interface LogosSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "email-templates_select".
- */
-export interface EmailTemplatesSelect<T extends boolean = true> {
-  name?: T;
-  subject?: T;
-  preheader?: T;
-  heading?: T;
-  highlightTitle?: T;
-  body?: T;
-  buttonLabel?: T;
-  buttonUrl?: T;
-  replyTo?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "org-events_select".
- */
-export interface OrgEventsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  eventType?: T;
-  eventStatus?: T;
-  startDate?: T;
-  endDate?: T;
-  startTime?: T;
-  endTime?: T;
-  eventTimezone?: T;
-  shortSummary?: T;
-  description?: T;
-  heroImage?: T;
-  venue?: T;
-  location?: T;
-  isFeatured?: T;
-  displayPriority?: T;
-  registrationRequired?: T;
-  registrationForm?: T;
-  registrationInstructions?: T;
-  displayWindowStart?: T;
-  displayWindowEnd?: T;
-  relatedSpotlight?: T;
-  relatedLearning?: T;
-  relatedEvents?: T;
-  mediaGallery?:
-    | T
-    | {
-        image?: T;
-        id?: T;
-      };
-  externalLinks?:
-    | T
-    | {
-        label?: T;
-        url?: T;
-        id?: T;
-      };
-  createdBy?: T;
-  workflowStatus?: T;
-  submittedBy?: T;
-  submittedAt?: T;
-  reviewChecklistComplete?: T;
-  reviewSummary?: T;
-  approvedBy?: T;
-  approvedAt?: T;
-  rejectionReason?: T;
-  seo?:
-    | T
-    | {
-        metaTitle?: T;
-        metaDescription?: T;
-        ogTitle?: T;
-        ogDescription?: T;
-        ogImage?: T;
-        canonicalUrl?: T;
-        noindex?: T;
-        nofollow?: T;
-        includeInSitemap?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "org-spotlight_select".
- */
-export interface OrgSpotlightSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  category?: T;
-  shortSummary?: T;
-  detailContent?: T;
-  thumbnailImage?: T;
-  roleTitle?: T;
-  affiliation?: T;
-  isFeatured?: T;
-  displayOrder?: T;
-  additionalImages?:
-    | T
-    | {
-        image?: T;
-        id?: T;
-      };
-  externalLink?: T;
-  relatedEvents?: T;
-  createdBy?: T;
-  workflowStatus?: T;
-  submittedBy?: T;
-  submittedAt?: T;
-  reviewChecklistComplete?: T;
-  reviewSummary?: T;
-  approvedBy?: T;
-  approvedAt?: T;
-  rejectionReason?: T;
-  seo?:
-    | T
-    | {
-        metaTitle?: T;
-        metaDescription?: T;
-        ogTitle?: T;
-        ogDescription?: T;
-        ogImage?: T;
-        canonicalUrl?: T;
-        noindex?: T;
-        nofollow?: T;
-        includeInSitemap?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "org-about-profiles_select".
  */
 export interface OrgAboutProfilesSelect<T extends boolean = true> {
@@ -16158,49 +12814,6 @@ export interface OrgAboutProfilesSelect<T extends boolean = true> {
         id?: T;
       };
   externalLink?: T;
-  createdBy?: T;
-  workflowStatus?: T;
-  submittedBy?: T;
-  submittedAt?: T;
-  reviewChecklistComplete?: T;
-  reviewSummary?: T;
-  approvedBy?: T;
-  approvedAt?: T;
-  rejectionReason?: T;
-  seo?:
-    | T
-    | {
-        metaTitle?: T;
-        metaDescription?: T;
-        ogTitle?: T;
-        ogDescription?: T;
-        ogImage?: T;
-        canonicalUrl?: T;
-        noindex?: T;
-        nofollow?: T;
-        includeInSitemap?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "org-learning_select".
- */
-export interface OrgLearningSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  category?: T;
-  shortSummary?: T;
-  detailContent?: T;
-  thumbnail?: T;
-  author?: T;
-  isFeatured?: T;
-  displayOrder?: T;
-  externalReferenceLink?: T;
-  relatedEvent?: T;
-  relatedSpotlight?: T;
   createdBy?: T;
   workflowStatus?: T;
   submittedBy?: T;
@@ -16274,6 +12887,13 @@ export interface FrameworkEntriesSelect<T extends boolean = true> {
         nofollow?: T;
         includeInSitemap?: T;
       };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -16325,6 +12945,13 @@ export interface SolutionEntriesSelect<T extends boolean = true> {
         nofollow?: T;
         includeInSitemap?: T;
       };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -16374,6 +13001,13 @@ export interface InsightEntriesSelect<T extends boolean = true> {
         noindex?: T;
         nofollow?: T;
         includeInSitemap?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -16502,7 +13136,6 @@ export interface FormsSelect<T extends boolean = true> {
         id?: T;
       };
   templateKey?: T;
-  emailTemplate?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -16709,16 +13342,24 @@ export interface SiteSetting {
   id: number;
   siteName?: string | null;
   /**
-   * Optional logo image. If not set, the site name text is used.
+   * Primary logo image. Defer execution if not owner-supplied.
    */
   logoImage?: (number | null) | Media;
+  /**
+   * Logo version for dark backgrounds.
+   */
+  reversedLogoImage?: (number | null) | Media;
+  /**
+   * Favicon and touch icon. Must be owner supplied.
+   */
+  faviconImage?: (number | null) | Media;
   /**
    * Logo display width in pixels
    */
   logoWidth?: number | null;
   brandTagline?: string | null;
-  siteUrl?: string | null;
-  contactEmail?: string | null;
+  siteUrl: string;
+  contactEmail: string;
   twitterHandle?: string | null;
   /**
    * Add, remove, and hide top-right navbar buttons directly from the dashboard.
@@ -17019,6 +13660,22 @@ export interface SiteSetting {
  */
 export interface UiSetting {
   id: number;
+  /**
+   * Governs the startup_professional Family (fixed for the current phase). Changing scheme triggers a full cascade: all colours, buttons, and email palette are overwritten, and the three preset selectors are validated against the new scheme's allowed sets.
+   */
+  currentScheme?: ('warm_professional' | 'professional_cool' | 'modern_technical') | null;
+  /**
+   * Must be within the active scheme's allowed typography presets. On scheme switch, cascade resolution replaces this with the new scheme's default if the current preset is not in the allowed set.
+   */
+  currentTypographyPreset?: ('tp_editorial_professional' | 'tp_professional_modern') | null;
+  /**
+   * Controls section and hero padding scale. Cascade resolution enforced on scheme switch.
+   */
+  currentSpacingPreset?: ('sp_relaxed' | 'sp_standard') | null;
+  /**
+   * Controls button and card corner radius. Cascade resolution enforced on scheme switch.
+   */
+  currentRadiusPreset?: ('rd_soft_controlled' | 'rd_minimal') | null;
   colors?: {
     /**
      * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
@@ -17033,7 +13690,7 @@ export interface UiSetting {
      */
     background?: string | null;
     /**
-     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Card and elevated surface colour — must differ from background to provide depth separation. Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     surface?: string | null;
     /**
@@ -17057,7 +13714,7 @@ export interface UiSetting {
      */
     link?: string | null;
     /**
-     * Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Accessibility focus ring colour (WCAG 2.2). Must satisfy contrast requirements. Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     focusRing?: string | null;
     /**
@@ -17117,7 +13774,7 @@ export interface UiSetting {
      */
     cookieLink?: string | null;
     /**
-     * Navbar container background color (top of page). Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Navbar container background (top of page). Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     navBackground?: string | null;
     /**
@@ -17131,11 +13788,11 @@ export interface UiSetting {
   };
   typography?: {
     /**
-     * Controls the font used across the public site, including navigation, headings, buttons, and body copy. Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Body font (navigation, buttons, and body copy). Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     bodyFontFamily?: string | null;
     /**
-     * Legacy display-font override kept only for backwards compatibility.
+     * Legacy display-font override — kept only for backwards compatibility.
      */
     displayFontFamily?: string | null;
     baseFontSize?: number | null;
@@ -17149,11 +13806,11 @@ export interface UiSetting {
      */
     sectionLabelLetterSpacing?: string | null;
     /**
-     * Legacy heading-font stylesheet URL kept only for backwards compatibility.
+     * Legacy heading-font stylesheet URL — kept only for backwards compatibility.
      */
     headingFontUrl?: string | null;
     /**
-     * Optional Google Fonts or external stylesheet URL for the site font (for example https://fonts.googleapis.com/css2?family=...).
+     * Optional Google Fonts or external stylesheet URL for the site font.
      */
     bodyFontUrl?: string | null;
   };
@@ -17236,7 +13893,7 @@ export interface UiSetting {
      */
     ghostText?: string | null;
     /**
-     * Navbar CTA button background color (not the navbar container). Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
+     * Navbar CTA button background (not the navbar container). Use a single safe CSS value (for example #1B2D4F, rgb(...), 1200px, clamp(...), or var(...)).
      */
     navBackground?: string | null;
     /**
@@ -17249,7 +13906,7 @@ export interface UiSetting {
     navText?: string | null;
   };
   /**
-   * Transactional email palette used for guide and inquiry notifications.
+   * Transactional email palette for inquiry and notification emails.
    */
   emailPalette?: {
     /**
@@ -17417,52 +14074,14 @@ export interface OrgSponsor {
   createdAt?: string | null;
 }
 /**
- * Curated home-page selections for events, spotlight, and learning with per-section placeholders.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "org-home-features".
- */
-export interface OrgHomeFeature {
-  id: number;
-  /**
-   * Optional curated events for the home page (max 3).
-   */
-  featuredEvents?: (number | OrgEvent)[] | null;
-  /**
-   * Optional curated spotlight entries for the home page (max 3).
-   */
-  featuredSpotlight?: (number | OrgSpotlight)[] | null;
-  /**
-   * Optional curated learning entries for the home page (max 3).
-   */
-  featuredLearning?: (number | OrgLearning)[] | null;
-  /**
-   * Shown when no events can be rendered on the home page.
-   */
-  eventsPlaceholder?: string | null;
-  /**
-   * Shown when no spotlight entries can be rendered on the home page.
-   */
-  spotlightPlaceholder?: string | null;
-  /**
-   * Shown when no learning entries can be rendered on the home page.
-   */
-  learningPlaceholder?: string | null;
-  /**
-   * Optional section order override (events, spotlight, learning, sponsors).
-   */
-  homeSectionOrder?: ('events' | 'spotlight' | 'learning' | 'sponsors')[] | null;
-  _status?: ('draft' | 'published') | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
   siteName?: T;
   logoImage?: T;
+  reversedLogoImage?: T;
+  faviconImage?: T;
   logoWidth?: T;
   brandTagline?: T;
   siteUrl?: T;
@@ -17657,6 +14276,10 @@ export interface SiteSettingsSelect<T extends boolean = true> {
  * via the `definition` "ui-settings_select".
  */
 export interface UiSettingsSelect<T extends boolean = true> {
+  currentScheme?: T;
+  currentTypographyPreset?: T;
+  currentSpacingPreset?: T;
+  currentRadiusPreset?: T;
   colors?:
     | T
     | {
@@ -17784,23 +14407,6 @@ export interface OrgSponsorsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "org-home-features_select".
- */
-export interface OrgHomeFeaturesSelect<T extends boolean = true> {
-  featuredEvents?: T;
-  featuredSpotlight?: T;
-  featuredLearning?: T;
-  eventsPlaceholder?: T;
-  spotlightPlaceholder?: T;
-  learningPlaceholder?: T;
-  homeSectionOrder?: T;
-  _status?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -17821,24 +14427,17 @@ export interface TaskCreateCollectionExport {
     collectionSlug:
       | 'users'
       | 'media'
-      | 'service-items'
       | 'site-pages'
       | 'page-drafts'
       | 'page-presets'
       | 'page-playgrounds'
       | 'reusable-sections'
       | 'redirect-rules'
-      | 'blog-posts'
-      | 'blog-categories'
       | 'testimonials'
       | 'audit-logs'
       | 'team-members'
       | 'logos'
-      | 'email-templates'
-      | 'org-events'
-      | 'org-spotlight'
       | 'org-about-profiles'
-      | 'org-learning'
       | 'framework-entries'
       | 'solution-entries'
       | 'insight-entries'

@@ -58,6 +58,9 @@ async function OrgAboutDetailSectionServer({
         .map((item) => extractMediaAsset(item.image))
         .filter((item): item is NonNullable<typeof item> => !!item)
     : [];
+  const categoryLabel = (profile.category || 'about').replace(/_/g, ' ');
+  const activeCategory = profile.category || 'about';
+  const profileName = profile.name || 'Profile';
 
   return (
     <section
@@ -78,13 +81,13 @@ async function OrgAboutDetailSectionServer({
           {profile.name}
         </SectionHeading>
         <p style={detailMetaStyle}>
-          {profile.category.replace(/_/g, ' ')}
+          {categoryLabel}
         </p>
 
         {navItems ? (
           <OrgSecondaryNav
             items={navItems}
-            activeHref={`${categoryNavBasePath}/${profile.category}/${profile.slug}`}
+            activeHref={`${categoryNavBasePath}/${activeCategory}/${profile.slug}`}
           />
         ) : null}
 
@@ -142,7 +145,7 @@ async function OrgAboutDetailSectionServer({
                 <Image
                   key={galleryImage.url}
                   src={galleryImage.url}
-                  alt={galleryImage.alt || profile.name}
+                  alt={galleryImage.alt || profileName}
                   width={galleryImage.width || 500}
                   height={galleryImage.height || 500}
                   style={{

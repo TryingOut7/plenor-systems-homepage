@@ -8,6 +8,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [settings, cms] = await Promise.all([getSiteSettings(), getSitemapSlugs()]);
   const base = resolveSiteUrl(settings);
   const lastModified = new Date();
+  const sitePages = cms.sitePages ?? [];
+  const frameworkEntries = cms.frameworkEntries ?? [];
+  const solutionEntries = cms.solutionEntries ?? [];
+  const insightEntries = cms.insightEntries ?? [];
+  const aboutProfiles = cms.aboutProfiles ?? [];
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${base}/`, lastModified, changeFrequency: 'weekly', priority: 1.0 },
@@ -20,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const dynamicRoutes: MetadataRoute.Sitemap = [
-    ...cms.sitePages
+    ...sitePages
       .filter((page) => page.includeInSitemap !== false && page.slug)
       .map((page) => ({
         url: `${base}/${page.slug}`,
@@ -28,15 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'weekly' as const,
         priority: 0.7,
       })),
-    ...cms.serviceItems
-      .filter((service) => service.includeInSitemap !== false && service.slug)
-      .map((service) => ({
-        url: `${base}/services/${service.slug}`,
-        lastModified: service.updatedAt ? new Date(service.updatedAt) : lastModified,
-        changeFrequency: 'monthly' as const,
-        priority: 0.8,
-      })),
-    ...cms.frameworkEntries
+    ...frameworkEntries
       .filter((entry) => entry.includeInSitemap !== false && entry.slug)
       .map((entry) => ({
         url: `${base}/framework/${entry.slug}`,
@@ -44,7 +41,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'monthly' as const,
         priority: 0.8,
       })),
-    ...cms.solutionEntries
+    ...solutionEntries
       .filter((entry) => entry.includeInSitemap !== false && entry.slug)
       .map((entry) => ({
         url: `${base}/solutions/${entry.slug}`,
@@ -52,7 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'monthly' as const,
         priority: 0.8,
       })),
-    ...cms.insightEntries
+    ...insightEntries
       .filter((entry) => entry.includeInSitemap !== false && entry.slug)
       .map((entry) => ({
         url: `${base}/insights/${entry.slug}`,
@@ -60,7 +57,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'weekly' as const,
         priority: 0.8,
       })),
-    ...cms.aboutProfiles
+    ...aboutProfiles
       .filter((entry) => entry.includeInSitemap !== false && entry.slug)
       .map((entry) => ({
         url: `${base}/about/${entry.slug}`,

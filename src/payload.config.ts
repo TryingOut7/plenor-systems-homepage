@@ -43,31 +43,23 @@ import { consoleEmailAdapter } from './payload/email/consoleEmailAdapter.ts';
 // ─── Collections & Globals ────────────────────────────────────────────────────
 
 import { Media } from './payload/collections/Media.ts';
-import { ServiceItems } from './payload/collections/ServiceItems.ts';
 import { SitePages } from './payload/collections/SitePages.ts';
 import { PageDrafts } from './payload/collections/PageDrafts.ts';
 import { PagePresets } from './payload/collections/PagePresets.ts';
 import { PagePlaygrounds } from './payload/collections/PagePlaygrounds.ts';
 import { ReusableSections } from './payload/collections/ReusableSections.ts';
 import { RedirectRules } from './payload/collections/RedirectRules.ts';
-import { BlogPosts } from './payload/collections/BlogPosts.ts';
-import { BlogCategories } from './payload/collections/BlogCategories.ts';
 import { Testimonials } from './payload/collections/Testimonials.ts';
 import { AuditLogs } from './payload/collections/AuditLogs.ts';
 import { TeamMembers } from './payload/collections/TeamMembers.ts';
 import { Logos } from './payload/collections/Logos.ts';
-import { EmailTemplates } from './payload/collections/EmailTemplates.ts';
-import { OrgEvents } from './payload/collections/OrgEvents.ts';
-import { OrgSpotlight } from './payload/collections/OrgSpotlight.ts';
 import { OrgAboutProfiles } from './payload/collections/OrgAboutProfiles.ts';
-import { OrgLearning } from './payload/collections/OrgLearning.ts';
 import { FrameworkEntries } from './payload/collections/FrameworkEntries.ts';
 import { SolutionEntries } from './payload/collections/SolutionEntries.ts';
 import { InsightEntries } from './payload/collections/InsightEntries.ts';
 import { SiteSettings } from './payload/globals/SiteSettings.ts';
 import { UISettings } from './payload/globals/UISettings.ts';
 import { OrgSponsors } from './payload/globals/OrgSponsors.ts';
-import { OrgHomeFeatures } from './payload/globals/OrgHomeFeatures.ts';
 import { CleanPasteFeature } from './payload/editor/features/cleanPasteFeature.ts';
 import {
   parseFormTemplateKey,
@@ -257,7 +249,7 @@ const adminToastPositionValues = [
   'top-left',
   'top-right',
 ] as const;
-const defaultAdminDateFormat = 'MMM d, yyyy h:mm a';
+const defaultAdminDateFormat = 'yyyy-MM-dd HH:mm';
 const defaultAdminLanguage: AcceptedLanguages = 'en';
 const allRoles = ['admin', 'editor', 'author'] as const;
 const contentManagerRoles = ['admin', 'editor'] as const;
@@ -381,10 +373,6 @@ function resolveCollectionLivePreviewPath(
     return `/${slug}`;
   }
 
-  if (collectionSlug === 'service-items') {
-    if (!slug) return '/services';
-    return `/services/${slug}`;
-  }
 
   return null;
 }
@@ -642,7 +630,7 @@ export default buildConfig({
     },
     livePreview: {
       url: resolveLivePreviewURL,
-      collections: ['site-pages', 'page-drafts', 'service-items'],
+      collections: ['site-pages', 'page-drafts'],
       globals: ['site-settings', 'ui-settings'],
       breakpoints: [
         { label: 'Mobile', name: 'mobile', width: 375, height: 667 },
@@ -767,29 +755,22 @@ export default buildConfig({
       ],
     },
     withImportExportBanner(Media),
-    withImportExportBanner(ServiceItems),
     withImportExportBanner(SitePages),
     PageDrafts,
     PagePresets,
     PagePlaygrounds,
     withImportExportBanner(ReusableSections),
     withImportExportBanner(RedirectRules),
-    withImportExportBanner(BlogPosts),
-    BlogCategories,
     withImportExportBanner(Testimonials),
     AuditLogs,
     TeamMembers,
     Logos,
-    EmailTemplates,
-    withImportExportBanner(OrgEvents),
-    withImportExportBanner(OrgSpotlight),
     withImportExportBanner(OrgAboutProfiles),
-    withImportExportBanner(OrgLearning),
     FrameworkEntries,
     SolutionEntries,
     InsightEntries,
   ],
-  globals: [SiteSettings, UISettings, OrgSponsors, OrgHomeFeatures],
+  globals: [SiteSettings, UISettings, OrgSponsors],
   editor: lexicalEditor({
     features: () => [
       BoldFeature(),
@@ -864,7 +845,7 @@ export default buildConfig({
     // ── SEO Plugin ────────────────────────────────────────────────────────────
     // Adds meta title, description, and image fields to content collections
     seoPlugin({
-      collections: ['service-items', 'site-pages', 'blog-posts', 'testimonials'],
+      collections: ['site-pages', 'testimonials', 'framework-entries', 'solution-entries', 'insight-entries'],
       globals: ['site-settings'],
       uploadsCollection: 'media',
       generateTitle: ({ doc }) =>
@@ -892,12 +873,13 @@ export default buildConfig({
     // ── Search Plugin ─────────────────────────────────────────────────────────
     // Indexes content for fast full-text search
     searchPlugin({
-      collections: ['service-items', 'site-pages', 'blog-posts', 'testimonials'],
+      collections: ['site-pages', 'testimonials', 'framework-entries', 'solution-entries', 'insight-entries'],
       defaultPriorities: {
-        'service-items': 20,
         'site-pages': 15,
-        'blog-posts': 10,
         'testimonials': 5,
+        'framework-entries': 20,
+        'solution-entries': 20,
+        'insight-entries': 10,
       },
     }),
 
@@ -944,18 +926,7 @@ export default buildConfig({
                 'Immutable template discriminator used by frontend submission routing.',
             },
           },
-          {
-            name: 'emailTemplate',
-            type: 'relationship',
-            relationTo: 'email-templates',
-            required: false,
-            admin: {
-              position: 'sidebar',
-              condition: (data) => data?.templateKey === 'guide',
-              description:
-                'Email template to use when delivering a guide to the subscriber. Only applies to forms with templateKey = "guide".',
-            },
-          },
+
         ],
         admin: {
           group: 'Leads',
@@ -1009,11 +980,12 @@ export default buildConfig({
     // Import and export collection data as CSV or JSON
     importExportPlugin({
       collections: [
-        { slug: 'service-items' },
         { slug: 'site-pages' },
         { slug: 'reusable-sections' },
         { slug: 'redirect-rules' },
-        { slug: 'blog-posts' },
+        { slug: 'framework-entries' },
+        { slug: 'solution-entries' },
+        { slug: 'insight-entries' },
         { slug: 'testimonials' },
         { slug: 'media' },
       ],

@@ -26,6 +26,10 @@ beforeEach(() => {
   getSitemapSlugsMock.mockResolvedValue({
     sitePages: [],
     serviceItems: [],
+    frameworkEntries: [],
+    solutionEntries: [],
+    insightEntries: [],
+    aboutProfiles: [],
   });
   resolveSiteUrlMock.mockReturnValue('https://example.com');
 });
@@ -39,9 +43,19 @@ describe('sitemap', () => {
         { slug: 'hidden', includeInSitemap: false, updatedAt: '2026-04-05T00:00:00.000Z' },
         { slug: '', updatedAt: '2026-04-04T00:00:00.000Z' },
       ],
-      serviceItems: [
+      serviceItems: [],
+      frameworkEntries: [
+        { slug: 'operating-model', updatedAt: '2026-04-04T00:00:00.000Z' },
+      ],
+      solutionEntries: [
         { slug: 'advisory', updatedAt: '2026-04-03T00:00:00.000Z' },
         { slug: 'internal', includeInSitemap: false, updatedAt: '2026-04-02T00:00:00.000Z' },
+      ],
+      insightEntries: [
+        { slug: 'launch-notes', updatedAt: '2026-04-01T00:00:00.000Z' },
+      ],
+      aboutProfiles: [
+        { slug: 'founder', updatedAt: '2026-03-31T00:00:00.000Z' },
       ],
     });
 
@@ -50,17 +64,21 @@ describe('sitemap', () => {
     const urls = entries.map((entry) => entry.url);
 
     expect(urls).toContain('https://example.com/');
-    expect(urls).toContain('https://example.com/services');
-    expect(urls).toContain('https://example.com/pricing');
+    expect(urls).toContain('https://example.com/framework');
+    expect(urls).toContain('https://example.com/solutions');
+    expect(urls).toContain('https://example.com/insights');
     expect(urls).toContain('https://example.com/about');
     expect(urls).toContain('https://example.com/contact');
     expect(urls).toContain('https://example.com/privacy');
 
     expect(urls).toContain('https://example.com/events');
-    expect(urls).toContain('https://example.com/services/advisory');
+    expect(urls).toContain('https://example.com/framework/operating-model');
+    expect(urls).toContain('https://example.com/solutions/advisory');
+    expect(urls).toContain('https://example.com/insights/launch-notes');
+    expect(urls).toContain('https://example.com/about/founder');
 
     expect(urls).not.toContain('https://example.com/hidden');
-    expect(urls).not.toContain('https://example.com/services/internal');
+    expect(urls).not.toContain('https://example.com/solutions/internal');
     expect(urls.some((url) => url.includes('/community'))).toBe(false);
 
     expect(urls.filter((url) => url === 'https://example.com/about')).toHaveLength(1);
@@ -69,7 +87,11 @@ describe('sitemap', () => {
   it('treats includeInSitemap as enabled when unset', async () => {
     getSitemapSlugsMock.mockResolvedValue({
       sitePages: [{ slug: 'resources', updatedAt: '2026-04-07T00:00:00.000Z' }],
-      serviceItems: [{ slug: 'implementation', updatedAt: '2026-04-06T00:00:00.000Z' }],
+      serviceItems: [],
+      frameworkEntries: [],
+      solutionEntries: [{ slug: 'implementation', updatedAt: '2026-04-06T00:00:00.000Z' }],
+      insightEntries: [],
+      aboutProfiles: [],
     });
 
     const sitemap = await loadSitemap();
@@ -77,6 +99,6 @@ describe('sitemap', () => {
     const urls = entries.map((entry) => entry.url);
 
     expect(urls).toContain('https://example.com/resources');
-    expect(urls).toContain('https://example.com/services/implementation');
+    expect(urls).toContain('https://example.com/solutions/implementation');
   });
 });

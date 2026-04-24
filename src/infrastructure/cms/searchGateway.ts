@@ -8,12 +8,32 @@ const FEATURED_COLLECTIONS = new Set<SearchableCollection>([
   'testimonials',
 ]);
 
+type PayloadSearchCollection =
+  | 'insight-entries'
+  | 'site-pages'
+  | 'solution-entries'
+  | 'testimonials';
+
+function resolvePayloadCollection(
+  collection: SearchableCollection,
+): PayloadSearchCollection {
+  switch (collection) {
+    case 'service-items':
+      return 'solution-entries';
+    case 'blog-posts':
+      return 'insight-entries';
+    default:
+      return collection;
+  }
+}
+
 async function findPublishedDocuments(params: {
   collection: SearchableCollection;
   query: string;
   featuredFilter: string | null;
   limit: number;
 }): Promise<Array<Record<string, unknown>>> {
+  const payloadCollection = resolvePayloadCollection(params.collection);
   const { getPayload } = await import('../../payload/client');
   const where: Record<string, unknown> = {
     workflowStatus: { equals: 'published' },
@@ -22,7 +42,7 @@ async function findPublishedDocuments(params: {
   if (params.query) {
     const likeQuery = { like: `%${params.query}%` };
 
-    if (params.collection === 'testimonials') {
+    if (payloadCollection === 'testimonials') {
       where.or = [
         { name: likeQuery },
         { company: likeQuery },
@@ -31,8 +51,8 @@ async function findPublishedDocuments(params: {
     } else {
       where.or = [
         { title: likeQuery },
-        ...(params.collection === 'blog-posts' ? [{ excerpt: likeQuery }] : []),
-        ...(params.collection === 'service-items' ? [{ summary: likeQuery }] : []),
+        ...(payloadCollection === 'insight-entries' ? [{ excerpt: likeQuery }] : []),
+        ...(payloadCollection === 'solution-entries' ? [{ summary: likeQuery }] : []),
       ];
     }
   }
@@ -43,7 +63,7 @@ async function findPublishedDocuments(params: {
 
   const payload = await getPayload();
   const found = await payload.find({
-    collection: params.collection,
+    collection: payloadCollection,
     where: where as Where,
     limit: params.limit,
     page: 1,

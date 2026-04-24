@@ -19,8 +19,26 @@ export default function FaqSection({
   innerStyle,
   resolvedHeadingColor,
   resolvedBodyColor,
+  pageSlug,
 }: SectionRendererProps) {
   const sectionRecord = asSectionRecord(section);
+
+  const allowedSlugs = ['framework', 'solutions', 'contact'];
+  const isAllowed =
+    !pageSlug ||
+    allowedSlugs.some((slug) => pageSlug === slug || pageSlug?.startsWith(`${slug}/`));
+
+  if (!isAllowed) {
+    if (process.env.NODE_ENV !== 'production') {
+      return (
+        <div style={{ padding: '24px', backgroundColor: '#fef2f2', color: '#991b1b', border: '1px solid #f87171', borderRadius: '8px', margin: '24px auto', maxWidth: '800px' }}>
+          <strong>Governance Constraint Violation:</strong> FAQ sections are only permitted on Framework, Solutions, and Contact pages.
+        </div>
+      );
+    }
+    return null;
+  }
+
   const rawItems = Array.isArray(sectionRecord.items) ? sectionRecord.items : [];
   const faqItems = rawItems.map((item: unknown) => {
     const i = item as { question?: string; answer?: string };

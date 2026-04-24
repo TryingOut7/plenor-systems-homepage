@@ -1,0 +1,463 @@
+
+Website Solution Architecture Standard
+Level 2 Artifact 2.4
+
+Version 1.0  |  Baseline
+Status
+Governing artifact — active architecture authority.
+ 
+
+
+1.  Purpose, Scope, and Role
+1.1  Purpose
+This document defines the structural architecture standard for website solutions governed under the Website Solution System Framework.
+
+Its purpose is to define:
+•	how a website solution is structurally organized
+•	what the canonical logical modules of the solution are
+•	what each logical module means
+•	what each logical module may and may not do
+•	how logical modules relate to one another
+•	what structural rules must remain stable across websites and across code-generation tools
+•	how the structural architecture supports repeatable realization and technical mapping
+1.2  Scope
+This document is in scope for:
+•	the logical structure of the website solution
+•	the canonical logical modules used to organize that structure
+•	classification rules for architectural concerns
+•	dependency rules
+•	orthogonality rules
+•	architecture invariants
+•	extension rules
+•	technology-mapping rule
+•	tool-independence rule
+•	the required contents of a site-specific solution architecture derived from this standard
+1.3  Out of Scope
+This document is not the place where:
+•	product requirements for a specific website are defined
+•	active design, navigation, or metadata values are defined
+•	the catalog of buildable modules or reusable components is defined
+•	page composition rules are defined in detail
+•	stack-specific implementation choices are defined
+
+Those belong to the Website Specification, Site Configuration artifacts, Website Realization and Page Composition Standard, and Technical Build Profile respectively.
+1.4  Role
+This document is the Level 2 structural architecture artifact for the website solution system.
+
+It defines how the website solution is structurally organized so that downstream realization and implementation can occur through self-contained, reusable, and orthogonal logical modules rather than through local architectural invention.
+2.  Governing Relationship
+2.1  Upstream Artifacts
+This document derives from:
+•	Website Solution System Framework
+•	Website Specification
+•	Site Configuration Standard
+•	Site Configuration Record, where active site-specific governed values are relevant
+2.2  Downstream Artifacts
+This document constrains:
+•	Website Realization and Page Composition Standard
+•	Technical Build Profile
+•	any site-specific solution architecture derived from this standard
+•	developer and code-generation outputs that depend on those downstream artifacts
+2.3  Authority
+This document is authoritative within its declared scope for the structural organization of the website solution.
+
+It does not replace upstream artifacts within their scope and must not be overridden silently by downstream artifacts.
+3.  Governing Principles
+3.1  Derive, Do Not Invent
+Structural architecture must be derived from upstream requirements, configuration rules, and stated constraints.
+
+It must not invent product behavior, policy, or governed values that are absent upstream.
+3.2  Technology Independence
+The structural architecture must remain independent of specific frontend frameworks, CMS products, hosting platforms, styling systems, and implementation idioms.
+3.3  Tool Independence
+The structural architecture must be defined strongly enough that the same governed inputs produce materially equivalent structural outcomes regardless of which code-generation tool is used.
+3.4  Separation of Concerns
+Distinct architectural responsibilities must remain separate unless an explicit governed architectural decision permits otherwise.
+3.5  Structural Clarity Over Theoretical Optimization
+The architecture must be readable, logically sequenced, and understandable to a competent developer without requiring specialist interpretation.
+3.6  Reuse Through Controlled Variation
+Different websites must be realizable through the same structural system using bounded inputs and approved extensions rather than by redefining the architecture each time.
+3.7  Explicit Extension Only
+New structural categories, new dependency paths, or new architectural rules may be introduced only through governed extension.
+3.8  Centralized Configuration Resolution
+Governed configuration values must be resolved through a defined architectural pathway and must not be invented or substituted locally in downstream realization.
+3.9  CMS Isolation
+Raw CMS structures must be isolated to approved architectural boundaries and must not leak through the structural system indiscriminately.
+4.  Structural Granularity Rule
+4.1  Granularity Rule
+The canonical logical module of the website solution architecture must be defined at the granularity of a self-contained system responsibility or self-contained product function.
+
+It must be:
+•	large enough to represent a meaningful architectural unit
+•	small enough to remain cohesive and governable
+•	distinct enough for reliable classification
+•	stable enough for repeated use across websites
+4.2  Granularity Failures
+A logical module is too small when it represents implementation detail rather than architectural responsibility.
+
+A logical module is too large when it collapses multiple materially different responsibilities into one category such that builders still have excessive discretion inside it.
+4.3  Logical Module Meaning
+A logical module is an architecture-level classification construct representing a self-contained system responsibility or self-contained product function within the solution structure.
+
+It is not:
+•	a deployable unit
+•	a page-level construct
+•	a buildable module
+•	a reusable UI component
+
+Logical modules are used to define:
+•	structural organization
+•	dependency rules
+•	orthogonality rules
+•	architecture invariants
+5.  Canonical Logical Module Taxonomy
+5.1  Canonical Module Model
+The website solution architecture must classify the solution using the following closed starting set of canonical logical modules.
+
+These are the standard structural units of the website solution system.
+5.2  Solution Context Module
+Purpose:
+define the system boundary, external actors, external systems, and the major interaction context.
+
+It owns:
+•	the system of interest
+•	in-scope and out-of-scope solution boundary
+•	external relationships relevant to the solution architecture
+
+It must not own:
+•	detailed internal structural decomposition
+•	active governed values
+•	stack-specific technical choices
+5.3  Content Access Module
+Purpose:
+obtain source content and related governed assets from the CMS or other approved content sources.
+
+It owns:
+•	source access responsibility
+•	boundaries around source retrieval
+
+It must not own:
+•	page rendering
+•	content normalization
+•	page composition logic
+•	local UI decisions
+5.4  Content Normalization Module
+Purpose:
+transform source content structures into normalized internal content objects suitable for consumption by the rest of the solution.
+
+It owns:
+•	mapping
+•	normalization
+•	structural transformation from source shapes into internal usable content structures
+
+It must not own:
+•	route structure
+•	page rendering
+•	section-specific presentation logic
+•	free-form configuration interpretation
+5.5  Configuration Resolution Module
+Purpose:
+resolve governed configuration values into consumable internal configuration structures for approved downstream architectural use.
+
+It owns:
+•	active governed configuration resolution
+•	exposure of governed values in usable form
+•	provision of resolved configuration structures for approved downstream architectural consumers, including Experience Assembly and any other downstream consumer explicitly permitted by this standard
+
+It must not own:
+•	product policy
+•	raw page rendering
+•	section-local design invention
+•	ad hoc configuration overrides unless explicitly governed upstream
+5.6  Navigation and Route Structure Module
+Purpose:
+govern route structure, navigational structure, and route-to-solution relationships.
+
+It owns:
+•	route structure
+•	navigation structure
+•	page path logic
+•	route-level structural relationships
+
+It must not own:
+•	page rendering details
+•	raw content access
+•	section-local presentation behavior
+5.7  Experience Assembly Module
+Purpose:
+govern the structural responsibility for assembling experiences and views from normalized content, resolved configuration supplied through Configuration Resolution, and route context.
+
+It owns:
+•	structural experience assembly responsibility
+•	structural rules for how normalized content, resolved configuration supplied through Configuration Resolution, and route context come together to form a coherent experience
+
+It must not own:
+•	raw CMS access
+•	downstream page composition rules
+•	downstream buildable module selection
+•	low-level reusable UI parts
+•	local configuration resolution or substitution
+5.8  Shared Presentation Module
+Purpose:
+provide presentation structures whose meaning and reuse are intentionally cross-section and cross-context.
+
+It owns:
+•	reusable presentation structures
+•	common rendering logic that is intentionally cross-context
+
+It must not own:
+•	source retrieval
+•	route structure
+•	section-specific semantics
+•	page-level ownership unless explicitly delegated downstream
+5.9  Section-Specific Presentation Module
+Purpose:
+provide presentation structures whose meaning is intentionally tied to one section, section family, or bounded functional context and therefore should not be treated as general shared presentation.
+
+It owns:
+•	section-specific rendering patterns
+•	section-local presentation behavior
+
+It must not own:
+•	cross-site shared presentation responsibilities
+•	raw CMS access
+•	canonical configuration resolution
+5.10  Interaction Handling Module
+Purpose:
+govern input capture, validation, submission, interaction state, and other structurally significant interaction behavior.
+
+It owns:
+•	interaction flow
+•	validation and submission structure
+•	interaction-specific state behavior
+
+It must not own:
+•	passive presentation rendering
+•	global route structure
+•	general content normalization
+5.11  Metadata and Discoverability Module
+Purpose:
+govern metadata generation, canonical handling, structured discoverability outputs, robots directives, and related non-visible discoverability behavior.
+
+It owns:
+•	metadata outputs
+•	canonical behavior
+•	discoverability outputs
+•	structurally governed non-visible discovery concerns
+
+It must not own:
+•	visible page rendering
+•	general page assembly
+•	arbitrary content transformation outside its scope
+5.12  Cross-Cutting Support Module
+Purpose:
+handle support concerns that genuinely span multiple primary logical modules and cannot be placed within one primary logical module without distortion.
+
+It owns:
+•	only those cross-cutting support concerns that satisfy the rule above and are explicitly justified
+
+It must not become:
+•	a dumping ground for undefined logic
+•	a substitute for classifying work into the proper primary logical module
+
+A concern must not be placed in Cross-Cutting Support merely because classification into a primary logical module is inconvenient, disputed, or would require local design discipline.
+
+Cross-Cutting Support may be used only where placement in a primary logical module would materially distort the architectural responsibility.
+
+Every use of Cross-Cutting Support must include explicit justification.
+6.  Logical Module Classification Rules
+6.1  Classification Requirement
+Every major architectural concern in a website solution must be classified into one canonical logical module.
+
+Local invention of a new logical module category is not allowed unless introduced through governed extension.
+6.2  Equivalent Renaming Rule
+Equivalent local renaming, arbitrary merging, or arbitrary splitting of canonical logical modules is not allowed unless declared as a governed architectural exception with rationale.
+6.3  Classification Rules
+•	If a concern defines the system boundary, external actors, external systems, or the major interaction context of the solution, classify it as Solution Context.
+•	If a concern retrieves source content, classify it as Content Access.
+•	If a concern transforms source structures into internal usable structures, classify it as Content Normalization.
+•	If a concern resolves governed values into consumable runtime configuration, classify it as Configuration Resolution.
+•	If a concern determines route or navigation structure, classify it as Navigation and Route Structure.
+•	If a concern composes experiences or views from content and configuration at the structural level, classify it as Experience Assembly.
+•	If a concern renders reusable visual structures without section-specific semantics, classify it as Shared Presentation.
+•	If a concern renders section-specific visual structures or section-local semantics, classify it as Section-Specific Presentation.
+•	If a concern handles input, validation, submission, or interaction state, classify it as Interaction Handling.
+•	If a concern governs metadata, canonicalization, robots behavior, or discoverability outputs, classify it as Metadata and Discoverability.
+•	If a concern is genuinely cross-cutting support and does not fit the primary categories without distortion, classify it as Cross-Cutting Support with explicit justification.
+7.  Dependency Rules
+7.1  Dependency Requirement
+The architecture must define allowed and prohibited dependency directions using the canonical logical module model.
+7.2  Core Dependency Rules
+Shared Presentation must not depend on Section-Specific Presentation.
+
+Section-Specific Presentation may depend on Shared Presentation.
+
+Content Normalization is the approved upstream source of normalized content for structural experience assembly.
+
+Configuration Resolution is the approved upstream source of governed resolved configuration for structural experience assembly.
+
+Navigation and Route Structure is the approved upstream source of route context for structural experience assembly.
+
+Experience Assembly may depend on Content Normalization, Configuration Resolution, and Navigation and Route Structure for those approved inputs.
+
+Experience Assembly must not depend directly on raw CMS structures.
+
+Experience Assembly must not obtain governed configuration values through local resolution or direct substitution. Where governed configuration is required for structural experience assembly, it must be consumed through Configuration Resolution.
+
+Shared Presentation and Section-Specific Presentation must not directly retrieve raw CMS content.
+
+Configuration Resolution must remain separate from Shared Presentation and Section-Specific Presentation.
+
+Metadata and Discoverability must remain structurally separate from visible rendering concerns, even if outputs derive from related content objects.
+
+Interaction Handling must remain distinct from passive presentation rendering, even where interaction surfaces are visually embedded in shared or section-specific presentation.
+
+Cross-Cutting Support must not absorb responsibilities that belong to a primary logical module.
+8.  Orthogonality Rules
+8.1  Orthogonality Requirement
+The website solution architecture must explicitly preserve the separation of concerns needed to keep the solution structurally clear, reusable, and governable.
+8.2  Mandatory Orthogonality Boundaries
+The following concerns must remain separate unless a governed architectural exception is declared:
+•	source content access and content rendering
+•	content normalization and experience assembly
+•	configuration resolution and styling or rendering decisions
+•	shared presentation and section-specific presentation
+•	navigation/route structure and page-local rendering
+•	discoverability outputs and visible experience rendering
+•	interaction handling and passive presentation
+•	cross-cutting support and primary structural responsibilities
+8.3  Ownership Rule
+Orthogonality must be preserved not only by separating logical modules, but by keeping each architectural responsibility owned by the correct logical module.
+
+A concern is not considered structurally separate merely because it appears in a different location if responsibility for that concern is still blurred across modules.
+9.  Architecture Invariants
+9.1  Invariance Requirement
+The following are invariant across websites and across code-generation tools unless a governed exception is declared:
+•	the canonical logical module taxonomy
+•	the meaning of each logical module
+•	the logical module classification rules
+•	the dependency rules
+•	the orthogonality rules
+•	the rule that raw CMS structures must be isolated
+•	the rule that governed configuration must be centrally resolved
+•	the rule that extension must occur only through approved structural pathways
+10.  Extension Rules
+10.1  Extension Requirement
+The website solution architecture must support change and growth without local architectural invention.
+10.2  Extension Rules
+A new structural concern must fit into an existing canonical logical module wherever possible.
+
+A new structural pathway may be used only if it conforms to existing dependency and orthogonality rules.
+
+A new logical module category may be introduced only through governed extension.
+
+Local structural invention by developers, editors, or code-generation tools is not permitted.
+10.3  Extension Declaration Requirement
+Every governed extension must declare:
+•	the extension being introduced
+•	the existing rules it depends on
+•	the logical modules affected
+•	whether it introduces an exception
+•	the rationale for the change
+11.  Stakeholder and Concern Model
+11.1  Requirement
+Every site-specific solution architecture derived from this standard must identify the stakeholders materially affected by the solution and the concerns that are architecturally significant.
+11.2  Minimum Stakeholder Categories
+At minimum, assess:
+•	website owner or product owner
+•	content administrator or editor
+•	developer or maintainer
+•	end user or visitor
+•	operations or hosting owner where relevant
+•	accessibility, compliance, or security stakeholder where relevant
+11.3  Concern Treatment
+For each architecturally significant concern, the site-specific solution architecture must state:
+•	the concern
+•	why it is architecturally significant
+•	how the architecture addresses it
+or
+•	why it is explicitly out of scope
+12.  Viewpoint and View Model
+12.1  Requirement
+Every site-specific solution architecture derived from this standard must declare the viewpoints used and the views produced.
+12.2  Minimum Viewpoints
+Normally include:
+•	context viewpoint
+•	module/decomposition viewpoint
+•	dependency viewpoint
+•	content and configuration flow viewpoint
+•	interaction viewpoint where materially relevant
+•	operational viewpoint where materially relevant
+13.  Technology Mapping Rule
+13.1  Technology Mapping Rule
+The website solution architecture must define logical modules at a granularity and clarity that allows each logical module to be mapped downstream to concrete technology components or technology layers through straightforward translation rather than reinterpretation.
+13.2  Technology Boundary Reminder
+The Website Solution Architecture Standard defines the logical structural system.
+The Technical Build Profile defines the stack-specific realization of that system.
+14.  Tool-Independence Rule
+14.1  Rule
+The website solution architecture and its downstream technical realization must be defined with sufficient determinism that materially equivalent solution structure, logical module decomposition, boundary behavior, dependency directions, and extension pathways are produced regardless of the code-generation tool used, provided the governing artifacts and chosen Technical Build Profile are the same.
+15.  Required Contents of Every Site-Specific Solution Architecture
+15.1  Required Sections
+Every site-specific solution architecture generated under this standard must include:
+•	purpose, scope, and relationship
+•	governing inputs and assumptions
+•	stakeholder and concern model
+•	architecture principles
+•	viewpoints and views
+•	solution context
+•	logical module classification
+•	dependency and boundary model
+•	content and configuration realization model
+•	structural assembly model
+•	cross-cutting concerns
+•	quality attributes and constraints
+•	extension and change model
+•	decisions and rationale
+•	assumptions, constraints, risks, and open issues
+•	conformance checks
+16.  Quality Attribute Coverage
+16.1  Requirement
+Every site-specific solution architecture must identify the architecturally significant quality attributes and show how the structure addresses them.
+16.2  Minimum Quality Attributes to Assess
+At minimum assess:
+•	functional suitability
+•	usability and accessibility
+•	performance efficiency
+•	security
+•	maintainability
+•	portability
+•	reliability where relevant
+•	compatibility or interoperability where relevant
+17.  Conformance Model
+17.1  Conformance Purpose
+Conformance exists to ensure that site-specific solution architectures derived from this standard actually use the canonical logical modules, preserve the defined structural rules, and remain materially equivalent across tools.
+17.2  Conformance Checks
+At minimum, assess:
+•	were all major architectural concerns classified into canonical logical modules
+•	were dependency rules preserved
+•	were orthogonality rules preserved
+•	were raw CMS structures properly isolated
+•	was governed configuration centrally resolved
+•	was Cross-Cutting Support used only with explicit justification
+•	would the resulting structure remain materially equivalent across code-generation tools
+•	were any structural deviations explicitly declared and justified
+17.3  Conformance Responsibility
+Conformance to this standard must be assessed whenever:
+•	a new site-specific solution architecture is created
+•	a materially revised site-specific solution architecture is proposed
+•	a governed structural extension is proposed
+17.4  Conformance Owner
+Conformance assessment must be performed by the document owner or delegated governance owner for the website solution architecture domain.
+17.5  Non-Conformance Rule
+A site-specific solution architecture that materially violates this standard's logical module model, dependency rules, orthogonality rules, extension rules, or invariants must not be treated as accepted until the non-conformance is resolved or explicitly authorized as a governed exception.
+18.  Final Governing Statements
+18.1  Structural System Statement
+This document defines the structural system of the website solution.
+18.2  Role Statement
+This document is authoritative for the logical organization of the website solution and constrains all downstream realization and technical mapping artifacts within that scope.
+18.3  Reuse Statement
+Different website solutions must be realizable from this same structural system through governed variation and approved extension, not through architectural reinvention.
+18.4  Downstream Statement
+The Website Realization and Page Composition Standard must realize this structural system.
+The Technical Build Profile must map this structural system to the chosen stack without redefining its meaning.

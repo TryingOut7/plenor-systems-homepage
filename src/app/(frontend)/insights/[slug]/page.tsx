@@ -10,6 +10,7 @@ import {
   getOptionLabel,
 } from '@/lib/plenor-site';
 import { getInsightEntries, getInsightEntryBySlug, getSiteSettings } from '@/payload/cms';
+import { resolveSiteUrl } from '@/lib/site-config';
 
 export const revalidate = 60;
 
@@ -43,18 +44,38 @@ export default async function InsightDetailPage({
   params: Promise<RouteParams>;
 }) {
   const resolvedParams = await params;
-  const [entry, allInsights] = await Promise.all([
+  const [entry, allInsights, siteSettings] = await Promise.all([
     getInsightEntryBySlug(resolvedParams.slug),
     getInsightEntries(),
+    getSiteSettings(),
   ]);
   if (!entry) notFound();
+
+  const siteUrl = resolveSiteUrl(siteSettings);
 
   const relatedInsights = allInsights
     .filter((item) => item.slug !== entry.slug && item.category === entry.category)
     .slice(0, 3);
 
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: entry.title,
+    description: entry.excerpt || undefined,
+    url: `${siteUrl}/insights/${entry.slug}`,
+    datePublished: entry.publishedAt,
+    author: {
+      '@type': 'Person',
+      name: entry.authorLabel || 'Plenor.ai',
+    },
+  };
+
   return (
     <article style={{ maxWidth: '920px', margin: '0 auto', padding: '64px 24px 96px' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
       <OrgSecondaryNav
         items={INSIGHT_SECONDARY_NAV_ITEMS}
         activeHref={

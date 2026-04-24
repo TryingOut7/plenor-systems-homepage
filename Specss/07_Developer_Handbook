@@ -1,0 +1,205 @@
+
+Developer Handbook
+Website Solution System
+Operating Guide
+Status
+Orientation and operating guide — non-governing.
+
+This handbook explains how the governed system works in practice.
+
+It does not replace the governing artifacts.
+ 
+
+
+1.  How to Use This Handbook
+This handbook explains how the website solution system works in practice.
+
+It does not replace the governing artifacts. It explains how to read them, how they relate, and how to use them when building the site. Where this handbook and a governing artifact differ, the governing artifact is authoritative within its own scope.
+
+Use this handbook as an operating guide layered on top of the governing documents rather than as a replacement for them.
+This document is operational guidance only. It does not define requirements, active configuration values, structural architecture rules, realization rules, or stack-specific technical authority. Where it differs from a governing artifact, the governing artifact controls.
+2.  How This Website System Works
+The website solution system works in a fixed order.
+
+First, the Website Solution System Framework defines the overall artifact stack and the relationship between the artifacts.
+
+Then the Website Specification defines what the site must do. This includes audiences, goals, page and view expectations, CMS behavior, inquiry flow, lifecycle rules, accessibility, navigation, and acceptance.
+
+The Site Configuration Standard defines the governed configuration model, and the Site Configuration Record provides the active values for this site, such as theme choice, navigation labels, motion values, identity text, and other governed settings.
+
+The Website Solution Architecture Standard defines the structural system through logical modules.
+
+The Website Realization and Page Composition Standard defines buildable modules, reusable components, page types, page instances, and page composition rules.
+
+The Technical Build Profile then maps the governed system to the selected stack.
+
+In practical terms, the standards define the model, the CMS manages approved data and page instances inside that model, and the implementation renders the result.
+3.  Document Orientation
+For document orientation and first-pass reading order, use the Developer Handoff Brief. Use this handbook for worked examples, distinction aids, and implementation guidance after the document set has been introduced.
+4.  Key Distinctions You Must Understand
+Logical module
+An architecture-level structural responsibility. It belongs to the Website Solution Architecture Standard. It is not a buildable section in the UI and not a frontend component. Its job is to define structural meaning, dependency rules, and orthogonality.
+
+Buildable module
+A realizable functional website unit used in page composition. It is bigger than a reusable component and smaller than a whole page.
+
+Component
+A smaller reusable building part used inside modules. In this system, "component" means a smaller reusable building part used inside modules. It does not mean a buildable module, even if that word is used loosely elsewhere in implementation discussion or tooling.
+
+Page type
+Defines the class of page and the rules that govern it.
+
+Page instance
+The actual page record managed in the CMS.
+
+Page composition
+The governed assembly of a page instance from approved modules.
+
+CMS construct
+An editor-facing management representation such as a content type, entry, block, field group, settings record, or workflow surface. It may represent a governed page instance, a governed module, or a governed component, but it is not automatically the canonical meaning of that construct.
+5.  How to Build a Page in This System
+Every page is built through the same flow.
+5.1  Identify the page type
+Start by identifying the page type.
+
+The Website Specification defines the major page and view patterns, such as Home, Framework, Solutions, Insights, About, Contact, and generated detail pages for specific CMS entries.
+5.2  Create or locate the page instance
+Next, create or locate the page instance.
+
+For generated detail pages, the CMS entry creates the basis for the public detail page and no manual page creation should happen outside that governed pattern.
+
+For controlled standalone pages, the CMS may manage a Site Page record or equivalent managed page record, depending on the implementation.
+5.3  Bind content and metadata
+Then bind content and metadata.
+
+The content entry or page record provides the required content fields, and the page instance includes metadata and other approved settings.
+5.4  Apply required and optional buildable modules
+Apply the required and optional buildable modules for that page type.
+
+For example, Home includes required site-frame and page-body modules. Contact includes the inquiry flow. Generated detail pages realize the appropriate detail content from the corresponding CMS entry.
+5.5  Compose the page
+Compose the page according to the page rules.
+
+Ordering, presence, and behavior are governed by the page type and by approved CMS-managed variation only.
+5.6  Render modules using approved components
+Each buildable module uses approved reusable components and governed configuration values.
+
+The Site Configuration Record provides the runtime governed values used during realization.
+5.7  Realize in technology
+Finally, realize the page through the selected technology stack.
+
+The implementation must preserve the governed structure, CMS boundaries, and configuration boundaries.
+6.  What the CMS Does and Does Not Do
+The CMS creates and manages page instances, not the governing model itself.
+
+The CMS may:
+•	create and edit content entries
+•	create and manage page instances where the page model permits
+•	bind content to generated detail pages
+•	manage approved ordering and approved featured selections where supported
+•	manage approved identity, contact, and theme controls within the governed configuration set
+•	manage workflow states and publishing behavior
+
+The CMS does not define the canonical page model, canonical structural architecture, or free-form configuration space.
+
+The CMS may represent or manage governed constructs, but it should not become the place where the conceptual model is invented.
+7.  How Configuration Is Used
+Configuration has two parts.
+
+The Site Configuration Standard defines the model and rules.
+
+The Site Configuration Record defines the active values for this site.
+
+In practice:
+•	treat the Site Configuration Standard as the definition of what kinds of values are allowed and how they are structured
+•	treat the Site Configuration Record as the source of active governed values for this site
+
+This means:
+•	do not invent labels, error strings, theme values, or configuration pathways locally
+•	do not expose CMS controls that bypass the governed configuration set
+•	do use the approved configuration record as the runtime source of governed values
+8.  How Content Types Map to Pages and Modules
+The CMS data model provides the content side of the mapping.
+
+Framework Entry, Solution / Offer Entry, Insight Entry, and About Profile Entry are entry types that generate public detail pages automatically.
+
+CTA / Lead Magnet Entry is a reusable CTA content construct.
+
+FAQ Entry is embeddable content.
+
+Site Settings / Global Content supports global shared settings such as header, footer, logo, contact details, and global CTA settings.
+
+The realization model should interpret those content types like this:
+•	Framework Entry, Solution / Offer Entry, Insight Entry, and About Profile Entry feed generated detail page instances and the detail-page realization for their respective page types
+•	FAQ Entry feeds FAQ-related page modules or page sections only where the page type permits
+•	CTA / Lead Magnet Entry feeds a reusable CTA or lead-capture realization unit
+•	Site Settings / Global Content feeds site-frame realization such as header identity, footer content, contact details, global CTA settings, and other approved shared settings
+9.  How to Decide Where Something Belongs
+Use this decision logic.
+
+If it defines what the website must do, it belongs in the Website Specification.
+
+If it defines the governed configuration model or the active governed values, it belongs in the Site Configuration Standard or Site Configuration Record.
+
+If it defines structural responsibility or dependency logic, it belongs in the Website Solution Architecture Standard.
+
+If it defines a realizable functional website unit, reusable component, page type, page instance, or page composition rule, it belongs in the Website Realization and Page Composition Standard.
+
+If it defines stack-specific implementation, it belongs in the Technical Build Profile.
+9.1  When in Doubt
+If a requirement, content type, module need, CMS behavior, or implementation decision does not fit cleanly into the existing model, do not solve it through local invention.
+
+Use this decision path:
+•	if the issue changes what the website must do, treat it as a Website Specification issue
+•	if the issue changes governed values or configuration structure, treat it as a Site Configuration issue
+•	if the issue changes structural responsibility, boundaries, or dependency logic, treat it as a Website Solution Architecture issue
+•	if the issue changes buildable modules, reusable components, page types, or page composition rules, treat it as a Website Realization and Page Composition issue
+•	if the issue changes stack-specific implementation only, treat it as a Technical Build Profile issue
+
+If the issue still does not fit cleanly, escalate it as a governed change or governed clarification request rather than resolving it through ad hoc implementation.
+10.  Example A — Home Page
+The Home page is a good example of a fixed page type with CMS-managed variation.
+
+The Website Specification defines Home as a curated summary page with required sections such as lead value proposition, featured framework or approach content, featured solutions/offers, selected insight or resource content, proof where approved, primary CTA, and footer.
+
+In practice, this means the page type is fixed by the standard.
+
+The CMS then manages the page instance, including approved featured selections, approved ordering where supported, and approved shared settings.
+
+The realization system applies required site-frame and page-body modules for Home, binds them to approved CMS-managed source entries, and renders them using governed configuration values.
+
+So:
+•	the standard defines the Home page type
+•	the CMS creates and manages the Home page instance
+•	the page composition rules govern what appears and in what order
+•	the implementation renders the governed result
+11.  Example B — Insight Detail Page
+The Insight detail page is the best example of a CMS-created page instance.
+
+The CMS data model defines Insight Entry with fields such as title, category, short summary, detail content, author label, publish date, and display status.
+
+The governing documents require that detail pages for Insight entries be generated automatically from CMS entries and not manually created.
+
+Operationally, the standard defines the Detail page type.
+
+The CMS creates the page instance by creating or publishing an Insight Entry.
+
+That page instance binds the entry content and metadata.
+
+The realization system then:
+•	applies the approved detail-page modules
+•	applies optional supporting modules where allowed
+•	composes the page according to the page rules
+•	renders it using governed reusable components and governed configuration values
+
+So again:
+•	the standard defines the page type
+•	the CMS creates the page instance
+•	the composition model assembles approved modules
+•	the implementation renders the governed page
+Final Note
+This handbook exists to make the governed system understandable and usable.
+
+The standards define the system.
+
+This handbook explains how the system works.

@@ -11,18 +11,13 @@ import { invalidateCmsCollectionCaches } from '../cms/cache.ts';
 
 type CollectionSlug =
   | 'site-pages'
-  | 'service-items'
-  | 'blog-posts'
   | 'framework-entries'
   | 'solution-entries'
   | 'insight-entries'
   | 'testimonials'
   | 'team-members'
   | 'logos'
-  | 'org-events'
-  | 'org-spotlight'
   | 'org-about-profiles'
-  | 'org-learning'
   | 'redirect-rules';
 
 function shouldSkipRevalidationError(err: unknown): boolean {
@@ -100,28 +95,7 @@ export async function revalidateCollectionContent(
       await safeRevalidatePath('/sitemap.xml');
       break;
     }
-    case 'service-items': {
-      const slug = doc.slug as string | undefined;
-      if (slug) {
-        await safeRevalidatePath(`/services/${slug}`, 'page');
-      }
-      // Services listing and any dynamic list sections showing service items.
-      await safeRevalidatePath('/services', 'page');
-      await safeRevalidatePath('/[...slug]', 'page');
-      await safeRevalidatePath('/sitemap.xml');
-      break;
-    }
-    case 'blog-posts': {
-      const slug = doc.slug as string | undefined;
-      if (slug) {
-        await safeRevalidatePath(`/blog/${slug}`, 'page');
-      }
-      // Blog index and any dynamic list sections showing blog posts.
-      await safeRevalidatePath('/blog', 'page');
-      await safeRevalidatePath('/[...slug]', 'page');
-      await safeRevalidatePath('/sitemap.xml');
-      break;
-    }
+
     case 'framework-entries': {
       const slug = doc.slug as string | undefined;
       if (slug) {
@@ -163,10 +137,7 @@ export async function revalidateCollectionContent(
       }
       break;
     }
-    case 'org-events':
-    case 'org-spotlight':
-    case 'org-about-profiles':
-    case 'org-learning': {
+    case 'org-about-profiles': {
       // Org content appears across homepage sections and dynamic routes.
       await revalidateAllFrontendPages();
       break;

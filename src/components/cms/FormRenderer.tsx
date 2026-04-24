@@ -195,8 +195,15 @@ const STATIC_FORM_FALLBACKS: Record<'guide' | 'inquiry', FormData> = {
         id: 'inquiryType',
         name: 'inquiryType',
         label: 'What can we help you with?',
-        blockType: 'text',
+        blockType: 'select',
         required: true,
+        options: [
+          { label: 'General Inquiry', value: 'general' },
+          { label: 'Implementation Services', value: 'services' },
+          { label: 'Platform Demo', value: 'demo' },
+          { label: 'Partnership', value: 'partnership' },
+          { label: 'Support', value: 'support' },
+        ],
       },
       {
         id: 'message',
@@ -208,7 +215,7 @@ const STATIC_FORM_FALLBACKS: Record<'guide' | 'inquiry', FormData> = {
     ],
     submitButtonLabel: 'Send inquiry',
     confirmationType: 'message',
-    confirmationMessage: 'Thanks. Your inquiry has been received.',
+    confirmationMessage: 'We have received your message and will review it shortly.',
   },
 };
 
@@ -428,7 +435,7 @@ export default function FormRenderer({
       const body = await res.json().catch(() => null);
 
       if (!res.ok) {
-        throw new Error(readSubmitErrorMessage(body) || 'Submission failed');
+        throw new Error(readSubmitErrorMessage(body) || 'Please correct the highlighted fields before submitting.');
       }
 
       if (
@@ -437,7 +444,7 @@ export default function FormRenderer({
         !Array.isArray(body) &&
         (body as Record<string, unknown>).success === false
       ) {
-        throw new Error(readSubmitErrorMessage(body) || 'Submission failed');
+        throw new Error(readSubmitErrorMessage(body) || 'Please correct the highlighted fields before submitting.');
       }
 
       const redirectUrl =
@@ -453,7 +460,7 @@ export default function FormRenderer({
       setSubmitError(
         error instanceof Error && error.message
           ? error.message
-          : 'Something went wrong. Please try again.',
+          : 'We encountered a network issue. Please try submitting again.',
       );
     } finally {
       setSubmitting(false);
@@ -486,7 +493,7 @@ export default function FormRenderer({
       templateLabels?.successMessage?.trim() ||
       templateLabels?.successBody?.trim() ||
       readConfirmationMessage(form.confirmationMessage) ||
-      'Thank you! Your submission has been received.';
+      'We have received your message and will review it shortly.';
     const responseStatement = templateLabels?.responseStatement?.trim() || '';
 
     return (
@@ -540,7 +547,7 @@ export default function FormRenderer({
     templateLabels?.submitLabel?.trim() ||
     (typeof form.submitButtonLabel === 'string' ? form.submitButtonLabel.trim() : '') ||
     'Submit';
-  const submittingLabel = templateLabels?.submittingLabel?.trim() || 'Submitting…';
+  const submittingLabel = templateLabels?.submittingLabel?.trim() || 'Sending...';
   const legalText =
     templateLabels?.footerText?.trim() || templateLabels?.consentText?.trim() || '';
   const privacyLabel = templateLabels?.privacyLabel?.trim() || '';

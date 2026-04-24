@@ -82,6 +82,14 @@ export default async function CmsDynamicPage({
   breadcrumbItems[breadcrumbItems.length - 1].name = page.title || breadcrumbItems[breadcrumbItems.length - 1].name;
   const breadcrumbs = buildBreadcrumbJsonLd(breadcrumbItems);
 
+  const webpageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: page.title,
+    description: page.seo?.metaDescription || siteSettings?.defaultMetaDescription || undefined,
+    url: `${siteUrl}${path}`,
+  };
+
   return (
     <>
       <PageChromeOverrides page={page} />
@@ -89,11 +97,16 @@ export default async function CmsDynamicPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webpageSchema) }}
+      />
       <UniversalSections
         sections={page.sections}
         collections={collectionData}
         guideFormLabels={siteSettings?.guideForm}
         inquiryFormLabels={siteSettings?.inquiryForm}
+        pageSlug={slug}
       />
     </>
   );

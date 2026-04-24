@@ -433,8 +433,9 @@ export function renderDynamicListItem(
 } {
   if (source === 'blogPost') {
     const post = item as BlogPost;
-    // Prefer an explicit external resource URL; fall back to the internal blog route.
-    const href = post.resourceUrl || post.resourceFile?.url || `/blog/${post.slug || ''}`;
+    // Prefer an explicit external resource URL; otherwise use the canonical
+    // insights route that replaced the legacy /blog path.
+    const href = post.resourceUrl || post.resourceFile?.url || `/insights/${post.slug || ''}`;
     return {
       title: post.title || 'Untitled Post',
       description: post.excerpt || '',
@@ -455,7 +456,7 @@ export function renderDynamicListItem(
   return {
     title: service.title || 'Untitled Service',
     description: service.summary || '',
-    href: `/services/${service.slug || ''}`,
+    href: `/solutions/${service.slug || ''}`,
     meta: service.priceFrom ? `${service.currency || 'USD'} ${service.priceFrom}` : '',
   };
 }

@@ -6,6 +6,11 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    rules: {
+      "@next/next/no-html-link-for-pages": "off",
+    },
+  },
+  {
     files: [
       "apps/backend/**/*.{ts,tsx}",
       "packages/**/*.{ts,tsx}",
