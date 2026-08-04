@@ -129,26 +129,11 @@ export default async function RootLayout({
           backgroundColor={siteSettings?.announcementBanner?.backgroundColor}
           textColor={siteSettings?.announcementBanner?.textColor}
         />
-        <Navbar
-          siteName={siteSettings?.siteName}
-          navigationLinks={siteSettings?.navigationLinks}
-          headerButtons={siteSettings?.headerButtons}
-          logoImage={siteSettings?.logoImage as { url?: string; alt?: string; width?: number; height?: number } | undefined}
-          logoWidth={siteSettings?.logoWidth}
-        />
+        <Navbar />
         <main id="main-content" tabIndex={-1} style={{ outline: 'none' }}>
           {children}
         </main>
-        <Footer
-          siteName={siteSettings?.siteName}
-          brandTagline={siteSettings?.brandTagline}
-          contactEmail={siteSettings?.contactEmail}
-          footerColumns={siteSettings?.footerColumns}
-          socialLinks={siteSettings?.socialLinks}
-          copyrightText={siteSettings?.copyrightText}
-          footerLegalLabel={siteSettings?.footerLegalLabel}
-          footerLegalHref={siteSettings?.footerLegalHref}
-        />
+        <Footer />
         <CookieBanner
           message={siteSettings?.cookieBanner?.message}
           acceptLabel={siteSettings?.cookieBanner?.acceptLabel}
