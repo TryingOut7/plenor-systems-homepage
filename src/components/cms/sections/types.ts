@@ -19,6 +19,10 @@ export type GuideFormLabels = {
 };
 
 export type InquiryFormLabels = {
+  nameLabel?: string;
+  emailLabel?: string;
+  organizationLabel?: string;
+  messageLabel?: string;
   submitLabel?: string;
   submittingLabel?: string;
   successHeading?: string;

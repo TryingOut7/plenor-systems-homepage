@@ -38,10 +38,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     settings?.defaultMetaDescription ||
     settings?.defaultSeo?.metaDescription ||
-    `${siteName} provides a structured product development framework for Testing & QA and Launch & Go-to-Market — the two stages most likely to cause rework or failed launches.`;
+    `${siteName} helps founders and growing businesses create execution-ready product definitions and system specifications for AI tools and engineering teams.`;
   const defaultTitle =
     settings?.defaultSeo?.metaTitle ||
-    `${siteName} — Testing & QA and Launch & Go-to-Market Framework`;
+    `${siteName} | Execution-Ready Product Definitions`;
 
   return {
     metadataBase: new URL(siteUrl),

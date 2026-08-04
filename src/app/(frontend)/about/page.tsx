@@ -5,8 +5,8 @@ import PageChromeOverrides from '@/components/PageChromeOverrides';
 import UniversalSections from '@/components/cms/UniversalSections';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
-import { resolveSiteName } from '@/lib/site-config';
-import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import { getCollectionData, getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
+import { buildCorePresetSections } from '@/payload/presets/corePagePresets';
 
 export const revalidate = 60;
 
@@ -16,14 +16,14 @@ export async function generateMetadata(): Promise<Metadata> {
     getSitePageBySlug('about', cmsReadOptions),
     getSiteSettings(cmsReadOptions),
   ]);
-  const siteName = resolveSiteName(settings);
   return buildSitePageMetadata({
     slug: 'about',
     page: sitePage,
     settings,
-    fallbackTitle: 'About — Who We Are and Why We Built This',
+    fallbackTitle: 'About Plenor Systems | Why Plenor Exists',
     fallbackDescription:
-      `${siteName} was built to address the two stages of product development most likely to cause failure: Testing & QA and Launch & Go-to-Market.`,
+      'Learn why Plenor helps founders and growing businesses close the gap between business ideas and software development.',
+    forceFallback: true,
   });
 }
 
@@ -34,17 +34,18 @@ export default async function AboutPage() {
     getSiteSettings(cmsReadOptions),
   ]);
 
-  if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {
+  if (!sitePage) {
     notFound();
   }
 
+  const approvedSections = buildCorePresetSections('about', {}) as PageSection[];
   const collectionData = await getCollectionData(cmsReadOptions);
   return (
     <>
       <PageChromeOverrides page={sitePage} />
       <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
       <UniversalSections
-        sections={sitePage.sections}
+        sections={approvedSections}
         collections={collectionData}
         guideFormLabels={siteSettings?.guideForm}
         inquiryFormLabels={siteSettings?.inquiryForm}

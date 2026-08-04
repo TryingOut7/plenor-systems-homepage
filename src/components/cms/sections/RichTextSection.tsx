@@ -41,7 +41,7 @@ export default function RichTextSection({
           <SectionHeading
             tag={hTag}
             style={{
-              fontSize: hSize === 'md' ? 'clamp(28px, 4vw, 42px)' : hFontSize,
+              fontSize: hSize === 'md' ? 'clamp(26px, 4vw, 38px)' : hFontSize,
               marginBottom: '24px',
               color: resolvedHeadingColor,
             }}

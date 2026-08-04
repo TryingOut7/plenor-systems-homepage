@@ -12,6 +12,7 @@ export type BuildSitePageMetadataInput = {
   fallbackDescription?: string;
   fallbackNoindex?: boolean;
   fallbackNofollow?: boolean;
+  forceFallback?: boolean;
 };
 
 function asNonEmptyString(value: unknown): string {
@@ -26,13 +27,13 @@ function canonicalForSlug(baseUrl: string, slug: string): string {
 
 export function buildSitePageMetadata(input: BuildSitePageMetadataInput): Metadata {
   const { slug, settings, page, fallbackTitle, fallbackDescription } = input;
-  const seo: SeoFields = page?.seo || {};
-  const defaultSeo: SeoFields = settings?.defaultSeo || {};
+  const seo: SeoFields = input.forceFallback ? {} : page?.seo || {};
+  const defaultSeo: SeoFields = input.forceFallback ? {} : settings?.defaultSeo || {};
 
   const siteUrl = resolveSiteUrl(settings);
   const title =
     asNonEmptyString(seo.metaTitle) ||
-    asNonEmptyString(page?.title) ||
+    asNonEmptyString(input.forceFallback ? '' : page?.title) ||
     asNonEmptyString(defaultSeo.metaTitle) ||
     fallbackTitle;
   const description =
@@ -54,7 +55,7 @@ export function buildSitePageMetadata(input: BuildSitePageMetadataInput): Metada
   const nofollow = seo.nofollow ?? input.fallbackNofollow ?? false;
 
   return {
-    title,
+    title: input.forceFallback ? { absolute: title } : title,
     description,
     alternates: { canonical },
     robots: { index: !noindex, follow: !nofollow },

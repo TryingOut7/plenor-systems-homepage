@@ -6,31 +6,31 @@ type IncludedItem = { title: string; desc: string };
 
 const HOME_AUDIENCES_DEFAULT: TableAudience[] = [
   {
-    label: 'Startups',
-    copy: 'Moving fast but need a reliable process for the final stretch — before a launch defines your reputation.',
+    label: 'Startup Founders',
+    copy: 'Move beyond an idea without immediately assembling a complete definition team.',
   },
   {
-    label: 'SMEs',
-    copy: 'Growing teams that have outpaced informal processes and need structure without slowing down delivery.',
+    label: 'Growing Businesses',
+    copy: 'Create a stronger starting point for a new product or internal system.',
   },
   {
-    label: 'Enterprises',
-    copy: 'Larger organisations that need a rigorous, repeatable framework that scales across products and teams.',
+    label: 'Business-Led Teams',
+    copy: 'Turn domain knowledge into direction that AI tools and engineering resources can use.',
   },
 ];
 
 const SERVICES_TESTING_ITEMS_DEFAULT = [
-  'Defining quality criteria and acceptance standards before development completes',
-  'Structured test planning: functional, regression, performance, and edge-case coverage',
-  'Release readiness checklists and sign-off processes',
-  'Defect triage and prioritisation so teams know what must be fixed before launch',
+  'Product purpose and business value',
+  'Customer and user needs',
+  'Major capabilities and boundaries',
+  'Decisions requiring business judgment',
 ];
 
 const SERVICES_LAUNCH_ITEMS_DEFAULT = [
-  'Market positioning and messaging that reflects what the product actually does',
-  'Channel selection grounded in where your target audience can be reached',
-  'Launch sequencing and operational readiness — support, onboarding, and infrastructure',
-  'Post-launch review process to capture what worked and what to adjust',
+  'User journeys and workflows',
+  'Experience expectations',
+  'System direction',
+  'Constraints and dependencies',
 ];
 
 const PRICING_INCLUDED_ITEMS_DEFAULT: IncludedItem[] = [
@@ -150,94 +150,62 @@ function richTextFromParagraphs(paragraphs: string[]): Record<string, unknown> {
   };
 }
 
-function joinParagraphs(paragraphs: string[]): string {
-  return paragraphs.map((paragraph) => paragraph.trim()).filter(Boolean).join('\n\n');
-}
-
 function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
   const heroHeading = asString(
     content.heroHeading,
-    'This framework brings structure to the two most failure-prone stages of product development.',
+    'Turn Your Business Idea into a Definition Ready to Build',
   );
-  const heroSubtext = asString(content.heroSubtext, 'Testing & QA and Launch & Go-to-Market, done right.');
-  const problemHeading = asString(content.problemHeading, 'Most product failures happen at the end, not the beginning.');
-  const problemBody1 = asString(
-    content.problemBody1,
-    "Teams spend months building a product, then rush testing, skip structured QA, and launch without a clear go-to-market plan. The result: bugs found by customers, positioning that misses the market, and launches that don't generate expected traction.",
-  );
-  const problemBody2 = asString(
-    content.problemBody2,
-    "These aren't execution failures — they're structural ones. The final stages of product development are consistently underprepared. This framework is built specifically to fix that.",
-  );
-  const testingCardTitle = asString(content.testingCardTitle, 'Testing & QA that catches what matters before release.');
-  const testingCardBody = asString(
-    content.testingCardBody,
-    'A structured approach to verification, quality criteria, and release readiness. Designed to reduce rework and give your team confidence before shipping.',
-  );
-  const launchCardTitle = asString(content.launchCardTitle, 'Launch & Go-to-Market with a plan that holds up on launch day.');
-  const launchCardBody = asString(
-    content.launchCardBody,
-    'From positioning and channel selection to operational readiness, the framework keeps go-to-market work structured rather than reactive.',
+  const heroSubtext = asString(
+    content.heroSubtext,
+    'Plenor helps founders and growing businesses create product definitions, experience direction, and system specifications that AI tools and engineering teams can use.\n\nSystem-driven. Human-validated. Ready for implementation.',
   );
   const audiences = asAudienceArray(content.audiences, HOME_AUDIENCES_DEFAULT);
-  const guideCTAHeading = asString(content.guideCTAHeading, 'Get the free guide');
-  const guideHighlightText = asString(
-    content.guideHighlightText,
-    'The 7 Most Common Product Development Mistakes — and How to Avoid Them.',
-  );
-  const guideCTABody = asString(
-    content.guideCTABody,
-    'The guide covers the specific errors teams make in Testing & QA and Launch & Go-to-Market, and what to do instead. Enter your name and email and the PDF is sent to your inbox automatically.',
-  );
 
   return [
     {
       blockType: 'heroSection',
       structuralKey: 'home-hero',
       theme: 'navy',
-      eyebrow: 'Product Development Framework',
+      eyebrow: 'GOVERNED DEFINITION PLATFORM',
       heading: heroHeading,
       subheading: heroSubtext,
-      primaryCtaLabel: 'Get the Free Guide',
-      primaryCtaHref: '/contact#guide',
+      primaryCtaLabel: 'Discuss Your Product',
+      primaryCtaHref: '/contact',
     },
     {
       blockType: 'richTextSection',
       structuralKey: 'home-problem',
       theme: 'white',
-      sectionLabel: 'The Problem',
-      heading: problemHeading,
-      content: richTextFromParagraphs([problemBody1, problemBody2]),
+      heading: 'Focus on the Business You Want to Build',
+      content: richTextFromParagraphs([
+        'You bring the vision, customer understanding, and business decisions. Plenor provides the structured definition needed to move toward implementation.',
+        'Focus on the Business: Concentrate on the market, customer problem, and decisions that only you can make.',
+        'Reduce Early Overhead: Move forward without first building a complete internal product and system-definition capability.',
+        'Guide Development Clearly: Give AI tools, internal engineers, or external development partners a stronger starting point.',
+      ]),
     },
     {
       blockType: 'ctaSection',
       structuralKey: 'home-cta',
-      theme: 'light',
-      heading: 'Two stages. Both critical.',
-      body: 'This framework focuses on Testing & QA and Launch & Go-to-Market, where product outcomes are won or lost.',
-      buttonLabel: 'How it works',
-      buttonHref: '/services',
+      theme: 'navy',
+      heading: 'AI Can Generate Code. It Still Needs Clear Direction.',
+      body: 'A business idea may still be too incomplete or ambiguous to guide software development. Plenor turns business knowledge into a clearer product and system definition that AI tools, internal engineers, and external development partners can act on.\n\nClearer Intent: Define what the product should achieve and who it should serve.\n\nGreater Consistency: Connect important product, experience, and system decisions.\n\nEarlier Visibility: Surface unresolved questions and risks before implementation.\n\nExecution-ready means clear, coherent, and complete enough to guide implementation—not perfect or final.',
     },
     {
       blockType: 'simpleTableSection',
       structuralKey: 'home-table-stages',
       theme: 'light',
-      heading: 'What We Do',
-      columns: [{ label: 'Stage' }, { label: 'Title' }, { label: 'Description' }],
+      heading: 'A Governed Platform, Professionally Validated',
+      columns: [{ label: 'Principle' }, { label: 'What it means' }],
       rows: [
         {
-          cells: [
-            { value: 'Stage 1' },
-            { value: testingCardTitle },
-            { value: testingCardBody },
-          ],
+          cells: [{ value: 'System-Driven' }, { value: 'A governed platform provides structure and consistency.' }],
         },
         {
-          cells: [
-            { value: 'Stage 2' },
-            { value: launchCardTitle },
-            { value: launchCardBody },
-          ],
+          cells: [{ value: 'Human-Validated' }, { value: 'Experienced professionals review and refine the definition where judgment matters.' }],
+        },
+        {
+          cells: [{ value: 'Ready for Implementation' }, { value: 'Use the result with AI tools, internal engineers, or an external development partner.' }],
         },
       ],
     },
@@ -245,9 +213,8 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
       blockType: 'simpleTableSection',
       structuralKey: 'home-table-audiences',
       theme: 'white',
-      sectionLabel: "Who It's For",
-      heading: 'Built for teams at every stage',
-      columns: [{ label: 'Team' }, { label: 'How it helps' }],
+      heading: 'Who Plenor Is Built For',
+      columns: [{ label: 'Audience' }, { label: 'How Plenor helps' }],
       rows: audiences.map((audience) => ({
         cells: [{ value: audience.label }, { value: audience.copy }],
       })),
@@ -256,92 +223,85 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
       blockType: 'formSection',
       structuralKey: 'home-guide-form',
       theme: 'navy',
-      anchorId: 'guide',
-      sectionLabel: 'Free resource',
-      heading: guideCTAHeading,
-      subheading: joinParagraphs([guideHighlightText, guideCTABody]),
-      form: 'guide',
+      heading: 'Give Your Product a Stronger Starting Point',
+      subheading: 'Turn your business idea into a definition ready to guide implementation.',
+      buttonLabel: 'Discuss Your Product',
+      buttonHref: '/contact',
     },
   ];
 }
 
 function buildServicesSections(content: PresetContent): Record<string, unknown>[] {
-  const heroHeading = asString(content.heroHeading, 'Two framework stages. The two that decide whether a product succeeds.');
+  const heroHeading = asString(content.heroHeading, 'Create a Stronger Foundation for Software Development');
   const heroSubtext = asString(
     content.heroSubtext,
-    'Testing & QA and Launch & Go-to-Market are where most product failures originate — not in design or development. This framework is built specifically for these stages.',
+    'Turn business ideas and domain knowledge into clear product definitions, experience direction, and system specifications that AI tools and engineering teams can use.',
   );
   const testingBody = asString(
     content.testingBody,
-    'Shipping without a structured quality process means issues surface after release — when they’re most expensive to fix. The Testing & QA module establishes clear quality criteria, verification steps, and release gates before code reaches users.',
+    'Plenor helps turn the business vision into a focused product definition that reflects the opportunity, the people it must serve, and the outcomes it should support.',
   );
   const testingItems = asStringArray(content.testingItems, SERVICES_TESTING_ITEMS_DEFAULT);
-  const testingWhoFor = asString(
-    content.testingWhoFor,
-    'Teams that are shipping frequently and catching issues too late, or organisations preparing for a significant launch that cannot afford post-release rework.',
-  );
   const launchBody = asString(
     content.launchBody,
-    'A product can pass QA and still underperform at launch. Go-to-market failures are often structural — unclear positioning, undefined channels, or a launch day without operational readiness. The Launch & GTM module addresses each of these.',
+    'Plenor connects the product vision to how the product should work and what the supporting system must provide.',
   );
   const launchItems = asStringArray(content.launchItems, SERVICES_LAUNCH_ITEMS_DEFAULT);
-  const launchWhoFor = asString(
-    content.launchWhoFor,
-    'Startups preparing for a first launch, product teams at SMEs rolling out a new offering, and enterprise groups managing a significant market entry.',
-  );
-  const whyFrameworkHeading = asString(content.whyFrameworkHeading, 'Why a framework, not a one-off engagement');
+  const whyFrameworkHeading = asString(content.whyFrameworkHeading, 'Why a Governed Definition Platform');
   const whyFrameworkBody1 = asString(
     content.whyFrameworkBody1,
-    'Ad-hoc approaches to testing and go-to-market work in isolation but don’t build repeatable capability. Each launch starts from scratch, and teams re-learn the same lessons.',
+    'Prompts, documents, and conversations can each provide useful input, but they do not automatically create one coherent basis for implementation. Plenor uses a governed approach to organize important product and system decisions consistently, make unresolved issues visible, and apply professional review where judgment is needed.',
   );
   const whyFrameworkBody2 = asString(
     content.whyFrameworkBody2,
-    'A structured framework means your team builds consistent habits — clear criteria before testing begins, defined channels before launch planning starts. It works for startups moving fast and for enterprises that need process rigour across multiple products.',
+    'More Than a Prompt: Create coherent direction across product, experience, and system decisions.',
   );
   const whyFrameworkBody3 = asString(
     content.whyFrameworkBody3,
-    'The framework is not prescriptive. It sets the structure; your team fills in the specifics.',
+    'More Than Documents: Produce a connected definition that can guide real implementation work.\n\nLower Overhead: Avoid building every foundational definition capability internally before development can begin.',
   );
-  const ctaHeading = asString(content.ctaHeading, 'Not sure yet?');
-  const ctaBody = asString(content.ctaBody, 'Start with the guide — see the kinds of mistakes the framework is designed to prevent.');
+  const ctaHeading = asString(content.ctaHeading, 'Use the Definition Your Way');
+  const ctaBody = asString(content.ctaBody, 'Use the Plenor definition with AI code-generation tools, your own engineers, or an external development partner. Plenor does not require a particular technology, vendor, or implementation model.');
 
   return [
     {
       blockType: 'heroSection',
       structuralKey: 'services-hero',
       theme: 'navy',
-      eyebrow: 'Framework Overview',
+      eyebrow: 'PLENOR SERVICES',
       heading: heroHeading,
       subheading: heroSubtext,
+      primaryCtaLabel: 'Discuss Your Product',
+      primaryCtaHref: '/contact',
     },
     {
       blockType: 'richTextSection',
       structuralKey: 'services-testing-body',
       theme: 'white',
-      heading: 'Testing & QA',
-      content: richTextFromParagraphs([testingBody, `Who it’s for: ${testingWhoFor}`]),
+      heading: 'Define the Product',
+      content: richTextFromParagraphs([testingBody, 'Outcome: A clearer product direction for further design and implementation.']),
     },
     {
       blockType: 'simpleTableSection',
       structuralKey: 'services-testing-coverage',
       theme: 'white',
-      heading: 'What it covers',
-      columns: [{ label: 'What it covers' }],
+      heading: 'What the Definition Addresses',
+      columns: [{ label: 'Definition area' }],
       rows: testingItems.map((item) => ({ cells: [{ value: item }] })),
     },
     {
       blockType: 'richTextSection',
       structuralKey: 'services-launch-body',
       theme: 'light',
-      heading: 'Launch & Go-to-Market',
-      content: richTextFromParagraphs([launchBody, `Who it’s for: ${launchWhoFor}`]),
+      heading: 'Define the Experience and System',
+      content: richTextFromParagraphs([launchBody, 'Outcome: A coherent definition for AI tools, internal engineers, or external development partners.']),
     },
     {
       blockType: 'simpleTableSection',
       structuralKey: 'services-launch-coverage',
       theme: 'light',
-      heading: 'What it covers',
-      columns: [{ label: 'What it covers' }],
+      heading: 'What the Definition Addresses',
+      columns: [{ label: 'Definition area' }],
       rows: launchItems.map((item) => ({ cells: [{ value: item }] })),
     },
     {
@@ -357,8 +317,8 @@ function buildServicesSections(content: PresetContent): Record<string, unknown>[
       theme: 'navy',
       heading: ctaHeading,
       body: ctaBody,
-      buttonLabel: 'Get the Free Guide',
-      buttonHref: '/contact#guide',
+      buttonLabel: 'Discuss Your Product',
+      buttonHref: '/contact',
     },
   ];
 }
@@ -366,63 +326,63 @@ function buildServicesSections(content: PresetContent): Record<string, unknown>[
 function buildAboutSections(content: PresetContent): Record<string, unknown>[] {
   const heroParagraph1 = asString(
     content.heroParagraph1,
-    'This product development framework is built around a specific observation: the stages most likely to cause a launch to fail are Testing & QA and Go-to-Market — and they’re consistently the least structured.',
+    'Plenor helps founders and growing businesses create the product and system definition needed to move toward implementation.',
   );
   const heroParagraph2 = asString(
     content.heroParagraph2,
-    'Most frameworks cover the full development lifecycle. This framework covers only the final two stages — not because the others don’t matter, but because these two are where structure is most absent and most needed.',
+    'Founders and business leaders often understand the opportunity, customer problem, and business they want to build.',
   );
   const heroParagraph3 = asString(
     content.heroParagraph3,
-    'The framework is used by teams ranging from early-stage startups to enterprise product groups who need a repeatable, structured process for the stretch of work between build completion and a successful launch.',
+    'What they may not have is the product and system-definition capability needed to turn that knowledge into reliable software development. Building that capability internally can require significant time, expertise, and overhead.\n\nPlenor provides a more accessible and disciplined alternative.',
   );
   const focusParagraph1 = asString(
     content.focusParagraph1,
-    'This framework covers two stages: Testing & QA and Launch & Go-to-Market. That scope is intentional.',
+    'Plenor is led by professionals with extensive experience turning business ideas into products, user experiences, and software systems.',
   );
   const focusParagraph2 = asString(
     content.focusParagraph2,
-    'Narrowing to two stages means the framework goes deep rather than broad. Each module is specific — built from observed patterns of what goes wrong and why. It is not a general project management tool dressed as a product framework.',
+    'That experience showed that strong software requires more than a strong idea. It also requires clear product direction, coherent system definition, and informed professional judgment.',
   );
   const focusParagraph3 = asString(
     content.focusParagraph3,
-    'The narrow focus is a strength, not a limitation. Teams get a framework that is actually applicable to the work at hand, not a set of generic principles that need extensive interpretation.',
+    '',
   );
   const missionQuote = asString(
     content.missionQuote,
-    'A well-built product deserves a structured path to market — and consistent quality standards before it gets there.',
+    'Founders Should Focus on the Business: Their highest-value contribution is the vision, customer understanding, and key business decisions.\n\nAI Still Needs Direction: AI tools depend on the quality of the product and system definition they receive.\n\nSystem-Driven Is Not Human-Free: The platform provides structure; professional review provides judgment.',
   );
-  const ctaHeading = asString(content.ctaHeading, 'Want to work together?');
-  const ctaBody = asString(content.ctaBody, 'Get in touch to discuss your product and team, or start with the free guide.');
+  const ctaHeading = asString(content.ctaHeading, 'System-Driven. Human-Validated. Ready for Implementation.');
+  const ctaBody = asString(content.ctaBody, 'Move forward with a clearer product and system definition.');
 
   return [
     {
       blockType: 'heroSection',
       structuralKey: 'about-hero',
       theme: 'navy',
-      eyebrow: 'About',
-      heading: 'Who we are',
+      eyebrow: 'ABOUT PLENOR',
+      heading: 'Closing the Gap Between Business Ideas and Software Development',
       subheading: heroParagraph1,
     },
     {
       blockType: 'richTextSection',
       structuralKey: 'about-who',
       theme: 'white',
-      heading: 'Who we are',
+      heading: 'Why Plenor Exists',
       content: richTextFromParagraphs([heroParagraph2, heroParagraph3]),
     },
     {
       blockType: 'richTextSection',
       structuralKey: 'about-focus',
       theme: 'white',
-      heading: 'Narrow by design. Deep by necessity.',
+      heading: 'Experience Behind the Platform',
       content: richTextFromParagraphs([focusParagraph1, focusParagraph2, focusParagraph3]),
     },
     {
       blockType: 'ctaSection',
       structuralKey: 'about-mission',
       theme: 'light',
-      heading: 'What we believe',
+      heading: 'What Guides Plenor',
       body: missionQuote,
     },
     {
@@ -431,7 +391,7 @@ function buildAboutSections(content: PresetContent): Record<string, unknown>[] {
       theme: 'navy',
       heading: ctaHeading,
       body: ctaBody,
-      buttonLabel: 'Get in touch',
+      buttonLabel: 'Discuss Your Product',
       buttonHref: '/contact',
     },
   ];
@@ -514,40 +474,23 @@ function buildPricingSections(content: PresetContent): Record<string, unknown>[]
 }
 
 function buildContactSections(content: PresetContent): Record<string, unknown>[] {
-  const heroHeading = asString(content.heroHeading, 'Let’s talk.');
+  const heroHeading = asString(content.heroHeading, 'Discuss Your Product');
   const heroSubtext = asString(
     content.heroSubtext,
-    'Tell us about your product and team and we’ll get back to you within 2 business days.',
+    'Tell us about the business idea, product, or system you are trying to define.',
   );
-  const guideHighlightText = asString(
-    content.guideHighlightText,
-    'The 7 Most Common Product Development Mistakes — and How to Avoid Them.',
-  );
-  const guideBody = asString(
-    content.guideBody,
-    'The guide covers the specific errors teams make in Testing & QA and Launch & Go-to-Market, and what to do instead. Enter your name and email and the PDF is sent to your inbox automatically.',
-  );
-  const inquiryHeading = asString(content.inquiryHeading, 'Send a direct inquiry');
+  const inquiryHeading = asString(content.inquiryHeading, 'Start the Conversation');
   const inquirySubtext = asString(
     content.inquirySubtext,
-    'Tell us about your product, your team, and the challenge you’re working through. We’ll respond within 2 business days.',
+    'An initial discussion will help determine whether Plenor is appropriate for your initiative.',
   );
-  const nextStepsLabel = asString(content.nextStepsLabel, 'What happens next');
-  const nextStepsBody = asString(
-    content.nextStepsBody,
-    'We review every inquiry and respond within 2 business days with initial thoughts or a proposal request.',
-  );
-  const directEmailLabel = asString(content.directEmailLabel, 'Prefer email directly?');
-  const emailAddress = asString(content.emailAddress, 'contact@example.com');
-  const linkedinLabel = asString(content.linkedinLabel, 'LinkedIn →');
-  const linkedinHref = asString(content.linkedinHref, '');
 
   return [
     {
       blockType: 'heroSection',
       structuralKey: 'contact-hero',
       theme: 'navy',
-      eyebrow: 'Contact',
+      eyebrow: 'CONTACT',
       heading: heroHeading,
       subheading: heroSubtext,
     },
@@ -555,29 +498,22 @@ function buildContactSections(content: PresetContent): Record<string, unknown>[]
       blockType: 'formSection',
       structuralKey: 'contact-guide-form',
       theme: 'light',
-      anchorId: 'guide',
-      sectionLabel: 'Free resource',
-      heading: 'Get the free guide',
-      subheading: joinParagraphs([guideHighlightText, guideBody]),
-      form: 'guide',
+      isHidden: true,
     },
     {
       blockType: 'formSection',
       structuralKey: 'contact-inquiry-form',
       theme: 'white',
-      sectionLabel: 'Send an inquiry',
       heading: inquiryHeading,
-      subheading: joinParagraphs([
-        inquirySubtext,
-        `${nextStepsLabel}: ${nextStepsBody}`,
-        `${directEmailLabel}: ${emailAddress}`,
-        linkedinHref ? `${linkedinLabel}: ${linkedinHref}` : '',
-      ]),
+      subheading: inquirySubtext,
+      contactEmail: 'contact@plenor.ai',
       form: 'inquiry',
+      formAlias: 'inquiry',
     },
     {
       blockType: 'privacyNoteSection',
       structuralKey: 'contact-privacy-note',
+      isHidden: true,
       theme: 'light',
       label: 'By submitting this form, you agree to our',
       policyLinkLabel: 'Privacy Policy',

@@ -1,7 +1,8 @@
 import FormRenderer from '@/components/cms/FormRenderer';
+import Link from 'next/link';
 import SectionHeading from './shared/SectionHeading';
 import type { SectionRendererProps } from './types';
-import { asSectionRecord, formRelationshipToId } from './utils';
+import { asSectionRecord, formRelationshipToId, normalizePath } from './utils';
 
 export default function FormSection({
   section,
@@ -66,6 +67,16 @@ export default function FormSection({
           </p>
         ) : null}
 
+        {typeof sectionRecord.contactEmail === 'string' && sectionRecord.contactEmail ? (
+          <p style={{ color: resolvedBodyColor, fontSize: '16px', margin: '-12px 0 32px' }}>
+            Prefer Email? Contact Plenor directly at{' '}
+            <a href={`mailto:${sectionRecord.contactEmail}`} style={{ color: 'inherit' }}>
+              {sectionRecord.contactEmail}
+            </a>
+            .
+          </p>
+        ) : null}
+
         {formId || formAlias ? (
           <FormRenderer
             formId={formId}
@@ -79,6 +90,13 @@ export default function FormSection({
             guideFormLabels={guideFormLabels}
             inquiryFormLabels={inquiryFormLabels}
           />
+        ) : typeof sectionRecord.buttonLabel === 'string' && sectionRecord.buttonLabel ? (
+          <Link
+            className={theme === 'white' || theme === 'light' ? 'btn-primary' : 'btn-ghost'}
+            href={normalizePath(String(sectionRecord.buttonHref || '#'))}
+          >
+            {sectionRecord.buttonLabel}
+          </Link>
         ) : (
           <p style={{ color: resolvedBodyColor }}>No form selected.</p>
         )}

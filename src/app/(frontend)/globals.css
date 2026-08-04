@@ -38,13 +38,13 @@
   --ui-section-label-letter-spacing: 0.12em;
 
   --ui-layout-container-max-width: 1200px;
-  --ui-spacing-section-compact: 72px 24px;
-  --ui-spacing-section-regular: 96px 24px;
-  --ui-spacing-section-spacious: 124px 24px;
-  --ui-spacing-hero-compact: 88px 24px 96px;
-  --ui-spacing-hero-regular: 112px 24px 120px;
-  --ui-spacing-hero-spacious: 140px 24px 148px;
-  --ui-spacing-mobile-section: 64px;
+  --ui-spacing-section-compact: 56px 24px;
+  --ui-spacing-section-regular: 72px 24px;
+  --ui-spacing-section-spacious: 88px 24px;
+  --ui-spacing-hero-compact: 64px 24px 72px;
+  --ui-spacing-hero-regular: 80px 24px 88px;
+  --ui-spacing-hero-spacious: 96px 24px 104px;
+  --ui-spacing-mobile-section: 48px;
 
   --ui-button-radius: 6px;
   --ui-card-radius: 8px;
@@ -607,7 +607,7 @@ button.btn-secondary:disabled:focus-visible {
 .cms-table tbody td {
   padding: 20px 20px;
   border-bottom: 1px solid var(--ui-color-border);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
   vertical-align: top;
 }
@@ -636,7 +636,7 @@ button.btn-secondary:disabled:focus-visible {
 .cms-table tbody td:nth-child(2) {
   font-weight: 550;
   color: var(--ui-color-primary);
-  font-size: 14px;
+  font-size: 16px;
   max-width: 260px;
 }
 
@@ -663,7 +663,7 @@ button.btn-secondary:disabled:focus-visible {
 /* Footer */
 .footer {
   background-color: var(--ui-color-footer-bg);
-  padding: 64px 32px 40px;
+  padding: 40px 32px 32px;
 }
 
 .footer-inner {
@@ -674,10 +674,10 @@ button.btn-secondary:disabled:focus-visible {
 .footer-top-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 48px;
+  gap: 32px;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
 }
 
 .footer-brand {
@@ -688,21 +688,11 @@ button.btn-secondary:disabled:focus-visible {
   font-family: var(--ui-font-body);
   font-weight: 700;
   font-size: 20px;
-  letter-spacing: -0.03em;
+  letter-spacing: normal;
   color: var(--ui-color-footer-text);
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.footer-brand-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--ui-color-footer-muted);
-  flex-shrink: 0;
 }
 
 .footer-tagline {
@@ -777,4 +767,15 @@ button.btn-secondary:disabled:focus-visible {
 .footer-legal-link {
   font-size: 13px;
   text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+  .footer {
+    padding: 32px 24px;
+  }
+
+  .footer-top-row {
+    gap: 28px;
+    margin-bottom: 28px;
+  }
 }

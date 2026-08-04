@@ -16,15 +16,13 @@ export async function generateMetadata(): Promise<Metadata> {
     getSitePageBySlug('privacy', cmsReadOptions),
     getSiteSettings(cmsReadOptions),
   ]);
-  const siteName = resolveSiteName(settings);
   return buildSitePageMetadata({
     slug: 'privacy',
     page: sitePage,
     settings,
-    fallbackTitle: 'Privacy Policy',
-    fallbackDescription: `Privacy Policy for ${siteName} — how we collect, use, and protect your data.`,
-    fallbackNoindex: true,
-    fallbackNofollow: true,
+    fallbackTitle: 'Privacy Policy | Plenor Systems',
+    fallbackDescription: 'Review how Plenor Systems handles information submitted through its website and contact form.',
+    forceFallback: true,
   });
 }
 
@@ -35,7 +33,7 @@ const bodyText: React.CSSProperties = {
   margin: 0,
 };
 const h2Style: React.CSSProperties = {
-  fontSize: '20px',
+  fontSize: '24px',
   color: 'var(--ui-color-primary)',
   marginBottom: '12px',
   marginTop: '40px',
@@ -49,11 +47,11 @@ export default async function PrivacyPage() {
   const contactEmail = resolveContactEmail(settings);
   const lastUpdated =
     settings?.privacyLastUpdated ||
-    new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
+    'August 4, 2026';
   const cmsContent = settings?.privacyPolicy ?? null;
 
   return (
-    <section aria-labelledby="privacy-heading" style={{ padding: '80px 24px', backgroundColor: '#ffffff' }}>
+    <section aria-labelledby="privacy-heading" style={{ padding: '64px 24px', backgroundColor: '#ffffff' }}>
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
         <SectionHeading
           tag="h1"
@@ -71,7 +69,7 @@ export default async function PrivacyPage() {
           <strong style={{ color: 'var(--ui-color-text)' }}>{siteName}</strong>
         </p>
         <p style={{ ...bodyText, marginBottom: '32px' }}>
-          Last updated: {lastUpdated}
+          Effective date: {lastUpdated}
         </p>
 
         {cmsContent ? (
@@ -82,76 +80,61 @@ export default async function PrivacyPage() {
         ) : (
           <>
             <p style={bodyText}>
-              This Privacy Policy explains how {siteName} collects, uses, and protects information
-              you provide through this website.
+              {siteName} respects your privacy. This policy explains how information submitted through
+              the Plenor website is collected, used, and handled.
             </p>
 
-            <SectionHeading tag="h2" style={h2Style}>1. Data we collect</SectionHeading>
-            <p style={{ ...bodyText, marginBottom: '12px' }}>
-              We collect personal data only when you submit one of the two forms on this website:
+            <SectionHeading tag="h2" style={h2Style}>Information We Collect</SectionHeading>
+            <p style={bodyText}>
+              We may collect information submitted through the contact form or by email, including
+              your name, business email address, company name, and inquiry details.
             </p>
-            <ul style={{ ...bodyText, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <li>
-                <strong style={{ color: 'var(--ui-color-text)' }}>Free guide form:</strong> your name and email
-                address.
-              </li>
-              <li>
-                <strong style={{ color: 'var(--ui-color-text)' }}>Direct inquiry form:</strong> your name, email
-                address, company name, and a description of your product and challenge.
-              </li>
-            </ul>
             <p style={{ ...bodyText, marginTop: '12px' }}>
-              We do not collect any other personal information. We do not use cookies for tracking
-              before you give consent. If analytics is active, page views and form submission events may
-              be tracked after you accept the cookie consent notice.
+              We may also collect limited technical information needed to operate, maintain, and secure
+              the website.
             </p>
 
-            <SectionHeading tag="h2" style={h2Style}>2. How we use your data</SectionHeading>
+            <SectionHeading tag="h2" style={h2Style}>How We Use Information</SectionHeading>
+            <p style={{ ...bodyText, marginBottom: '12px' }}>We may use information to:</p>
             <ul style={{ ...bodyText, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <li>
-                <strong style={{ color: 'var(--ui-color-text)' }}>Free guide submissions:</strong> your name and
-                email are used solely to deliver the PDF guide to you by automated email. You are not
-                added to any mailing list. We will not send you marketing emails without a separate
-                explicit opt-in.
-              </li>
-              <li>
-                <strong style={{ color: 'var(--ui-color-text)' }}>Inquiry submissions:</strong> your information is
-                used to respond to your inquiry and, where relevant, to prepare a proposal. It is
-                shared with no third parties beyond the transactional email provider used to route the
-                message.
-              </li>
+              <li>Respond to inquiries</li>
+              <li>Evaluate potential engagements</li>
+              <li>Communicate about Plenor services</li>
+              <li>Operate and secure the website</li>
+              <li>Meet legal obligations</li>
             </ul>
 
-            <SectionHeading tag="h2" style={h2Style}>3. Data retention</SectionHeading>
+            <SectionHeading tag="h2" style={h2Style}>How We Share Information</SectionHeading>
             <p style={bodyText}>
-              Submissions are retained for a maximum of 12 months from the date of submission. After
-              this period, records are deleted. You may request earlier deletion at any time (see
-              Section 5).
+              We may share information with service providers that support hosting, email, form
+              processing, or related technical operations.
             </p>
-
-            <SectionHeading tag="h2" style={h2Style}>4. Cookies and analytics</SectionHeading>
-            <p style={bodyText}>
-              If analytics is active on this site, it uses cookies to track page views and form
-              submission events. No cookies are set and no data is collected before you give consent via
-              the cookie consent banner. You may decline consent at any time using the banner. Declining
-              does not affect your ability to use any feature of this website.
-            </p>
-
-            <SectionHeading tag="h2" style={h2Style}>5. Your rights</SectionHeading>
-            <p style={{ ...bodyText, marginBottom: '12px' }}>You have the right to:</p>
-            <ul style={{ ...bodyText, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <li>Request access to the personal data we hold about you</li>
-              <li>Request correction of inaccurate data</li>
-              <li>Request deletion of your data</li>
-            </ul>
             <p style={{ ...bodyText, marginTop: '12px' }}>
-              Deletion requests are fulfilled within 30 days. To exercise any of these rights, contact
-              us at the address in Section 6.
+              We may also disclose information when required by law. Plenor does not sell personal
+              information.
             </p>
 
-            <SectionHeading tag="h2" style={h2Style}>6. Contact</SectionHeading>
+            <SectionHeading tag="h2" style={h2Style}>Data Security</SectionHeading>
             <p style={bodyText}>
-              For data-related queries, contact us at{' '}
+              We use reasonable measures to protect the information we receive. No website or electronic
+              system can be guaranteed to be completely secure.
+            </p>
+
+            <SectionHeading tag="h2" style={h2Style}>Your Information</SectionHeading>
+            <p style={bodyText}>
+              You may contact us to request access to, correction of, or deletion of personal information
+              you submitted, subject to applicable legal requirements.
+            </p>
+
+            <SectionHeading tag="h2" style={h2Style}>Changes to This Policy</SectionHeading>
+            <p style={bodyText}>
+              We may update this policy when our website or information-handling practices change. The
+              effective date identifies the latest version.
+            </p>
+
+            <SectionHeading tag="h2" style={h2Style}>Contact</SectionHeading>
+            <p style={bodyText}>
+              Questions may be sent to{' '}
               <a
                 href={`mailto:${contactEmail}`}
                 style={{ color: 'var(--ui-color-primary)', textDecoration: 'underline' }}

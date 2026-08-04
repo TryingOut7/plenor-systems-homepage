@@ -3,10 +3,11 @@ import { notFound } from 'next/navigation';
 import PageChromeOverrides from '@/components/PageChromeOverrides';
 import CmsPreviewDiffBanner from '@/components/CmsPreviewDiffBanner';
 import UniversalSections from '@/components/cms/UniversalSections';
-import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import { getCollectionData, getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
 import { resolveSiteName } from '@/lib/site-config';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
+import { buildCorePresetSections } from '@/payload/presets/corePagePresets';
 
 export const revalidate = 60;
 
@@ -21,9 +22,10 @@ export async function generateMetadata(): Promise<Metadata> {
     slug: '',
     page: sitePage,
     settings,
-    fallbackTitle: `${siteName} — Testing & QA and Launch & Go-to-Market Framework`,
+    fallbackTitle: `${siteName} | Execution-Ready Product Definitions`,
     fallbackDescription:
-      `${siteName} brings structure to the two most failure-prone stages of product development: Testing & QA and Launch & Go-to-Market.`,
+      'Plenor helps founders and growing businesses create execution-ready product definitions and system specifications for AI tools and engineering teams.',
+    forceFallback: true,
   });
 }
 
@@ -35,16 +37,18 @@ export default async function HomePage() {
     getCollectionData(cmsReadOptions),
   ]);
 
-  if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {
+  if (!sitePage) {
     notFound();
   }
+
+  const approvedSections = buildCorePresetSections('home', {}) as PageSection[];
 
   return (
     <>
       <PageChromeOverrides page={sitePage} />
       <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
       <UniversalSections
-        sections={sitePage.sections}
+        sections={approvedSections}
         collections={collectionData}
         guideFormLabels={siteSettings?.guideForm}
         inquiryFormLabels={siteSettings?.inquiryForm}
@@ -52,4 +56,3 @@ export default async function HomePage() {
     </>
   );
 }
-

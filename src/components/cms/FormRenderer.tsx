@@ -42,6 +42,10 @@ interface FormRendererProps {
 }
 
 type TemplateLabels = {
+  nameLabel?: string;
+  emailLabel?: string;
+  organizationLabel?: string;
+  messageLabel?: string;
   submitLabel?: string;
   submittingLabel?: string;
   successHeading?: string;
@@ -169,12 +173,12 @@ const STATIC_FORM_FALLBACKS: Record<'guide' | 'inquiry', FormData> = {
     title: 'Inquiry',
     templateKey: 'inquiry',
     fields: [
-      { id: 'name', name: 'name', label: 'Full Name', blockType: 'text', required: true },
-      { id: 'email', name: 'email', label: 'Email Address', blockType: 'email', required: true },
+      { id: 'name', name: 'name', label: 'Name', blockType: 'text', required: true },
+      { id: 'email', name: 'email', label: 'Business Email', blockType: 'email', required: true },
       { id: 'company', name: 'company', label: 'Company', blockType: 'text', required: false },
-      { id: 'challenge', name: 'challenge', label: 'What challenge are you solving?', blockType: 'textarea', required: false },
+      { id: 'challenge', name: 'challenge', label: 'What are you trying to build or define?', blockType: 'textarea', required: false },
     ],
-    submitButtonLabel: 'Send Message',
+    submitButtonLabel: 'Discuss Your Product',
     confirmationType: 'message',
     confirmationMessage: "Thanks for reaching out! We'll be in touch shortly.",
   },
@@ -201,9 +205,18 @@ function resolveFieldPlaceholder(
   templateKey: FormData['templateKey'],
   labels: TemplateLabels | null,
 ): string | undefined {
-  if (!labels) return undefined;
-
   const fieldName = field.name.trim().toLowerCase();
+
+  if (!labels) {
+    if (templateKey !== 'inquiry') return undefined;
+    if (fieldName === 'name') return 'Your name';
+    if (fieldName === 'email') return 'name@company.com';
+    if (fieldName === 'company') return 'Company or organization';
+    if (fieldName === 'challenge' || fieldName === 'message') {
+      return 'Briefly describe the business idea, product, system, or challenge.';
+    }
+    return undefined;
+  }
 
   if (templateKey === 'guide') {
     if (fieldName === 'firstname' || fieldName === 'name') {
@@ -223,6 +236,23 @@ function resolveFieldPlaceholder(
   }
 
   return undefined;
+}
+
+function resolveFieldLabel(
+  field: FormField,
+  templateKey: FormData['templateKey'],
+  labels: TemplateLabels | null,
+): string {
+  if (templateKey !== 'inquiry' || !labels) return field.label;
+
+  const fieldName = field.name.trim().toLowerCase();
+  if (fieldName === 'name') return labels.nameLabel?.trim() || field.label;
+  if (fieldName === 'email') return labels.emailLabel?.trim() || field.label;
+  if (fieldName === 'company') return labels.organizationLabel?.trim() || field.label;
+  if (fieldName === 'challenge' || fieldName === 'message') {
+    return labels.messageLabel?.trim() || field.label;
+  }
+  return field.label;
 }
 
 export default function FormRenderer({
@@ -438,9 +468,14 @@ export default function FormRenderer({
     'Submit';
   const submittingLabel = templateLabels?.submittingLabel?.trim() || 'Submitting…';
   const legalText =
-    templateLabels?.footerText?.trim() || templateLabels?.consentText?.trim() || '';
-  const privacyLabel = templateLabels?.privacyLabel?.trim() || '';
-  const privacyHref = templateLabels?.privacyHref?.trim() || '';
+    templateLabels?.footerText?.trim() ||
+    templateLabels?.consentText?.trim() ||
+    (form.templateKey === 'inquiry' ? 'By submitting this form, you agree to the' : '');
+  const privacyLabel =
+    templateLabels?.privacyLabel?.trim() ||
+    (form.templateKey === 'inquiry' ? 'Privacy Policy' : '');
+  const privacyHref =
+    templateLabels?.privacyHref?.trim() || (form.templateKey === 'inquiry' ? '/privacy' : '');
   const showPrivacyLink = privacyLabel.length > 0 && privacyHref.length > 0;
 
   return (
@@ -449,6 +484,7 @@ export default function FormRenderer({
         .filter((field) => (field.blockType ?? field.fieldType) !== 'message')
         .map((field) => {
           const placeholder = resolveFieldPlaceholder(field, form.templateKey, templateLabels);
+          const displayLabel = resolveFieldLabel(field, form.templateKey, templateLabels);
           const ft = field.blockType ?? field.fieldType;
 
           return (
@@ -478,7 +514,7 @@ export default function FormRenderer({
                       color: dark ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)',
                     }}
                   >
-                    {field.label}
+                    {displayLabel}
                     {field.required ? (
                       <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
                         *
@@ -489,7 +525,7 @@ export default function FormRenderer({
               ) : ft === 'select' ? (
                 <>
                   <label htmlFor={`field-${field.name}`} className="cms-form-label">
-                    {field.label}
+                    {displayLabel}
                     {field.required ? (
                       <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
                         *
@@ -517,7 +553,7 @@ export default function FormRenderer({
               ) : ft === 'textarea' ? (
                 <>
                   <label htmlFor={`field-${field.name}`} className="cms-form-label">
-                    {field.label}
+                    {displayLabel}
                     {field.required ? (
                       <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
                         *
@@ -541,7 +577,7 @@ export default function FormRenderer({
               ) : (
                 <>
                   <label htmlFor={`field-${field.name}`} className="cms-form-label">
-                    {field.label}
+                    {displayLabel}
                     {field.required ? (
                       <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
                         *

@@ -82,7 +82,6 @@ export default function Footer({
               className="footer-brand-link"
               aria-label={`${siteName} – home`}
             >
-              <span className="footer-brand-dot" aria-hidden="true" />
               {siteName}
             </Link>
             {brandTagline ? (

@@ -5,8 +5,8 @@ import PageChromeOverrides from '@/components/PageChromeOverrides';
 import UniversalSections from '@/components/cms/UniversalSections';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
-import { resolveSiteName } from '@/lib/site-config';
-import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import { getCollectionData, getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
+import { buildCorePresetSections } from '@/payload/presets/corePagePresets';
 
 export const revalidate = 60;
 
@@ -16,14 +16,14 @@ export async function generateMetadata(): Promise<Metadata> {
     getSitePageBySlug('contact', cmsReadOptions),
     getSiteSettings(cmsReadOptions),
   ]);
-  const siteName = resolveSiteName(settings);
   return buildSitePageMetadata({
     slug: 'contact',
     page: sitePage,
     settings,
-    fallbackTitle: 'Contact — Send an Inquiry',
+    fallbackTitle: 'Discuss Your Product | Plenor Systems',
     fallbackDescription:
-      `Send a direct inquiry to ${siteName}. Tell us about your product and team.`,
+      'Contact Plenor to discuss a business idea, product, or system that needs a clearer definition for software development.',
+    forceFallback: true,
   });
 }
 
@@ -34,17 +34,18 @@ export default async function ContactPage() {
     getSiteSettings(cmsReadOptions),
   ]);
 
-  if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {
+  if (!sitePage) {
     notFound();
   }
 
+  const approvedSections = buildCorePresetSections('contact', {}) as PageSection[];
   const collectionData = await getCollectionData(cmsReadOptions);
   return (
     <>
       <PageChromeOverrides page={sitePage} />
       <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
       <UniversalSections
-        sections={sitePage.sections}
+        sections={approvedSections}
         collections={collectionData}
         guideFormLabels={siteSettings?.guideForm}
         inquiryFormLabels={siteSettings?.inquiryForm}

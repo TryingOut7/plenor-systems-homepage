@@ -136,8 +136,13 @@ export default function HeroSection({
         <SectionHeading
           tag={hTag === 'h2' ? 'h1' : hTag}
           style={{
-            fontSize: hSize === 'md' ? 'clamp(36px, 5vw, 60px)' : hFontSize,
-            lineHeight: 1.18,
+            fontSize:
+              hSize === 'md'
+                ? sectionRecord.structuralKey === 'home-hero'
+                  ? 'clamp(34px, 5vw, 60px)'
+                  : 'clamp(32px, 4.5vw, 52px)'
+                : hFontSize,
+            lineHeight: 1.12,
             marginBottom: '20px',
             color: hasBgMedia ? '#ffffff' : resolvedHeadingColor,
           }}
@@ -150,6 +155,7 @@ export default function HeroSection({
             style={{
               color: hasBgMedia ? 'rgba(255,255,255,0.85)' : bodyColor(theme),
               fontSize: '18px',
+              whiteSpace: 'pre-line',
               marginBottom: sectionRecord.primaryCtaLabel ? '28px' : 0,
             }}
           >

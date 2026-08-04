@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import {
@@ -55,8 +54,6 @@ export default function Navbar({
   siteName = DEFAULT_SITE_NAME,
   navigationLinks,
   headerButtons,
-  logoImage,
-  logoWidth = 120,
 }: NavbarProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -147,37 +144,13 @@ export default function Navbar({
             fontSize: '20px',
             color: 'var(--ui-color-primary)',
             textDecoration: 'none',
-            letterSpacing: '-0.02em',
+            letterSpacing: 'normal',
             flexShrink: 0,
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
           }}
         >
-          {logoImage?.url ? (
-            <Image
-              src={logoImage.url}
-              alt={logoImage.alt || siteName}
-              width={logoWidth}
-              height={40}
-              style={{ objectFit: 'contain', height: '40px', width: 'auto', maxWidth: `${logoWidth}px` }}
-            />
-          ) : (
-            <>
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: 'var(--ui-color-primary)',
-                  flexShrink: 0,
-                }}
-                aria-hidden="true"
-              />
-              {siteName}
-            </>
-          )}
+          {siteName}
         </Link>
 
         {/* Desktop nav */}
@@ -293,7 +266,11 @@ export default function Navbar({
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            padding: '8px',
+            padding: 0,
+            width: '44px',
+            height: '44px',
+            alignItems: 'center',
+            justifyContent: 'center',
             color: 'var(--ui-color-primary)',
             display: 'none',
           }}

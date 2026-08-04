@@ -5,8 +5,8 @@ import PageChromeOverrides from '@/components/PageChromeOverrides';
 import UniversalSections from '@/components/cms/UniversalSections';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
-import { resolveSiteName } from '@/lib/site-config';
-import { getCollectionData, getSitePageBySlug, getSiteSettings } from '@/payload/cms';
+import { getCollectionData, getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
+import { buildCorePresetSections } from '@/payload/presets/corePagePresets';
 
 export const revalidate = 60;
 
@@ -16,14 +16,14 @@ export async function generateMetadata(): Promise<Metadata> {
     getSitePageBySlug('services', cmsReadOptions),
     getSiteSettings(cmsReadOptions),
   ]);
-  const siteName = resolveSiteName(settings);
   return buildSitePageMetadata({
     slug: 'services',
     page: sitePage,
     settings,
-    fallbackTitle: 'Services — Testing & QA and Launch & Go-to-Market',
+    fallbackTitle: 'Product and System Definition | Plenor Systems',
     fallbackDescription:
-      `${siteName} covers two framework stages: Testing & QA and Launch & Go-to-Market. Learn what each stage covers, who it helps, and why a structured framework matters.`,
+      'Turn business ideas and domain knowledge into clear product definitions and system specifications ready to guide software development.',
+    forceFallback: true,
   });
 }
 
@@ -34,17 +34,18 @@ export default async function ServicesPage() {
     getSiteSettings(cmsReadOptions),
   ]);
 
-  if (!sitePage || !Array.isArray(sitePage.sections) || sitePage.sections.length === 0) {
+  if (!sitePage) {
     notFound();
   }
 
+  const approvedSections = buildCorePresetSections('services', {}) as PageSection[];
   const collectionData = await getCollectionData(cmsReadOptions);
   return (
     <>
       <PageChromeOverrides page={sitePage} />
       <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
       <UniversalSections
-        sections={sitePage.sections}
+        sections={approvedSections}
         collections={collectionData}
         guideFormLabels={siteSettings?.guideForm}
         inquiryFormLabels={siteSettings?.inquiryForm}

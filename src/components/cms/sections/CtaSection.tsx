@@ -46,7 +46,7 @@ export default function CtaSection({
           <SectionHeading
             tag={hTag}
             style={{
-              fontSize: hSize === 'md' ? 'clamp(26px, 4vw, 40px)' : hFontSize,
+              fontSize: hSize === 'md' ? 'clamp(26px, 4vw, 38px)' : hFontSize,
               color:
                 theme === 'white' || theme === 'light'
                   ? 'var(--ui-color-primary)'
@@ -64,6 +64,7 @@ export default function CtaSection({
                 theme === 'white' || theme === 'light'
                   ? 'var(--ui-color-text-muted)'
                   : 'var(--ui-color-dark-text-muted)',
+              whiteSpace: 'pre-line',
               marginBottom: sectionRecord.buttonLabel ? '24px' : 0,
             }}
           >
