@@ -413,7 +413,7 @@ export default function FormRenderer({
   }
 
   if (error) {
-    return <p style={{ color: '#dc2626', fontSize: '14px' }}>{error}</p>;
+    return <p style={{ color: 'var(--color-error)', fontSize: '14px' }}>{error}</p>;
   }
 
   if (!form) return null;
@@ -440,7 +440,7 @@ export default function FormRenderer({
             style={{
               fontSize: '18px',
               fontWeight: 700,
-              color: dark ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)',
+              color: dark ? 'var(--ui-color-dark-text)' : 'var(--color-success)',
               margin: '0 0 8px',
             }}
           >
@@ -451,7 +451,7 @@ export default function FormRenderer({
           style={{
             fontSize: '16px',
             fontWeight: 600,
-            color: dark ? 'var(--ui-color-dark-text)' : 'var(--ui-color-primary)',
+            color: dark ? 'var(--ui-color-dark-text)' : 'var(--color-success)',
             margin: 0,
             whiteSpace: 'pre-line',
           }}
@@ -516,7 +516,7 @@ export default function FormRenderer({
                   >
                     {displayLabel}
                     {field.required ? (
-                      <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
+                      <span aria-hidden="true" style={{ color: 'var(--color-error)', marginLeft: '4px' }}>
                         *
                       </span>
                     ) : null}
@@ -527,7 +527,7 @@ export default function FormRenderer({
                   <label htmlFor={`field-${field.name}`} className="cms-form-label">
                     {displayLabel}
                     {field.required ? (
-                      <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
+                      <span aria-hidden="true" style={{ color: 'var(--color-error)', marginLeft: '4px' }}>
                         *
                       </span>
                     ) : null}
@@ -555,7 +555,7 @@ export default function FormRenderer({
                   <label htmlFor={`field-${field.name}`} className="cms-form-label">
                     {displayLabel}
                     {field.required ? (
-                      <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
+                      <span aria-hidden="true" style={{ color: 'var(--color-error)', marginLeft: '4px' }}>
                         *
                       </span>
                     ) : null}
@@ -579,7 +579,7 @@ export default function FormRenderer({
                   <label htmlFor={`field-${field.name}`} className="cms-form-label">
                     {displayLabel}
                     {field.required ? (
-                      <span aria-hidden="true" style={{ color: '#dc2626', marginLeft: '4px' }}>
+                      <span aria-hidden="true" style={{ color: 'var(--color-error)', marginLeft: '4px' }}>
                         *
                       </span>
                     ) : null}
@@ -609,7 +609,7 @@ export default function FormRenderer({
         })}
 
       {submitError ? (
-        <p style={{ color: '#dc2626', fontSize: '14px', margin: 0 }}>{submitError}</p>
+        <p style={{ color: 'var(--color-error)', fontSize: '14px', margin: 0 }}>{submitError}</p>
       ) : null}
 
       <button

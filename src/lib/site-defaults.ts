@@ -1,6 +1,6 @@
 export const DEFAULT_SITE_NAME = 'Plenor Systems';
 export const DEFAULT_BRAND_TAGLINE =
-  'A Governed Definition Platform for creating execution-ready product definitions and system specifications.';
+  'A Governed Definition Platform for creating ready-to-build product and system specifications.';
 export const DEFAULT_CONTACT_EMAIL = 'contact@plenor.ai';
 export const DEFAULT_FOOTER_LEGAL_LABEL = 'Privacy Policy';
 export const DEFAULT_FOOTER_LEGAL_HREF = '/privacy';
@@ -11,9 +11,11 @@ export const DEFAULT_NAVIGATION_LINKS = [
   { label: 'Contact', href: '/contact' },
 ] as const;
 
-export const DEFAULT_HEADER_BUTTONS = [
-  { label: 'Discuss Your Product', href: '/contact', variant: 'primary' as const },
-] as const;
+export const DEFAULT_HEADER_BUTTONS: ReadonlyArray<{
+  label: string;
+  href: string;
+  variant: 'primary' | 'ghost';
+}> = [];
 
 export const DEFAULT_FOOTER_COLUMNS = [
   {

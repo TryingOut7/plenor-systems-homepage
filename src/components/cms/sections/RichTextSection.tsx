@@ -15,6 +15,9 @@ export default function RichTextSection({
   resolvedBodyColor,
 }: SectionRendererProps) {
   const sectionRecord = asSectionRecord(section);
+  const items = Array.isArray(sectionRecord.items)
+    ? sectionRecord.items.filter((item): item is string => typeof item === 'string')
+    : [];
 
   return (
     <section
@@ -41,8 +44,8 @@ export default function RichTextSection({
           <SectionHeading
             tag={hTag}
             style={{
-              fontSize: hSize === 'md' ? 'clamp(26px, 4vw, 38px)' : hFontSize,
-              marginBottom: '24px',
+              fontSize: hSize === 'md' ? 'clamp(24px, 3.5vw, 36px)' : hFontSize,
+              marginBottom: '20px',
               color: resolvedHeadingColor,
             }}
           >
@@ -56,6 +59,18 @@ export default function RichTextSection({
           }
           style={{ color: resolvedBodyColor }}
         />
+        {items.length > 0 ? (
+          <ul className="feature-list rich-text-list">
+            {items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        ) : null}
+        {typeof sectionRecord.closingCopy === 'string' ? (
+          <p className="section-closing-copy rich-text-closing-copy">
+            {sectionRecord.closingCopy}
+          </p>
+        ) : null}
       </div>
     </section>
   );

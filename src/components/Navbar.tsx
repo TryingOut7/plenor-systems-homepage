@@ -116,14 +116,15 @@ export default function Navbar({
         backgroundColor: 'var(--ui-color-surface)',
         height: 'var(--ui-nav-height, 68px)',
         borderBottom: scrolled ? '1px solid var(--ui-color-border)' : '1px solid transparent',
-        boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.06)' : 'none',
-        transition: 'box-shadow 0.3s ease, border-color 0.3s ease',
+        boxShadow: 'none',
+        transition: 'border-color 0.18s ease',
       }}
     >
       <nav
         aria-label="Main navigation"
+        className="site-navigation"
         style={{
-          maxWidth: '1200px',
+          maxWidth: 'calc(var(--ui-layout-container-max-width) + 64px)',
           margin: '0 auto',
           height: '100%',
           display: 'flex',
@@ -141,7 +142,7 @@ export default function Navbar({
           style={{
             fontFamily: 'var(--ui-font-body)',
             fontWeight: 700,
-            fontSize: '20px',
+            fontSize: 'var(--ui-wordmark-size, 24px)',
             color: 'var(--ui-color-primary)',
             textDecoration: 'none',
             letterSpacing: 'normal',
@@ -186,7 +187,7 @@ export default function Navbar({
                       alignItems: 'center',
                       gap: '4px',
                       padding: '6px 12px',
-                      fontSize: '14px',
+                      fontSize: '16px',
                       fontWeight: isActive ? 600 : 500,
                       color: isActive ? 'var(--ui-color-primary)' : 'var(--ui-color-text-muted)',
                       background: 'none',
@@ -210,7 +211,7 @@ export default function Navbar({
                     style={{
                       display: 'inline-block',
                       padding: '6px 12px',
-                      fontSize: '14px',
+                      fontSize: '16px',
                       fontWeight: isActive ? 600 : 500,
                       color: isActive ? 'var(--ui-color-primary)' : 'var(--ui-color-text-muted)',
                       textDecoration: 'none',
@@ -304,10 +305,9 @@ export default function Navbar({
             right: 0,
             backgroundColor: 'var(--ui-color-surface)',
             borderBottom: '1px solid var(--ui-color-border)',
-            padding: '8px 32px 24px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+            padding: '8px 20px 24px',
+            boxShadow: 'none',
             zIndex: 50,
-            animation: 'fadeIn 0.2s ease both',
             fontFamily: 'var(--ui-font-body)',
           }}
           className="navbar-mobile-menu"

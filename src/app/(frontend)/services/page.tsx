@@ -20,9 +20,9 @@ export async function generateMetadata(): Promise<Metadata> {
     slug: 'services',
     page: sitePage,
     settings,
-    fallbackTitle: 'Product and System Definition | Plenor Systems',
+    fallbackTitle: 'Product, Experience, and System Definition | Plenor Systems',
     fallbackDescription:
-      'Turn business ideas and domain knowledge into clear product definitions and system specifications ready to guide software development.',
+      'Use the Plenor governed platform to define the product, design user experiences and workflows, and create system specifications ready to guide implementation.',
     forceFallback: true,
   });
 }

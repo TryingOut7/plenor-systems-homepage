@@ -39,6 +39,9 @@ export default function HeroSection({
   const alignItems =
     textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center';
   const hasBgMedia = !!(bgImageUrl || bgVideoUrl);
+  const bullets = Array.isArray(sectionRecord.bullets)
+    ? sectionRecord.bullets.filter((item): item is string => typeof item === 'string')
+    : [];
 
   return (
     <section
@@ -112,9 +115,9 @@ export default function HeroSection({
       ) : null}
 
       <div
+        className="hero-content"
         style={{
           ...innerStyle,
-          maxWidth: 'min(760px, var(--ui-layout-container-max-width))',
           position: 'relative',
           zIndex: 2,
           textAlign: textAlign as CSSProperties['textAlign'],
@@ -139,8 +142,8 @@ export default function HeroSection({
             fontSize:
               hSize === 'md'
                 ? sectionRecord.structuralKey === 'home-hero'
-                  ? 'clamp(34px, 5vw, 60px)'
-                  : 'clamp(32px, 4.5vw, 52px)'
+                  ? 'clamp(32px, 4.5vw, 54px)'
+                  : 'clamp(30px, 4vw, 48px)'
                 : hFontSize,
             lineHeight: 1.12,
             marginBottom: '20px',
@@ -156,11 +159,26 @@ export default function HeroSection({
               color: hasBgMedia ? 'rgba(255,255,255,0.85)' : bodyColor(theme),
               fontSize: '18px',
               whiteSpace: 'pre-line',
-              marginBottom: sectionRecord.primaryCtaLabel ? '28px' : 0,
+              marginBottom:
+                sectionRecord.primaryCtaLabel || bullets.length > 0 || sectionRecord.supportingStatement
+                  ? '24px'
+                  : 0,
             }}
           >
             {String(sectionRecord.subheading)}
           </p>
+        ) : null}
+
+        {bullets.length > 0 ? (
+          <ul className="hero-bullets">
+            {bullets.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        ) : null}
+
+        {typeof sectionRecord.supportingStatement === 'string' ? (
+          <p className="hero-supporting-statement">{sectionRecord.supportingStatement}</p>
         ) : null}
 
         {sectionRecord.primaryCtaLabel ? (

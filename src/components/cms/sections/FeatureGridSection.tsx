@@ -19,6 +19,11 @@ export default function FeatureGridSection({
   const features = Array.isArray(sectionRecord.features) ? sectionRecord.features : [];
   const cols = sectionRecord.columns === '2' ? 2 : sectionRecord.columns === '4' ? 4 : 3;
   const minColWidth = cols === 2 ? '300px' : cols === 4 ? '220px' : '260px';
+  const closingCopy = Array.isArray(sectionRecord.closingCopy)
+    ? sectionRecord.closingCopy.filter((item): item is string => typeof item === 'string')
+    : typeof sectionRecord.closingCopy === 'string'
+      ? [sectionRecord.closingCopy]
+      : [];
 
   return (
     <section
@@ -45,7 +50,7 @@ export default function FeatureGridSection({
           <SectionHeading
             tag={hTag}
             style={{
-              fontSize: hSize === 'md' ? 'clamp(26px, 3.5vw, 38px)' : hFontSize,
+              fontSize: hSize === 'md' ? 'clamp(24px, 3.5vw, 36px)' : hFontSize,
               fontWeight: 700,
               color: resolvedHeadingColor,
               marginBottom: '12px',
@@ -56,12 +61,21 @@ export default function FeatureGridSection({
         ) : null}
 
         {sectionRecord.subheading ? (
-          <p style={{ color: resolvedBodyColor, fontSize: '16px', marginBottom: '40px' }}>
+          <p
+            style={{
+              color: resolvedBodyColor,
+              fontSize: '16px',
+              marginBottom: '32px',
+              maxWidth: '900px',
+              whiteSpace: 'pre-line',
+            }}
+          >
             {String(sectionRecord.subheading)}
           </p>
         ) : null}
 
         <div
+          className="feature-grid"
           style={{
             display: 'grid',
             gridTemplateColumns: `repeat(auto-fit, minmax(${minColWidth}, 1fr))`,
@@ -73,6 +87,8 @@ export default function FeatureGridSection({
               icon?: string;
               title?: string;
               description?: string;
+              items?: string[];
+              result?: string;
               linkLabel?: string;
               linkHref?: string;
             };
@@ -101,7 +117,7 @@ export default function FeatureGridSection({
                 ) : null}
                 <h3
                   style={{
-                    fontSize: '18px',
+                    fontSize: '20px',
                     fontWeight: 700,
                     color: resolvedHeadingColor,
                     marginBottom: '8px',
@@ -111,15 +127,30 @@ export default function FeatureGridSection({
                 </h3>
                 <p
                   style={{
-                    fontSize: '14px',
+                    fontSize: '16px',
                     color: resolvedBodyColor,
                     lineHeight: 1.65,
                     margin: 0,
-                    marginBottom: f.linkLabel ? '16px' : 0,
+                    marginBottom:
+                      f.linkLabel || (Array.isArray(f.items) && f.items.length > 0) || f.result
+                        ? '16px'
+                        : 0,
                   }}
                 >
                   {String(f.description || '')}
                 </p>
+                {Array.isArray(f.items) && f.items.length > 0 ? (
+                  <ul className="feature-list">
+                    {f.items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                ) : null}
+                {f.result ? (
+                  <p className="feature-result">
+                    <strong>Result:</strong> {f.result}
+                  </p>
+                ) : null}
                 {typeof f.linkLabel === 'string' && f.linkLabel.trim() ? (
                   <Link
                     href={normalizePath(String(f.linkHref || '#'))}
@@ -138,6 +169,13 @@ export default function FeatureGridSection({
             );
           })}
         </div>
+        {closingCopy.length > 0 ? (
+          <div className="section-closing-copy">
+            {closingCopy.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );

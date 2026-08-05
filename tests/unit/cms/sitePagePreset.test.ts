@@ -108,53 +108,49 @@ describe('applyCorePresetSections — fixed layout guardrails', () => {
 
 describe('applyCorePresetSections — structuralKey lookup', () => {
   it('merges text from incoming section matched by structuralKey, not index', async () => {
-    // Home preset has two simpleTableSection blocks (home-table-stages at index 3,
-    // home-table-audiences at index 4). This test proves that sending them in
+    // About preset has two richTextSection blocks. This test proves that sending them in
     // reverse order still routes each section's text to the correct template slot.
-    const audiencesSectionFirst: Record<string, unknown> = {
-      blockType: 'simpleTableSection',
-      structuralKey: 'home-table-audiences',
-      sectionLabel: 'Who this is for',
-      heading: 'Audience heading from CMS',
-      columns: [],
-      rows: [
-        { cells: [{ value: 'Startups' }, { value: 'Fast teams' }] },
-      ],
+    const focusSectionFirst: Record<string, unknown> = {
+      blockType: 'richTextSection',
+      structuralKey: 'about-focus',
+      sectionLabel: 'Focus label from CMS',
+      heading: 'Focus heading from CMS',
+      content: null,
     };
-    const stagesSectionSecond: Record<string, unknown> = {
-      blockType: 'simpleTableSection',
-      structuralKey: 'home-table-stages',
+    const whoSectionSecond: Record<string, unknown> = {
+      blockType: 'richTextSection',
+      structuralKey: 'about-who',
       sectionLabel: '',
-      heading: 'Stage heading from CMS',
-      columns: [],
-      rows: [
-        { cells: [{ value: 'Testing' }, { value: '' }, { value: '' }] },
-        { cells: [{ value: 'Launch' }, { value: '' }, { value: '' }] },
-      ],
+      heading: 'Who heading from CMS',
+      content: null,
     };
 
-    // Deliberately send audiences first (index 0) and stages second (index 1),
-    // the inverse of their position in the home preset template.
+    // Deliberately send focus first and who second,
+    // the inverse of their position in the About preset template.
     const data: Record<string, unknown> = {
-      slug: 'home',
-      presetKey: 'home',
+      slug: 'about',
+      presetKey: 'about',
       presetContent: {},
-      sections: [audiencesSectionFirst, stagesSectionSecond],
+      sections: [focusSectionFirst, whoSectionSecond],
     };
 
     const result = await applyCorePresetSections(makeHookArgs(data) as never) as Record<string, unknown>;
     const sections = result.sections as Array<Record<string, unknown>>;
 
-    const stagesSection = sections.find((s) => s.structuralKey === 'home-table-stages');
-    const audiencesSection = sections.find((s) => s.structuralKey === 'home-table-audiences');
+    const whoSection = sections.find((s) => s.structuralKey === 'about-who');
+    const focusSection = sections.find((s) => s.structuralKey === 'about-focus');
 
-    expect(stagesSection).toBeDefined();
-    expect(audiencesSection).toBeDefined();
+    expect(whoSection).toBeDefined();
+    expect(focusSection).toBeDefined();
 
     // heading from CMS must flow into the correct template slot via structuralKey
-    expect((stagesSection as Record<string, unknown>).heading).toBe('Stage heading from CMS');
-    expect((audiencesSection as Record<string, unknown>).sectionLabel).toBe('Who this is for');
-    expect((audiencesSection as Record<string, unknown>).heading).toBe('Audience heading from CMS');
+    expect((whoSection as Record<string, unknown>).heading).toBe('Who heading from CMS');
+    expect((focusSection as Record<string, unknown>).sectionLabel).toBe(
+      'Focus label from CMS',
+    );
+    expect((focusSection as Record<string, unknown>).heading).toBe(
+      'Focus heading from CMS',
+    );
   });
 
   it('falls back to index matching when no structuralKey is present on incoming section', async () => {

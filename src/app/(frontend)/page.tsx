@@ -5,7 +5,6 @@ import CmsPreviewDiffBanner from '@/components/CmsPreviewDiffBanner';
 import UniversalSections from '@/components/cms/UniversalSections';
 import { getCollectionData, getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
-import { resolveSiteName } from '@/lib/site-config';
 import { getCmsReadOptions } from '@/lib/cms-read-options';
 import { buildCorePresetSections } from '@/payload/presets/corePagePresets';
 
@@ -17,14 +16,13 @@ export async function generateMetadata(): Promise<Metadata> {
     getSitePageBySlug('home', cmsReadOptions),
     getSiteSettings(cmsReadOptions),
   ]);
-  const siteName = resolveSiteName(settings);
   return buildSitePageMetadata({
     slug: '',
     page: sitePage,
     settings,
-    fallbackTitle: `${siteName} | Execution-Ready Product Definitions`,
+    fallbackTitle: 'Plenor Systems | Ready-to-Build Product and System Specifications',
     fallbackDescription:
-      'Plenor helps founders and growing businesses create execution-ready product definitions and system specifications for AI tools and engineering teams.',
+      'Plenor helps founders and growing businesses articulate the business need, design the product experience, and create system specifications for AI tools and engineering teams.',
     forceFallback: true,
   });
 }
