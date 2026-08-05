@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildSitePageMetadata } from '@/lib/page-metadata';
+import { resolveSiteUrl } from '@/lib/site-config';
 
 describe('site page metadata builder', () => {
   it('uses fallback metadata when CMS values are missing', () => {
@@ -68,5 +69,27 @@ describe('site page metadata builder', () => {
     });
 
     expect(metadata.robots).toEqual({ index: false, follow: false });
+  });
+
+  it('never emits a localhost canonical URL in the Vercel production environment', () => {
+    const previousVercelEnv = process.env.VERCEL_ENV;
+    process.env.VERCEL_ENV = 'production';
+
+    try {
+      expect(resolveSiteUrl({ siteUrl: 'http://localhost:3000' } as never)).toBe(
+        'https://plenor.ai',
+      );
+      const metadata = buildSitePageMetadata({
+        slug: 'services',
+        settings: { siteUrl: 'http://localhost:3000' } as never,
+        page: null,
+        fallbackTitle: 'Services',
+      });
+      expect(metadata.alternates?.canonical).toBe('https://plenor.ai/services');
+      expect(metadata.openGraph?.url).toBe('https://plenor.ai/services');
+    } finally {
+      if (previousVercelEnv === undefined) delete process.env.VERCEL_ENV;
+      else process.env.VERCEL_ENV = previousVercelEnv;
+    }
   });
 });

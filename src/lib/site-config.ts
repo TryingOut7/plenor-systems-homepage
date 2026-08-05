@@ -7,6 +7,7 @@ import {
 const DEFAULT_SITE_URL = stripTrailingSlash(
   process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000',
 );
+const PRODUCTION_SITE_URL = 'https://plenor.ai';
 
 function asNonEmptyString(value: unknown): string | null {
   if (typeof value !== 'string') return null;
@@ -26,6 +27,16 @@ export function resolveSiteUrl(settings?: Pick<SiteSettings, 'siteUrl'> | null):
   let url = stripTrailingSlash(asNonEmptyString(settings?.siteUrl) || DEFAULT_SITE_URL);
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     url = url.includes('localhost') ? `http://${url}` : `https://${url}`;
+  }
+  if (process.env.VERCEL_ENV === 'production') {
+    try {
+      const hostname = new URL(url).hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+        return PRODUCTION_SITE_URL;
+      }
+    } catch {
+      return PRODUCTION_SITE_URL;
+    }
   }
   return url;
 }
