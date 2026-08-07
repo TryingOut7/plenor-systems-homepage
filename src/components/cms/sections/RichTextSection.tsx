@@ -18,11 +18,29 @@ export default function RichTextSection({
   const items = Array.isArray(sectionRecord.items)
     ? sectionRecord.items.filter((item): item is string => typeof item === 'string')
     : [];
+  const subsections = Array.isArray(sectionRecord.subsections)
+    ? sectionRecord.subsections.filter(
+        (item): item is { heading: string; copy: string } =>
+          !!item &&
+          typeof item === 'object' &&
+          typeof (item as { heading?: unknown }).heading === 'string' &&
+          typeof (item as { copy?: unknown }).copy === 'string',
+      )
+    : [];
+  const inlineLink =
+    sectionRecord.inlineLink && typeof sectionRecord.inlineLink === 'object'
+      ? (sectionRecord.inlineLink as { prefix?: string; label?: string; href?: string; suffix?: string })
+      : null;
 
   return (
     <section
       key={sectionKey}
       id={typeof sectionRecord.anchorId === 'string' ? sectionRecord.anchorId : undefined}
+      aria-label={
+        typeof sectionRecord.accessibleLabel === 'string'
+          ? sectionRecord.accessibleLabel
+          : undefined
+      }
       style={sectionStyle}
       className={
         typeof sectionRecord.customClassName === 'string'
@@ -30,7 +48,7 @@ export default function RichTextSection({
           : undefined
       }
     >
-      <div style={{ ...innerStyle, maxWidth: '800px' }}>
+      <div className="rich-text-section-content" style={{ ...innerStyle, maxWidth: '800px' }}>
         {typeof sectionRecord.sectionLabel === 'string' && sectionRecord.sectionLabel ? (
           <p
             className="section-label"
@@ -59,6 +77,19 @@ export default function RichTextSection({
           }
           style={{ color: resolvedBodyColor }}
         />
+        {subsections.map((subsection) => (
+          <div className="narrative-subsection" key={subsection.heading}>
+            <h3>{subsection.heading}</h3>
+            <p>{subsection.copy}</p>
+          </div>
+        ))}
+        {inlineLink?.label && inlineLink.href ? (
+          <p className="inline-link-copy">
+            {inlineLink.prefix || ''}
+            <a href={inlineLink.href}>{inlineLink.label}</a>
+            {inlineLink.suffix || ''}
+          </p>
+        ) : null}
         {items.length > 0 ? (
           <ul className="feature-list rich-text-list">
             {items.map((item) => (

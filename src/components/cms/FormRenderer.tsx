@@ -1,6 +1,6 @@
 'use client';
 
-import { type CSSProperties, useEffect, useMemo, useState } from 'react';
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import type {
   GuideFormLabels,
   InquiryFormLabels,
@@ -16,6 +16,8 @@ interface FormField {
   blockType: 'text' | 'textarea' | 'email' | 'number' | 'select' | 'checkbox' | 'message';
   fieldType?: 'text' | 'textarea' | 'email' | 'number' | 'select' | 'checkbox' | 'message';
   required?: boolean;
+  maxLength?: number;
+  autoComplete?: string;
   options?: Array<{ label: string; value: string }>;
   defaultValue?: string;
 }
@@ -96,13 +98,17 @@ function resolveSubmitTarget(
   }
 
   if (form.templateKey === 'inquiry') {
+    const challenge = readTextValue(values, 'challenge');
+    const additionalContext = readTextValue(values, 'additionalContext');
     return {
       endpoint: '/api/inquiry',
       payload: {
         name: readTextValue(values, 'name'),
         email: readTextValue(values, 'email'),
         company: readTextValue(values, 'company'),
-        challenge: readTextValue(values, 'challenge'),
+        challenge: additionalContext
+          ? `${challenge}\n\nAdditional context:\n${additionalContext}`
+          : challenge,
       },
     };
   }
@@ -173,14 +179,15 @@ const STATIC_FORM_FALLBACKS: Record<'guide' | 'inquiry', FormData> = {
     title: 'Inquiry',
     templateKey: 'inquiry',
     fields: [
-      { id: 'name', name: 'name', label: 'Name', blockType: 'text', required: true },
-      { id: 'email', name: 'email', label: 'Business Email', blockType: 'email', required: true },
-      { id: 'company', name: 'company', label: 'Company', blockType: 'text', required: false },
-      { id: 'challenge', name: 'challenge', label: 'What are you trying to build or define?', blockType: 'textarea', required: false },
+      { id: 'name', name: 'name', label: 'Name', blockType: 'text', required: true, maxLength: 100, autoComplete: 'name' },
+      { id: 'email', name: 'email', label: 'Email', blockType: 'email', required: true, maxLength: 254, autoComplete: 'email' },
+      { id: 'company', name: 'company', label: 'Company or organization', blockType: 'text', required: false, maxLength: 150, autoComplete: 'organization' },
+      { id: 'challenge', name: 'challenge', label: 'What are you looking to build or define?', blockType: 'textarea', required: true, maxLength: 1000, autoComplete: 'off' },
+      { id: 'additionalContext', name: 'additionalContext', label: 'Additional context', blockType: 'textarea', required: false, maxLength: 2000, autoComplete: 'off' },
     ],
-    submitButtonLabel: 'Discuss Your Product',
+    submitButtonLabel: 'Send Inquiry',
     confirmationType: 'message',
-    confirmationMessage: "Thanks for reaching out! We'll be in touch shortly.",
+    confirmationMessage: 'Thank you. Your inquiry has been received.',
   },
 };
 
@@ -208,13 +215,6 @@ function resolveFieldPlaceholder(
   const fieldName = field.name.trim().toLowerCase();
 
   if (!labels) {
-    if (templateKey !== 'inquiry') return undefined;
-    if (fieldName === 'name') return 'Your name';
-    if (fieldName === 'email') return 'name@company.com';
-    if (fieldName === 'company') return 'Company or organization';
-    if (fieldName === 'challenge' || fieldName === 'message') {
-      return 'Briefly describe the business idea, product, system, or challenge.';
-    }
     return undefined;
   }
 
@@ -263,13 +263,18 @@ export default function FormRenderer({
   guideFormLabels,
   inquiryFormLabels,
 }: FormRendererProps) {
-  const [form, setForm] = useState<FormData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState<FormData | null>(
+    resolveAlias === 'inquiry' ? STATIC_FORM_FALLBACKS.inquiry : null,
+  );
+  const [loading, setLoading] = useState(resolveAlias !== 'inquiry');
   const [error, setError] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string, string | boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const confirmationRef = useRef<HTMLDivElement>(null);
 
   const templateLabels = useMemo(
     () => resolveTemplateLabels(form?.templateKey, guideFormLabels, inquiryFormLabels),
@@ -305,6 +310,13 @@ export default function FormRenderer({
   } as CSSProperties;
 
   useEffect(() => {
+    if (resolveAlias === 'inquiry') {
+      const data = STATIC_FORM_FALLBACKS.inquiry;
+      setForm(data);
+      setValues(Object.fromEntries(data.fields.map((field) => [field.name, ''])));
+      setLoading(false);
+      return;
+    }
     if (!formId && !resolveAlias) {
       setLoading(false);
       return;
@@ -354,6 +366,22 @@ export default function FormRenderer({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form) return;
+    const nextErrors: Record<string, string> = {};
+    for (const field of form.fields) {
+      const value = readTextValue(values, field.name);
+      if (field.required && !value) nextErrors[field.name] = 'Please complete this field.';
+      if ((field.blockType ?? field.fieldType) === 'email' && value && !/^\S+@\S+\.\S+$/.test(value)) {
+        nextErrors[field.name] = 'Enter a valid email address.';
+      }
+    }
+    if (Object.keys(nextErrors).length > 0) {
+      setFieldErrors(nextErrors);
+      setSubmitted(false);
+      setSubmitError(null);
+      requestAnimationFrame(() => errorSummaryRef.current?.focus());
+      return;
+    }
+    setFieldErrors({});
     setSubmitting(true);
     setSubmitError(null);
 
@@ -388,12 +416,10 @@ export default function FormRenderer({
       }
 
       setSubmitted(true);
-    } catch (error) {
-      setSubmitError(
-        error instanceof Error && error.message
-          ? error.message
-          : 'Something went wrong. Please try again.',
-      );
+      requestAnimationFrame(() => confirmationRef.current?.focus());
+    } catch {
+      setSubmitError('Your inquiry could not be sent. Please try again or contact us by email.');
+      requestAnimationFrame(() => errorSummaryRef.current?.focus());
     } finally {
       setSubmitting(false);
     }
@@ -418,68 +444,46 @@ export default function FormRenderer({
 
   if (!form) return null;
 
-  if (submitted) {
-    const successHeading = templateLabels?.successHeading?.trim() || '';
-    const msg =
-      successMessage?.trim() ||
-      templateLabels?.successBody?.trim() ||
-      readConfirmationMessage(form.confirmationMessage) ||
-      'Thank you! Your submission has been received.';
-
-    return (
-      <div
-        style={{
-          padding: '32px',
-          backgroundColor: dark ? 'rgba(255,255,255,0.08)' : 'var(--ui-color-section-alt)',
-          borderRadius: 'var(--ui-button-radius, 6px)',
-          textAlign: 'center',
-        }}
-      >
-        {successHeading ? (
-          <p
-            style={{
-              fontSize: '18px',
-              fontWeight: 700,
-              color: dark ? 'var(--ui-color-dark-text)' : 'var(--color-success)',
-              margin: '0 0 8px',
-            }}
-          >
-            {successHeading}
-          </p>
-        ) : null}
-        <p
-          style={{
-            fontSize: '16px',
-            fontWeight: 600,
-            color: dark ? 'var(--ui-color-dark-text)' : 'var(--color-success)',
-            margin: 0,
-            whiteSpace: 'pre-line',
-          }}
-        >
-          {msg}
-        </p>
-      </div>
-    );
-  }
-
   const submitLabel =
     templateLabels?.submitLabel?.trim() ||
     (typeof form.submitButtonLabel === 'string' ? form.submitButtonLabel.trim() : '') ||
     'Submit';
-  const submittingLabel = templateLabels?.submittingLabel?.trim() || 'Submitting…';
+  const submittingLabel =
+    templateLabels?.submittingLabel?.trim() ||
+    (form.templateKey === 'inquiry' ? 'Sending…' : 'Submitting…');
   const legalText =
     templateLabels?.footerText?.trim() ||
     templateLabels?.consentText?.trim() ||
-    (form.templateKey === 'inquiry' ? 'By submitting this form, you agree to the' : '');
+    (form.templateKey === 'inquiry'
+      ? 'Plenor Systems will use the information provided to review and respond to your inquiry. See the'
+      : '');
   const privacyLabel =
     templateLabels?.privacyLabel?.trim() ||
     (form.templateKey === 'inquiry' ? 'Privacy Policy' : '');
   const privacyHref =
-    templateLabels?.privacyHref?.trim() || (form.templateKey === 'inquiry' ? '/privacy' : '');
+    templateLabels?.privacyHref?.trim() || (form.templateKey === 'inquiry' ? '/privacy-policy' : '');
   const showPrivacyLink = privacyLabel.length > 0 && privacyHref.length > 0;
+  const legalSuffix = form.templateKey === 'inquiry' ? ' for more information.' : '';
+
+  const confirmationMessage =
+    successMessage?.trim() ||
+    templateLabels?.successBody?.trim() ||
+    readConfirmationMessage(form.confirmationMessage) ||
+    'Thank you. Your inquiry has been received.';
 
   return (
-    <form onSubmit={handleSubmit} style={formStyle}>
+    <div className="inquiry-form-panel">
+      {submitted ? (
+        <div ref={confirmationRef} tabIndex={-1} role="status" className="form-status form-status--success">
+          {confirmationMessage}
+        </div>
+      ) : null}
+      {(Object.keys(fieldErrors).length > 1 || submitError) ? (
+        <div ref={errorSummaryRef} tabIndex={-1} role="alert" className="form-status form-status--error">
+          {submitError || 'Please correct the following errors.'}
+        </div>
+      ) : null}
+      <form onSubmit={handleSubmit} style={formStyle} noValidate>
       {(form.fields || [])
         .filter((field) => (field.blockType ?? field.fieldType) !== 'message')
         .map((field) => {
@@ -502,6 +506,8 @@ export default function FormRenderer({
                     type="checkbox"
                     name={field.name}
                     required={field.required}
+                    aria-invalid={fieldErrors[field.name] ? true : undefined}
+                    aria-describedby={fieldErrors[field.name] ? `field-${field.name}-error` : undefined}
                     checked={Boolean(values[field.name])}
                     onChange={(e) =>
                       setValues((prev) => ({ ...prev, [field.name]: e.target.checked }))
@@ -537,6 +543,8 @@ export default function FormRenderer({
                     id={`field-${field.name}`}
                     name={field.name}
                     required={field.required}
+                    aria-invalid={fieldErrors[field.name] ? true : undefined}
+                    aria-describedby={fieldErrors[field.name] ? `field-${field.name}-error` : undefined}
                     value={String(values[field.name] || '')}
                     onChange={(e) =>
                       setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
@@ -565,6 +573,10 @@ export default function FormRenderer({
                     id={`field-${field.name}`}
                     name={field.name}
                     required={field.required}
+                    maxLength={field.maxLength}
+                    autoComplete={field.autoComplete}
+                    aria-invalid={fieldErrors[field.name] ? true : undefined}
+                    aria-describedby={fieldErrors[field.name] ? `field-${field.name}-error` : undefined}
                     value={String(values[field.name] || '')}
                     onChange={(e) =>
                       setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
@@ -596,6 +608,10 @@ export default function FormRenderer({
                     }
                     name={field.name}
                     required={field.required}
+                    maxLength={field.maxLength}
+                    autoComplete={field.autoComplete}
+                    aria-invalid={fieldErrors[field.name] ? true : undefined}
+                    aria-describedby={fieldErrors[field.name] ? `field-${field.name}-error` : undefined}
                     value={String(values[field.name] || '')}
                     onChange={(e) =>
                       setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
@@ -604,13 +620,14 @@ export default function FormRenderer({
                   />
                 </>
               )}
+              {fieldErrors[field.name] ? (
+                <p id={`field-${field.name}-error`} className="form-error">
+                  {fieldErrors[field.name]}
+                </p>
+              ) : null}
             </div>
           );
         })}
-
-      {submitError ? (
-        <p style={{ color: 'var(--color-error)', fontSize: '14px', margin: 0 }}>{submitError}</p>
-      ) : null}
 
       <button
         type="submit"
@@ -641,8 +658,10 @@ export default function FormRenderer({
               {privacyLabel}
             </a>
           ) : null}
+          {showPrivacyLink ? legalSuffix : ''}
         </p>
       ) : null}
-    </form>
+      </form>
+    </div>
   );
 }

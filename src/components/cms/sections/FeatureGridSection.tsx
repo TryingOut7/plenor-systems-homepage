@@ -24,11 +24,23 @@ export default function FeatureGridSection({
     : typeof sectionRecord.closingCopy === 'string'
       ? [sectionRecord.closingCopy]
       : [];
+  const introParagraphs = Array.isArray(sectionRecord.introParagraphs)
+    ? sectionRecord.introParagraphs.filter((item): item is string => typeof item === 'string')
+    : [];
+  const supportingNote =
+    sectionRecord.supportingNote && typeof sectionRecord.supportingNote === 'object'
+      ? (sectionRecord.supportingNote as { heading?: string; copy?: string })
+      : null;
 
   return (
     <section
       key={sectionKey}
       id={typeof sectionRecord.anchorId === 'string' ? sectionRecord.anchorId : undefined}
+      aria-label={
+        typeof sectionRecord.accessibleLabel === 'string'
+          ? sectionRecord.accessibleLabel
+          : undefined
+      }
       style={sectionStyle}
       className={
         typeof sectionRecord.customClassName === 'string'
@@ -74,6 +86,12 @@ export default function FeatureGridSection({
           </p>
         ) : null}
 
+        {introParagraphs.length > 0 ? (
+          <div className="section-introduction">
+            {introParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          </div>
+        ) : null}
+
         <div
           className="feature-grid"
           style={{
@@ -89,6 +107,7 @@ export default function FeatureGridSection({
               description?: string;
               items?: string[];
               result?: string;
+              resultLabel?: string;
               linkLabel?: string;
               linkHref?: string;
             };
@@ -147,9 +166,10 @@ export default function FeatureGridSection({
                   </ul>
                 ) : null}
                 {f.result ? (
-                  <p className="feature-result">
-                    <strong>Result:</strong> {f.result}
-                  </p>
+                  <div className="feature-result-group">
+                    {f.resultLabel ? <p className="feature-result-label">{f.resultLabel}</p> : null}
+                    <p className="feature-result">{f.result}</p>
+                  </div>
                 ) : null}
                 {typeof f.linkLabel === 'string' && f.linkLabel.trim() ? (
                   <Link
@@ -169,11 +189,37 @@ export default function FeatureGridSection({
             );
           })}
         </div>
-        {closingCopy.length > 0 ? (
+        {closingCopy.length > 0 && !sectionRecord.closingHeading ? (
           <div className="section-closing-copy">
             {closingCopy.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
+          </div>
+        ) : null}
+        {supportingNote?.heading && supportingNote.copy ? (
+          <aside className="section-supporting-note">
+            <h3>{supportingNote.heading}</h3>
+            <p>{supportingNote.copy}</p>
+          </aside>
+        ) : null}
+        {typeof sectionRecord.closingHeading === 'string' && sectionRecord.closingHeading ? (
+          <div className="section-closing-action">
+            <h3>{sectionRecord.closingHeading}</h3>
+            {typeof sectionRecord.closingCopy === 'string' ? <p>{sectionRecord.closingCopy}</p> : null}
+            {typeof sectionRecord.actionLabel === 'string' && sectionRecord.actionLabel ? (
+              <Link className="btn-primary" href={normalizePath(String(sectionRecord.actionHref || '#'))}>
+                {sectionRecord.actionLabel}
+              </Link>
+            ) : null}
+          </div>
+        ) : typeof sectionRecord.actionLabel === 'string' && sectionRecord.actionLabel ? (
+          <div className="section-action">
+            <Link
+              className={sectionRecord.actionVariant === 'link' ? 'text-link' : 'btn-primary'}
+              href={normalizePath(String(sectionRecord.actionHref || '#'))}
+            >
+              {sectionRecord.actionLabel}
+            </Link>
           </div>
         ) : null}
       </div>

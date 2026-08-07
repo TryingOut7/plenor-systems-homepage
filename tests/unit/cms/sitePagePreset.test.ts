@@ -108,48 +108,44 @@ describe('applyCorePresetSections — fixed layout guardrails', () => {
 
 describe('applyCorePresetSections — structuralKey lookup', () => {
   it('merges text from incoming section matched by structuralKey, not index', async () => {
-    // About preset has two richTextSection blocks. This test proves that sending them in
+    // Pricing preset has two ctaSection blocks. This test proves that sending them in
     // reverse order still routes each section's text to the correct template slot.
-    const focusSectionFirst: Record<string, unknown> = {
-      blockType: 'richTextSection',
-      structuralKey: 'about-focus',
-      sectionLabel: 'Focus label from CMS',
-      heading: 'Focus heading from CMS',
-      content: null,
+    const notReadyFirst: Record<string, unknown> = {
+      blockType: 'ctaSection',
+      structuralKey: 'pricing-cta-not-ready',
+      heading: 'Not-ready heading from CMS',
+      body: 'Not-ready body from CMS',
     };
-    const whoSectionSecond: Record<string, unknown> = {
-      blockType: 'richTextSection',
-      structuralKey: 'about-who',
-      sectionLabel: '',
-      heading: 'Who heading from CMS',
-      content: null,
+    const readySecond: Record<string, unknown> = {
+      blockType: 'ctaSection',
+      structuralKey: 'pricing-cta-ready',
+      heading: 'Ready heading from CMS',
+      body: 'Ready body from CMS',
     };
 
-    // Deliberately send focus first and who second,
-    // the inverse of their position in the About preset template.
+    // Deliberately send not-ready first and ready second,
+    // the inverse of their position in the Pricing preset template.
     const data: Record<string, unknown> = {
-      slug: 'about',
-      presetKey: 'about',
+      slug: 'pricing',
+      presetKey: 'pricing',
       presetContent: {},
-      sections: [focusSectionFirst, whoSectionSecond],
+      sections: [notReadyFirst, readySecond],
     };
 
     const result = await applyCorePresetSections(makeHookArgs(data) as never) as Record<string, unknown>;
     const sections = result.sections as Array<Record<string, unknown>>;
 
-    const whoSection = sections.find((s) => s.structuralKey === 'about-who');
-    const focusSection = sections.find((s) => s.structuralKey === 'about-focus');
+    const readySection = sections.find((s) => s.structuralKey === 'pricing-cta-ready');
+    const notReadySection = sections.find((s) => s.structuralKey === 'pricing-cta-not-ready');
 
-    expect(whoSection).toBeDefined();
-    expect(focusSection).toBeDefined();
+    expect(readySection).toBeDefined();
+    expect(notReadySection).toBeDefined();
 
     // heading from CMS must flow into the correct template slot via structuralKey
-    expect((whoSection as Record<string, unknown>).heading).toBe('Who heading from CMS');
-    expect((focusSection as Record<string, unknown>).sectionLabel).toBe(
-      'Focus label from CMS',
-    );
-    expect((focusSection as Record<string, unknown>).heading).toBe(
-      'Focus heading from CMS',
+    expect((readySection as Record<string, unknown>).heading).toBe('Ready heading from CMS');
+    expect((readySection as Record<string, unknown>).body).toBe('Ready body from CMS');
+    expect((notReadySection as Record<string, unknown>).heading).toBe(
+      'Not-ready heading from CMS',
     );
   });
 
@@ -208,31 +204,27 @@ describe('applyCorePresetSections — text merging', () => {
     expect(hero.primaryCtaHref).toBe('/cta');
   });
 
-  it('merges ctaSection string fields from incoming sections', async () => {
+  it('merges richTextSection string fields from incoming sections', async () => {
     const data: Record<string, unknown> = {
-      slug: 'about',
-      presetKey: 'about',
+      slug: 'contact',
+      presetKey: 'contact',
       presetContent: {},
       sections: [
         {
-          blockType: 'ctaSection',
-          structuralKey: 'about-cta',
+          blockType: 'richTextSection',
+          structuralKey: 'contact-direct',
           heading: 'Custom CTA heading',
-          body: 'Custom CTA body',
-          buttonLabel: 'Go',
-          buttonHref: '/go',
+          sectionLabel: 'Custom supporting label',
         },
       ],
     };
 
     const result = await applyCorePresetSections(makeHookArgs(data) as never) as Record<string, unknown>;
     const sections = result.sections as Array<Record<string, unknown>>;
-    const cta = sections.find((s) => s.structuralKey === 'about-cta') as Record<string, unknown>;
+    const cta = sections.find((s) => s.structuralKey === 'contact-direct') as Record<string, unknown>;
 
     expect(cta.heading).toBe('Custom CTA heading');
-    expect(cta.body).toBe('Custom CTA body');
-    expect(cta.buttonLabel).toBe('Go');
-    expect(cta.buttonHref).toBe('/go');
+    expect(cta.sectionLabel).toBe('Custom supporting label');
   });
 
   it('template structural config is preserved when incoming section has no matching text', async () => {
@@ -247,12 +239,13 @@ describe('applyCorePresetSections — text merging', () => {
     const result = await applyCorePresetSections(makeHookArgs(data) as never) as Record<string, unknown>;
     const sections = result.sections as Array<Record<string, unknown>>;
 
-    // All 4 contact sections must exist with their structural keys
+    // The guidance section is removed, leaving three major sections and two dividers.
     expect(sections.map((s) => s.structuralKey)).toEqual([
       'contact-hero',
-      'contact-guide-form',
+      'contact-divider-1',
       'contact-inquiry-form',
-      'contact-privacy-note',
+      'contact-divider-2',
+      'contact-direct',
     ]);
   });
 

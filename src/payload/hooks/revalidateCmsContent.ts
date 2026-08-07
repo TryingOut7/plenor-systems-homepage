@@ -169,7 +169,7 @@ async function revalidateAllFrontendPages(): Promise<void> {
   await safeRevalidatePath('/services', 'page');
   await safeRevalidatePath('/pricing', 'page');
   await safeRevalidatePath('/contact', 'page');
-  await safeRevalidatePath('/privacy', 'page');
+  await safeRevalidatePath('/privacy-policy', 'page');
   await safeRevalidatePath('/[...slug]', 'page');
   await safeRevalidatePath('/services/[slug]', 'page');
   await safeRevalidatePath('/blog', 'page');

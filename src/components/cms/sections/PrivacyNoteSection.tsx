@@ -13,7 +13,7 @@ export default function PrivacyNoteSection({
   const policyHref =
     typeof sectionRecord.policyLinkHref === 'string' && sectionRecord.policyLinkHref.trim()
       ? normalizePath(sectionRecord.policyLinkHref.trim())
-      : '/privacy';
+      : '/privacy-policy';
 
   return (
     <section

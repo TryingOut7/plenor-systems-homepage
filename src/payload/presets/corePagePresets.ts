@@ -108,110 +108,84 @@ function richTextFromParagraphs(paragraphs: string[]): Record<string, unknown> {
 function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
   const heroHeading = asString(
     content.heroHeading,
-    'Turn Your Business Idea into Ready-to-Build Product and System Specifications',
+    'AI can build fast. Plenor helps build the right thing, the right way.',
   );
   const heroSubtext = asString(
     content.heroSubtext,
-    'Plenor helps startup founders, growing businesses, and business-led teams:',
+    'Plenor helps develop your business idea into clear product definitions, workflows, and functional specifications before building begins.',
   );
 
   return [
     {
       blockType: 'heroSection',
       structuralKey: 'home-hero',
-      theme: 'navy',
+      theme: 'white',
       size: 'compact',
-      customClassName: 'marketing-hero',
+      customClassName: 'marketing-hero home-marketing-hero',
       textAlignment: 'left',
-      eyebrow: 'GOVERNED DEFINITION PLATFORM',
+      eyebrow: 'From business idea to clear product definitions and specifications',
       heading: heroHeading,
       subheading: heroSubtext,
-      bullets: [
-        'Articulate the business need',
-        'Design the product experience',
-        'Create the system specifications',
-      ],
-      supportingStatement: 'System-driven. Human-validated. Ready for implementation.',
+      primaryCtaLabel: 'Explore Services',
+      primaryCtaHref: '/services',
+      secondaryCtaLabel: 'Contact Plenor',
+      secondaryCtaHref: '/contact',
     },
+    { blockType: 'dividerSection', structuralKey: 'home-divider-1' },
     {
-      blockType: 'featureGridSection',
-      structuralKey: 'home-roles',
+      blockType: 'richTextSection',
+      structuralKey: 'home-problem',
       theme: 'white',
       size: 'regular',
-      customClassName: 'home-roles-section',
-      heading: 'AI Can Build Fast. Building Well Still Requires Clear Direction.',
-      subheading:
-        'AI code-generation tools can produce software quickly. But reliable, consistent, and maintainable systems still require clear product direction, experience design, business analysis, system specifications, and practical engineering guardrails.\n\nFounders should focus their limited resources on the business problem, customer, and key decisions—not on building all of those capabilities internally before development can begin.',
+      customClassName: 'narrative-section content-boundary-aligned-section home-problem-section',
+      sectionLabel: 'The Problem',
+      heading: 'AI is powerful, but it will build through ambiguity—even when it is wrong.',
+      content: richTextFromParagraphs([
+        'When definitions or requirements are unclear, Gen AI tools fill the gaps with assumptions. The result may look polished but still miss the business need.',
+        'Strong product definitions and functional specifications require focused thinking and product management and business analysis expertise that many founders and startup teams may not have in-house.',
+      ]),
+    },
+    { blockType: 'dividerSection', structuralKey: 'home-divider-2' },
+    {
+      blockType: 'featureGridSection',
+      structuralKey: 'home-solution',
+      theme: 'white',
+      size: 'regular',
+      customClassName: 'comparison-section',
+      sectionLabel: 'The Solution',
+      heading: 'You bring the product vision. Plenor helps turn it into a defined foundation.',
+      subheading: 'You know your business, audience, and problem. The Plenor platform helps turn that knowledge into a defined product foundation.',
       columns: '2',
       features: [
         {
-          title: 'You Bring the Business Vision',
-          description: 'Founders and business leaders bring:',
-          items: [
-            'the business problem',
-            'customer understanding',
-            'domain knowledge',
-            'business priorities',
-            'decisions requiring business judgment',
-          ],
+          title: 'You provide the product intent and direction',
+          description: 'You define the product intent — the problem, audience, outcomes, priorities, and constraints.',
         },
         {
-          title: 'Plenor Provides the Platform and Builds the Definition',
-          description: 'Plenor:',
-          items: [
-            'articulates the business need',
-            'designs the product experience',
-            'creates the system specifications',
-            'applies professional review and refinement',
-          ],
+          title: 'Plenor helps you define the product foundations',
+          description: 'The Plenor platform applies industry standards and best practices to help develop product definitions, workflows, and functional specifications.',
         },
       ],
-      closingCopy:
-        'The resulting definition gives AI code-generation tools and engineering teams clear direction for implementation.',
     },
+    { blockType: 'dividerSection', structuralKey: 'home-divider-3' },
     {
       blockType: 'featureGridSection',
-      structuralKey: 'home-platform-capabilities',
-      theme: 'light',
+      structuralKey: 'home-capabilities',
+      theme: 'white',
       size: 'regular',
-      customClassName: 'platform-capabilities-section',
-      heading: 'Platform Capabilities',
+      customClassName: 'capability-card-section',
+      sectionLabel: 'What Plenor Helps Define',
+      heading: 'Product definition, product experience, and functional specifications',
+      subheading: 'Plenor helps create clearer, more consistent definitions and requirements for AI-assisted or traditional implementation.',
       columns: '3',
       features: [
-        {
-          title: 'Articulate the Business Need',
-          description:
-            'Define the business problem, intended users, priorities, value, and desired outcomes.',
-        },
-        {
-          title: 'Design the Product Experience',
-          description:
-            'Define the journeys, workflows, interactions, and experience expectations that shape how the product should work.',
-        },
-        {
-          title: 'Create the System Specifications',
-          description:
-            'Create the requirements, system behavior, constraints, dependencies, and technical direction needed to guide implementation.',
-        },
+        { title: 'Business and Product Definition', description: 'Helps define what is being created, who it serves, and what it is intended to achieve.' },
+        { title: 'Product Experience and Workflow Definition', description: 'Helps define how users move through the product and how the product should behave.' },
+        { title: 'Functional Specifications', description: 'Helps define what the product must do to guide implementation.' },
       ],
-    },
-    {
-      blockType: 'richTextSection',
-      structuralKey: 'home-use-definition',
-      theme: 'white',
-      size: 'compact',
-      customClassName: 'use-definition-section',
-      heading: 'Use the Definition Your Way',
-      content: richTextFromParagraphs([
-        'Use the resulting product and system specifications with:',
-      ]),
-      items: [
-        'AI code-generation tools',
-        'Your internal engineering team',
-        'An external development partner',
-      ],
-      closingCopy:
-        'Plenor provides the definition and direction. You retain control over the technology, implementation team, and delivery model.',
+      actionLabel: 'Explore Services',
+      actionHref: '/services',
+      actionVariant: 'link',
     },
   ];
 }
@@ -219,93 +193,85 @@ function buildHomeSections(content: PresetContent): Record<string, unknown>[] {
 function buildServicesSections(content: PresetContent): Record<string, unknown>[] {
   const heroHeading = asString(
     content.heroHeading,
-    'Define the Product, Experience, and System Before You Build',
+    'Plenor accelerates the development of product definitions and functional specifications.',
   );
   const heroSubtext = asString(
     content.heroSubtext,
-    'Plenor provides a governed platform for creating ready-to-build product and system specifications, supported by experienced professionals where judgment and refinement are required.',
+    'You bring the product intent. Plenor helps turn it into clear product definitions, workflows, and functional specifications for Gen AI tools and implementation teams.',
   );
 
   return [
     {
       blockType: 'heroSection',
       structuralKey: 'services-hero',
-      theme: 'navy',
+      theme: 'white',
       size: 'compact',
       customClassName: 'marketing-hero',
       textAlignment: 'left',
       eyebrow: 'PLENOR SERVICES',
       heading: heroHeading,
       subheading: heroSubtext,
-      supportingStatement: 'System-driven. Human-validated. Ready for implementation.',
+      primaryCtaLabel: 'Discuss Your Product',
+      primaryCtaHref: '/contact',
     },
+    { blockType: 'dividerSection', structuralKey: 'services-divider-1' },
     {
       blockType: 'featureGridSection',
-      structuralKey: 'services-platform-capabilities',
-      theme: 'light',
+      structuralKey: 'services-definition-levels',
+      theme: 'white',
       size: 'regular',
-      customClassName: 'platform-capabilities-section',
-      heading: 'One Platform for Defining What Will Be Built',
-      subheading:
-        'Software development requires more than a business idea or a collection of prompts. Product decisions, user experience, workflows, and system requirements must work together as one coherent definition.',
+      customClassName: 'capability-card-section',
+      heading: 'From Product Intent to Functional Specifications',
+      subheading: 'Plenor supports three connected areas of product definition. They can be used individually or together based on what has already been defined and what needs greater clarity.',
       columns: '3',
       features: [
         {
-          title: 'Product Definition',
+          title: 'Business and Product Definition',
           description:
-            'Define the business need, intended users, product purpose, value, priorities, capabilities, and boundaries.',
-          result: 'A clear understanding of what should be built and why.',
+            'Helps define the product intent, audience, value, priorities, and boundaries.',
+          resultLabel: 'RESULT',
+          result: 'A clear definition of the product, its audience, and intended outcomes.',
         },
         {
-          title: 'User Experience and Workflow Definition',
+          title: 'Product Experience and Workflow Definition',
           description:
-            'Design the user journeys, workflows, interactions, and experience expectations that determine how the product should work.',
-          result:
-            'A clear view of how users and business processes interact with the product.',
+            'Helps define workflows, interactions, product behavior, and outcomes.',
+          resultLabel: 'RESULT',
+          result: 'A connected definition of how users move through the product and how the product should behave.',
         },
         {
-          title: 'System Specifications',
+          title: 'Functional Specifications',
           description:
-            'Create the requirements, system behavior, integrations, constraints, dependencies, quality expectations, and technical direction needed to guide implementation.',
-          result: 'Clear specifications for AI code-generation tools and engineering teams.',
+            'Helps define functional requirements, rules, system responses, and expected behavior.',
+          resultLabel: 'RESULT',
+          result: 'Clear functional specifications for Gen AI tools and implementation teams.',
         },
       ],
     },
+    { blockType: 'dividerSection', structuralKey: 'services-divider-2' },
     {
       blockType: 'featureGridSection',
-      structuralKey: 'services-professional-support',
+      structuralKey: 'services-work-development',
       theme: 'white',
-      size: 'compact',
-      customClassName: 'professional-support-section',
-      heading: 'Access Professional Expertise Where It Adds Value',
-      subheading:
-        'The platform provides structure and consistency. Experienced professionals provide judgment, review, and refinement where deeper expertise is required.',
+      size: 'regular',
+      customClassName: 'comparison-section services-work-section',
+      heading: 'How You Work with Plenor',
+      subheading: 'You provide the product direction. The Plenor platform helps develop the foundation.',
       columns: '2',
       features: [
         {
-          title: 'Product Direction',
-          description:
-            'Refine priorities, capabilities, boundaries, and decisions requiring business judgment.',
+          title: 'Your team',
+          description: 'You provide the product direction, business and domain knowledge, priorities, constraints, and key decisions.',
         },
         {
-          title: 'User Experience',
-          description: 'Strengthen journeys, workflows, interactions, and usability.',
-        },
-        {
-          title: 'Business Analysis',
-          description:
-            'Clarify requirements, business rules, dependencies, and unresolved decisions.',
-        },
-        {
-          title: 'Software Engineering',
-          description:
-            'Review system behavior, architecture direction, quality requirements, and implementation readiness.',
+          title: 'Plenor',
+          description: 'The Plenor platform structures the information, identifies gaps, and applies industry standards and best practices to help develop the definitions and specifications.',
         },
       ],
-      closingCopy: [
-        'Professional review and refinement are part of the standard engagement. Additional support may be scoped where deeper involvement is required.',
-        'The completed specifications may be used with AI code-generation tools, internal engineers, or external development partners. The customer retains control over implementation technology, team, and delivery model.',
-      ],
+      supportingNote: {
+        heading: 'Review and Use',
+        copy: 'You, your team, Plenor, or a combination can review the work. The resulting definitions and specifications can guide Gen AI tools and implementation teams.',
+      },
     },
   ];
 }
@@ -313,74 +279,51 @@ function buildServicesSections(content: PresetContent): Record<string, unknown>[
 function buildAboutSections(content: PresetContent): Record<string, unknown>[] {
   const heroParagraph1 = asString(
     content.heroParagraph1,
-    'Plenor helps founders and growing businesses create the product and system definition needed to move toward implementation.',
+    'We created the Plenor platform to turn product ideas into clear definitions and functional specifications.',
   );
   const heroParagraph2 = asString(
     content.heroParagraph2,
-    'Founders and business leaders often understand the opportunity, customer problem, and business they want to build.',
+    'Generative AI has made software faster to build, but unclear direction can produce the wrong result just as quickly.',
   );
   const heroParagraph3 = asString(
     content.heroParagraph3,
-    'What they may not have is the product and system-definition capability needed to turn that knowledge into reliable software development. Building that capability internally can require significant time, expertise, and overhead.\n\nPlenor provides a more accessible and disciplined alternative.',
+    'Strong products start with clarity about the problem, users, value, priorities, and constraints.',
   );
   const focusParagraph1 = asString(
     content.focusParagraph1,
-    'Plenor is led by professionals with extensive experience turning business ideas into products, user experiences, and software systems.',
+    'We built Plenor to help founders and startup teams develop that foundation before implementation begins.',
   );
-  const focusParagraph2 = asString(
-    content.focusParagraph2,
-    'That experience showed that strong software requires more than a strong idea. It also requires clear product direction, coherent system definition, and informed professional judgment.',
-  );
-  const focusParagraph3 = asString(
-    content.focusParagraph3,
-    '',
-  );
-  const missionQuote = asString(
-    content.missionQuote,
-    'Founders Should Focus on the Business: Their highest-value contribution is the vision, customer understanding, and key business decisions.\n\nAI Still Needs Direction: AI tools depend on the quality of the product and system definition they receive.\n\nSystem-Driven Is Not Human-Free: The platform provides structure; professional review provides judgment.',
-  );
-  const ctaHeading = asString(content.ctaHeading, 'System-Driven. Human-Validated. Ready for Implementation.');
-  const ctaBody = asString(content.ctaBody, 'Move forward with a clearer product and system definition.');
-
   return [
     {
       blockType: 'heroSection',
       structuralKey: 'about-hero',
-      theme: 'navy',
+      theme: 'white',
       size: 'compact',
-      customClassName: 'marketing-hero',
+      customClassName: 'marketing-hero about-marketing-hero',
       textAlignment: 'left',
-      eyebrow: 'ABOUT PLENOR',
-      heading: 'Closing the Gap Between Business Ideas and Software Development',
+      eyebrow: 'About Plenor Systems',
+      heading: 'We help founders and startup teams lay a strong foundation for their products.',
       subheading: heroParagraph1,
     },
+    { blockType: 'dividerSection', structuralKey: 'about-divider-1' },
     {
       blockType: 'richTextSection',
-      structuralKey: 'about-who',
+      structuralKey: 'about-why-built',
       theme: 'white',
-      heading: 'Why Plenor Exists',
-      content: richTextFromParagraphs([heroParagraph2, heroParagraph3]),
-    },
-    {
-      blockType: 'richTextSection',
-      structuralKey: 'about-focus',
-      theme: 'white',
-      heading: 'Experience Behind the Platform',
-      content: richTextFromParagraphs([focusParagraph1, focusParagraph2, focusParagraph3]),
-    },
-    {
-      blockType: 'ctaSection',
-      structuralKey: 'about-mission',
-      theme: 'light',
-      heading: 'What Guides Plenor',
-      body: missionQuote,
-    },
-    {
-      blockType: 'ctaSection',
-      structuralKey: 'about-cta',
-      theme: 'navy',
-      heading: ctaHeading,
-      body: ctaBody,
+      size: 'regular',
+      customClassName: 'narrative-section about-narrative-section',
+      heading: 'We built Plenor to turn business ideas into clearer direction for implementation.',
+      content: richTextFromParagraphs([heroParagraph2, heroParagraph3, focusParagraph1]),
+      subsections: [
+        {
+          heading: 'Gen AI applied purposefully',
+          copy: 'Gen AI helps develop and organize product definitions, workflows, and functional requirements.',
+        },
+        {
+          heading: 'Human judgment remains essential',
+          copy: 'Business authority, professional judgment, key decisions, and final acceptance remain human responsibilities.',
+        },
+      ],
     },
   ];
 }
@@ -462,53 +405,48 @@ function buildPricingSections(content: PresetContent): Record<string, unknown>[]
 }
 
 function buildContactSections(content: PresetContent): Record<string, unknown>[] {
-  const heroHeading = asString(content.heroHeading, 'Discuss Your Product');
+  const heroHeading = asString(content.heroHeading, 'Tell us what you are looking to build');
   const heroSubtext = asString(
     content.heroSubtext,
-    'Tell us about the business idea, product, or system you are trying to define.',
-  );
-  const inquiryHeading = asString(content.inquiryHeading, 'Start the Conversation');
-  const inquirySubtext = asString(
-    content.inquirySubtext,
-    'An initial discussion will help determine whether Plenor is appropriate for your initiative.',
+    'Share the product idea, business problem, or definition challenge you are working through. We will review the information and respond using the contact details you provide.',
   );
 
   return [
     {
       blockType: 'heroSection',
       structuralKey: 'contact-hero',
-      theme: 'navy',
+      theme: 'white',
       size: 'compact',
       customClassName: 'marketing-hero',
       textAlignment: 'left',
-      eyebrow: 'CONTACT',
       heading: heroHeading,
       subheading: heroSubtext,
     },
-    {
-      blockType: 'formSection',
-      structuralKey: 'contact-guide-form',
-      theme: 'light',
-      isHidden: true,
-    },
+    { blockType: 'dividerSection', structuralKey: 'contact-divider-1' },
     {
       blockType: 'formSection',
       structuralKey: 'contact-inquiry-form',
       theme: 'white',
-      heading: inquiryHeading,
-      subheading: inquirySubtext,
-      contactEmail: 'contact@plenor.ai',
+      size: 'regular',
+      customClassName: 'inquiry-form-section',
+      accessibleLabel: 'Inquiry form',
       form: 'inquiry',
       formAlias: 'inquiry',
     },
+    { blockType: 'dividerSection', structuralKey: 'contact-divider-2' },
     {
-      blockType: 'privacyNoteSection',
-      structuralKey: 'contact-privacy-note',
-      isHidden: true,
-      theme: 'light',
-      label: 'By submitting this form, you agree to our',
-      policyLinkLabel: 'Privacy Policy',
-      policyLinkHref: '/privacy',
+      blockType: 'richTextSection',
+      structuralKey: 'contact-direct',
+      theme: 'white',
+      size: 'compact',
+      customClassName: 'compact-note-section',
+      heading: 'Prefer email?',
+      inlineLink: {
+        prefix: 'Contact us at ',
+        label: 'contact@plenor.ai',
+        href: 'mailto:contact@plenor.ai',
+        suffix: '.',
+      },
     },
   ];
 }

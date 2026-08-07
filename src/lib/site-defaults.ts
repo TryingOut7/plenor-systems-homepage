@@ -3,11 +3,12 @@ export const DEFAULT_BRAND_TAGLINE =
   'A Governed Definition Platform for creating ready-to-build product and system specifications.';
 export const DEFAULT_CONTACT_EMAIL = 'contact@plenor.ai';
 export const DEFAULT_FOOTER_LEGAL_LABEL = 'Privacy Policy';
-export const DEFAULT_FOOTER_LEGAL_HREF = '/privacy';
+export const DEFAULT_FOOTER_LEGAL_HREF = '/privacy-policy';
 
 export const DEFAULT_NAVIGATION_LINKS = [
   { label: 'Home', href: '/' },
   { label: 'Services', href: '/services' },
+  { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ] as const;
 
@@ -25,7 +26,7 @@ export const DEFAULT_FOOTER_COLUMNS = [
       { label: 'Services', href: '/services' },
       { label: 'About', href: '/about' },
       { label: 'Contact', href: '/contact' },
-      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Privacy Policy', href: '/privacy-policy' },
     ],
   },
 ] as const;

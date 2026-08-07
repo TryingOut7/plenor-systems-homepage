@@ -14,12 +14,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/services`, lastModified, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${base}/about`, lastModified, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/contact`, lastModified, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${base}/privacy`, lastModified, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${base}/privacy-policy`, lastModified, changeFrequency: 'yearly', priority: 0.3 },
   ];
 
   const dynamicRoutes: MetadataRoute.Sitemap = [
     ...cms.sitePages
-      .filter((page) => page.includeInSitemap !== false && page.slug)
+      .filter((page) => page.includeInSitemap !== false && page.slug && page.slug !== 'privacy')
       .map((page) => ({
         url: `${base}/${page.slug}`,
         lastModified: page.updatedAt ? new Date(page.updatedAt) : lastModified,

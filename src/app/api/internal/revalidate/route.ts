@@ -21,7 +21,7 @@ const ALL_FRONTEND_PATHS = [
   '/services',
   '/pricing',
   '/contact',
-  '/privacy',
+  '/privacy-policy',
   '/blog',
   '/sitemap.xml',
   '/robots.txt',

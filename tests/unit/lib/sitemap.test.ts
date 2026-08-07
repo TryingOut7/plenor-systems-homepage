@@ -54,7 +54,8 @@ describe('sitemap', () => {
     expect(urls).not.toContain('https://example.com/pricing');
     expect(urls).toContain('https://example.com/about');
     expect(urls).toContain('https://example.com/contact');
-    expect(urls).toContain('https://example.com/privacy');
+    expect(urls).toContain('https://example.com/privacy-policy');
+    expect(urls).not.toContain('https://example.com/privacy');
 
     expect(urls).toContain('https://example.com/events');
     expect(urls).toContain('https://example.com/services/advisory');

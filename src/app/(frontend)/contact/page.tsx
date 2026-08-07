@@ -1,55 +1,23 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import CmsPreviewDiffBanner from '@/components/CmsPreviewDiffBanner';
-import PageChromeOverrides from '@/components/PageChromeOverrides';
 import UniversalSections from '@/components/cms/UniversalSections';
-import { getCmsReadOptions } from '@/lib/cms-read-options';
-import { buildSitePageMetadata } from '@/lib/page-metadata';
-import { getCollectionData, getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
+import type { CollectionData, PageSection } from '@/payload/cms';
 import { buildCorePresetSections } from '@/payload/presets/corePagePresets';
 
-export const revalidate = 60;
+const EMPTY_COLLECTIONS: CollectionData = {
+  serviceItems: [], blogPosts: [], testimonials: [], teamMembers: [], logos: [],
+};
 
-export async function generateMetadata(): Promise<Metadata> {
-  const cmsReadOptions = await getCmsReadOptions();
-  const [sitePage, settings] = await Promise.all([
-    getSitePageBySlug('contact', cmsReadOptions),
-    getSiteSettings(cmsReadOptions),
-  ]);
-  return buildSitePageMetadata({
-    slug: 'contact',
-    page: sitePage,
-    settings,
-    fallbackTitle: 'Discuss Your Product | Plenor Systems',
-    fallbackDescription:
-      'Contact Plenor to discuss a business idea, product, or system that needs a clearer definition for software development.',
-    forceFallback: true,
-  });
-}
+export const metadata: Metadata = {
+  title: { absolute: 'Contact Plenor | Plenor Systems' },
+  description: 'Contact Plenor Systems to discuss a product idea, business problem, or product and system definition challenge.',
+  alternates: { canonical: 'https://www.plenor.ai/contact' },
+  openGraph: {
+    title: 'Contact Plenor | Plenor Systems',
+    description: 'Contact Plenor Systems to discuss a product idea, business problem, or product and system definition challenge.',
+    url: 'https://www.plenor.ai/contact',
+  },
+};
 
-export default async function ContactPage() {
-  const cmsReadOptions = await getCmsReadOptions();
-  const [sitePage, siteSettings] = await Promise.all([
-    getSitePageBySlug('contact', cmsReadOptions),
-    getSiteSettings(cmsReadOptions),
-  ]);
-
-  if (!sitePage) {
-    notFound();
-  }
-
-  const approvedSections = buildCorePresetSections('contact', {}) as PageSection[];
-  const collectionData = await getCollectionData(cmsReadOptions);
-  return (
-    <>
-      <PageChromeOverrides page={sitePage} />
-      <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
-      <UniversalSections
-        sections={approvedSections}
-        collections={collectionData}
-        guideFormLabels={siteSettings?.guideForm}
-        inquiryFormLabels={siteSettings?.inquiryForm}
-      />
-    </>
-  );
+export default function ContactPage() {
+  return <UniversalSections sections={buildCorePresetSections('contact', {}) as PageSection[]} collections={EMPTY_COLLECTIONS} />;
 }

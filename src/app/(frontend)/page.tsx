@@ -1,56 +1,23 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import PageChromeOverrides from '@/components/PageChromeOverrides';
-import CmsPreviewDiffBanner from '@/components/CmsPreviewDiffBanner';
 import UniversalSections from '@/components/cms/UniversalSections';
-import { getCollectionData, getSitePageBySlug, getSiteSettings, type PageSection } from '@/payload/cms';
-import { buildSitePageMetadata } from '@/lib/page-metadata';
-import { getCmsReadOptions } from '@/lib/cms-read-options';
+import type { CollectionData, PageSection } from '@/payload/cms';
 import { buildCorePresetSections } from '@/payload/presets/corePagePresets';
 
-export const revalidate = 60;
+const EMPTY_COLLECTIONS: CollectionData = {
+  serviceItems: [], blogPosts: [], testimonials: [], teamMembers: [], logos: [],
+};
 
-export async function generateMetadata(): Promise<Metadata> {
-  const cmsReadOptions = await getCmsReadOptions();
-  const [sitePage, settings] = await Promise.all([
-    getSitePageBySlug('home', cmsReadOptions),
-    getSiteSettings(cmsReadOptions),
-  ]);
-  return buildSitePageMetadata({
-    slug: '',
-    page: sitePage,
-    settings,
-    fallbackTitle: 'Plenor Systems | Ready-to-Build Product and System Specifications',
-    fallbackDescription:
-      'Plenor helps founders and growing businesses articulate the business need, design the product experience, and create system specifications for AI tools and engineering teams.',
-    forceFallback: true,
-  });
-}
+export const metadata: Metadata = {
+  title: { absolute: 'Product Definitions and System Specifications | Plenor Systems' },
+  description: 'Plenor turns business knowledge into clear product definitions and system specifications that give AI tools and implementation teams better direction before building begins.',
+  alternates: { canonical: 'https://www.plenor.ai/' },
+  openGraph: {
+    title: 'Product Definitions and System Specifications | Plenor Systems',
+    description: 'Plenor turns business knowledge into clear product definitions and system specifications that give AI tools and implementation teams better direction before building begins.',
+    url: 'https://www.plenor.ai/',
+  },
+};
 
-export default async function HomePage() {
-  const cmsReadOptions = await getCmsReadOptions();
-  const [sitePage, siteSettings, collectionData] = await Promise.all([
-    getSitePageBySlug('home', cmsReadOptions),
-    getSiteSettings(cmsReadOptions),
-    getCollectionData(cmsReadOptions),
-  ]);
-
-  if (!sitePage) {
-    notFound();
-  }
-
-  const approvedSections = buildCorePresetSections('home', {}) as PageSection[];
-
-  return (
-    <>
-      <PageChromeOverrides page={sitePage} />
-      <CmsPreviewDiffBanner summary={(sitePage as Record<string, unknown>).previewDiffSummary} />
-      <UniversalSections
-        sections={approvedSections}
-        collections={collectionData}
-        guideFormLabels={siteSettings?.guideForm}
-        inquiryFormLabels={siteSettings?.inquiryForm}
-      />
-    </>
-  );
+export default function HomePage() {
+  return <UniversalSections sections={buildCorePresetSections('home', {}) as PageSection[]} collections={EMPTY_COLLECTIONS} />;
 }

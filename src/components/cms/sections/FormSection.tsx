@@ -30,6 +30,11 @@ export default function FormSection({
     <section
       key={sectionKey}
       id={typeof sectionRecord.anchorId === 'string' ? sectionRecord.anchorId : undefined}
+      aria-label={
+        typeof sectionRecord.accessibleLabel === 'string'
+          ? sectionRecord.accessibleLabel
+          : undefined
+      }
       style={sectionStyle}
       className={
         typeof sectionRecord.customClassName === 'string'
@@ -37,7 +42,7 @@ export default function FormSection({
           : undefined
       }
     >
-      <div style={{ ...innerStyle, maxWidth: '700px' }}>
+      <div className="form-section-content" style={{ ...innerStyle, maxWidth: '720px' }}>
         {typeof sectionRecord.sectionLabel === 'string' && sectionRecord.sectionLabel ? (
           <p
             className="section-label"

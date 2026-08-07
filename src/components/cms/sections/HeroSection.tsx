@@ -47,6 +47,11 @@ export default function HeroSection({
     <section
       key={sectionKey}
       id={typeof sectionRecord.anchorId === 'string' ? sectionRecord.anchorId : undefined}
+      aria-label={
+        typeof sectionRecord.accessibleLabel === 'string'
+          ? sectionRecord.accessibleLabel
+          : undefined
+      }
       style={{
         ...sectionStyle,
         padding: heroPadding[size],
@@ -204,7 +209,7 @@ export default function HeroSection({
             {typeof sectionRecord.secondaryCtaLabel === 'string' &&
             sectionRecord.secondaryCtaLabel.trim() ? (
               <Link
-                className="btn-secondary"
+                className="btn-primary"
                 href={normalizePath(String(sectionRecord.secondaryCtaHref || '#'))}
               >
                 {sectionRecord.secondaryCtaLabel}

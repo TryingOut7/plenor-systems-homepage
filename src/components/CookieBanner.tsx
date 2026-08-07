@@ -32,7 +32,7 @@ export default function CookieBanner({
   acceptLabel = 'Accept',
   declineLabel = 'Decline',
   privacyLabel = 'Privacy Policy',
-  privacyHref = '/privacy',
+  privacyHref = '/privacy-policy',
 }: CookieBannerProps) {
   // useSyncExternalStore avoids the setState-in-effect anti-pattern.
   // Server snapshot returns a non-null string so the banner stays hidden during SSR.

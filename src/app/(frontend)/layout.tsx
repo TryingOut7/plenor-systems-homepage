@@ -1,19 +1,13 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { draftMode } from 'next/headers';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import AnnouncementBanner from '@/components/AnnouncementBanner';
-import ConsentGatedAnalytics from '@/components/ConsentGatedAnalytics';
 import DraftModeBanner from '@/components/DraftModeBanner';
 import PayloadLivePreviewRefresh from '@/components/PayloadLivePreviewRefresh';
 import SkipLink from '@/components/SkipLink';
-import CookieBanner from '@/components/CookieBanner';
-import { getSafeStylesheetUrl } from '@/lib/external-resource-policy';
-import { getSiteSettings, getUISettings } from '@/payload/cms';
-import UIStyleInjector from '@/components/UIStyleInjector';
+import { getSiteSettings } from '@/payload/cms';
 import {
   resolveContactEmail,
   resolveSiteName,
@@ -73,17 +67,11 @@ export default async function RootLayout({
 }>) {
   const { isEnabled: isDraftMode } = await draftMode();
   const cmsReadOptions = { draft: isDraftMode };
-  const [siteSettings, uiSettings] = await Promise.all([
-    getSiteSettings(cmsReadOptions),
-    getUISettings(cmsReadOptions),
-  ]);
+  const siteSettings = await getSiteSettings(cmsReadOptions);
 
   const siteName = resolveSiteName(siteSettings);
   const siteUrl = resolveSiteUrl(siteSettings);
   const contactEmail = resolveContactEmail(siteSettings);
-  const analyticsId = siteSettings?.analyticsId;
-  const enableSpeedInsights =
-    process.env.VERCEL === '1' || process.env.ENABLE_VERCEL_SPEED_INSIGHTS === 'true';
 
   const jsonLd = siteSettings?.jsonLd;
   const sameAsUrls = jsonLd?.sameAs?.map((s) => s.url).filter(Boolean) as string[] | undefined;
@@ -106,45 +94,21 @@ export default async function RootLayout({
     name: siteName,
     url: siteUrl,
   };
-  const headingFontUrl = getSafeStylesheetUrl(uiSettings?.typography?.headingFontUrl);
-  const bodyFontUrl = getSafeStylesheetUrl(uiSettings?.typography?.bodyFontUrl);
   const livePreviewServerURL =
     process.env.NEXT_PUBLIC_SERVER_URL ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : siteUrl);
 
   return (
     <html lang="en" className={dmSans.variable}>
-      <head>
-        <UIStyleInjector uiSettings={uiSettings} />
-        {headingFontUrl && <link rel="stylesheet" href={headingFontUrl} />}
-        {bodyFontUrl && <link rel="stylesheet" href={bodyFontUrl} />}
-      </head>
       <body>
         <SkipLink />
-        <AnnouncementBanner
-          enabled={siteSettings?.announcementBanner?.enabled}
-          text={siteSettings?.announcementBanner?.text}
-          linkLabel={siteSettings?.announcementBanner?.linkLabel}
-          linkHref={siteSettings?.announcementBanner?.linkHref}
-          backgroundColor={siteSettings?.announcementBanner?.backgroundColor}
-          textColor={siteSettings?.announcementBanner?.textColor}
-        />
         <Navbar />
         <main id="main-content" tabIndex={-1} style={{ outline: 'none' }}>
           {children}
         </main>
         <Footer />
-        <CookieBanner
-          message={siteSettings?.cookieBanner?.message}
-          acceptLabel={siteSettings?.cookieBanner?.acceptLabel}
-          declineLabel={siteSettings?.cookieBanner?.declineLabel}
-          privacyLabel={siteSettings?.cookieBanner?.privacyLabel}
-          privacyHref={siteSettings?.cookieBanner?.privacyHref}
-        />
-        {analyticsId && <ConsentGatedAnalytics analyticsId={analyticsId} />}
         {isDraftMode && <PayloadLivePreviewRefresh serverURL={livePreviewServerURL} />}
         {isDraftMode && <DraftModeBanner />}
-        {enableSpeedInsights && <SpeedInsights />}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}

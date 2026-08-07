@@ -73,7 +73,7 @@ export function headingColor(theme: SectionTheme): string {
 export function bodyColor(theme: SectionTheme): string {
   return isDarkTheme(theme)
     ? 'var(--ui-color-dark-text-muted)'
-    : 'var(--ui-color-text-muted)';
+    : 'var(--ui-color-text)';
 }
 
 export function mutedColor(theme: SectionTheme): string {
